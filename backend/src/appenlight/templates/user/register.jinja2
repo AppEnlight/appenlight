@@ -1,0 +1,82 @@
+{% extends "/layout.jinja2" %}
+{% block ng_app %}{% endblock %}
+{% block ng_controller %} data-ng-controller="RegisterController as
+    register" {% endblock %}
+{% block content_class %}two-col equal{% endblock %}
+{% block section_name %}register-section{% endblock %}
+
+{% block page_title %}{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="m-t-1 row">
+        {{ widgets.render_flash_messages(flash_msgs) }}
+    </div>
+
+    <div class="row">
+
+        <div class="col-sm-12 text-center" id="social-form">
+
+            <h2>Log in or register using</h2>
+
+            <a href="{{ request.route_url('social_auth', provider='google') }}"
+               class="btn btn-default social" id="btn-google">
+                <span class="fa fa-google-plus-square fa-2x"></span> {{ _('Google') }}
+            </a>
+            <a href="{{ request.route_url('social_auth', provider='twitter') }}"
+               class="btn btn-default social" id="btn-twitter">
+                <span class="fa fa-twitter fa-2x"></span> {{ _('Twitter') }}
+            </a>
+            <a href="{{ request.route_url('social_auth', provider='bitbucket') }}"
+               class="btn btn-default social" id="btn-bitbucket">
+                <span class="fa fa-bitbucket fa-2x"></span> {{ _(' Bitbucket') }}
+            </a>
+            <a tooltip-placement="bottom"
+               data-uib-tooltip="Why do you ask private repository permissions?
+               Unfortunately Github doesn't allow issue tracker integration
+               to send issues to private repositories without full repo access"
+               href="{{ request.route_url('social_auth', provider='github') }}"
+               class="btn btn-default social" id="btn-github">
+                <span class="fa fa-github fa-2x"></span> {{ _('Github') }}
+            </a>
+
+        </div>
+    </div>
+
+    <div class="row">
+
+        <hr/>
+
+
+        <div class="col-sm-5">
+            <div id="sign-in-form">
+                <h2 class="">Log in</h2>
+                <form action="{{ request.route_url('ziggurat.routes.sign_in') }}"
+                      method="post">
+                    {{ widgets.render_form(sign_in_form) }}
+                    <input type="submit" class="btn btn-primary"
+                           value="Sign In">
+                    <a href="{{ request.route_url('lost_password') }}"
+                       class="btn btn-info">{{ _('Lost password') }}</a>
+                </form>
+            </div>
+
+        </div>
+
+
+        <div class="col-sm-6 col-sm-offset-1">
+            <div id="sign-up-form">
+                <h2>Register here</h2>
+                <form action="{{ request.route_url('register') }}"
+                      method="post" id="register_user">
+                    {{ widgets.render_form(form) }}
+                    <input type="submit" class="btn btn-primary"
+                           value="Register">
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

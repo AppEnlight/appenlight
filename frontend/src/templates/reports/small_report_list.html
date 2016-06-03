@@ -1,0 +1,16 @@
+<table class="errors-small-list">
+    <tr ng-repeat="report in reports track by $index" ng-show="reports.length > 0" class="animate-repeat">
+        <td class="c1 occurences"><span class="occurences" data-uib-tooltip="occurences">{{ report.group.occurences|numberToThousands }}</span></td>
+        <td class="ellipsis c2 report">
+            <a  ui-sref="report.view_detail({groupId:report.group_id, reportId:report.report_id})"  title="{{report.error}}" class="error-type">
+                {{ report.error || "Slow Report"}}</a>
+            <br/>
+            <span ng-show="report.group.summed_duration" class="duration" data-uib-tooltip="Average duration">{{report.group.summed_duration/report.group.occurences|round:2}}s</span>
+            <span class="url">{{ report.view_name || report.url_path}}</span>
+        </td>
+        <td class="info">
+            <strong ng-show="report.resource_id">@{{applications[report.resource_id].resource_name}}</strong><br/>
+            <span class="date">{{report.last_timestamp | isoToRelativeTime}}</span>
+        </td>
+    </tr>
+</table>

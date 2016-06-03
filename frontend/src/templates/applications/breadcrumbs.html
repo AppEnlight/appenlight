@@ -1,0 +1,7 @@
+<ol class="breadcrumb" ng-show="$state.includes('applications')">
+    <li>Applications</li>
+    <li ng-show="$state.includes('applications.list')" ng-class="{bold:$state.is('applications.list')}">Owned applications</li>
+    <li ng-show="$state.includes('applications.update')" ng-class="{bold:$state.is('applications.update')}">Modify application</li>
+    <li ng-show="$state.includes('applications.integrations')" ng-class="{bold:$state.includes('applications.integrations')}">Integrations</li>
+    <li ng-show="$state.includes('applications.purge_logs')" ng-class="{bold:$state.includes('applications.purge_logs')}">Log Purging</li>
+</ol>

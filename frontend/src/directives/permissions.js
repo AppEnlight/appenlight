@@ -1,0 +1,217 @@
+// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # App Enlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.controllers')
+    .controller('ApplicationPermissionsController', ApplicationPermissionsController);
+
+ApplicationPermissionsController.$inject = ['sectionViewResource',
+    'applicationsPropertyResource', 'groupsResource']
+
+
+function ApplicationPermissionsController(sectionViewResource, applicationsPropertyResource , groupsResource) {
+    var vm = this;
+    vm.form = {
+        autocompleteUser: '',
+        selectedGroup: null,
+        selectedUserPermissions: {},
+        selectedGroupPermissions: {}
+    }
+    vm.possibleGroups = groupsResource.query(null, function(){
+        if (vm.possibleGroups.length > 0){
+            vm.form.selectedGroup = vm.possibleGroups[0].id;
+        }
+    });
+    console.log('g', vm.possibleGroups);
+    vm.possibleUsers = [];
+    _.each(vm.resource.possible_permissions, function (perm) {
+        vm.form.selectedUserPermissions[perm] = false;
+        vm.form.selectedGroupPermissions[perm] = false;
+    });
+
+    /**
+     * Converts the permission list into {user, permission_list objects}
+     * for rendering in templates
+     * **/
+    var tmpObj = {
+        user: {},
+        group: {}
+    };
+    _.each(vm.currentPermissions, function (perm) {
+        console.log(perm);
+        if (perm.type == 'user') {
+            if (typeof tmpObj[perm.type][perm.user_name] === 'undefined') {
+                tmpObj[perm.type][perm.user_name] = {
+                    self: perm,
+                    permissions: []
+                }
+            }
+            if (tmpObj[perm.type][perm.user_name].permissions.indexOf(perm.perm_name) === -1) {
+                tmpObj[perm.type][perm.user_name].permissions.push(perm.perm_name);
+            }
+        }
+        else {
+            if (typeof tmpObj[perm.type][perm.group_name] === 'undefined') {
+                tmpObj[perm.type][perm.group_name] = {
+                    self: perm,
+                    permissions: []
+                }
+            }
+            if (tmpObj[perm.type][perm.group_name].permissions.indexOf(perm.perm_name) === -1) {
+                tmpObj[perm.type][perm.group_name].permissions.push(perm.perm_name);
+            }
+
+        }
+    });
+    vm.currentPermissions = {
+        user: _.values(tmpObj.user),
+        group: _.values(tmpObj.group),
+    };
+
+    console.log('test', tmpObj, vm.currentPermissions);
+
+    vm.searchUsers = function (searchPhrase) {
+        console.log('SEARCHING');
+        vm.searchingUsers = true;
+        return sectionViewResource.query({
+            section: 'users_section',
+            view: 'search_users',
+            'user_name': searchPhrase
+        }).$promise.then(function (data) {
+                vm.searchingUsers = false;
+                return _.map(data, function (item) {
+                    return item;
+                });
+            });
+    };
+
+
+    vm.setGroupPermission = function(){
+        var POSTObj = {
+            'group_id': vm.form.selectedGroup,
+            'permissions': []
+        };
+        for (var key in vm.form.selectedGroupPermissions) {
+            if (vm.form.selectedGroupPermissions[key]) {
+                POSTObj.permissions.push(key)
+            }
+        }
+        applicationsPropertyResource.save({
+                key: 'group_permissions',
+                resourceId: vm.resource.resource_id
+            }, POSTObj,
+            function (data) {
+                var found_row = false;
+                _.each(vm.currentPermissions.group, function (perm) {
+                    if (perm.self.group_id == data.group.id) {
+                        perm['permissions'] = data['permissions'];
+                        found_row = true;
+                    }
+                });
+                if (!found_row) {
+                    data.self = data.group;
+                    // normalize data format
+                    data.self.group_id = data.self.id;
+                    vm.currentPermissions.group.push(data);
+                }
+            });
+
+    }
+
+
+    vm.setUserPermission = function () {
+        console.log('set permissions');
+        var POSTObj = {
+            'user_name': vm.form.autocompleteUser,
+            'permissions': []
+        };
+        for (var key in vm.form.selectedUserPermissions) {
+            if (vm.form.selectedUserPermissions[key]) {
+                POSTObj.permissions.push(key)
+            }
+        }
+        applicationsPropertyResource.save({
+                key: 'user_permissions',
+                resourceId: vm.resource.resource_id
+            }, POSTObj,
+            function (data) {
+                var found_row = false;
+                _.each(vm.currentPermissions.user, function (perm) {
+                    if (perm.self.user_name == data['user_name']) {
+                        perm['permissions'] = data['permissions'];
+                        found_row = true;
+                    }
+                });
+                if (!found_row) {
+                    data.self = data;
+                    vm.currentPermissions.user.push(data);
+                }
+            });
+    }
+
+    vm.removeUserPermission = function (perm_name, curr_perm) {
+        console.log(perm_name);
+        console.log(curr_perm);
+        var POSTObj = {
+            key: 'user_permissions',
+            user_name: curr_perm.self.user_name,
+            permissions: [perm_name],
+            resourceId: vm.resource.resource_id
+        }
+        applicationsPropertyResource.delete(POSTObj, function (data) {
+            _.each(vm.currentPermissions.user, function (perm) {
+                if (perm.self.user_name == data['user_name']) {
+                    perm['permissions'] = data['permissions']
+                }
+            });
+        });
+    }
+
+    vm.removeGroupPermission = function (perm_name, curr_perm) {
+        console.log('g', curr_perm);
+        var POSTObj = {
+            key: 'group_permissions',
+            group_id: curr_perm.self.group_id,
+            permissions: [perm_name],
+            resourceId: vm.resource.resource_id
+        }
+        applicationsPropertyResource.delete(POSTObj, function (data) {
+            _.each(vm.currentPermissions.group, function (perm) {
+                if (perm.self.group_id == data.group.id) {
+                    perm['permissions'] = data['permissions']
+                }
+            });
+        });
+    }
+}
+
+angular.module('appenlight.directives.permissionsForm',[])
+    .directive('permissionsForm', function () {
+        return {
+            "restrict": "E",
+            "controller": "ApplicationPermissionsController",
+            controllerAs: 'permissions',
+            bindToController: true,
+            scope: {
+                currentPermissions: '=',
+                possiblePermissions: '=',
+                resource: '='
+            },
+            templateUrl: 'templates/directives/permissions.html'
+        }
+    })

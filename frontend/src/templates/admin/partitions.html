@@ -1,0 +1,92 @@
+<ng-include src="'templates/loader.html'" ng-if="partitions.loading.partitions"></ng-include>
+
+<div ng-show="!partitions.loading.partitions">
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            DELETE Daily Partitions
+        </div>
+
+        <form name="partitions.dailyPartitionsForm"
+              novalidate ng-submit="partitions.partitionsDelete('dailyPartitions')"
+              class="form-inline"
+              ng-class="{'has-error':partitions.dailyPartitionsForm.$invalid}">
+
+            <div class="panel-body">
+
+                <input type="text" name="confirm"
+                       placeholder="Enter CONFIRM to proceed" class="form-control input-autosize" confirm-validate required ng-model="partitions.dailyConfirm">
+                <input type="submit" class="btn btn-danger" ng-disabled="partitions.dailyPartitionsForm.$invalid">
+                <input type="checkbox" ng-model="partitions.dailyChecked" ng-change="partitions.setCheckedList('dailyPartitions')"> Check All
+
+            </div>
+
+            <table class="table table-striped">
+                <tr>
+                    <th class="c1 date">Date</th>
+                    <th class="c2 indices">Indices</th>
+                </tr>
+                <tr class="r{{$index}}" ng-repeat="row in partitions.dailyPartitions">
+                    <td class="c1">{{row[0]}}</td>
+                    <td class="c2">
+                        <ul class="list-group">
+                        <li class="list-group-item" ng-repeat="partition in row[1].elasticsearch">
+                            <input name="es_index" type="checkbox" ng-model="partition.checked"> ES: {{partition.name}}
+                        </li>
+                        <li class="list-group-item" ng-repeat="partition in row[1].pg">
+                            <input name="pg_index" type="checkbox" ng-model="partition.checked"> PG: {{partition.name}}
+                        </li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            DELETE Permanent Partitions
+        </div>
+
+        <form name="partitions.permanentPartitionsForm" novalidate
+              ng-submit="partitions.partitionsDelete('permanentPartitions')"
+              class="form-inline"
+              ng-class="{'has-error':partitions.permanentPartitionsForm.$invalid}">
+
+
+            <div class="panel-body">
+
+                <div class="form-group">
+                    <input type="text" name="confirm"
+                           placeholder="Enter CONFIRM to proceed" class="form-control" confirm-validate required ng-model="partitions.permConfirm">
+                    <input type="submit" class="btn btn-danger" ng-disabled="partitions.permanentPartitionsForm.$invalid">
+                    <input type="checkbox" ng-model="partitions.permChecked" ng-change="partitions.setCheckedList('permanentPartitions')"> Check All
+                </div>
+
+            </div>
+
+            <table class="table table-striped">
+                <tr>
+                    <th class="c1 date">Date</th>
+                    <th class="c2 indices">Indices</th>
+                </tr>
+                <tr class="r{{$index}}" ng-repeat="row in partitions.permanentPartitions">
+                    <td class="c1">{{row[0]}}</td>
+                    <td class="c2">
+                        <ul class="list-group">
+                        <li class="list-group-item" ng-repeat="partition in row[1].elasticsearch">
+                            <input name="es_index" type="checkbox" ng-model="partition.checked"> ES: {{partition.name}}
+                        </li>
+                        <li class="list-group-item" ng-repeat="partition in row[1].pg">
+                            <input name="pg_index" type="checkbox" ng-model="partition.checked"> PG: {{partition.name}}
+                        </li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+    </div>
+
+</div>

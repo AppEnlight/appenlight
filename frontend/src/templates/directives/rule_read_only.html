@@ -1,0 +1,25 @@
+<div class="rule-read-only">
+
+    <span class="form-group">
+        {{rule_ctrlr.readOnlyPossibleFields[rule_ctrlr.rule.field]}}
+    </span>
+
+    <span ng-if="rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__'">
+          is {{rule_ctrlr.ruleDefinitions.allOps[rule_ctrlr.rule.op]}}  {{rule_ctrlr.rule.value}}
+    </span>
+
+    <span ng-if="rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__'">
+        <p ng-if="parent"><strong>Subrules</strong></p>
+        <div ng-repeat="subrule in rule_ctrlr.rule.rules" class="m-l-2">
+
+            <div class="panel panel-default">
+                <div class="panel-body form-inline">
+                    <recursive>
+                        <rule-read-only rule="subrule" rule-definitions="rule_ctrlr.ruleDefinitions" parent-rule="null" parent-obj="rule_ctrlr.parentObj"></rule-read-only>
+                    </recursive>
+                </div>
+            </div>
+        </div>
+
+    </span>
+</div>

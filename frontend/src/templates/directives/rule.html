@@ -1,0 +1,45 @@
+<div class="rule form-inline">
+
+    <div class="form-group">
+        <select class="form-control"
+                ng-model="rule_ctrlr.rule.field"
+                ng-change="rule_ctrlr.fieldChange()"
+                ng-options="key as label for (key, label) in rule_ctrlr.ruleDefinitions.possibleFields"></select>
+    </div>
+
+    <div ng-if="rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__'" class="form-group">
+
+            <select ng-model="rule_ctrlr.rule.op" class="form-control"
+                    ng-change="rule_ctrlr.setDirty()"
+                    ng-options="op as rule_ctrlr.ruleDefinitions.allOps[op] for op in rule_ctrlr.ruleDefinitions.fieldOps[rule_ctrlr.rule.field]">
+            </select>
+
+        <input type="text" placeholder="Value" ng-model="rule_ctrlr.rule.value" ng-change="rule_ctrlr.setDirty()" class="form-control">
+
+    </div>
+
+    <span ng-if="rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__'">
+        <p ng-if="parent"><strong>Subrules</strong></p>
+        <div ng-repeat="subrule in rule_ctrlr.rule.rules" class="m-l-2">
+            <div class="panel panel-default">
+                <div class="panel-body form-inline">
+                    <recursive>
+                        <rule rule="subrule" rule-definitions="rule_ctrlr.ruleDefinitions" parent-rule="rule_ctrlr.rule" parent-obj="rule_ctrlr.parentObj"></rule>
+                    </recursive>
+                </div>
+            </div>
+        </div>
+
+        <span ng-if="(rule_ctrlr.config.disable_subrules == false) == false" class="btn btn-info" ng-click="rule_ctrlr.add()"><span class="fa fa-plus-circle"></span> Add rule</span>
+
+    </span>
+    <div class="pull-right" ng-if="rule_ctrlr.parentRule">
+            <span class="dropdown" data-uib-dropdown>
+                <a class="btn btn-danger" data-uib-dropdown-toggle><span class="fa fa-trash-o"></span></a>
+                  <ul class="dropdown-menu">
+                      <li><a>No</a></li>
+                      <li><a  ng-click="rule_ctrlr.deleteRule(rule_ctrlr.parentRule, rule_ctrlr.rule)">Yes</a></li>
+                  </ul>
+            </span>
+    </div>
+</div>

@@ -1,0 +1,26 @@
+{% extends "/email_templates/layout.jinja2" %}
+{% block page_title %}{{_('You just got a report assigned for review')}}{% endblock %}
+{% block content %}
+    <h2>{{commenting_user.user_name}} added new comment.</h2>    
+    <h2>{{application.title}}</h2>
+    <p style="font-size: 10px">
+    <a href="{{ report_group.get_public_url(request, _app_url=_mail_url) }}" style="color: #FF6F00;">
+    <strong>You can view it by clicking following link</strong>
+    </a>
+    
+    
+    <pre style="background-color: #FFFFFF; border-color: #E1E1E1 #E1E1E1 #9B9B9B; border-style: solid; border-width: 2px 2px 5px; color: #555555;font-family: monospace,monospace;font-size: 10px;line-height: 18px;padding: 10px;">
+    {{comment.processed_body}}
+    </pre>
+    
+    <h3>Report details</h3>
+    <ul style="font-size: 10px; list-style:none; padding:0px;margin:0px">
+        <li style="margin-bottom:10px"><strong>Error</strong>: {{report_group.error}}</li>
+        <li style="margin-bottom:10px"><strong>Commented on</strong>: {{comment.created_timestamp.strftime('%Y-%m-%d %H:%M')}}</li>
+        <li style="margin-bottom:10px"<strong>Occurences</strong>: {{report_group.occurences}}</li>
+        <li style="margin-bottom:10px"<strong>HTTP status</strong>: {{report_group.http_status}}</li>
+        <li style="margin-bottom:10px"<strong>URL Path</strong>: {{report_group.url_path}}</li>
+    </ul>    
+    </p>
+    
+{% endblock %}

@@ -1,0 +1,47 @@
+<ng-include src="'templates/loader.html'" ng-if="groups.loading.groups"></ng-include>
+
+<div class="panel panel-default" ng-show="!groups.loading.groups">
+
+    <table st-table="displayedCollection" st-safe-src="groups.groups" class="table table-striped">
+        <thead>
+        <tr>
+            <th st-sort="group_name"><a>Group name</a></th>
+            <th st-sort="description"><a>Description</a></th>
+            <th st-sort="members"><a>Member count</a></th>
+            <th class="options"></th>
+        </tr>
+        <tr>
+            <th><input st-search="group_name" placeholder="search for group name" class="form-control" type="search" st-delay="1"/></th>
+            <th><input st-search="description" placeholder="search for description" class="form-control" type="search" st-delay="1"/></th>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr ng-repeat="group in displayedCollection track by group.id">
+            <td>{{group.group_name}}</td>
+            <td>{{group.description}}</td>
+            <td>{{group.member_count}}</td>
+            <td>
+                <a class="btn btn-default btn-sm" data-ui-sref="admin.group.update({groupId:group.id})"><span class="fa fa-cog"></span></a>
+                        <span class="dropdown" data-uib-dropdown on-toggle="toggled(open)">
+                            <a class="btn btn-danger btn-sm" data-uib-dropdown-toggle><span class="fa fa-trash-o"></span></a>
+                          <ul class="dropdown-menu">
+                              <li><a>No</a></li>
+                              <li><a ng-click="groups.removeGroup(group)">Yes</a></li>
+                          </ul>
+                        </span>
+        </tr>
+        <tfoot>
+        <tr>
+            <td colspan="4" class="text-center">
+                <div st-pagination="" st-items-by-page="100" st-displayed-pages="7"></div>
+            </td>
+        </tr>
+        </tfoot>
+        </tbody>
+    </table>
+
+</div>
+

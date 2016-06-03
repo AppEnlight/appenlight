@@ -1,0 +1,45 @@
+<ng-include src="'templates/loader.html'" ng-if="applications.loading.applications"></ng-include>
+
+<div class="panel panel-default" ng-if="!applications.loading.applications">
+    <div class="panel-heading">
+
+        Currently active applications: {{applications.applications.length}}
+
+    </div>
+
+    <table st-table="displayedCollection" st-safe-src="applications.applications" class="table table-striped">
+        <thead>
+        <tr>
+            <th st-sort="resource_name"><a>Application name</a></th>
+            <th st-sort="owner_user_name"><a>Owner User</a></th>
+            <th st-sort="owner_group_name"><a>Owner Group</a></th>
+            <th class="options"></th>
+        </tr>
+        <tr>
+            <th><input st-search="resource_name" placeholder="search for application" class="form-control" type="search" st-delay="1"/></th>
+            <th><input st-search="owner_user_name" placeholder="search for user" class="form-control" type="search" st-delay="1"/></th>
+            <th><input st-search="owner_group_name" placeholder="search for group" class="form-control" type="search" st-delay="1"/></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <tr ng-repeat="resource in displayedCollection track by resource.resource_id">
+            <td> {{resource.resource_name}}</td>
+            <td>{{resource.owner_user_name}}</td>
+            <td>{{resource.owner_group_name}}</td>
+            <td>
+                <a class="btn btn-default btn-sm" data-ui-sref="applications.update({resourceId:resource.resource_id})" data-toggle="tooltip" title="Update application"><span class="fa fa-cog"></span></a>
+            </td>
+        </tr>
+        <tfoot>
+        <tr>
+            <td colspan="4" class="text-center">
+                <div st-pagination="" st-items-by-page="100" st-displayed-pages="7"></div>
+            </td>
+        </tr>
+        </tfoot>
+        </tbody>
+    </table>
+
+</div>

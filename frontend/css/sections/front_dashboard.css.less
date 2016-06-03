@@ -1,0 +1,293 @@
+/* dashboard */
+
+.top-state-front_dashboard {
+
+    .tutorial {
+        .white-block;
+    }
+
+    .pause_stream {
+        position: absolute;
+        top: 5px;
+        right: 50px;
+    }
+
+    .limit_stream {
+        position: absolute;
+        top: 5px;
+        right: 10px;
+    }
+
+    .combined-stat {
+        display: block;
+        min-width: 20%;
+        display: inline-block;
+        color: @color_white;
+        position: relative;
+        text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+        small {
+            font-size: 75%;
+        }
+        &:link, &:visited, &:hover {
+            color: @color_white !important;
+        }
+
+        .fa-chevron-right {
+            opacity: 0.3;
+            position: absolute;
+            right: 5px;
+            top: 40px;
+            text-shadow: 0px 0px 0px;
+        }
+
+        strong {
+            font-size: 160%;
+            display: inline-block;
+            margin: 5px 0;
+        }
+
+    }
+
+    #error-rate {
+        background-color: @color_red;
+        &:hover {
+            .transition-duration();
+            background-color: lighten(@color_red, 10%);
+        }
+    }
+
+    #satisfying-requests {
+        background-color: @color_green;
+    }
+
+    #tolerated-requests {
+        background-color: @color_orange;
+        &:hover {
+            .transition-duration();
+            background-color: lighten(@color_orange, 10%);
+        }
+    }
+
+    #frustrating-requests {
+        background-color: @color_dark_orange;
+        &:hover {
+            .transition-duration();
+            background-color: lighten(@color_dark_orange, 10%);
+        }
+    }
+
+    #uptime-stats {
+        background-color: @color_med_blue;
+        &:hover {
+            .transition-duration();
+            background-color: lighten(@color_med_blue, 10%);
+        }
+    }
+
+    #server-container {
+        margin-bottom: 10px;
+
+        .servers {
+            list-style: none;
+            margin: 0px;
+        }
+
+        .frustrating {
+            .apdex {
+                color: @color_red;
+            }
+
+        }
+
+        .satisfactory {
+            .apdex {
+                color: @color_green;
+            }
+        }
+
+        .tolerating {
+            .apdex {
+                color: @color_orange;
+            }
+        }
+
+    }
+
+    #assigned-container {
+        .white-block;
+        margin-top: 15px;
+    }
+
+    #trending-container {
+        .white-block;
+        max-height: 800px;
+        overflow: auto;
+        margin-top: 15px;
+    }
+
+    #report-timespan-picker-holder {
+        text-align: right;
+    }
+
+    #graph-container {
+        .white-block;
+        margin: 0px 0px 10px 0px;
+    }
+
+    #report_graph {
+        margin: auto;
+        border: 1px solid #B5BCC7;
+        width: 1008px;
+        overflow: hidden;
+        cursor: pointer;
+        min-height: 200px;
+        background-color: @color_white;
+        background-image: url('/static/appenlight/images/ajax_loader_3.gif');
+        background-position: center center;
+        background-repeat: no-repeat;
+    }
+
+    #report_graph:hover {
+        border: 1px solid #FF6F00;
+        -webkit-transition-duration: 0.5s;
+        -moz-transition-duration: 0.5s;
+        -o-transition-duration: 0.5s;
+    }
+
+    #report_graph img {
+        -webkit-transition-duration: 0.5s;
+        -moz-transition-duration: 0.5s;
+        -o-transition-duration: 0.5s;
+    }
+
+    #report_graph.toggle img {
+        margin-left: -1005px;
+        -webkit-transition-duration: 0.5s;
+        -moz-transition-duration: 0.5s;
+        -o-transition-duration: 0.5s;
+    }
+
+    .point {
+        .border-radius(30px);
+        background-color: @color_orange;
+        font-size: 200%;
+        font-weight: bold;
+        padding: 5px 17px;
+        margin: 0px 10px 0px 0px;
+        vertical-align: middle;
+        color: @color_white;
+        float: left;
+    }
+
+    #slow-statements {
+        table-layout: fixed;
+        width: 100%;
+        td {
+            padding: 0px 5px 10px 5px;
+        }
+
+        .statement {
+            font-size: 80%;
+            padding: 10px 5px 0px 0px;
+            font-weight: bold;
+        }
+
+        td.occurences {
+            width: 40px;
+        }
+
+        span.occurences {
+            font-size: 86%;
+            font-weight: bold;
+            background-color: @color_orange;
+            border-radius: 3px;
+            color: @color_white;
+            display: inline-block;
+            min-height: 33px;
+            min-width: 33px;
+            padding: 8px 0 0;
+            text-align: center;
+        }
+
+        .type {
+            font-size: 80%;
+            background-color: @color_grey;
+            padding: 2px 5px;
+            display: inline-block;
+            color: @color_white;
+            .border-radius(2px);
+        }
+
+        .subtype {
+            font-size: 80%;
+            background-color: @color_orange;
+            padding: 2px 5px;
+            display: inline-block;
+            color: @color_white;
+            .border-radius(2px);
+        }
+
+        .duration {
+            font-size: 80%;
+            background-color: @color_grey;
+            padding: 2px 5px;
+            display: inline-block;
+            color: @color_white;
+            .border-radius(2px);
+            margin: 0px 5px 0px 0px;
+        }
+
+        .report-list {
+            font-size: 80%;
+        }
+    }
+
+    #view-breakdown-container {
+        max-height: 472px;
+        overflow: auto;
+
+        .report-list {
+            font-size: 86%;
+        }
+
+        .view-name {
+            position: relative;
+            small {
+                font-weight: bold;
+            }
+
+        }
+
+        .stats {
+            margin-bottom: 5px;
+        }
+
+        .bar {
+            border-radius: 5px;
+            box-shadow: 0px 0px 3px darken(@color_orange, 10%) inset;
+            height: 10px;
+            background-color: @color_orange;
+        }
+
+    }
+
+    #slow-statements-container, #slow-urls-container {
+        .white-block;
+        max-height: 800px;
+        overflow-y: auto;
+        table {
+            border: 0px;
+        }
+        margin-top: 15px;
+    }
+
+    input.row-title {
+        min-width: 250px;
+        max-width: 400px;
+        display: inline-block;
+    }
+
+    .chart-layout-form {
+        margin-bottom: 15px
+    }
+}

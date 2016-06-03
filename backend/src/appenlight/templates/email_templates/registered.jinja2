@@ -1,0 +1,50 @@
+{% extends "/email_templates/layout.jinja2" %}
+{% block page_title %}{{_('You have just registered. Welcome!')}}{% endblock %}
+{% block content %}
+    <p>Now that you are member of App Enlight you can enjoy features of our service:</p>
+    <ul>
+        <li>Error collection and analysys</li>
+        <li>Performance monitoring</li>
+        <li>Log aggregation</li>
+        <li>Uptime monitoring</li>
+        <li>Alerts</li>
+    </ul>
+
+    <h2 style="text-align: center">{{_('App Enlight quickstart')}}</h2>
+    <h3 style="text-align: center"><span class="point">1 Create application</span></h3>
+    <p>
+    For App Enlight to operate you need to
+    <a href="{{request.route_url('/', _app_url=_mail_url)}}ui/applications/new/update" target="_blank"><strong>create application profile</strong></a> that allows you to
+    obtain <strong>API key</strong> that one of the clients can use.
+    </p>
+    <div class="clear"></div>
+
+    <h3 style="text-align: center"><span class="point">2 Integrate our client</span></h3>
+    <p>
+    In order for your application to stream meaningful information you will need to
+    integrate a compatible client for your language of choice.
+    </p>
+
+    <p>Head over to <strong>developers section</strong></a> for information on currently available
+    clients that you can plug into your software</p>
+
+    <p>In case of any issues or questions you might be having with integration,
+    feel free to contact us: <a href="mailto:info@appenlight.com"><strong>info@appenlight.com</strong></a></p>
+
+    <h3 style="text-align: center"><span class="point">3 Add alert channels</span></h3>
+    <p>
+    It is a good idea to configure an
+    <a href="{{request.route_url('/', _app_url=_mail_url)}}ui/user/alert_channels/email" target="_blank">
+    <strong>email alert channel</strong></a> that you can use to receive
+    notifications about events that happen in your application.
+    </p>
+
+    <p>
+    It can be the same email account you used to register with App Enlight -
+    although we often recommend using separate <em>errors@...</em> account
+    designated for alert notifications.
+    </p>
+    <div class="clear"></div>
+
+
+{% endblock %}

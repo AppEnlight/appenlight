@@ -1,0 +1,53 @@
+{% extends "/layout.jinja2" %}
+{% block dojodeps %}
+    deps: ["appenlight","appenlight/sections/test_error"]
+{% endblock %}
+
+{% block additional_layout_scripts %}
+
+{% endblock %}
+{% block content_class %}{% endblock %}
+{% set layout_disable_menu = True %}
+
+{% block additional_styles %}
+    <script type="text/javascript">
+
+
+        function subfunction() {
+            subsubfunction();
+        }
+
+        function subsubfunction() {
+            console.log('A');
+
+            try {
+                1 + nonexistantvar;
+            } catch (exc) {
+                AppEnlight.grabError(exc, {
+                    extra: {foo: 'foo'},
+                    tags: {'bar': 'aa', 'baz': 5}
+                });
+            }
+
+            //var x = 1/0 + fateqtwetew;
+            console.log('B');
+        }
+
+        setTimeout(function () {
+            subfunction();
+        }, 5000);
+
+
+        setTimeout(function () {
+            brokenCode + 666;
+        }, 3000);
+
+    </script>
+{% endblock %}
+
+{% block page_title %}
+    <h1 class="page-title">{{ _('JS') }}</h1>
+{% endblock %}
+{% block content %}
+
+{% endblock %}

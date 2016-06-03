@@ -1,0 +1,156 @@
+<ng-include src="'templates/loader.html'" ng-if="system.loading.system"></ng-include>
+
+<div ng-if="system.loading.system == false">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        System Info
+                    </h3>
+                </div>
+                <div class="panel-body">
+
+                    <p><strong>System Load:</strong>
+                        1min: {{system.systemLoad[0]}}, 5min: {{system.systemLoad[1]}}, 15min: {{system.systemLoad[2]}}
+                    </p>
+                    <p><strong>Awaiting tasks:</strong>
+                    <ul>
+                        <li>reports: {{system.queueStats.waiting_reports}}</li>
+                        <li>logs: {{system.queueStats.waiting_logs}}</li>
+                        <li>metrics: {{system.queueStats.waiting_metrics}}</li>
+                        <li>other: {{system.queueStats.waiting_other}}</li>
+                    </ul>
+                    </p>
+                    <p><strong>Queue stats from last minute:</strong>
+                    <ul>
+                        <li>Processed reports: {{system.queueStats.processed_reports}}</li>
+                        <li>Processed logs: {{system.queueStats.processed_logs}}</li>
+                        <li>Processed metrics: {{system.queueStats.processed_metrics}}</li>
+                    </ul>
+                    </p>
+
+                    <p><strong>Disks:</strong>
+                    <ul>
+                        <li ng-repeat="disk in system.disks">
+                            <strong>{{disk.device}}</strong> {{disk.free}}/{{disk.total}}, {{disk.percentage}}% used
+                        </li>
+                    </ul>
+                    </p>
+
+                    <p><strong>Process stats:</strong>
+                    <ul>
+                        <li>FD soft limits: {{system.selfInfo.fds.soft}}</li>
+                        <li>FD hard limits: {{system.selfInfo.fds.hard}}</li>
+                        <li>Memlock soft limits: {{system.selfInfo.memlock.soft}}</li>
+                        <li>Memlock hard limits: {{system.selfInfo.memlock.hard}}</li>
+                    </ul>
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <uib-tabset>
+                        <uib-tab>
+                            <uib-tab-heading>
+                                Postgresql Tables
+                            </uib-tab-heading>
+
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th class="c1 tablename">Table name</th>
+                                    <th class="c2 size_human">Size</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr class="r{{$index}}" ng-repeat="row in system.DBtables">
+                                    <td class="c1">{{row.table_name}}</td>
+                                    <td class="c2">{{row.size_human}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                        </uib-tab>
+
+                        <uib-tab>
+                            <uib-tab-heading>
+                                Elasticsearch Indices
+                            </uib-tab-heading>
+
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th class="c1 tablename">Index name</th>
+                                    <th class="c2 size_human">Size</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr class="r{{$index}}" ng-repeat="row in system.ESIndices">
+                                    <td class="c1">{{row.name}}</td>
+                                    <td class="c2">{{row.size_human}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                        </uib-tab>
+
+                        <uib-tab>
+                            <uib-tab-heading>
+                                Processes
+                            </uib-tab-heading>
+
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th class="c1 tablename">Owner</th>
+                                    <th class="c2 tablename">PID</th>
+                                    <th class="c3 tablename">CPU</th>
+                                    <th class="c4 tablename">MEM</th>
+                                    <th class="c4 tablename">Name</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr class="r{{$index}}" ng-repeat-start="row in system.processInfo">
+                                    <td class="c1">{{row.owner}}</td>
+                                    <td class="c2">{{row.pid}}</td>
+                                    <td class="c3">{{row.cpu}}</td>
+                                    <td class="c4">{{row.mem_usage}} ({{row.mem_percentage}}%)</td>
+                                    <td class="c5"><strong>{{row.name}}</strong></td>
+                                </tr>
+                                <tr ng-repeat-end>
+                                    <td colspan="5" class="word-wrap">{{row.command}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                        </uib-tab>
+
+                        <uib-tab>
+                            <uib-tab-heading>
+                                Python packages
+                            </uib-tab-heading>
+
+                            <table class="table">
+                                <tr ng-repeat="package in system.packages">
+                                    <td>{{package.name}}</td>
+                                    <td>{{package.version}}</td>
+                                </tr>
+                            </table>
+                            </p>
+
+                        </uib-tab>
+
+                    </uib-tabset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

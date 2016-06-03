@@ -1,0 +1,106 @@
+{% macro print_recursive_old(data) -%}
+<ul>
+{% for entry in data|dictsort(true) %}
+    {% if entry[1].items %}
+    <li class="{{ loop.cycle('odd', 'even') }}"><strong>{{entry[0]}}</strong> {{print_recursive(entry[1])}}</li>
+    {% else %}
+    <li class="{{ loop.cycle('odd', 'even') }}"><strong>{{entry[0]}}</strong> {{entry[1]}}</li>
+    {% endif %}
+{% endfor %}
+</ul>
+{%- endmacro %}
+
+
+{% macro print_recursive(data) -%}
+
+    {% if (data is not mapping and data is not iterable) or data is string %}
+        {{ data }}
+    {% else %}
+        <table class="var-listing">
+        {% if data is mapping %}
+            {% for k, v in data.iteritems() %}
+                <tr class=" {{ loop.cycle('odd', 'even') }}">
+                <td class="var-label">{{ k }}</td>
+                <td>{{ print_recursive(v) }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            {% for item in data %}
+                <tr class=" {{ loop.cycle('odd', 'even') }}">
+                <td class="var-label list-type">{{ loop.index }}</td>
+                <td>{{ print_recursive(item) }}</td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </table>
+    {% endif %}
+{%- endmacro %}
+
+{% macro render_flash_messages(messages) %}
+    {% for message in messages%}
+        <div class="alert alert-{{message.type}}">{{message.msg}}</div>
+    {% endfor %}
+{% endmacro %}
+
+{% macro render_paginator(paginator,position='right',first_last= True,_route_name=None) %}
+{% if paginator.page_count > 1 %}
+<div class="paginator">
+{{paginator.pager(format='~4~', curpage_attr={'class':'pager_curpage'}, link_attr={'class':'pager_link'})|safe}}
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro render_form(form, mark_required=True, subform=False, horizontal=False) %}
+{% for field in form -%}
+    {% if field.type == 'FormField' -%}
+        <div class="form-group" id="row-{{field.name}}">
+            {% for errors in field.errors.values() -%}
+                {% for error in errors -%}
+                    <div class="form-error">{{error}}</div>
+                {% endfor -%}
+            {% endfor -%}
+        {{render_form(field, mark_required, subform=True)}}
+        </div>
+        {% continue -%}
+    {% endif -%}
+    {%if field.type not in ['HiddenField','CSRFTokenField'] -%}
+        {%if not subform -%}
+            {% if field.errors -%}
+                {% for error in field.errors -%}
+                    <div class="form-error alert alert-error">{{error}}</div>
+                {% endfor -%}
+            {% endif -%}
+        {% endif -%}
+        <div class="form-group" id="row-{{field.name}}">
+        <label for="{{field.name}}" id="label-{{field.name}}" class="control-label {% if horizontal %}col-sm-4 col-lg-3{% endif %}">
+        {% if field.name not in form.ignore_labels -%}
+        {{field.label.text}}
+        {% endif %}
+        {% if field.flags.required and mark_required -%}
+        <span class="required">*</span>
+        {% endif -%}
+        </label>
+    {% else %}
+    <div class="form-row hidden_field hidden" id="row-{{field.name}}">
+    {% endif -%}
+    {% if horizontal %}
+    <div class=" col-sm-8 col-lg-9 ">
+    {% endif %}
+    {% if  form.html_attrs %}
+        {{field(class_='form-control %s %s' % (field.type, form.css_classes.get(field.name)), **form.html_attrs.get(field.name,{})  )}}
+    {% else %}
+        {{field(class_='form-control %s %s' % (field.type, form.css_classes.get(field.name)) )}}
+    {% endif %}
+
+    {% if field.description -%}
+       <p class="description">{{field.description|safe}}</p>
+    {% endif %}
+    {% if horizontal %}
+    </div>
+    {% endif %}
+
+    {% if not subform -%}
+       </div>
+    {% endif -%}
+{% endfor -%}
+{% endmacro %}

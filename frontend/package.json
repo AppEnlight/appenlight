@@ -1,0 +1,25 @@
+{
+  "name": "errormator",
+  "description": "JS layer for Errormator",
+  "devDependencies": {
+    "bower": "",
+    "bower-requirejs": "",
+    "grunt": "",
+    "grunt-angular-templates": "~0.5.7",
+    "grunt-bower-concat": "~0.3.0",
+    "grunt-bower-requirejs": "~1.0.0",
+    "grunt-contrib-concat": "~0.5.0",
+    "grunt-contrib-copy": "~0.5.0",
+    "grunt-contrib-jshint": "",
+    "grunt-contrib-less": "~0.11.4",
+    "grunt-contrib-nodeunit": "",
+    "grunt-contrib-requirejs": "~0.4.4",
+    "grunt-contrib-uglify": "",
+    "grunt-contrib-watch": "",
+    "grunt-remove-logging": "~0.2.0",
+    "karma": "^0.12.37",
+    "underscore": "~1.6.0",
+    "yo": "",
+    "ini": ""
+  }
+}

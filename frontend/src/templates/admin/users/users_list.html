@@ -1,0 +1,64 @@
+<ng-include src="'templates/loader.html'" ng-if="users.loading.users"></ng-include>
+
+<div ng-show="!users.loading.users">
+
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+            {{users.activeUsers}} active out of {{users.users.length}} users
+        </div>
+
+
+        <table st-table="displayedCollection" st-safe-src="users.users" class="table table-striped">
+            <thead>
+            <tr>
+                <th class="user_name" st-sort="user_name"><a>Username</a></th>
+                <th class="email" st-sort="email"><a>Email</a></th>
+                <th class="status" st-sort="status"><a>Status</a></th>
+                <th st-sort="first_name"><a>First Name</a></th>
+                <th st-sort="last_name"><a>Last Name</a></th>
+                <th st-sort="last_login_date"><a>Last login</a></th>
+                <th class="options"></th>
+            </tr>
+            <tr>
+                <th><input st-search="user_name" placeholder="search for user name" class="form-control" type="search" st-delay="1"/></th>
+                <th><input st-search="email" placeholder="search for email" class="form-control" type="search" st-delay="1"/></th>
+                <th></th>
+                <th><input st-search="first_name" placeholder="search for first name" class="form-control" type="search" st-delay="1"/></th>
+                <th><input st-search="last_name" placeholder="search for last name" class="form-control" type="search" st-delay="1"/></th>
+                <th><input st-search="last_login_date" placeholder="search for last name" class="form-control" type="search" st-delay="1"/></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <tr ng-repeat="user in displayedCollection track by user.id">
+                <td><img src="{{user.gravatar_url}}" class="avatar"> {{user.user_name}}</td>
+                <td class="word-wrap small">{{user.email}}</td>
+                <td class="text-center"><span class="fa" ng-class="{'fa-check-circle':user.status, 'fa-times':!user.status}"></span></td>
+                <td class="word-wrap small">{{user.first_name}}</td>
+                <td class="word-wrap small">{{user.last_name}}</td>
+                <td><span data-uib-tooltip="{{user.last_login_date}}" class="small">{{user.last_login_date | isoToRelativeTime}}</span></td>
+                <td>
+                    <a class="btn btn-default btn-sm" data-ui-sref="admin.user.update({userId:user.id})"><span class="fa fa-cog"></span></a>
+                    <span class="dropdown" data-uib-dropdown on-toggle="toggled(open)">
+                        <a class="btn btn-danger btn-sm" data-uib-dropdown-toggle><span class="fa fa-trash-o"></span></a>
+                      <ul class="dropdown-menu">
+                          <li><a>No</a></li>
+                          <li><a ng-click="users.removeUser(user)">Yes</a></li>
+                      </ul>
+                    </span>
+            </tr>
+            <tfoot>
+            <tr>
+                <td colspan="6" class="text-center">
+                    <div st-pagination="" st-items-by-page="100" st-displayed-pages="7"></div>
+                </td>
+            </tr>
+            </tfoot>
+            </tbody>
+        </table>
+
+
+    </div>
+</div>

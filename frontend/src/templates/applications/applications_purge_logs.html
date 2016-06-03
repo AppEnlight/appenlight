@@ -1,0 +1,39 @@
+<ng-include src="'templates/loader.html'" ng-if="applications_purge.loading.applications"></ng-include>
+
+<div ng-show="!applications_purge.loading.applications">
+    <div class="panel panel-default">
+        <div class="panel-heading" ng-include="'templates/applications/breadcrumbs.html'"></div>
+        <div class="panel-body">
+
+            <form method="post" class="form-horizontal" name="applications_purge.form" ng-submit="applications_purge.purgeLogs()">
+                <div class="form-group">
+                    <label class="control-label col-sm-3 col-lg-2">Application:</label>
+
+                    <div class="col-sm-9 col-lg-10 form-inline">
+                        <select ng-model="applications_purge.selectedResource" ng-change="applications_purge.getCommonKeys()"
+                                ng-options="r.resource_id as r.resource_name for r in applications_purge.applications" class="form-control"></select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-sm-3 col-lg-2">Namespace:</label>
+
+                    <div class="col-sm-9 col-lg-10">
+                        <input type="text" name="namespace" ng-model="applications_purge.namespace"
+                               placeholder="Namespace to filter on" uib-typeahead="ns for ns in applications_purge.commonNamespaces"
+                               class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-sm-3 col-lg-2"></label>
+
+                    <div class="col-sm-8 col-lg-9 ">
+                        <input class="form-control btn btn-primary" name="submit" type="submit" value="Purge logs meeting the criteria">
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

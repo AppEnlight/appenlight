@@ -1,0 +1,139 @@
+<ng-include src="'templates/loader.html'" ng-if="user.loading.user"></ng-include>
+
+<div ng-show="!user.loading.user">
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+
+                <span class="dropdown" data-uib-dropdown on-toggle="toggled(open)" ng-if="user.user.id">
+                    <a class="btn btn-default" data-uib-dropdown-toggle><span class="fa fa-user-secret"></span> Re-login to user</a>
+                  <ul class="dropdown-menu">
+                      <li><a>No</a></li>
+                      <li><a ng-click="user.reloginUser(user)">Yes</a></li>
+                  </ul>
+                </span>
+
+            <form name="user.profileForm" class="form-horizontal" ng-submit="user.createUser()">
+                <div class="form-group" id="row-user_name">
+                    <data-form-errors errors="user.profileForm.ae_validation.user_name"></data-form-errors>
+                    <label for="user_name" id="label-user_name" class="control-label col-sm-4 col-lg-3">
+                        User name
+                        <span class="required">*</span>
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input class="form-control" id="user_name" name="user_name" type="text" ng-model="user.user.user_name">
+                    </div>
+                </div>
+
+                <div class="form-group" id="row-user_password">
+                    <data-form-errors errors="user.profileForm.ae_validation.user_password"></data-form-errors>
+                    <label for="user_password" id="label-user_password" class="control-label col-sm-4 col-lg-3">
+                        Password
+                        <span class="required">*</span>
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input class="form-control" id="user_password" name="user_password" type="password" ng-model="user.user.user_password">
+
+                        <p class="m-t-1"><a class="btn btn-info btn-sm" ng-click="user.generatePassword()"><span class="fa fa-lock"></span> Generate password</a>
+                            <span ng-show="user.gen_pass.length > 0">(generated password: {{user.gen_pass}})</span>
+                        </p>
+
+                    </div>
+                </div>
+
+
+                <div class="form-group" id="row-email">
+                    <data-form-errors errors="user.profileForm.ae_validation.email"></data-form-errors>
+                    <label for="email" id="label-email" class="control-label col-sm-4 col-lg-3">
+                        Email Address
+                        <span class="required">*</span>
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input class="form-control" id="email" name="email" type="text" ng-model="user.user.email">
+                    </div>
+                </div>
+
+                <div class="form-group" id="row-first_name">
+                    <data-form-errors errors="user.profileForm.ae_validation.first_name"></data-form-errors>
+                    <label for="first_name" id="label-first_name" class="control-label col-sm-4 col-lg-3">
+                        First Name
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input class="form-control" id="first_name" name="first_name" type="text" ng-model="user.user.first_name">
+                    </div>
+                </div>
+                <div class="form-group" id="row-last_name">
+                    <data-form-errors errors="user.profileForm.ae_validation.last_name"></data-form-errors>
+                    <label for="last_name" id="label-last_name" class="control-label col-sm-4 col-lg-3">
+                        Last Name
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input class="form-control" id="last_name" name="last_name" type="text" ng-model="user.user.last_name">
+                    </div>
+                </div>
+
+                <div class="form-group" id="row-status">
+                    <data-form-errors errors="user.profileForm.ae_validation.status"></data-form-errors>
+                    <label for="status" id="label-status" class="control-label col-sm-4 col-lg-3">
+                        Active
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input checked class="form-control" id="status" name="status" type="checkbox" ng-model="user.user.status">
+                    </div>
+                </div>
+
+                <div class="form-group" id="row-submit">
+                    <label for="submit" id="label-submit" class="control-label col-sm-4 col-lg-3">
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input class="form-control btn btn-primary" id="submit" name="submit" type="submit" value="{{$state.params.userId ? 'Update' : 'Add'}} User">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="panel panel-default" ng-if="user.user.id">
+        <div class="panel-heading">
+            <h3 class="panel-title">Permission Summary</h3>
+        </div>
+        <div class="panel-body">
+            <h3>Direct application permissions</h3>
+
+            <ul class="list-group">
+                <li ng-repeat="perm in user.resourcePermissions.user.application" class="animate-repeat list-group-item">
+                    <strong>{{ perm.self.resource_name }}</strong>
+                    <div class="pull-right">
+
+                        <span class="btn btn-primary btn-xs m-r-1" disabled ng-repeat="perm_name in perm.permissions">{{ perm.self.owner ? 'Resource owner' : perm_name }}</span>
+
+                        <a class="btn btn-default btn-xs" data-uib-tooltip="Visit Application" data-ui-sref="applications.update({resourceId:perm.self.resource_id})">
+                            <span class="fa fa-cog"></span>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+
+            <h3>Direct dashboard permissions</h3>
+
+            <ul class="list-group">
+                <li ng-repeat="perm in user.resourcePermissions.user.dashboard" class="animate-repeat list-group-item">
+                    <strong>{{ perm.self.resource_name }}</strong>
+                    <div class="pull-right">
+
+                        <span class="btn btn-primary btn-xs m-r-1" disabled ng-repeat="perm_name in perm.permissions">{{ perm.self.owner ? 'Resource owner' : perm_name }}</span>
+
+                        <a class="btn btn-default btn-xs" data-uib-tooltip="Visit Dashboard" data-ui-sref="dashboard.update({resourceId:perm.self.resource_id})">
+                            <span class="fa fa-cog"></span>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+
+        </div>
+
+    </div>
+
+
+</div>

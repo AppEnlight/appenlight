@@ -1,0 +1,66 @@
+<ng-include src="'templates/loader.html'" ng-if="integrations.loading.application || integration.loading.integration"></ng-include>
+
+<div class="panel panel-default" ng-show="!integrations.loading.application && !integration.loading.integration">
+    <div class="panel-heading" ng-include="'templates/applications/breadcrumbs.html'"></div>
+    <div class="panel-body">
+
+        <h1>Hipchat Integration</h1>
+
+        <form name="integration.integrationForm" ng-submit="integration.configureIntegration()" class="form-horizontal">
+
+            <div class="form-group">
+                <label class="control-label col-sm-3 col-lg-2">API Token</label>
+
+                <div class="col-sm-8 col-lg-9">
+                    <data-form-errors errors="integration.integrationForm.ae_validation.api_token"></data-form-errors>
+                    <input class="form-control" ng-model="integration.config.api_token" placeholder="Your API token" type="text">
+                </div>
+            </div>
+
+            <div class="form-group">
+
+                <label class="control-label col-sm-3 col-lg-2">Room ID list</label>
+
+                <div class="col-sm-8 col-lg-9">
+                    <data-form-errors errors="integration.integrationForm.ae_validation.rooms"></data-form-errors>
+                    <input class="form-control" ng-model="integration.config.rooms" placeholder="Room ID list" type="text">
+
+                    <p>
+                        <small>Room ID list separated by comma</small>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-sm-3 col-lg-2"></label>
+                <div class="col-sm-8 col-lg-9">
+                    <input type="submit" class="btn btn-primary" value="Connect to Hipchat">
+                        <span class="dropdown" data-uib-dropdown on-toggle="toggled(open)">
+                            <a class="btn btn-danger" data-uib-dropdown-toggle><span class="fa fa-trash-o"></span> Remove Integration</a>
+                          <ul class="dropdown-menu">
+                              <li><a>No</a></li>
+                              <li><a ng-click="integration.removeIntegration()">Yes</a></li>
+                          </ul>
+                        </span>
+
+                    <div class="btn-group" uib-dropdown>
+                        <button id="single-button" type="button" class="btn btn-info" uib-dropdown-toggle>
+                            Test integration <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="single-button">
+                            <li role="menuitem"><a ng-click="integration.testIntegration('report_notification')">Test report notification</a></li>
+                            <li role="menuitem"><a ng-click="integration.testIntegration('error_alert')">Test error alert</a></li>
+                            <li role="menuitem"><a ng-click="integration.testIntegration('uptime_alert')">Test uptime alert</a></li>
+                            <li role="menuitem"><a ng-click="integration.testIntegration('chart_alert')">Test chart alert</a></li>
+                            <li role="menuitem"><a ng-click="integration.testIntegration('daily_digest')">Test daily digest</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+</div>

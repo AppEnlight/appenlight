@@ -1,0 +1,15 @@
+{% extends "/email_templates/layout.jinja2" %}
+{% block page_title %}{% endblock %}
+{% block content %}
+    <p>We received a request to authorize this email in <strong>{{ _mail_url }}</strong> service.</p>
+    <p>Please confirm this email by clicking following url:</p>
+    <p><a href="{{request.route_url('section_view', section='user_section',view='alert_channels_authorize',
+    _query=(('security_code',security_code,),('channel_name','email',),),
+    _app_url=_mail_url)}}">
+    {{request.route_url('section_view', section='user_section',view='alert_channels_authorize',
+    _query=(('security_code',security_code,),('channel_name','email',),),
+    _app_url=_mail_url)
+    }}
+    </a></p>
+    <p>If you didn't want to authorize this channel please ignore this email.</p>
+{% endblock %}

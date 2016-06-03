@@ -1,0 +1,24 @@
+{% extends "/email_templates/layout.jinja2" %}
+{% block page_title %}{{_('Password renewal request!')}}{% endblock %}
+{% block content %}    
+<h1>Contact Form</h1>
+
+<p>Email</p>
+<pre>{{form.email.data}}</pre>
+
+<p>Title</p>
+<pre>{{form.title.data}}</pre>
+
+<p>Message</p>
+<pre>{{form.message.data}}</pre>
+
+<p>Company</p>
+<pre>{{form.company.data}}</pre>
+
+<p>Name</p>
+<pre>{{form.first_name.data}} {{form.last_name.data}}</pre>
+
+<p>IP</p>
+<pre>{{request.environ.get('REMOTE_ADDR')}}</pre>
+
+{% endblock %}

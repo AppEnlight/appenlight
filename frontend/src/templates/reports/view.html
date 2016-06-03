@@ -1,0 +1,480 @@
+<script type="text/ng-template" id="slow_call.html">
+    <table class="report-table">
+        <tr>
+            <td class="table-label">Type</td>
+            <td class="data"><strong>{{call.type}}
+                ({{call.subtype}})
+            </strong></td>
+        </tr>
+        <tr>
+            <td class="table-label">Duration</td>
+            <td class="data"><strong class="textColor_1">{{call.duration}}</strong></td>
+        </tr>
+        <tr>
+            <td class="table-label">Start Time</td>
+            <td class="data">{{call.timestamp}}</td>
+        </tr>
+        <tr>
+            <td class="table-label">Statement</td>
+            <td class="data">
+                <pre class="word-wrap">{{call.statement}}</pre>
+            </td>
+        </tr>
+        <tr ng-if="call.location">
+            <td class="table-label">Location</td>
+            <td class="data">{{call.location}}</td>
+        </tr>
+        <tr>
+            <td class="table-label">Parameters</td>
+            <td class="">
+                <div class="var-listing" human-format vars="call.parameters"></div>
+            </td>
+        </tr>
+    </table>
+
+    <div ng-if="call.children.length > 0" class="subcalls p-l-8">
+
+        <p><strong>
+            <small>Sub-calls</small>
+        </strong></p>
+
+        <div class="panel panel-default">
+            <div ng-repeat="call in call.children" ng-include="'slow_call.html'" class="panel-body"/>
+        </div>
+    </div>
+    </div>
+
+</script>
+
+<script type="text/ng-template" id="AssignReportCtrl.html">
+
+    <div class="modal-header">
+        <h3>Assign users to report</h3>
+    </div>
+    <div class="modal-body">
+
+        <ng-include src="'templates/loader.html'" ng-if="ctrl.loading"></ng-include>
+
+        <div class="row" ng-if="!ctrl.loading">
+            <div class="col-sm-6">
+                <strong>Unassigned</strong>
+
+                <div class="user-assignment" ng-repeat="user in ctrl.unAssignedUsers"
+                     ng-click="ctrl.reassignUser(user)">
+                    <img ng-src="{{user.gravatar_url}}"/>
+                    <strong>{{user.user_name}}</strong><br/>
+                    {{user.name}}
+                    <div class="clear"></div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <strong>Assigned</strong>
+
+                <div class="user-assignment" ng-repeat="user in ctrl.assignedUsers" ng-click="ctrl.reassignUser(user)">
+                    <img ng-src="{{user.gravatar_url}}"/>
+                    {{user.user_name}}<br/>
+                    {{user.name}}
+                    <div class="clear"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ctrl.ok()">OK</button>
+        <button class="btn btn-warning" ng-click="ctrl.cancel()">Cancel</button>
+    </div>
+</script>
+
+<ng-include src="'templates/loader.html'" ng-if="report.is_loading.report"></ng-include>
+
+<div ng-if="!report.is_loading.report && report.report === null">
+    <strong>OOPS something went wrong :(</strong>
+</div>
+
+<div ng-if="report.report !== null && !report.is_loading.report">
+
+    <div ng-if="AeUser.id" class="row">
+        <a onclick="window.history.back()" class="btn btn-default" ng-if="report.window.history.length > 2"><span class="fa fa-arrow-circle-o-left"></span>
+            Go back</a>
+        <a class="btn btn-default" ng-click="report.assignUsersModal()" ng-if="report.reportType == 'report'"><span
+                class="fa fa-flag"></span> Assign report
+            to user</a>
+
+        <a class="btn {{ report.report.group.fixed ? 'btn-success' : 'btn-default'}}" ng-click="report.markFixed()"
+           ng-if="report.reportType == 'report'">
+            <span class="fa fa-check"></span> Mark fixed</a>
+
+        <span class="dropdown" ng-if="report.report.application.integrations.length" data-uib-dropdown on-toggle="toggled(open)">
+          <a class="dropdown-toggle btn btn-default" data-uib-dropdown-toggle>
+              <span class="fa fa-send"></span> Integrations
+          </a>
+          <ul class="dropdown-menu">
+              <li ng-repeat="choice in report.report.application.integrations">
+                  <a ng-click="report.runIntegration(choice.name)">{{choice.action}}</a>
+              </li>
+          </ul>
+        </span>
+
+        <a class="btn btn-default" ng-click="report.markPublic()">Make {{report.group.public ? 'private' : 'public'}}</a>
+
+<span class="dropdown" data-uib-dropdown on-toggle="toggled(open)">
+    <a class="btn btn-danger" data-uib-dropdown-toggle><span class="fa fa-trash-o"></span> Delete</a>
+  <ul class="dropdown-menu">
+      <li><a>No</a></li>
+      <li><a ng-click="report.delete()">Yes</a></li>
+  </ul>
+</span>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4">
+
+            <div class="panel panel-default m-t-1">
+                <div class="panel-body">
+
+                    <h3 class="m-t-0">Report Information</h3>
+
+                    <table class="report-table with-ellipsis">
+                        <tr>
+                            <td class="table-label">Occurences</td>
+                            <td class="data">{{report.report.group.occurences}}</td>
+                        </tr>
+                        <tr ng-if="report.report.http_status">
+                            <td class="table-label">HTTP status</td>
+                            <td class="data">{{report.report.http_status}}</td>
+                        </tr>
+                        <tr ng-if="report.report.group.priority">
+                            <td class="table-label">Priority</td>
+                            <td class="data">{{report.report.group.priority}}</td>
+                        </tr>
+                        <tr ng-if="report.report.group.public">
+                            <td class="table-label">Public URL</td>
+                            <td class="data">
+                                <form>
+                                    <textarea class="TextAreaField form-control" id="public-url" onclick="this.select()">{{$state.href($state.current.name, $state.params, {absolute: true})}}</textarea>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr data-uib-tooltip="{{report.report.url}}">
+                            <td class="table-label">URL</td>
+                            <td class="data ellipsis"><a href="{{report.report.url}}">{{report.report.url}}</a></td>
+                        </tr>
+
+                        <tr ng-if="report.report.ip">
+                            <td class="table-label">Remote IP</td>
+                            <td class="data">{{report.report.ip}}</td>
+                        </tr>
+                        <tr ng-if="report.report.user_agent" data-uib-tooltip="{{report.report.user_agent}}">
+                            <td class="table-label">User Agent</td>
+                            <td class="data ellipsis">{{report.report.user_agent}}</td>
+                        </tr>
+                        <tr ng-if="report.report.message">
+                            <td class="table-label">Message</td>
+                            <td class="data">{{report.report.message}}</td>
+                        </tr>
+                        <tr ng-if="report.report.duration > 0">
+                            <td class="table-label">Duration</td>
+                            <td class="data">
+                                <span>{{report.report.duration}}s</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-label">First occured</td>
+                            <td class="data">
+                <span uib-tooltip="{{report.report.group.first_timestamp}}"><iso-to-relative-time
+                        time="{{report.report.group.first_timestamp}}"/></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="table-label">Last occured</td>
+                            <td class="data">
+                <span uib-tooltip="{{report.report.group.last_timestamp}}"><iso-to-relative-time
+                        time="{{report.report.group.last_timestamp}}"/></span>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div ng-if="report.requestStats">
+                        <h3>Performance stats</h3>
+
+                        <div class="perf_stats">
+                                <span class="stat" ng-repeat="stat in report.requestStats"
+                                      ng-if="stat.calls > 0 || stat.value > 0"><strong>
+                                    <span class="{{stat.name}} bar" style="width:10px"></span> {{stat.calls}}
+                                    <span ng-if="stat.name!='main'"><small>{{stat.name}} calls</small></span>
+                                    <span ng-if="stat.name=='main'">
+                                        <span class="fa fa-question-circle"
+                                              data-uib-tooltip="Execution time that didnt get assigned to other layers"></span> Other</span>
+                                </strong>
+                                </span>
+
+                            <div style="width: 100%; overflow:hidden">
+                                <div class="{{stat.name}} bar" style="width:{{stat.percent}}%; height: 25px"
+                                     ng-repeat="stat in report.requestStats"
+                                     data-uib-tooltip="{{stat.value}}s - Cumulative time spent in this request on all {{ stat.name }} calls"></div>
+                                <div class="row">
+                                    <div class="col-xs-6 text-left">
+                                        <small>0s</small>
+                                    </div>
+                                    <div class="col-xs-6 text-right">
+                                        <small>{{report.report.duration.toFixed(3)}}s</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Tags</h3>
+
+                    <table class="report-table with-tags">
+                        <tr ng-repeat="(tag, value) in report.report.tags">
+                            <td class="table-label" ng-switch="tag"><!--
+                        --><span ng-switch-when="user_name">Username/UID</span><!--
+                        --><span ng-switch-when="view_name">View Name</span><!--
+                        --><span ng-switch-when="server_name">Server Name</span><!--
+                        --><span ng-switch-default>{{ tag }}</span>
+                            </td>
+                            <td class="data"><a ng-click="report.searchTag(tag, value)">{{ value }}</td>
+                        </tr>
+                    </table>
+
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-lg-8">
+            <div class="frames">
+                <p class="text-center">Report history</p>
+
+                <div class="panel" ng-if="!report.is_loading.history">
+                    <div class="panel-body">
+                        <c3chart data-domid="report_history_chart" data-data="report.reportHistoryData" data-config="report.reportHistoryConfig">
+                        </c3chart>
+                    </div>
+                </div>
+
+                <div class="row m-b-1">
+                    <div class="col-sm-2 text-left">
+                        <a class="switch_detail btn btn-sm btn-default {{report.report.group.previous_report ? '' : 'disabled'}}"
+                           ng-click="report.previousDetail()">
+                            <span class="fa fa-arrow-left"></span>
+                            Prev. detail</a>
+
+                    </div>
+                    <div class="col-sm-8 text-center">
+                        <small>
+       <span uib-tooltip="{{report.report.start_time|isoToRelativeTime}}" class="m-r-1">
+           {{report.report.start_time.replace('T', ' ')}} UTC</span>
+                            <span class="text-muted">ID: {{report.report.request_id}}</span>
+                        </small>
+                    </div>
+                    <div class="col-sm-2 text-right">
+                        <a class="switch_detail btn btn-sm btn-default {{report.report.group.next_report ? '' : 'disabled'}}"
+                           ng-click="report.nextDetail()">
+                            Next detail <span class="fa fa-arrow-right"></span></a>
+                    </div>
+                </div>
+
+                <h3 class="word-wrap">{{report.report.error}}</h3>
+
+                <div ng-if="report.report.traceback">
+
+                    <h3><strong>Traceback</strong></h3>
+
+                    <div class="btn-group">
+                        <a ng-if="report.traceback.length-10 > 0 " ng-click="report.showLong = !report.showLong"
+                           class="btn btn-default {{report.showLong ? 'active' : ''}}">
+                            <span class="fa fa-align-left"></span>
+                            <small>Show {{report.traceback.length-10}} remaining frames</small>
+                        </a>
+
+                        <a class="btn btn-default {{report.showRaw ? 'active' : ''}}" ng-click="report.showRaw = !report.showRaw">
+                            <span class="fa fa-list"></span>
+                            <small>Raw version</small>
+                        </a>
+                    </div>
+
+                    <div ng-if="report.showRaw" class="m-t-1">
+                        <pre>{{report.rawTraceback}}</pre>
+                    </div>
+                    <div ng-if="!report.showRaw" class="m-t-1">
+
+                        <div ng-repeat="frame in report.traceback" class="frame {{$odd ? 'odd' : 'even'}}"
+                             ng-if="$index >= report.traceback.length-10 || report.traceback.length <= 10 || report.showLong">
+                            <div class="frameline" ng-if="frame.line">
+                                <a class="inspect_vars" ng-click="frame.showVars = !frame.showVars" ng-if="frame.vars">
+                            <span class="fa fa-search dim btn btn-default"
+                                  uib-tooltip="Show local vars"> </span>
+                                </a>
+
+                                <span class="no-vars" ng-if="frame.vars.length == 0"></span>
+
+                <span ng-if="frame.file">
+                <span class="mono">File</span> <span class="file mono">{{frame.file || 'Unknown file'}}</span>,
+                </span>
+                <span ng-if="frame.module && !frame.file">
+                <span class="mono">Module</span> <span class="file mono">{{frame.module || 'Unknown module'}}</span>,
+                </span>
+                                <span class="mono">line</span> <span class="line mono">{{frame.line || 'Unknown line'}}</span>
+
+                <span ng-if="frame.fn"><span class="mono">in</span> <strong
+                        class="fn mono">{{frame.fn || 'Unknown function'}}</strong></span>
+
+                            </div>
+                            <div class="cline mono" ng-if="frame.cline">{{frame.cline || 'Unknown context'}}</div>
+
+                            <div class="vars" ng-if="frame.showVars">
+                                <table class="var-listing small">
+                                    <tr ng-repeat="fvar in frame.vars track by $index" class="frame {{$odd ? 'odd' : 'even'}}">
+                                        <td class="var-label">{{ fvar[0] }}</td>
+                                        <td>
+                                            <span human-format vars="fvar[1]"></span>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+
+                <uib-tabset>
+                    <uib-tab select="report.selectedTab('slow_calls')" active="report.tabs.slow_calls">
+                        <uib-tab-heading>
+                            Slow Calls
+                        </uib-tab-heading>
+
+                        <h3><strong>Slow Calls</strong></h3>
+
+                        <div ng-if="report.report.slow_calls.length > 0">
+                            <div ng-repeat="call in report.report.slow_calls" ng-include="'slow_call.html'"></div>
+                        </div>
+
+                        <div ng-if="report.report.slow_calls.length == 0">
+                            No slow calls reported
+                        </div>
+
+                    </uib-tab>
+
+
+                    <uib-tab select="report.selectedTab('request_details')" active="report.tabs.request_details">
+                        <uib-tab-heading>
+                            Request details
+                        </uib-tab-heading>
+
+                        <h3><strong>Extra</strong></h3>
+                        <div class="var-listing" human-format vars="report.report.extra"></div>
+                        <h3><strong>Request details</strong></h3>
+                        <div class="var-listing" human-format vars="report.report.request"></div>
+
+                    </uib-tab>
+
+                    <uib-tab select="report.selectedTab('logs')" active="report.tabs.logs">
+                        <uib-tab-heading>
+                            Logs
+                        </uib-tab-heading>
+
+                        <div ng-if="report.is_loading.logs!=false" class="text-center">
+                            <span class="fa fa-cog fa-spin fa-3x loader"></span>
+                        </div>
+                        <p ng-if="report.reportLogs.length == 0"> No logs found</p>
+
+                        <table class="table table-striped log-list" ng-if="report.reportLogs.length > 0">
+
+                            <caption>Logs</caption>
+                            <thead>
+                            <tr>
+                                <th class="message">Message</th>
+                                <th class="when">When</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="log in report.reportLogs track by log.log_id">
+                                <td>
+                                    <a class="tag {{log.log_level|lowercase}}">
+                                        <span class="name">level:</span> {{log.log_level}}</a>
+                                    <a class="tag">
+                                        <span class="name">namespace:</span> {{log.namespace}}</a>
+                                    <a ng-repeat="(tag, value) in log.tags" class="tag">
+                                        <span class="name">{{tag}}:</span> {{value}}</a>
+                                    <div class="log">
+                                        {{log.message}}
+                                    </div>
+                                </td>
+                                <td class="when">
+                                    <a data-uib-tooltip="{{log.timestamp}}">
+                                        <iso-to-relative-time time="{{log.timestamp}}"/>
+                                    </a>
+                                </td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+
+                    </uib-tab>
+
+
+                    <uib-tab select="report.selectedTab('comments')" active="report.tabs.comments">
+                        <uib-tab-heading>
+                            Comments
+                            <span class="label label-info">{{report.report.comments.length}}</span>
+
+                        </uib-tab-heading>
+
+                        <h3><strong>Comments</strong></h3>
+
+                        <p ng-if="report.report.comments.length == 0">No comments yet - be first to add one!</p>
+
+                        <div class="comment" ng-repeat="comment in report.report.comments">
+                            <p name="comment-{{comment.comment_id}}"><span class="fa fa-comment"></span>
+                                <strong>{{comment.user_name}}</strong>
+                                <iso-to-relative-time time="{{comment.created_timestamp}}"/>
+                            </p>
+                            <p class="well">{{comment.body}}</p>
+                        </div>
+
+                        <form name="commentForm" ng-submit="report.addComment()">
+                            <div class="form-group">
+                <textarea type="text" class="form-control" id="report.commentForm" ng-model="report.comment" required
+                          mentio mentio-search="report.searchMentionedPeople(term)" mentio-items="report.mentionedPeople| filter:label:typedTerm" class="form-control"></textarea>
+
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info" ng-disabled="report.commentForm.$invalid">Comment</button>
+                            </div>
+                        </form>
+
+                        <div ng-repeat="comment in report.report.comments" class="{{$odd ? 'odd' : 'even'}}" class="repeat-animate">
+                        </div>
+
+                    </uib-tab>
+
+                    <uib-tab select="report.selectedTab('affected_users')" active="report.tabs.affected_users">
+                        <uib-tab-heading>
+                            Affected users
+                            <span class="label label-warning">{{report.report.affected_users_count}}</span>
+
+                        </uib-tab-heading>
+
+                        <h3><strong>50 most affected users ID's by this issue:</strong></h3>
+                        <ul class="affected-user-list">
+                            <li ng-repeat="user in report.report.top_affected_users">
+                                <strong>{{user.username}}</strong> <span class="badge" uib-tooltip="occurences">{{user.count}}</span>
+                            </li>
+                        </ul>
+
+                    </uib-tab>
+
+                </uib-tabset>
+
+
+            </div>
+
+        </div>
+    </div>
+</div>

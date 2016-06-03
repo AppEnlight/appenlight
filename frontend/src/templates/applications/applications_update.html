@@ -1,0 +1,440 @@
+<ng-include src="'templates/loader.html'" ng-if="application.loading.application"></ng-include>
+
+<div ng-show="!application.loading.application">
+
+    <div class="panel panel-default">
+        <div class="panel-heading" ng-include="'templates/applications/breadcrumbs.html'"></div>
+        <div class="panel-body">
+
+            <div class="row" ng-show="application.resource.resource_id">
+                <div class="col-sm-6">
+
+                    <uib-tabset>
+                        <uib-tab>
+                            <uib-tab-heading>
+                                API keys
+                            </uib-tab-heading>
+
+                            <p><strong>PRIVATE API KEY:</strong></p>
+                            <p>
+                            <div class="well well-sm">{{ application.resource.api_key }}</div>
+                            </p>
+                            <p><strong>PUBLIC API KEY</strong> (for javascript clients):</p>
+                            <p>
+                            <div class="well well-sm">{{ application.resource.public_key }}</div>
+                            </p>
+                            <p><small>Your key will be used to identify to which application your data
+                                belongs to please keep them private at all times.</small></p>
+
+                        </uib-tab>
+
+                        <uib-tab>
+                            <uib-tab-heading>
+                                <span class="btn btn-danger btn-xs"><span class="fa fa-exclamation-triangle"></span></span> Regenerate API keys
+                            </uib-tab-heading>
+                            <p>Are you sure you want to regenerate API KEY for this application?</p>
+                            <p>All client application keys will need to be updated.</p>
+                            <form ng-submit="application.regenerateAPIKeys()" name="application.regenerateAPIKeysForm" class="form-inline">
+                                <data-form-errors errors="application.regenerateAPIKeysForm.ae_validation.password"></data-form-errors>
+                                <div class="form-group">
+                                <input type="password" name="confirm"
+                                       placeholder="Enter your password to proceed" class="form-control" ng-model="application.regenerateAPIKeysPassword">
+                                <input type="submit" class="btn btn-danger" value="Confirm">
+                                </div>
+                            </form>
+                        </uib-tab>
+                    </uib-tabset>
+                </div>
+                <div class="col-sm-6 text-center">
+                    <h2 class="m-t-0">How to connect your application?</h2>
+                    <p>Visit our <a href="{{AeConfig.urls.docs}}"><strong>developer documentation</strong></a> for step-by-step integration instructions.</p>
+                    <div class="clearfix"></div>
+                    <p class="text-center">
+                        <a href="{{AeConfig.urls.docs}}"><img src="/static/appenlight/images/logos/django_small.png" alt="Django Logo">
+                            <img src="/static/appenlight/images/logos/pyramid_small.png" alt="Pyramid Logo">
+                            <img src="/static/appenlight/images/logos/flask_small.png" alt="Flask Logo"></a>
+
+                        <a href="{{AeConfig.urls.docs}}"><img src="/static/appenlight/images/logos/js_small.png" alt="Javascript Logo">
+                            <img src="/static/appenlight/images/logos/nodejs.png" alt="Node.js"></a>
+                        <img src="/static/appenlight/images/logos/ruby_small.png" alt="Ruby Logo">
+                        <img src="/static/appenlight/images/logos/php_small.png" alt="PHP Logo">
+                        </a>
+
+                    </p>
+                </div>
+            </div>
+
+            <hr ng-show="application.resource.resource_id">
+
+            <form method="post" class="form-horizontal" name="application.BasicForm" ng-submit="application.updateBasicForm()" novalidate>
+                    <div class="form-group">
+                        <data-form-errors errors="application.BasicForm.ae_validation.resource_name"></data-form-errors>
+                        <label class="control-label col-sm-4 col-lg-3">
+                            Application name
+                            <span class="required">*</span>
+                        </label>
+
+                        <div class=" col-sm-8 col-lg-9 ">
+                            <input class="form-control"  name="resource_name" placeholder="Application Name" type="text" ng-model="application.resource.resource_name">
+                        </div>
+
+
+                    </div>
+
+                    <div class="form-group">
+                        <data-form-errors errors="application.BasicForm.ae_validation.domains"></data-form-errors>
+                        <label class="control-label col-sm-4 col-lg-3">
+                            Domain names for CORS headers
+                        </label>
+                        <div class=" col-sm-8 col-lg-9 ">
+                            <textarea class="form-control"  name="domains"  ng-model="application.resource.domains"></textarea>
+                            <p class="description">Required for Javascript error tracking (one line one domain, skip http:// part)</p>
+                        </div>
+
+
+                    </div>
+                    <div class="form-group" ng-show="application.resource.resource_id">
+                        <data-form-errors errors="application.BasicForm.ae_validation.default_grouping"></data-form-errors>
+                        <label class="control-label col-sm-4 col-lg-3">
+                            Default grouping for errors
+                        </label>
+                        <div class=" col-sm-8 col-lg-9 ">
+                            <select class="form-control"  name="default_grouping" ng-model="application.resource.default_grouping" ng-options="i[0] as i[1] for i in application.groupingOptions"></select>
+                        </div>
+
+                    </div>
+                    <div class="form-group" ng-show="application.resource.resource_id">
+                        <data-form-errors errors="application.BasicForm.ae_validation.error_report_threshold"></data-form-errors>
+                        <label class="control-label col-sm-4 col-lg-3">
+                            Alert on error reports
+                            <span class="required">*</span>
+                        </label>
+                        <div class=" col-sm-8 col-lg-9 ">
+                            <input class="form-control"  name="error_report_threshold" type="text" ng-model="application.resource.error_report_threshold">
+                            <p class="description">Application requires to send at least this amount of error reports per minute to open alert</p>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-show="application.resource.resource_id">
+                        <data-form-errors errors="application.BasicForm.ae_validation.slow_report_threshold"></data-form-errors>
+                        <label class="control-label col-sm-4 col-lg-3">
+                            Alert on slow reports
+                            <span class="required">*</span>
+                        </label>
+
+                        <div class=" col-sm-8 col-lg-9 ">
+                            <input class="form-control"  name="slow_report_threshold" type="text" ng-model="application.resource.slow_report_threshold">
+                            <p class="description">Application requires to send at least this amount of slow reports per minute to open alert</p>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-show="application.resource.resource_id">
+                        <data-form-errors errors="application.BasicForm.ae_validation.allow_permanent_storage"></data-form-errors>
+                        <label class="control-label col-sm-4 col-lg-3">
+                            Permanent logs
+                        </label>
+                        <div class=" col-sm-8 col-lg-9">
+                            <input class="form-control"  name="allow_permanent_storage" type="checkbox"  ng-model="application.resource.allow_permanent_storage">
+                            <p class="description">Allow permanent storage of logs in separate DB partitions (only administrator can enable this feature)</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4 col-lg-3">
+
+                        </label>
+
+                        <div class=" col-sm-8 col-lg-9 ">
+                            <input class="form-control btn btn-primary"  name="submit" type="submit" value="{{application.resource.resource_id? 'Update' : 'Create'}} Application">
+                        </div>
+                    </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="panel panel-default" ng-show="application.resource.resource_id">
+        <div class="panel-heading">
+            <h3 class="panel-title">Plugins</h3>
+        </div>
+        <div class="panel-body">
+
+        <plugin-config resource="application.resource"
+                       section="'application.update'"
+                       ng-if="application.resource.resource_id">
+        </plugin-config>
+
+        </div>
+    </div>
+
+    <div class="panel panel-default m-t-1" ng-show="application.resource.resource_id">
+        <div class="panel-heading">
+            <h3 class="panel-title">API Testing</h3>
+        </div>
+        <div class="panel-body">
+            <p>Please be sure to add at least one <a data-ui-sref="user.alert_channels.email"><strong>email alert channel</strong></a> for your account.</p>
+            <p>This will enable App Enlight to send you notification emails about errors inside your application.</p>
+            <p><strong>After this is done you can use this CURL commands to test APIs:</strong></p>
+            <p>(Please note that the data like execution times is semi randomly generated)</p>
+            <uib-tabset>
+                <uib-tab>
+                    <uib-tab-heading>
+                        Log API
+                    </uib-tab-heading>
+
+                    <div class="codehilite">
+                    <pre class="m-a-0">
+curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/logs?protocol_version=0.5\&ampapi_key={{application.resource.api_key}} -d '
+    [
+      {
+      "log_level": "WARNING",
+      "message": "OMG ValueError happened",
+      "namespace": "some.namespace.indicator",
+      "request_id": "SOME_UUID",
+      "permanent": false,
+      "primary_key": "random_key",
+      "server": "some.server.hostname",
+      "date": "{{application.momentJs.utc().milliseconds(0).toISOString()}}",
+      "tags": [["tag1","value"], ["tag2", 5]]
+      },
+      {
+      "log_level": "ERROR",
+      "message": "OMG ValueError happened2",
+      "namespace": "some.namespace.indicator",
+      "request_id": "SOME_UUID",
+      "permanent": false,
+      "server": "some.server.hostname",
+      "date": "{{application.momentJs.utc().milliseconds(0).toISOString()}}"
+      }
+    ]'
+                    </pre>
+                    </div>
+
+                </uib-tab>
+
+                <uib-tab>
+                    <uib-tab-heading>
+                        Report API
+                    </uib-tab-heading>
+
+                    <div class="codehilite">
+                    <pre class="m-a-0">
+curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/reports?protocol_version=0.5\&ampapi_key={{application.resource.api_key}} -d '
+    [{
+    "client": "your-client-name-python",
+    "language": "python",
+    "view_name": "views/foo:bar",
+    "server": "SERVERNAME/INSTANCENAME",
+    "priority": 5,
+    "error": "OMG ValueError happened",
+    "occurences":1,
+    "http_status": 500,
+    "tags": [["tag1","value"], ["tag2", 5]],
+    "username": "USER",
+    "url": "HTTP://SOMEURL",
+    "ip": "127.0.0.1",
+    "start_time": "{{application.momentJs.utc().milliseconds(0).toISOString()}}",
+    "end_time": "{{application.momentJs.utc().milliseconds(0).add(2, 'seconds').toISOString()}}",
+    "user_agent": "BROWSER_AGENT",
+    "extra": [["message","CUSTOM MESSAGE"], ["custom_value", "some payload"]],
+    "request_id": "SOME_UUID",
+    "request": {"REQUEST_METHOD": "GET",
+             "PATH_INFO": "/FOO/BAR",
+             "POST": {"FOO":"BAZ","XXX":"YYY"}
+             },
+    "slow_calls":[{
+                   "start": "{{application.momentJs.utc().milliseconds(0).toISOString()}}",
+                   "end": "{{application.momentJs.utc().milliseconds(0).add(1, 'seconds').toISOString()}}",
+                   "type": "sql",
+                   "subtype": "postgresql",
+                   "parameters": ["QPARAM1","QPARAM2","QPARAMX"],
+                   "statement": "QUERY"
+                   }],
+    "request_stats": {
+                    "main": 2.50779,
+                    "nosql": 0.01008,
+                    "nosql_calls": 17.0,
+                    "remote": 0.0,
+                    "remote_calls": 0.0,
+                    "sql": 1,
+                    "sql_calls": 1.0,
+                    "tmpl": 0.0,
+                    "tmpl_calls": 0.0,
+                    "custom": 0.0,
+                    "custom_calls": 0.0
+                },
+    "traceback": [
+                {"cline": "return foo_bar_baz(1,2,3)",
+                "file": "somedir/somefile.py",
+                "fn": "somefunction",
+                "line": 454,
+                "vars": [["a_list",
+                         ["1",2,"4","5",6]],
+                         ["b", {"1": "2", "ccc": "ddd", "1": "a"}],
+                         ["obj", "object object at 0x7f0030853dc0"]]
+                        },
+                        {"cline": "OMG ValueError happened",
+                        "file": "",
+                        "fn": "",
+                        "line": "",
+                        "vars": []}
+                        ]
+                        }]'
+                    </pre>
+                    </div>
+
+                </uib-tab>
+
+                <uib-tab>
+
+                <uib-tab-heading>
+                    Metrics API
+                </uib-tab-heading>
+
+                <div class="codehilite">
+                    <pre class="m-a-0">
+curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/general_metrics?protocol_version=0.5\&ampapi_key={{application.resource.api_key}} -d '
+        [{
+        "namespace": "some.monitor",
+        "timestamp": "{{application.momentJs.utc().milliseconds(0).toISOString()}}",
+        "server_name": "server.name",
+        "tags": [["value1", 15.7], ["value2", 26]]}]'
+                    </pre>
+                </div>
+
+                </uib-tab>
+
+                <uib-tab>
+
+                    <uib-tab-heading>
+                        Request Stats API
+                    </uib-tab-heading>
+
+                    <div class="codehilite">
+                    <pre class="m-a-0">
+curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/request_stats?protocol_version=0.5\&ampapi_key={{application.resource.api_key}} -d '
+        [{"server": "some.server.hostname",
+          "timestamp": "{{application.momentJs.utc().milliseconds(0).toISOString()}}",
+          "metrics": [["dir/module:func",
+               {"custom": 0.0,
+                "custom_calls": 0,
+                "main": 0.01664,
+                "nosql": 0.00061,
+                "nosql_calls": 23,
+                "remote": 0.0,
+                "remote_calls": 0,
+                "requests": 1,
+                "sql": 0.00105,
+                "sql_calls": 2,
+                "tmpl": 0.0,
+                "tmpl_calls": 0}],
+              ["SomeView.function",
+               {"custom": 0.0,
+                "custom_calls": 0,
+                "main": 0.647261,
+                "nosql": 0.306554,
+                "nosql_calls": 140,
+                "remote": 0.0,
+                "remote_calls": 0,
+                "requests": 28,
+                "sql": 0.0,
+                "sql_calls": 0,
+                "tmpl": 0.0,
+                "tmpl_calls": 0}]]
+                }]'
+                    </pre>
+                    </div>
+
+                </uib-tab>
+
+            </uib-tabset>
+
+        </div>
+    </div>
+
+    <permissions-form resource="application.resource" current-permissions="application.resource.current_permissions"
+                      possible-permissions="application.resource.possible_permissions" ng-if="application.resource.resource_id"></permissions-form>
+
+    <div class="panel panel-info" ng-show="application.resource.resource_id">
+        <div class="panel-heading">
+            <h3 class="panel-title">Postprocessing</h3>
+        </div>
+        <div class="panel-body">
+            <p>This section allows you influence the rating of report groups - if rule is matched once its not executed anymore</p>
+
+            <p>
+                <a class="btn btn-info" ng-click="application.addRule()"><span class="fa fa-plus-circle"></span> Add rule</a>
+            </p>
+
+            <post-process-action action="action" resource="application.resource" ng-repeat="action in application.resource.postprocessing_rules"></post-process-action>
+        </div>
+    </div>
+
+    <div class="panel panel-danger" ng-show="application.resource.resource_id">
+        <div class="panel-heading">
+            <h3 class="panel-title">Administration</h3>
+        </div>
+        <div class="panel-body">
+            <h2>Transfer ownership</h2>
+            <p>Please note that by transfering ownership you WILL lose access to the application data and new owner needs to give you access permission</p>
+            <div class="confirmation_form" ng-submit="application.transferApplication()">
+                <form class="form-horizontal" name="application.formTransfer">
+                    <div class="form-group">
+                        <data-form-errors errors="application.formTransfer.ae_validation.password"></data-form-errors>
+                        <label class="control-label col-sm-4 col-lg-3">
+                            Password
+                        </label>
+                        <div class="col-sm-8 col-lg-9">
+                            <input class="form-control"  name="password" type="password" ng-model="application.formTransferModel.password">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <data-form-errors errors="application.formTransfer.ae_validation.user_name"></data-form-errors>
+                        <label class="control-label col-sm-4 col-lg-3">
+                            New owners username
+                        </label>
+                        <div class="col-sm-8 col-lg-9">
+                            <input class="form-control"  name="user_name" type="text" ng-model="application.formTransferModel.user_name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4 col-lg-3">
+                        </label>
+                        <div class="col-sm-8 col-lg-9">
+                            <button class="btn btn-danger">
+                                <span class="fa fa-user-plus"></span>
+                                Transfer ownership of application
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <hr/>
+
+            <h2>Remove application</h2>
+            <p><strong>This operation will wipe out all data from database - there is no undo.</strong></p>
+
+            <div class="confirmation_form">
+                <form class="form-horizontal" name="application.formDelete" ng-submit="application.deleteApplication()">
+                    <div class="form-group">
+                        <data-form-errors errors="application.formDelete.ae_validation.password"></data-form-errors>
+                        <label class="control-label col-sm-4 col-lg-3">
+                            Password
+                        </label>
+                        <div class="col-sm-8 col-lg-9">
+                            <input class="form-control" name="password" type="password" ng-model="application.formDeleteModel.password">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4 col-lg-3">
+
+                        </label>
+                        <div class="col-sm-8 col-lg-9">
+                            <button class="btn btn-danger">
+                                <span class="fa fa-trash-o"></span>
+                                Delete my application
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

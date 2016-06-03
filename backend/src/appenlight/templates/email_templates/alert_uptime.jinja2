@@ -1,0 +1,8 @@
+{% extends "/email_templates/layout.jinja2" %}
+{% block page_title %}{% endblock %}
+{% block content %}
+    <h3>UPTIME: Alert for {{resource.resource_name}}</h3>
+    <p>Status change on {{ since_when.strftime('%Y-%m-%d %H:%M') }}</p>
+    <strong>{{ reason }}</strong>
+    </p>
+{% endblock %}

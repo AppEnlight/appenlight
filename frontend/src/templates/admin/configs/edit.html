@@ -1,0 +1,83 @@
+<ng-include src="'templates/loader.html'" ng-if="configs.loading.config"></ng-include>
+
+<div class="panel panel-default" ng-show="!configs.loading.config">
+    <div class="panel-heading">
+        <h3 class="panel-title">Basic Configuration</h3>
+    </div>
+    <div class="panel-body">
+        <h2>Visual</h2>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="control-label col-sm-4 col-lg-3">
+                    Footer HTML
+                </label>
+                <div class="col-sm-8 col-lg-9">
+                    <textarea class="form-control" type="text" ng-model="configs.configs.global.template_footer_html.value" style="min-height: 150px"></textarea>
+                </div>
+            </div>
+        </form>
+
+        <h2>Functional</h2>
+
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="control-label col-sm-4 col-lg-3">
+                    Show user groups to non-admin users
+                </label>
+                <div class="col-sm-8 col-lg-9">
+                    <button type="button" class="btn btn-default" ng-model="configs.configs.global.list_groups_to_non_admins.value" uib-btn-checkbox>
+                        Enable
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <h2>Global Rate Limiting</h2>
+
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="control-label col-sm-4 col-lg-3">
+                    Ignore reports per minute/per application
+                </label>
+                <div class="col-sm-8 col-lg-9">
+                    <input class="form-control" type="number" ng-model="configs.configs.global.per_application_reports_rate_limit.value" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-sm-4 col-lg-3">
+                    Ignore logs per minute/per application
+                </label>
+                <div class="col-sm-8 col-lg-9">
+                    <input class="form-control" type="number" ng-model="configs.configs.global.per_application_logs_rate_limit.value" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-sm-4 col-lg-3">
+                    Ignore metrics per minute/per application
+                </label>
+                <div class="col-sm-8 col-lg-9">
+                    <input class="form-control" type="number" ng-model="configs.configs.global.per_application_metrics_rate_limit.value" />
+                </div>
+            </div>
+
+        </form>
+
+        <hr/>
+
+        <a class="btn btn-primary" ng-click="configs.save()">Save configuration</a>
+    </div>
+
+</div>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Plugin Configuration</h3>
+    </div>
+    <div class="panel-body">
+        <plugin-config section="'admin.config'">
+        </plugin-config>
+    </div>
+</div>

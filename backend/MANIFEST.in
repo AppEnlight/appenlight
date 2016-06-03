@@ -1,0 +1,2 @@
+include *.txt *.ini *.cfg *.rst *.md
+recursive-include appenlight *.ico *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml *.jinja2 *.rst *.otf *.ttf *.svg *.woff *.eot

@@ -1,0 +1,29 @@
+{% extends "/layout.jinja2" %}
+{% set layout_disable_menu = True %}
+{% block page_title %}<h2><strong>403:</strong> Forbidden </h2>{% endblock %}
+{% block content %}
+<div class="col-sm-10 col-sm-offset-1" id="content">
+
+<span class="fa fa-times-circle-o" style="float: left; font-size: 666%; margin: 20px 20px"></span>
+
+{% if csrf %}
+<p style="margin-top: 30px" class="heading-text">Your CSRF token has expired</p>
+<p class="heading-text"><a href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">Wikipedia CSRF article</a></p>
+{% else %}
+<p class="heading-text" style="margin-top: 30px">Are you authorized to see this? We don't think so.</p>
+{% endif %}
+
+{% if not request.user %}
+<p>
+<form action="{{request.route_url('ziggurat.routes.sign_in')}}" method="post" 
+class="decorate" id="s" style="width: 50%">
+{{widgets.render_form(sign_in_form)}}
+</form>
+
+{% endif%}
+</p>
+ </div>
+{% endblock %}
+
+{% block menu %}{% endblock %}
+{% block section_name %}forbiddenPage{% endblock %}

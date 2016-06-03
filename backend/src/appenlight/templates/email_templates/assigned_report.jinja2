@@ -1,0 +1,22 @@
+{% extends "/email_templates/layout.jinja2" %}
+{% block page_title %}{{_('You just got a report assigned for review')}}{% endblock %}
+{% block content %}
+    <h2>You just got a report assigned for review</h2>    
+    <h2>{{application.title}}</h2>
+    <p style="font-size: 10px">
+    <a href="{{report_group.get_report().get_public_url(request, _app_url=_mail_url)}}" style="color: #FF6F00;">
+    <strong>You can view it by clicking following link</strong>
+    </a>
+    <h3>Report details</h3>
+    <ul style="font-size: 10px; list-style:none; padding:0px;margin:0px">
+        <li style="margin-bottom:10px"><strong>Error</strong>: {{report_group.get_report().error}}</li>
+        <li style="margin-bottom:10px"><strong>Last occurred</strong>: {{report_group.last_timestamp.strftime('%Y-%m-%d %H:%M')}}</li>
+        <li style="margin-bottom:10px"<strong>Server</strong>: {{report_group.get_report().server_name}}</li>
+        <li style="margin-bottom:10px"<strong>Occurences</strong>: {{report_group.occurences}}</li>
+        <li style="margin-bottom:10px"<strong>HTTP status</strong>: {{report_group.get_report().http_status}}</li>
+        <li style="margin-bottom:10px"<strong>URL Path</strong>: {{report_group.get_report().url_path}}</li>
+    </ul>    
+    </p>
+    
+
+{% endblock %}

@@ -1,0 +1,31 @@
+<ng-include src="'templates/loader.html'" ng-if="applications.loading.applications"></ng-include>
+
+<div class="panel panel-default" ng-show="!applications.loading.applications">
+    <div class="panel-heading" ng-include="'templates/applications/breadcrumbs.html'"></div>
+    <div class="panel-body" ng-if="applications.applications.length === 0 ">
+
+        <p>You have to create a new application first.</p>
+
+    </div>
+
+    <table class="table table-striped" ng-if="applications.applications.length > 0">
+        <thead>
+        <tr>
+            <th class="resource_name">Resource Name</th>
+            <th class="domains">Domains</th>
+            <th class="options">Options</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="r{{$index+1}}" ng-repeat="application in applications.applications">
+            <td>{{application.resource_name}}</td>
+            <td>{{application.domains}}</td>
+            <td class="options">
+                <a class="btn btn-default" data-ui-sref="applications.update({resourceId:application.resource_id})" data-toggle="tooltip" title="Update application"><span class="fa fa-cog"></span> Update</a>
+                <a class="btn btn-default" data-ui-sref="applications.integrations({resourceId:application.resource_id})" data-toggle="tooltip" title="Manage Integrations"><span class="fa fa-wrench"></span> Integrations</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>

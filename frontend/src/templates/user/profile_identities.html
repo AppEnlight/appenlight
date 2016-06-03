@@ -1,0 +1,48 @@
+<ng-include src="'templates/loader.html'" ng-if="identities.loading.identities"></ng-include>
+
+<div ng-show="!identities.loading.identities">
+
+    <div class="panel panel-default">
+        <div class="panel-heading" ng-include="'templates/user/breadcrumbs.html'"></div>
+        <div class="panel-body">
+
+            <div class="col-sm-6">
+                <p ng-show="identities.identities.length === 0">No external providers linked yet</p>
+                <ul class="list-group">
+                    <li ng-repeat="provider in identities.identities" class="animate-repeat list-group-item">
+                        <div class="pull-right">
+                            <span class="dropdown" data-uib-dropdown on-toggle="toggled(open)">
+                                <a class="btn btn-danger btn-xs" data-uib-dropdown-toggle><span class="fa fa-trash-o"></span></a>
+                              <ul class="dropdown-menu">
+                                  <li><a>No</a></li>
+                                  <li><a ng-click="identities.removeProvider(provider)">Yes</a></li>
+                              </ul>
+                            </span>
+                        </div>
+                        <em>@{{ provider.provider }}</em>: <strong>{{ provider.id }}</strong>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-sm-6">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <a href="{{AeConfig.urls.social_auth.google}}" target="_self">
+                            <span class="fa fa-google-plus-square fa-2x"></span> Connect with Google</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="{{AeConfig.urls.social_auth.twitter}}" target="_self">
+                            <span class="fa fa-twitter fa-2x"></span> Connect with Twitter</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="{{AeConfig.urls.social_auth.bitbucket}}" target="_self">
+                            <span class="fa fa-bitbucket fa-2x"></span> Connect with Bitbucket</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="{{AeConfig.urls.social_auth.github}}" target="_self">
+                            <span class="fa fa-github fa-2x"></span> Connect with Github including private repo access</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

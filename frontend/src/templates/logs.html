@@ -1,0 +1,98 @@
+<ng-include src="'templates/loader.html'" ng-if="logs.isLoading.logs"></ng-include>
+
+<div ng-if="logs.isLoading.logs === false">
+
+    <p class="search-params">
+        <strong>Search params:</strong>
+        <span ng-repeat="tag in logs.searchParams.tags" class="tag">
+            <strong>{{tag.type}}</strong>
+            {{ tag.type == 'resource' ? logs.applications[tag.value].resource_name : tag.value }}
+
+            <a ng-click="logs.removeSearchTag(tag)"><span class="fa fa-times"></span></a>
+        </span>
+    </p>
+
+    <p>
+
+        <script type="text/ng-template" id="SearchTypeAheadUrl.html">
+
+        </script>
+
+    <form class="form">
+        <div class="typeahead-tags">
+            <input type="text" id="typeAhead" ng-model="logs.filterTypeAhead" placeholder="Start typing to filter logs for events, filter by servers, namespaces, levels."
+                   ng-keydown="logs.typeAheadTag($event)"
+                   uib-typeahead="tag as tag.text for tag in logs.filterTypeAheadOptions | filter:$viewValue:logs.aheadFilter"
+                   typeahead-min-length="1" class="form-control"
+                   typeahead-template-url="templates/directives/search_type_ahead.html">
+        </div>
+    </form>
+
+    <div class="well animate-show position-absolute increse-zindex" ng-if="logs.showDatePicker" ng-model="logs.pickerDate" ng-change="logs.pickerDateChanged()">
+        <uib-datepicker></uib-datepicker>
+    </div>
+
+    </p>
+
+    <div class="panel">
+
+        <div class="panel-body">
+            <c3chart data-domid="log_events_chart" data-data="logs.logEventsChartData" data-config="logs.logEventsChartConfig">
+            </c3chart>
+        </div>
+    </div>
+
+
+    <div class="text-center">
+        <uib-pagination total-items="logs.itemCount" items-per-page="logs.itemsPerPage" ng-model="logs.searchParams.page" max-size="10"
+                        ng-change="logs.paginationChange()"
+                        class="pagination pagination-sm" boundary-links="true" direction-links="false"></uib-pagination>
+    </div>
+
+    <div class="panel panel-default">
+
+        <table class="table table-striped log-list">
+            <caption>Logs</caption>
+            <thead>
+            <tr>
+                <th class="c1 resource">Application</th>
+                <th class="c2 message">Message</th>
+                <th class="c3 when">When</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="log in logs.logsPage track by log.log_id" class="{{$odd ? 'odd' : 'even'}}">
+                <td class="c1">
+                    <a class="tag application" ng-click="logs.addSearchTag({type:'resource', value:log.resource_id})">
+                        <span class="name">{{log.resource_name}}</span></a>
+                </td>
+                <td class="c2">
+                    <a class="tag {{log.log_level|lowercase}}" ng-click="logs.addSearchTag({type:'level', value:log.log_level})">
+                        <span class="name">level:</span> {{log.log_level}}</a>
+                    <a class="tag" ng-click="logs.addSearchTag({type:'namespace', value:log.namespace})">
+                        <span class="name">namespace:</span> {{log.namespace}}</a>
+                    <a ng-repeat="(tag, value) in log.tags" class="tag" ng-click="logs.addSearchTag({type:tag, value:value})">
+                        <span class="name">{{tag}}:</span> {{value}}</a>
+                    <div class="log">
+                        {{log.message}}
+                    </div>
+                </td>
+                <td class="c3 when">
+                    <a ng-click="logs.filterId(log)" data-uib-tooltip="{{log.timestamp}}">
+                        <iso-to-relative-time time="{{log.timestamp}}"/>
+                    </a>
+                </td>
+            </tr>
+
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="text-center">
+        <uib-pagination total-items="logs.itemCount" items-per-page="logs.itemsPerPage" ng-model="logs.searchParams.page" max-size="10"
+                        ng-change="logs.paginationChange()"
+                        class="pagination pagination-sm" boundary-links="true" direction-links="false"></uib-pagination>
+    </div>
+
+</div>

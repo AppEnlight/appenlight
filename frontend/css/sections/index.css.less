@@ -1,0 +1,213 @@
+.index-page {
+
+    #holder {
+        box-shadow: 0px 0px 100px rgba(0, 0, 0, 0.05);
+        padding-top: 0px !important;
+        max-width: 1600px;
+
+    }
+
+    background-color: rgb(254, 254, 254);
+
+    #top-navbar {
+        background-image: none !important;
+
+        .pattern {
+            background-image: none !important;
+        }
+
+    }
+
+    .navbar-fixed-top {
+        position: absolute;
+
+        .btn-orange {
+            margin-top: 35px
+
+        }
+    }
+
+    .nav > li > a {
+        margin-top: 35px;
+        color: @color_white;
+        &:link, &:visited {
+            color: @color_white
+        }
+
+    }
+
+    h1, h2, h3, h4 {
+        font-weight: bold;
+        color: @color_grey;
+    }
+
+    #top-navbar {
+        background-color: transparent;
+        border: 0px;
+        min-height: 125px;
+    }
+
+    #get-account-section {
+        min-height: 100px;
+        border-bottom: 2px solid @color_white;
+        border-top: 2px solid @color_white;
+        background-color: rgb(246, 246, 246);
+        box-shadow: 0px 0px 50px rgba(100, 100, 100, 0.3);
+        z-index: 5;
+        position: relative;
+        max-width: 1600px;
+        margin: 0px auto;
+        .col-xs-6 {
+            padding-top: 15px;
+        }
+        .col-xs-5 {
+            padding-top: 30px;
+        }
+    }
+
+    #banner-section {
+        h1, h2, h3 {
+            color: @color_white;
+        }
+        position: relative;
+        color: @color_white;
+        background-image: url(/static/appenlight/images/sections/index/top_bg.jpg);
+        background-position: center top;
+        background-repeat: no-repeat;
+
+        .pattern {
+            background-image: url(/static/appenlight/images/dots2_bg.png);
+            max-width: 1600px;
+            margin: 0px auto;
+        }
+
+        .btn-outline {
+            border: 2px solid @color_white;
+            border-radius: 5px;
+            padding: 25px;
+            min-width: 275px;
+            font-size: 125%;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: @color_white;
+        }
+
+        .btn-green {
+            border-width: 2px;
+            border-radius: 5px;
+            padding: 25px;
+            min-width: 275px;
+            font-size: 125%;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: @color_white;
+            background-color: rgba(147, 183, 21, 0.91) !important;
+            border-color: rgba(147, 183, 21, 0.91) !important;
+            margin-left: 10px;
+        }
+
+    }
+
+    #how-it-works-section {
+        .circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 100px;
+            background-color: @color_orange;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        max-width: 1170px;
+        h3 {
+            font-size: 120%;
+        }
+
+        padding-bottom: 50px;
+        p {
+            color: @color_secondary;
+        }
+    }
+
+    #recommendations-section {
+        h2, h3 {
+            color: @color_white;
+        }
+        color: @color_white;
+        background-image: url(/static/appenlight/images/sections/index/recommendations.jpg);
+        background-position: center top;
+        min-height: 340px;
+        background-repeat: no-repeat;
+
+        .pattern {
+            background-image: url(/static/appenlight/images/dots2_bg.png);
+            min-height: 340px;
+            max-width: 1600px;
+            margin: 0px auto;
+        }
+
+    }
+
+    #set-up-section {
+        h2, h3 {
+            color: @color_white;
+        }
+        color: @color_white;
+        background-image: url(/static/appenlight/images/sections/index/logos.jpg);
+        background-position: center top;
+        min-height: 270px;
+        background-repeat: no-repeat;
+
+        .pattern {
+            background-image: url(/static/appenlight/images/dots2_bg.png);
+            min-height: 270px;
+            max-width: 1600px;
+            margin: 0px auto;
+        }
+
+        margin-bottom: 70px;
+
+        @media (max-width: 767px) {
+            img {
+                max-width: 135px;
+            }
+        }
+
+    }
+
+    #main-features {
+        padding: 60px 15px 0px 15px;
+
+        @media (min-width: 1200px) {
+            .description {
+                padding-top: 55px;
+            }
+        }
+
+        .description {
+
+            text-align: justify;
+            p {
+                line-height: 150%;
+                font-size: 125%;
+            }
+        }
+
+        h2 {
+            color: @color_orange;
+            font-size: 250%;
+            text-transform: uppercase;
+        }
+
+    }
+
+    #performance-monitoring, #uptime-monitoring {
+        background-color: #fbfbfb;
+        margin: 40px -15px;
+        padding: 40px 0px;
+        border-bottom: 3px solid #ececec;
+        border-top: 3px solid #ececec;
+        max-width: 1600px;
+    }
+
+}

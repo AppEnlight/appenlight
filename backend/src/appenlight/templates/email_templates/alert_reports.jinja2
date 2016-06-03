@@ -1,0 +1,11 @@
+{% extends "/email_templates/layout.jinja2" %}
+{% block page_title %}{% endblock %}
+{% block content %}
+    <h3>{{ alert_action }} : {{ alert_type | replace('alert', '')| replace('_', ' ') | upper}}Alert for {{resource.resource_name}}</h3>
+    <p>Status change on {{ since_when.strftime('%Y-%m-%d %H:%M') }}</p>
+    {% if event_values %}
+    <p>Your app sent at least {{ event_values['reports'] }} reports per minute.</p>
+    {% endif %}
+
+    <a href="{{ destination_url }}">{{ destination_url }}</a>
+{% endblock %}

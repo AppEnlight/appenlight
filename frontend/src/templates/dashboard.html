@@ -1,0 +1,349 @@
+<style type="text/css">
+    #metrics_chart .c3-line {
+        stroke-width: 0px;
+    }
+
+    #metrics_chart .c3-area {
+        stroke-width: 0;
+        opacity: 0.75;
+    }
+
+
+</style>
+
+<div class="row">
+    <div class="col-sm-12 dashboard" id="content">
+
+        <div ng-if="!AeUser.applications.length">
+
+            <div ng-include="'templates/quickstart.html'"></div>
+
+        </div>
+
+        <div ng-if="AeUser.applications.length">
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <form class="graph-type form-inline">
+                                <select ng-model="index.resource" ng-options="r.resource_id as r.resource_name for r in AeUser.applications" ng-change="index.updateSearchParams()"
+                                        class="SelectField form-control input-sm slim-input"></select>
+
+                                <select class="SelectField form-control input-sm slim-input" ng-model="index.timeSpan"
+                                        ng-options="i as i.label for i in index.timeOptions | objectToOrderedArray:'minutes'" ng-change="index.updateSearchParams()"
+                                        class="SelectField"></select>
+
+
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-primary btn-sm" ng-model="index.graphType.selected" ng-change="index.updateSearchParams()"
+                                            uib-btn-radio="'requests_graphs'" data-uib-tooltip="Requests per second">
+                                        <span class="fa fa-line-chart"></span>
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm" ng-model="index.graphType.selected" ng-change="index.updateSearchParams()"
+                                            uib-btn-radio="'response_graphs'" data-uib-tooltip="Average response time">
+                                        <span class="fa fa-random"></span>
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm" ng-model="index.graphType.selected" ng-change="index.updateSearchParams()"
+                                            uib-btn-radio="'metrics_graphs'" data-uib-tooltip="Time spent per request">
+                                        <span class="fa fa-bar-chart-o"></span>
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm" ng-model="index.graphType.selected" ng-change="index.updateSearchParams()"
+                                            uib-btn-radio="'report_graphs'" data-uib-tooltip="Errors">
+                                        <span class="fa fa-exclamation-triangle"></span>
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm" ng-model="index.graphType.selected" ng-change="index.updateSearchParams()"
+                                            uib-btn-radio="'slow_report_graphs'" data-uib-tooltip="Slow reports">
+                                        <span class="fa fa-clock-o"></span>
+                                    </button>
+                                </div>
+                            </form>
+                            <div class="clearfix"></div>
+
+                            <p ng-if="index.loading.series != false" class="text-center">
+                                <span class="fa fa-cog fa-spin fa-5x loader"></span>
+                            </p>
+
+                            <div ng-if="index.loading.series == false">
+                            <div ng-if="index.graphType.selected == 'requests_graphs'">
+                                <c3chart data-domid="reponse_chart" data-data="index.requestsChartData" data-config="index.requestsChartConfig" update="true">
+                                </c3chart>
+                            </div>
+
+                            <div ng-if="index.graphType.selected == 'response_graphs'">
+                                <c3chart data-domid="reponse_chart" data-data="index.responseChartData" data-config="index.responseChartConfig" update="true">
+                                </c3chart>
+                            </div>
+
+                            <div ng-if="index.graphType.selected == 'metrics_graphs'">
+                                <c3chart data-domid="metrics_chart" data-data="index.metricsChartData" data-config="index.metricsChartConfig" update="true">
+                                </c3chart>
+                            </div>
+                            <div ng-if="index.graphType.selected == 'report_graphs'">
+                                <c3chart data-domid="reports_chart" data-data="index.reportChartData" data-config="index.reportChartConfig" update="true">
+                                </c3chart>
+                            </div>
+
+                            <div ng-if="index.graphType.selected == 'slow_report_graphs'">
+                                <c3chart data-domid="slow_reports_chart" data-data="index.reportSlowChartData" data-config="index.reportSlowChartConfig" update="true">
+                                </c3chart>
+                            </div>
+
+                            <p ng-if="index.graphType.selected == 'requests_graphs'" class="text-center">
+                                <small>Average requests per second from all servers</small>
+                            </p>
+
+                            <p ng-if="index.graphType.selected == 'response_graphs'" class="text-center">
+                                <small>Average response time from all servers</small>
+                            </p>
+
+                            <p ng-if="index.graphType.selected == 'metrics_graphs'" class="text-center">
+                                <small>Aggregated average time spent per request - broken to layers</small>
+                            </p>
+
+                            <p ng-if="index.graphType.selected == 'report_graphs'" class="text-center">
+                                <small>Aggregated reports sent by your application</small>
+                            </p>
+
+                            <p ng-if="index.graphType.selected == 'slow_report_graphs'" class="text-center">
+                                <small>Aggregated slow reports sent by your application</small>
+                            </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-6">
+
+                    <div id="server-container">
+
+                        <div ng-if="index.loading.apdex==false" class="text-center m-b-1">
+
+                            <a data-ui-sref="report.list({resource:index.resource, start_date:index.startDateFilter})" class="combined-stat text-center" id="error-rate">
+                                <small>Exceptions</small>
+                                <br/>
+                                <strong>{{ index.exceptions|numberToThousands}}</strong>
+                                <span class="fa fa-chevron-right"></span>
+                            </a><!--
+
+                        --><a class="combined-stat text-center" id="satisfying-requests" data-uib-tooltip="Requests under 1s">
+                            <small>Satisfying req.</small>
+                            <br/>
+                            <strong>{{index.satisfyingRequests|numberToThousands}}</strong>
+                        </a><!--
+
+                     --><a data-ui-sref="report.list_slow({resource:index.resource, min_duration:1, max_duration:4, start_date:index.startDateFilter})" class="combined-stat text-center" id="tolerated-requests"
+                           data-uib-tooltip="Requests under 4s">
+                            <small>Tolerated req.</small>
+                            <br/>
+                            <strong>{{index.toleratedRequests|numberToThousands}}</strong>
+                            <span class="fa fa-chevron-right"></span>
+                        </a><!--
+
+                    --><a data-ui-sref="report.list_slow({resource:index.resource, min_duration:4, start_date:index.startDateFilter})" class="combined-stat text-center" id="frustrating-requests" data-uib-tooltip="Requests over 4s">
+                            <small>Frustrating req.</small>
+                            <br/>
+                            <strong>{{index.frustratingRequests|numberToThousands}}</strong>
+                            <span class="fa fa-chevron-right"></span>
+                        </a><!--
+
+                    --><a data-ui-sref="uptime({resource:index.resource})" class="combined-stat text-center" id="uptime-stats" data-uib-tooltip="Uptime">
+                            <small>Uptime</small>
+                            <br/>
+                            <strong>{{index.uptimeStats}}%</strong>
+                            <span class="fa fa-chevron-right"></span>
+                        </a>
+
+                            <div class="clearfix"></div>
+                        </div>
+
+                        <div id="apdex-rate" class="m-b-1 panel panel-default">
+                            <table class="servers table table-striped">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Server</th>
+                                    <th>Apdex
+                                <span class="fa fa-question-circle"
+                                      data-uib-tooltip="Application Performance Index - measures viewer satisfaction based on response times and error rates"></span>
+                                    </th>
+                                    <th>rpm</th>
+                                    <th>avg. response</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-if="index.loading.apdex!=false" class="text-center">
+                                    <td colspan="5"><span class="fa fa-cog fa-spin fa-5x loader"></span></td>
+                                </tr>
+                                <tr ng-repeat="server in index.apdexStats" class="{{ server | apdexValue }}"
+                                    ng-if="index.loading.apdex==false">
+                                    <td><span class="fa fa-hdd-o"></span></td>
+                                    <td>
+                                        <small><strong>{{ server.name }}</strong></small>
+                                    </td>
+                                    <td class="apdex">
+                                        <small><strong>{{ server.apdex }} %</strong></small>
+                                    </td>
+                                    <td>
+                                        <small><strong>{{ server.rpm }}rpm</strong></small>
+                                    </td>
+                                    <td>
+                                        <small><strong>{{ server.avg_response_time }}s</strong></small>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading position-relative">
+                            <h3 class="panel-title"><span class="fa fa-exclamation-triangle"></span> Newest errors (real-time)
+                            </h3>
+                            <a tooltip-append-to-body="true" data-uib-tooltip="Play/Pause stream" class="btn btn-primary btn-sm pause_stream" ng-model="index.stream.paused" uib-btn-checkbox>
+                                <span class="fa {{stream.paused ? 'fa-play' : 'fa-pause'}}"></span>
+                            </a>
+                            <a tooltip-append-to-body="true" data-uib-tooltip="Limit reports to current application" class="btn btn-primary btn-sm limit_stream" ng-model="index.stream.filtered" uib-btn-checkbox>
+                                <span class="fa fa-lock"></span>
+                            </a>
+
+
+                        </div>
+                        <div class="panel-body">
+
+                            <p ng-if="index.stream.reports.length === 0">No new reports</p>
+
+                            <div small-report-list reports="index.stream.reports" applications="index.applications"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><span class="fa fa-sort-amount-desc"></span> Request breakdown over {{ index.timeSpan.label }}</h3>
+                        </div>
+                        <div class="panel-body" id="view-breakdown-container">
+                            <p ng-if="index.loading.requestsBreakdown!=false" class="text-center">
+                                <span class="fa fa-cog fa-spin fa-5x loader"></span>
+                            </p>
+
+                            <div class="report-list">
+                                <div ng-if="index.loading.requestsBreakdown==false" ng-repeat="view in index.requestsBreakdown">
+                                    <div class="view-info">
+                                        <div class="view-name">
+                                            <div class="bar" style="width: {{view.percentage}}%">
+                                            </div>
+                                        </div>
+                                        <strong ng-if="view.latest_details.length">
+                                            <a data-ui-sref="report.list_slow({view_name:view.view_name})">{{view.view_name}}</a></strong>
+                                        <strong ng-if="!view.latest_details.length">{{view.view_name}}</strong>
+
+                                        <div class="stats">
+                                            <small>
+                                                avg. response <strong>{{view.avg_response}}s</strong> in
+                            <span class="requests"
+                                  data-uib-tooltip="Requests"><strong>{{view.requests|numberToThousands}}</strong> requests</span>
+
+                        <span ng-if="view.latest_details">
+                        &nbsp;&nbsp; Latest reports:
+                            <a ng-repeat="d in view.latest_details" target="_blank" ui-sref="report.view_detail({groupId:d.group_id, reportId:d.report_id})"> <strong>{{$index+1}}</strong></a>
+                        </span>
+                                            </small>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                <span class="fa fa-exclamation-triangle"></span> Report groups trending over {{ index.timeSpan.label }}
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <p ng-if="index.loading.reports != false" class="text-center">
+                                <span class="fa fa-cog fa-spin fa-5x loader"></span>
+                            </p>
+
+                            <p ng-if="index.trendingReports.length == 0 && index.loading.reports == false">
+                                No reports found
+                            </p>
+
+                            <div small-report-group-list groups="index.trendingReports" applications="index.applications" ng-if="index.loading.reports==false"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-sm-6">
+
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                Most common slow calls over {{ index.timeSpan.label }}
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+
+                            <div ng-if="index.loading.slowCalls!=false" class="text-center">
+                                <span class="fa fa-cog fa-spin fa-5x loader"></span>
+                            </div>
+
+                            <table id="slow-statements" ng-if="index.loading.slowCalls==false">
+                                <tbody>
+                                <tr ng-repeat="call in index.slowCalls">
+                                    <td class="occurences">
+                                        <span class="occurences" data-uib-tooltip="Occurences">{{call.occurences|numberToThousands}}</span>
+                                    </td>
+                                    <td class="ellipsis">
+                                        <small title="{{call.statement}}" class="statement">{{call.statement}}</small>
+                                        <br/>
+                                        <span class="type">{{call.statement_type}}</span>
+                                        <span class="subtype">{{call.statement_subtype}}</span>
+                                        <span class="duration" data-uib-tooltip="Average duration">{{call.total_duration/call.occurences|round:2}}s</span>
+                        <span class="report-list">
+                        Latest reports:
+                        <a ng-repeat="d in call.latest_details" target="_blank" ui-sref="report.view_detail({groupId:d.group_id, reportId:d.report_id})"> <strong>{{$index+1}}</strong> </a>
+                        </span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

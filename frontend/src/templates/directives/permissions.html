@@ -1,0 +1,84 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Permissions</h3>
+    </div>
+    <div class="panel-body">
+        <p>Here you can <strong>set permissions</strong> for others to access your app data.</p>
+
+        <p>For example you can let other staff member view or alter error reports.</p>
+
+        <div ng-if="permissions.possibleGroups.length > 0">
+            <h3>Group permissions</h3>
+
+            <ul class="list-group">
+                <li ng-repeat="perm in permissions.currentPermissions.group" class="animate-repeat list-group-item">
+                    <strong>{{ perm.self.group_name }}</strong>
+                    <div  ng-repeat="perm_name in perm.permissions" class="pull-right animate-repeat m-l-1">
+                        <span ng-if="perm_name == '__all_permissions__'">Resource owner</span>
+                        <span class="dropdown" data-uib-dropdown on-toggle="toggled(open)" ng-if="perm_name != '__all_permissions__'">
+                            <a class="btn btn-danger btn-xs" data-uib-dropdown-toggle><span class="fa fa-trash-o"></span> {{ perm_name }}</a>
+                          <ul class="dropdown-menu">
+                              <li><a>No</a></li>
+                              <li><a ng-click="permissions.removeGroupPermission(perm_name, perm)">Yes</a></li>
+                          </ul>
+                        </span>
+                    </div>
+                </li>
+            </ul>
+
+            <form name="add_permission" class="form-inline" ng-submit="permissions.setGroupPermission()">
+                <div class="form-group">
+                    <select class="form-control" ng-model="permissions.form.selectedGroup" ng-options="g.id as g.group_name for g in permissions.possibleGroups"></select>
+                </div>
+                <div class="form-group">
+                    <span ng-repeat="permission in permissions.possiblePermissions">
+                    <input type="checkbox" ng-model="permissions.form.selectedGroupPermissions[permission]"> {{ permission }}
+                    </span>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-info"><span class="fa fa-user"></span> Give permission</button>
+                </div>
+            </form>
+
+        </div>
+
+        <h3>User permissions</h3>
+        <div>
+            <ul class="list-group">
+                <li ng-repeat="perm in permissions.currentPermissions.user" class="animate-repeat list-group-item">
+                    <strong>{{ perm.self.user_name }}</strong>
+                    <div ng-repeat="perm_name in perm.permissions" class="pull-right animate-repeat m-l-1">
+                        <span ng-if="perm_name == '__all_permissions__'">Resource owner</span>
+                        <span class="dropdown" data-uib-dropdown on-toggle="toggled(open)" ng-if="perm_name != '__all_permissions__'">
+                            <a class="btn btn-danger btn-xs" data-uib-dropdown-toggle><span class="fa fa-trash-o"></span> {{ perm_name }}</a>
+                          <ul class="dropdown-menu">
+                              <li><a>No</a></li>
+                              <li><a ng-click="permissions.removeUserPermission(perm_name,perm)">Yes</a></li>
+                          </ul>
+                        </span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div>
+            <p>First enter username or full email of person you want to give access to (the person needs to be <strong>already registered in App Enlight</strong>)</p>
+
+            <form name="add_permission" class="form-inline" ng-submit="permissions.setUserPermission()">
+                <div class="form-group">
+                    <input type="text" class="autocomplete form-control" placeholder="Search for user/email" ng-model="permissions.form.autocompleteUser"
+                           uib-typeahead="u.user for u in permissions.searchUsers($viewValue) | limitTo:8" typeahead-loading="permissions.searchingUsers" typeahead-wait-ms="250"
+                           typeahead-template-url="templates/directives/user_search_type_ahead.html"
+                    />
+                </div>
+                <div class="form-group">
+                    <span ng-repeat="permission in permissions.possiblePermissions">
+                    <input type="checkbox" ng-model="permissions.form.selectedUserPermissions[permission]"> {{ permission }}
+                    </span>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-info" ng-disabled="!permissions.form.autocompleteUser"><span class="fa fa-user"></span> Give permission</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

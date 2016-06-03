@@ -1,0 +1,78 @@
+.jh-root, .jh-type-object, .jh-type-array, .jh-key, .jh-value, .jh-root tr{
+ -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+ -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+ box-sizing: border-box;         /* Opera/IE 8+ */
+}
+
+.jh-key, .jh-value{
+ margin: 0;
+ padding: 10px;
+}
+
+.jh-value{
+
+}
+
+.jh-type-bool, .jh-type-number{
+    font-weight: bold;
+    text-align: center;
+    color: #5286BC;
+}
+
+.jh-type-string{
+    font-style: italic;
+    color: #839B00;
+    word-break: break-all;
+}
+
+.jh-array-key{
+    font-style: italic;
+    font-size: small;
+    text-align: center;
+}
+
+.jh-object-key, .jh-array-key{
+    color: #444;
+    vertical-align: top;
+}
+
+.jh-type-object > tr:nth-child(odd), .jh-type-array > tr:nth-child(odd){
+    background-color: #f5f5f5;
+}
+
+.jh-type-object > tr:nth-child(even), .jh-type-array > tr:nth-child(even){
+    background-color: #fff;
+}
+
+.jh-type-object, .jh-type-array{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.jh-root{
+ margin: 0.2em;
+}
+
+th.jh-key{
+ text-align: left;
+ padding: 10px;
+ width: 50px;
+}
+
+.jh-type-object > tr, .jh-type-array > tr{
+ border-bottom: none;
+}
+
+.jh-type-object > tr:last-child, .jh-type-array > tr:last-child{
+
+}
+
+.jh-type-object > tr:hover, .jh-type-array > tr:hover{
+
+}
+
+.jh-empty{
+ font-style: italic;
+ color: #999;
+ font-size: small;
+}

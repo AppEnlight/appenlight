@@ -1,0 +1,103 @@
+table.log-list {
+    tr.odd, tr.even {
+    }
+
+    .http_status {
+        width: 52px;
+    }
+
+    .when {
+        width: 150px;
+    }
+
+    .tick {
+        width: 20px !important;
+    }
+
+    .c1 {
+        width: 130px;
+
+        .app_name {
+            font-weight: bold;
+        }
+        .server {
+            color: #777777;
+        }
+    }
+
+    .c2 {
+        .namespace {
+            color: @color_orange;
+            font-weight: bold;
+        }
+        word-break: break-all;
+        word-wrap: break-word;
+    }
+
+    .odd .c3, .even .c3 {
+        width: 90px;
+        font-size: 85%
+    }
+
+    .tag {
+        display: inline-block;
+        margin: 0 5px 0 0px;
+        padding: 2px 5px 1px;
+        font-size: 75%;
+        .border-radius(2px);
+        .inset-box-shadow(0, 0, 1px, rgba(0, 0, 0, 0.15));
+        border: 0px solid @color_light_grey;
+        background-color: lighten(@color_light_grey, 10%);
+        letter-spacing: 0.5px;
+        color: darken(@color_light_grey, 33%);
+        .name {
+            text-transform: uppercase;
+
+        }
+    }
+    .tag:hover {
+        .transition-duration;
+        -moz-transform: scale(1.20);
+        -webkit-transform: scale(1.20);
+        -o-transform: scale(1.20);
+        -ms-transform: scale(1.20);
+        transform: scale(1.20);
+    }
+
+    .unknown {
+        color: @color_grey !important;
+    }
+
+    .debug {
+        background-color: @color_green !important;
+        color: #ffffff !important;
+    }
+
+    .info {
+        background-color: lighten(@color_med_blue, 65%) !important;
+        color: @color_med_blue !important;
+        border-color: lighten(@color_med_blue, 33%);
+    }
+
+    .warning {
+        background-color: lighten(@color_orange, 55%) !important;
+        color: @color_orange !important;
+        border-color: lighten(@color_orange, 33%);
+    }
+
+    .error {
+        background-color: lighten(@color_red, 60%) !important;
+        color: @color_red !important;
+        border-color: lighten(@color_red, 50%);
+    }
+    .critical {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        background-color: #000000;
+    }
+    .log {
+        font-size: 85%;
+        margin-top: 5px;
+    }
+
+}

@@ -1,0 +1,33 @@
+{% extends "/layout.jinja2" %}
+{% block additional_layout_scripts %}
+
+{% endblock %}
+
+{% block additional_styles %}
+<script type="text/javascript">
+setTimeout(function(){
+      AppEnlight.log('error',"some test message");
+      AppEnlight.log('info',"some info message");
+      AppEnlight.log('warning',"some warn message");
+},2000);
+
+
+
+
+
+</script>
+{% endblock %}
+
+{% block content_class %}{% endblock %}
+{% set layout_disable_menu = True %}
+
+
+
+{% block page_title %}
+<h1 class="page-title">{{_('JS')}}</h1>
+{% endblock %}
+{% block content %}
+
+
+
+{% endblock %}

@@ -1,0 +1,30 @@
+<ng-include src="'templates/loader.html'" ng-if="email.loading.email"></ng-include>
+
+<div ng-show="!email.loading.email">
+
+    <div class="panel panel-default">
+        <div class="panel-heading" ng-include="'templates/user/breadcrumbs.html'"></div>
+        <div class="panel-body">
+            <p>Adding email alert channel - after you authorize your email in the system we can send alerts directly to this mailbox.</p>
+            <form class="form-horizontal" name="email.channelForm" ng-submit="email.createChannel()">
+                <div class="form-group" id="row-email">
+                    <data-form-errors errors="email.channelForm.ae_validation.email"></data-form-errors>
+                    <label id="label-email" class="control-label col-sm-4 col-lg-3">
+                        Email Address
+                        <span class="required">*</span>
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input class="form-control" type="text" ng-model="email.form.email">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="submit" class="control-label col-sm-4 col-lg-3">
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input class="form-control btn btn-primary" name="submit" type="submit" value="Add email channel">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

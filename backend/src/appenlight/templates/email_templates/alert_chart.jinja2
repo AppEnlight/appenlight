@@ -1,0 +1,19 @@
+{% extends "/email_templates/layout.jinja2" %}
+{% block page_title %}{% endblock %}
+{% block content %}
+    <h3>CHART: Alert for dashboard {{resource.resource_name}} and chart "{{ chart_name }}"</h3>
+
+    <p> Rule "{{ action_name }}" got matched for following values:</p>
+
+    <ul>
+    {% for item in readable_values %}
+        <li><strong>{{ item['label'] }}</strong>: {{ item['value'] }}</li>
+    {% endfor %}
+    </ul>
+
+    <a href="{{ destination_url }}">{{ destination_url }}</a>
+
+    <p>Status change on {{ since_when.strftime('%Y-%m-%d %H:%M') }}</p>
+
+
+{% endblock %}

@@ -1,0 +1,89 @@
+<ng-include src="'templates/loader.html'" ng-if="reports_list.is_loading"></ng-include>
+
+<div ng-if="reports_list.is_loading === false">
+
+    <p class="search-params">
+        <strong>Search params:</strong>
+        <span ng-repeat="tag in reports_list.searchParams.tags" class="tag">
+            <strong>{{tag.type}}</strong>
+            {{ tag.type == 'resource' ? reports_list.applications[tag.value].resource_name : tag.value }}
+
+            <a ng-click="reports_list.removeSearchTag(tag)"><span class="fa fa-times"></span></a>
+        </span>
+    </p>
+
+    <form class="form">
+        <div class="typeahead-tags">
+            <input type="text" id="typeAhead" ng-model="reports_list.filterTypeAhead" placeholder="Start typing to filter reports - filter by tags, exception, priority or other properties."
+                   ng-keydown="reports_list.typeAheadTag($event)"
+                   uib-typeahead="tag as tag.text for tag in reports_list.filterTypeAheadOptions | filter:$viewValue:aheadFilter"
+                   typeahead-min-length="1" class="form-control"
+                   typeahead-template-url="templates/directives/search_type_ahead.html">
+        </div>
+    </form>
+
+
+    <div class="well position-absolute increse-zindex" ng-show="reports_list.showDatePicker" ng-model="reports_list.pickerDate" ng-change="reports_list.pickerDateChanged()"
+         class="animate-show">
+        <uib-datepicker></uib-datepicker>
+    </div>
+
+    </p>
+
+
+    <div class="text-center">
+        <uib-pagination total-items="reports_list.itemCount" items-per-page="reports_list.itemsPerPage" ng-model="reports_list.searchParams.page" max-size="10"
+                        class="pagination pagination-sm" boundary-links="true" direction-links="false"
+                        ng-change="reports_list.paginationChange()"
+                        ng-show="!reports_list.is_loading"></uib-pagination>
+    </div>
+
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+
+        <table class="table table-striped report-list" ng-show="!reports_list.is_loading">
+            <caption>Reports</caption>
+            <thead>
+            <tr>
+                <th class="c1 ordering occurences">#</th>
+                <th class="c2 application">Application</th>
+                <th class="c4 when">When <input type="checkbox" ng-model="reports_list.notRelativeTime"
+                                                ng-change="reports_list.changeRelativeTime()"
+                                                title="Tick to see UTC time instead relative"></th>
+                <th class="c5 error_type">Error</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="report in reports_list.reportsPage track by report.id">
+                <td class="c1 occurences">
+                    <span class="priority-{{report.group.priority}}" data-uib-tooltip="Report priority">{{report.group.priority}}</span>
+              <span class="count {{report.presentation.className}}" data-uib-tooltip="{{report.presentation.tooltip}}">
+                  {{report.group.occurences|numberToThousands}}
+              </span>
+                </td>
+                <td class="c2 application">
+                    <div class="app_name">{{report.resource_name}}</div>
+                    <span class="server">@{{report.tags.server_name}}</span></td>
+                <td class="c3 when">
+                <span ng-show="!reports_list.notRelativeTime"><span data-uib-tooltip="{{report.group.last_timestamp}}"><iso-to-relative-time
+                        time="{{report.group.last_timestamp}}"/></span>
+                </span>
+                    <span ng-show="reports_list.notRelativeTime">{{report.group.last_timestamp.replace('T', ' ').slice(0,16)}}</span>
+                </td>
+                <td class="c4 report ellipsis"><a  ui-sref="report.view_detail({groupId:report.group.id, reportId:report.id})" title="{{report.error}}">{{report.error || 'Unknown Exception'}}</a> <br/>
+                    <span class="url">{{ report.tags.view_name || report.url_path}}</td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="text-center">
+        <uib-pagination total-items="reports_list.itemCount" items-per-page="reports_list.itemsPerPage" ng-model="reports_list.searchParams.page" max-size="10"
+                        class="pagination pagination-sm" boundary-links="true" direction-links="false"
+                        ng-change="reports_list.paginationChange()"
+                        ng-show="!reports_list.is_loading"></uib-pagination>
+    </div>
+
+</div>

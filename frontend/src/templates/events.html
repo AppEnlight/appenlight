@@ -1,0 +1,43 @@
+<div class="panel panel-default">
+    <div class="panel-body">
+
+        <h1>Event history</h1>
+
+        <table class="table table-striped event-table">
+            <tr ng-repeat="event in events.events track by event.id">
+                <td class="text-center icons">
+                    <span ng-if="event.event_type === 1" class="fa fa-exclamation-triangle fa-2x" style="color:orangered"></span>
+                    <span ng-if="event.event_type === 3" class="fa fa-clock-o fa-2x" style="color:darkorange"></span>
+                    <span ng-if="event.event_type === 7" class="fa fa-question-circle fa-2x" style="color:dimgrey"></span>
+                    <span ng-if="event.event_type === 9" class="fa fa-line-chart fa-2x" style="color:green"></span>
+                </td>
+                <td>
+                    <p>For <strong>{{ event.resource_name }}</strong></p>
+
+                    <p>{{ event.text }}</p>
+                    <small class="date" data-uib-tooltip="{{event.start_date}}"> created:
+                        <iso-to-relative-time time="{{event.start_date}}"/>
+                    </small>
+                    <small class="date" ng-show="event.end_date" data-uib-tooltip="{{event.end_date}}"> | closed:
+                        <iso-to-relative-time time="{{event.end_date}}"/>
+                    </small>
+                </td>
+                <td class="options">
+
+                    <span class="dropdown pull-right" ng-if="event.status === 1" data-uib-dropdown on-toggle="toggled(open)">
+                      <a class="dropdown-toggle btn btn-danger" data-uib-dropdown-toggle>
+                          <span class="fa fa-exclamation-circle"></span>
+                      </a>
+                      <ul class="dropdown-menu">
+                          <li>
+                              <a ng-click="events.closeEvent(event)">Close event</a>
+                              <a>Do nothing</a>
+                          </li>
+                      </ul>
+                    </span>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

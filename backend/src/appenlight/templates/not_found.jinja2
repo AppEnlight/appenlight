@@ -1,0 +1,16 @@
+{% extends "/layout.jinja2" %}
+{% set layout_disable_menu = True %}
+{% block page_title %}<h2><strong>404:</strong> {{_('This is NOT the page you are looking for.')}}</h2>{% endblock %}
+{% block content %}
+<div class="col-sm-10 col-sm-offset-1" id="content">
+
+<span class="fa fa-times-circle-o" style="float: left; font-size: 666%; margin: 20px 20px"></span>
+
+<p class="heading-text" style="margin-top: 53px">
+404: <a href="{{request.route_url('/')}}">Go back</a>
+</p>
+</div>
+{% endblock %}
+
+{% block menu %}{% endblock %}
+{% block section_name %} notFoundPage{% endblock %}

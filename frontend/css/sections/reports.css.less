@@ -1,0 +1,427 @@
+.top-state-report {
+
+    .affected-user-list {
+        margin: 0px;
+        padding: 0px;
+        li {
+            list-style: none;
+            padding-bottom: 5px;
+        }
+    }
+
+    .inspect_vars .glyphicon {
+        margin: 0 2px;
+        padding: 2px 5px 5px;
+    }
+
+    .priority {
+        border-radius: 20px 20px 20px 20px;
+        display: inline-block;
+        font-size: 79.4%;
+        font-weight: bold;
+        height: 15px;
+        padding: 1px 0 0;
+        text-align: center;
+        width: 15px;
+        position: absolute;
+        margin-left: 22px;
+        margin-top: -7px;
+        box-shadow: 0px 0px 2px rgb(255, 255, 255);
+    }
+
+    .priority-1 {
+        background-color: rgb(255, 233, 233);
+        color: rgb(255, 123, 123);
+        .priority
+    }
+
+    .priority-2 {
+        background-color: rgb(255, 211, 211);
+        color: @color_white;
+        .priority
+    }
+
+    .priority-3 {
+        background-color: rgb(255, 189, 189);
+        color: @color_white;
+        .priority
+    }
+
+    .priority-4 {
+        background-color: rgb(255, 167, 167);
+        color: @color_white;
+        .priority
+    }
+
+    .priority-5 {
+        background-color: rgb(255, 145, 145);
+        color: @color_white;
+        .priority
+    }
+
+    .priority-6 {
+        background-color: rgb(255, 123, 123);
+        color: @color_white;
+        .priority
+    }
+
+    .priority-7 {
+        background-color: rgb(255, 101, 101);
+        color: @color_white;
+        .priority
+    }
+
+    .priority-8 {
+        background-color: rgb(255, 79, 79);
+        color: @color_white;
+        .priority
+    }
+
+    .priority-9 {
+        background-color: rgb(255, 57, 57);
+        color: @color_white;
+        .priority
+    }
+
+    .priority-10 {
+        background-color: rgb(255, 35, 35);
+        color: @color_white;
+        .priority
+    }
+
+    .table.report-list {
+        table-layout: fixed;
+
+        .occurences {
+            width: 45px;
+        }
+
+        .priority {
+            width: 45px;
+        }
+
+        .when {
+            width: 120px;
+        }
+
+        .report {
+            font-weight: bold;
+        }
+
+        tbody td {
+            padding: 15px;
+        }
+
+        .occurences {
+            .count {
+                background-color: @color_orange;
+                border-radius: 3px;
+                color: #FFFFFF;
+                display: inline-block;
+                font-weight: bold;
+                height: 33px;
+                padding: 7px 0 0;
+                text-align: center;
+                width: 33px;
+            }
+
+            .fixed {
+                background-color: @color_green;
+            }
+
+            .public {
+                background-color: @color_dark_blue;
+            }
+
+            .reviewed {
+                background-color: @color_light_grey;
+                color: #000000;
+            }
+
+        }
+        .when {
+            font-size: 80%;
+        }
+        .url {
+            color: #777777;
+            font-weight: normal;
+        }
+
+        .tick {
+            width: 20px !important;
+        }
+
+        .application {
+            width: 150px;
+        }
+
+        td.application {
+            font-size: 80%;
+            .app_name {
+                font-weight: bold;
+            }
+            .server {
+                color: #777777;
+            }
+        }
+
+    }
+
+    #error-history_pane div {
+    }
+
+    #request-details-container #request-details {
+        font-size: 80%;
+        > ul {
+            padding: 0px;
+        }
+        li {
+            margin: 0px 0px 10px 0px;
+            list-style: none;
+        }
+    }
+
+    .reformat {
+        .white-block;
+        pre {
+            font-size: 0.88em;
+            font-family: monospace, monospace;
+            line-height: 1.8em;
+            color: #555555;
+
+            .border-radius(0px);
+            border: 0px;
+            margin: 0px;
+        }
+    }
+
+    .report-table {
+        font-size: 86%;
+        width: 100%;
+        td.table-label {
+            width: 115px;
+        }
+        &.with-ellipsis {
+            table-layout: fixed;
+        }
+
+        &.with-tags {
+            td.table-label {
+                width: 150px;
+                .word-wrap;
+            }
+        }
+    }
+
+    .report-table td.data {
+        padding-bottom: 10px;
+        vertical-align: top;
+    }
+
+    .report-table td.table-label {
+        min-width: 115px;
+        text-align: left;
+        padding: 0px 10px 0px 0px;
+        font-weight: bold;
+        line-height: 1.5em;
+        vertical-align: top;
+    }
+    .userRepresentation {
+        min-width: 200px;
+        height: 55px;
+        overflow: hidden;
+        margin-bottom: 5px;
+        list-style: none;
+        padding: 5px;
+        -webkit-transition-duration: 0.25s;
+        -moz-transition-duration: 0.25s;
+        -o-transition-duration: 0.25s;
+        transition-duration: 0.25s;
+
+        p {
+            margin: 0px;
+
+        }
+
+        &:hover {
+            background-color: rgb(255, 111, 0);
+            -webkit-transition-duration: 0.25s;
+            -moz-transition-duration: 0.25s;
+            -o-transition-duration: 0.25s;
+            transition-duration: 0.25s;
+        }
+
+        img {
+            float: left;
+            height: 50px;
+            max-width: 50px;
+            margin: 0px 5px 0px 0px;
+        }
+
+    }
+    .user_picker {
+        font-size: 80%;
+
+        .column {
+            width: 33%;
+            float: left;
+        }
+
+        ul {
+            padding: 0px;
+            height: 400px;
+            overflow: auto;
+            min-width: 250px;
+            border: 1px solid #eeeeee;
+            padding: 5px;
+            margin: 5px 0px;
+        }
+    }
+
+    .comment-holder {
+        border: 1px solid @color_light_grey;
+    }
+
+    .comment-holder {
+        background-color: #FFFFFF;
+        border: 1px solid #E1E1E1;
+        margin-bottom: 5px;
+        padding: 10px;
+    }
+
+    .comment-holder .icon.big {
+        margin: 0 0 0 -7px;
+    }
+
+    #comment_create .TextAreaField {
+        width: 90%;
+        height: 70px;
+    }
+
+    #basic-info_pane {
+        position: relative;
+    }
+
+    .switch_detail_holder {
+        position: absolute;
+        right: 10px;
+        font-size: 70%;
+    }
+
+    #similar-reports {
+        .notice {
+            color: lighten(@color_grey, 20%);
+        }
+    }
+
+    .frames {
+        margin-top: 15px;
+
+        .white-block;
+
+        .frame {
+            padding-bottom: 10px;
+            .icon {
+                padding: 10px
+            }
+            &.even {
+                background-color: #f9f9f9;
+            }
+        }
+
+        .frameline, .cline {
+            line-height: 150%;
+            color: lighten(@color_grey, 40%);
+        }
+        .mono {
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 86%;
+        }
+
+        .dim:hover {
+            opacity: 0.8;
+        }
+
+        .file {
+            color: @color_med_blue;
+            font-weight: bold;
+        }
+        .cline {
+            padding-left: 50px;
+            color: @color_vdark_grey;
+        }
+        .line {
+            color: @color_dark_blue;
+            font-weight: bold;
+        }
+        .fn {
+            color: @color_dark_orange;
+            font-weight: bold;
+        }
+
+    }
+
+    .var-listing {
+        td {
+            padding: 10px 10px 10px 10px;
+        }
+        .var-label {
+            margin-right: 10px;
+            font-weight: bold;
+            text-align: right;
+            vertical-align: top;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .odd {
+            background-color: rgba(0, 0, 0, 0.024);
+        }
+
+    }
+
+    .report-section {
+        #row-start_date, #row-end_date, #row-priority, #row-http_status {
+            display: inline-block;
+            width: 110px
+        }
+
+        .no-vars {
+            width: 31px;
+            display: inline-block;
+        }
+
+    }
+
+    .slow-report-section {
+        #row-start_date, #row-end_date {
+            display: inline-block;
+            width: 110px
+        }
+
+        #row-priority {
+            display: inline-block;
+            width: 75px
+        }
+
+        #row-min_request_time {
+            display: inline-block;
+            width: 140px;
+            input {
+                width: 75px;
+            }
+        }
+
+    }
+
+    .fixed {
+        color: @color_red;
+    }
+
+    .not-fixed {
+        color: @color_green;
+    }
+
+}

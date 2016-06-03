@@ -1,0 +1,214 @@
+{% extends "/layout.jinja2" %}
+{% from '/reports/reports_small_list_old.jinja2' import render_reports with context %}
+{% block additional_layout_scripts %}
+dojo.require('appenlight.dashboard.index');
+{% endblock %}
+{% block content_class %}{% endblock %}
+{% set layout_disable_menu = True %}
+
+{% block page_title %}
+<h1 class="page-title">{{_('Dashboard')}}</h1>
+{% endblock %}
+{% block content %}
+
+<h1>Header 1</h1>
+<h2>Header 2</h2>
+<h3>Header 3</h3>
+<p>paragraph paragraph paragraph paragraph paragraph paragraph paragraph</p>
+<p>paragraph paragraph paragraph paragraph paragraph paragraph paragraph</p>
+<p>paragraph paragraph paragraph paragraph paragraph paragraph paragraph</p>
+
+<a class="btn btn-default first" href="#">
+<span class="icon big chart_pie"></span>{{_('Dashboard')}}</a><!-- 
+--><a class="btn btn-default intermediate" href="#">
+<span class="icon big bug_error"></span>{{_('Browse Reports')}}</a><!--
+--><a class="btn btn-defaultintermediate" href="#">
+<span class="icon big column_right"></span>{{_('Browse Logs')}}</a><!--
+--><a class="btn btn-default intermediate" href="#">
+<span class="icon big clock_stop"></span>{{_('Browse Slow Requests')}}</a><!--
+ --><a class="btn btn-default intermediate" href="#">
+<span class="icon big widgets"></span>{{_('Applications')}}</a><!--  
+--><a class="btn btn-default last" href="#"><span class="icon big user"></span>{{_('Profile settings')}}</a>
+
+<h1 class="page-title">API Documentation</h1>
+
+                        
+
+<p > Errormator provides, simple yet powerful API that allows 
+your applications to interact with it. Basic functionalities of the API include:
+</p>
+<ul >
+<li><a href="#reports_api">Error Reporting</a></li>
+<li><a href="#logging_api">Logging</a></li>
+<li><a href="#slow_request_api">Slow request and query logging</a></li>
+
+</ul>
+<p >
+Errormator provides a <strong>RESTful</strong> API, to make it easy for custom implementations -  
+it is accessible under following URL: <strong>https://api.appenlight.com</strong>. </p>
+<p >All access to the API is secured by https protocol. All data is expected to be sent via <strong>json</strong> payloads with header <strong>Content-Type: application/json</strong></p>
+ 
+<h2>Official clients</h2>
+
+<p >Currently we have released only python wsgi middleware,
+ other clients will be released in future.
+</p>
+
+<ul >
+<li><a href="https://bitbucket.org/ergo/errormator_client_python"><strong>official python client</strong></a> (beta) </li>
+</ul>
+
+<form id="app_create" class="decorate" method="post" action="http://localhost:6543/applications/app_create">
+<fieldset>
+<legend>la la la lal </legend>
+<ul class="form-fields">
+
+    
+    
+        
+    
+    
+    <input type="hidden" value="867125dfb6fbb9fcf67e141b49b955d23db8235e" name="csrf_token" id="csrf_token" class="HiddenField None">
+    
+    
+
+    
+    
+        
+    
+    
+        <li id="row-resource_name" class="row">
+        <label id="label-resource_name" for="resource_name">Application name
+        
+        <span class="required">*</span>
+        
+        </label>
+    
+    <input type="text" value="" name="resource_name" id="resource_name" class="TextField None">
+    
+    
+       </li>
+    
+
+    
+    
+        
+    
+    
+        <li id="row-domain" class="row">
+        <label id="label-domain" for="domain">Domain name
+        
+        <span class="required">*</span>
+        
+        </label>
+    
+    <input type="text" value="" name="domain" id="domain" class="TextField None">
+    
+       <p class="description">
+                               Used to match application only from HTTP_REFERER 
+                               - for JS error tracking</p>
+    
+    
+       </li>
+    
+
+    
+    
+        
+    
+    
+        <li id="row-submit" class="row">
+        <label id="label-submit" for="submit">Create Application
+        
+        </label>
+    
+    <input type="submit" value="Create Application" name="submit" id="submit" class="SubmitField button">
+    
+    
+       </li>
+    
+
+</ul>
+</fieldset>
+</form>
+
+
+<table class="table table-striped report-list">
+	<caption>Reports</caption>
+	<tbody>
+		<tr class="header">
+			<td class="c1 ordering occurences"><a
+				href="https://errormator.com/reports/index/1?order_col=occurences&amp;order_dir=asc">#</a><span
+				class="marker"></span>
+			</td>
+			<td class="c2 http_status">Status</td>
+			<td class="c3 ordering priority"><a
+				href="https://errormator.com/reports/index/1?order_col=priority&amp;order_dir=asc">Pr.</a><span
+				class="marker"></span>
+			</td>
+			<td class="c4 ordering when"><a
+				href="https://errormator.com/reports/index/1?order_col=when&amp;order_dir=asc">When</a><span
+				class="marker"></span>
+			</td>
+			<td class="c5 error_type">Error Type</td>
+			<td class="c6 url">Url</td>
+		</tr>
+		<tr class="odd r1">
+			<td class="c1">1</td>
+			<td class="c2">500<span class="icon lightbulb_off"></span>
+			</td>
+			<td class="c3 priority-6"><span>6</span>
+			</td>
+			<td class="c4">29 days, 23 hours and 49 minutes</td>
+			<td class="c5 report"><a
+				href="/report/601564/view_report?search_id=">HTMLParseError:
+					malformed start...</a>
+			</td>
+			<td class="c5 url">www.points2shop.com/withdraws/request_w...</td>
+		</tr>
+		<tr class="even r2">
+			<td class="c1">3</td>
+			<td class="c2">500<span class="icon lightbulb_off"></span>
+			</td>
+			<td class="c3 priority-6"><span>6</span>
+			</td>
+			<td class="c4">29 days, 22 hours and 40 minutes</td>
+			<td class="c5 report"><a
+				href="/report/601562/view_report?search_id=">ValueError: invalid
+					literal for...</a>
+			</td>
+			<td class="c5 url">www.points2shop.com/offers/free%2Cfreebies</td>
+		</tr>
+		<tr class="odd r3">
+			<td class="c1">2</td>
+			<td class="c2">500<span class="icon lightbulb_off"></span>
+			</td>
+			<td class="c3 priority-6"><span>6</span>
+			</td>
+			<td class="c4">23 days, 9 hours and 33 minutes</td>
+			<td class="c5 report"><a
+				href="/report/601559/view_report?search_id=">StaleDataError:
+					UPDATE statemen...</a>
+			</td>
+			<td class="c5 url">www.points2shop.com/orders/pay_items</td>
+		</tr>
+		<tr class="even r4">
+			<td class="c1">1</td>
+			<td class="c2">500<span class="icon lightbulb_off"></span>
+			</td>
+			<td class="c3 priority-6"><span>6</span>
+			</td>
+			<td class="c4">29 days, 23 hours and 57 minutes</td>
+			<td class="c5 report"><a
+				href="/report/601555/view_report?search_id=">ProgrammingError:
+					(ProgrammingE...</a>
+			</td>
+			<td class="c5 url">www.points2shop.com/community/view_frie...</td>
+		</tr>
+	</tbody>
+</table>
+
+
+<br class="clear"/>
+
+{% endblock %}

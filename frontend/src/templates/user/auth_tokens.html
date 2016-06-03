@@ -1,0 +1,83 @@
+<ng-include src="'templates/loader.html'" ng-if="auth_tokens.loading.tokens"></ng-include>
+
+<div ng-show="!auth_tokens.loading.tokens">
+
+    <div class="panel panel-default">
+        <div class="panel-heading" ng-include="'templates/user/breadcrumbs.html'"></div>
+
+        <div class="panel-body">
+
+            <div class="alert alert-success">You can use those tokens to authenticate yourself when performing various API calls</div>
+
+            <hr/>
+
+            <form method="post" class="form-inline" name="auth_tokens.TokenForm" ng-submit="auth_tokens.addToken()" novalidate>
+                <data-form-errors errors="auth_tokens.TokenForm.ae_validation.description"></data-form-errors>
+                <data-form-errors errors="auth_tokens.TokenForm.ae_validation.expires"></data-form-errors>
+                <div class="form-group">
+                    <label>
+                        Description
+                    </label>
+                    <input class="form-control" name="description" placeholder="Token description" type="text" ng-model="auth_tokens.form.description">
+                </div>
+                <div class="form-group">
+                    <label>
+                        Expires
+                    </label>
+                    <select class="form-control" ng-model="auth_tokens.form.expires" ng-options="i.key as i.label for i in auth_tokens.expireOptions | objectToOrderedArray:'minutes'">
+                        <option value="">Never</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 col-lg-3">
+                    </label>
+                    <input class="form-control btn btn-primary" name="submit" type="submit" value="Create Token">
+                </div>
+            </form>
+
+        </div>
+
+
+    </div>
+
+    <div class="panel panel-default">
+        <table st-table="displayedCollection" st-safe-src="auth_tokens.tokens" class="table table-striped">
+            <caption>Your current tokens</caption>
+            <thead>
+            <tr>
+                <th st-sort="description"><a>Description</a></th>
+                <th class="created"><a>Created</a></th>
+                <th class="expires"><a>Expires</a></th>
+                <th class="options"></th>
+            </tr>
+            <tr>
+                <th><input st-search="description" placeholder="search for description" class="form-control" type="search" st-delay="1"/></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <tr ng-repeat="token in displayedCollection">
+                <td><p>{{token.description}}</p>
+                    <pre ng-init="token.limit = 8"  ng-mouseover="token.limit = 99" ng-mouseleave="token.limit = 8">{{token.token| limitTo:token.limit}}...</pre>
+                </td>
+                <td><span data-uib-tooltip="{{token.creation_date}}">{{token.creation_date | isoToRelativeTime}}</span></td>
+                <td><span ng-if="token.expires" data-uib-tooltip="{{token.expires}}">{{token.expires | isoToRelativeTime}}</span>
+                    <span ng-if="!token.expires">Never</span></td>
+                <td>
+                        <span class="dropdown" data-uib-dropdown on-toggle="toggled(open)">
+                            <a class="btn btn-danger" data-uib-dropdown-toggle><span class="fa fa-trash-o"></span></a>
+                          <ul class="dropdown-menu">
+                              <li><a>No</a></li>
+                              <li><a ng-click="auth_tokens.removeToken(token)">Yes</a></li>
+                          </ul>
+                        </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>

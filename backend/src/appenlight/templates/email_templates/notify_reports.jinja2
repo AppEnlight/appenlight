@@ -1,0 +1,35 @@
+{% extends "/email_templates/layout.jinja2" %}
+{% block page_title %}{% endblock %}
+{% block email_width %}98%{% endblock %};
+{% block email_max_width %}98%{% endblock %};
+{% block content %}    
+    <p>Recent reports since: {{timestamp}}</p>
+    <p>
+    <h3>{{resource_name}}</h3>
+    <table style="font-size: 12px; width: 100%" width="100%">
+    <thead>
+    <tr style="font-weight: bold;">
+    <th>Time</th>
+    <th>#</th>
+    <th>Error</th>
+    <th>Location</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for occurences, report in reports %}
+    <tr style="font-size: 10px">
+    <td style="padding: 5px; width: 100px">{{report.last_timestamp.strftime('%Y-%m-%d %H:%M')}}<br/>
+    <span style="color: #777777">@{{report.get_report().tags.get('server_name')}}</span></td>
+    <td style="padding: 5px; width: 50px; text-align: center;">{{occurences}}</td>
+    <td style="font-weight: bold; padding: 5px">
+    <a href="{{report.get_report().get_public_url(request, _app_url=_mail_url)}}" style="color: #FF6F00;">
+    {{report.error or 'Slow Report'}}
+    </a>
+    </td>
+    <td style="font-style: #777777;padding: 5px">{{report.get_report().tags.get('view_name') or report.get_report().url_path}}</td>
+    </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+    </p>
+{% endblock %}

@@ -1,0 +1,63 @@
+<ng-include src="'templates/loader.html'" ng-if="channels.loading.channels || channels.loading.applications"></ng-include>
+
+<div ng-if="!channels.loading.channels && !channels.loading.applications && !channels.loading.actions">
+
+    <div class="panel panel-default">
+        <div class="panel-heading" ng-include="'templates/user/breadcrumbs.html'"></div>
+        <div class="panel-body">
+            <h1>Report alert rules</h1>
+            <p>
+                <a class="btn btn-info" ng-click="channels.addAction()"><span class="fa fa-plus-circle"></span> Add top-level rule</a>
+            </p>
+
+            <report-alert-action action="action" rule-definitions="channels.ruleDefinitions"
+                                 possible-channels="channels.alertChannels"
+                                 actions="channels.alertActions" applications="channels.applications"
+                                 ng-repeat="action in channels.alertActions | filter: {type:'report'}"></report-alert-action>
+
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <h1>Alert channels</h1>
+
+            <p>Here you can configure your <em>alert channels</em>.</p>
+
+            <p>An alert channel serves as means of delivery of notifications about important events that happen in your applications.</p>
+
+            <div class="alert alert-success">You can add more integrations that support different alert channels via application management panel.</div>
+
+            <table class="table table-striped">
+                <tr ng-repeat="channel in channels.alertChannels" class="animate-repeat">
+                    <td><strong>{{ channel.channel_visible_value }}</strong></td>
+                    <td class="text-right">
+                        <span class="btn btn-default" data-uib-tooltip="Channel is {{ channel.channel_validated? '' :'NOT' }} validated" tooltip-append-to-body="true"
+                              ng-class="{dim:!channel.channel_validated}">
+                            <span class="fa" ng-class="{'fa-check-circle':channel.channel_validated,  'fa-times-circle':!channel.channel_validated}"></span>
+                        </span>
+                        <a class="btn btn-default" data-uib-tooltip="Press to turn {{ channel.send_alerts ? 'OFF' : 'ON' }} alerting on this chanel"
+                           ng-click="channels.updateChannel(channel,'send_alerts')" ng-class="{dim:!channel.send_alerts}" tooltip-append-to-body="true">
+                            <span class="fa fa-rss"></span> Alerts
+                        </a>
+                        <a class="btn btn-default" data-uib-tooltip="Press to turn {{ channel.daily_digest ? 'OFF' : 'ON' }} daily digests on this channel"
+                           ng-click="channels.updateChannel(channel,'daily_digest')" ng-class="{dim:!channel.daily_digest}" tooltip-append-to-body="true">
+                            <span class="fa fa-envelope"></span> Daily digests
+                        </a>
+
+                        <span class="dropdown" data-uib-dropdown on-toggle="toggled(open)">
+                            <a class="btn btn-default" data-uib-dropdown-toggle><span class="fa fa-trash-o"></span> Remove</a>
+                          <ul class="dropdown-menu">
+                              <li><a>No</a></li>
+                              <li><a ng-click="channels.removeChannel(channel)">Yes</a></li>
+                          </ul>
+                        </span>
+
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+
+</div>

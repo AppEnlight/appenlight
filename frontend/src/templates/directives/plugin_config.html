@@ -1,0 +1,5 @@
+<div ng-repeat="tmpl in plugin_ctrlr.inclusions track by $index">
+    <div><strong>Plugin: {{tmpl.name}}</strong></div>
+    <ng-include src="tmpl.template"></ng-include>
+    <hr/>
+</div>
