@@ -13,6 +13,7 @@ Manual Installation
 Install the app by performing
 
     pip install -r requirements.txt
+    
     python setup.py develop
 
 To run the app and configure datastore you need to run:
