@@ -122,8 +122,7 @@ module.exports = function (grunt) {
         less: {
             dev: {
                 files: {
-                    "build/release/css/front.css": "css/front_app.less",
-                    "build/release/css/front_landing.css": "css/front_landing.less"
+                    "build/release/css/front.css": "css/front_app.less"
                 }
             }
         }
