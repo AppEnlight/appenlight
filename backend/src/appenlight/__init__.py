@@ -100,7 +100,6 @@ def main(global_config, **settings):
     config.add_view_deriver('appenlight.predicates.csrf_view',
                             name='csrf_view')
 
-
     # later, when config is available
     dogpile_config = {'url': settings['redis.url'],
                       "redis_expiration_time": 86400,
@@ -130,10 +129,12 @@ def main(global_config, **settings):
     config.include('pyramid_jinja2')
     config.include('appenlight_client.ext.pyramid_tween')
     config.include('ziggurat_foundations.ext.pyramid.sign_in')
-    config.registry.es_conn = pyelasticsearch.ElasticSearch(
-        aslist(settings['elasticsearch.nodes']))
-    config.registry.redis_conn = redis.StrictRedis.from_url(
-        settings['redis.url'])
+    es_server_list = aslist(settings['elasticsearch.nodes'])
+    redis_url = settings['redis.url']
+    log.info('Elasticsearch server list: {}'.format(es_server_list))
+    log.info('Redis server: {}'.format(redis_url))
+    config.registry.es_conn = pyelasticsearch.ElasticSearch(es_server_list)
+    config.registry.redis_conn = redis.StrictRedis.from_url(redis_url)
 
     config.registry.redis_lockmgr = Redlock([settings['redis.redlock.url'], ],
                                             retry_count=0, retry_delay=0)
