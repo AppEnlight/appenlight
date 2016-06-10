@@ -98,7 +98,7 @@ class Log(Base, BaseModel):
             return None
 
         to_hash = '{}_{}_{}'.format(self.resource_id, self.primary_key,
-                                     self.namespace)
+                                    self.namespace)
         return hashlib.sha1(to_hash.encode('utf8')).hexdigest()
 
     def es_doc(self):

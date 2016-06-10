@@ -131,7 +131,7 @@ def main(global_config, **settings):
     config.include('appenlight_client.ext.pyramid_tween')
     config.include('ziggurat_foundations.ext.pyramid.sign_in')
     config.registry.es_conn = pyelasticsearch.ElasticSearch(
-        settings['elasticsearch.nodes'])
+        aslist(settings['elasticsearch.nodes']))
     config.registry.redis_conn = redis.StrictRedis.from_url(
         settings['redis.url'])
 
