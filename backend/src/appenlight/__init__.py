@@ -31,7 +31,7 @@ import appenlight.lib.encryption as encryption
 
 from authomatic.providers import oauth2, oauth1
 from authomatic import Authomatic
-from pyramid.config import Configurator, PHASE3_CONFIG
+from pyramid.config import PHASE3_CONFIG
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_mailer.mailer import Mailer
@@ -44,6 +44,7 @@ from redlock import Redlock
 from sqlalchemy import engine_from_config
 
 from appenlight.celery import configure_celery
+from appenlight.lib.configurator import CythonCompatConfigurator
 from appenlight.lib import cache_regions
 from appenlight.lib.ext_json import json
 from appenlight.security import groupfinder, AuthTokenAuthenticationPolicy
@@ -91,11 +92,12 @@ def main(global_config, **settings):
 
     # Create the Pyramid Configurator.
     settings['_mail_url'] = settings['mailing.app_url']
-    config = Configurator(settings=settings,
-                          authentication_policy=authentication_policy,
-                          authorization_policy=authorization_policy,
-                          root_factory='appenlight.security.RootFactory',
-                          default_permission='view')
+    config = CythonCompatConfigurator(
+        settings=settings,
+        authentication_policy=authentication_policy,
+        authorization_policy=authorization_policy,
+        root_factory='appenlight.security.RootFactory',
+        default_permission='view')
     config.set_default_csrf_options(require_csrf=True, header='X-XSRF-TOKEN')
     config.add_view_deriver('appenlight.predicates.csrf_view',
                             name='csrf_view')
@@ -131,8 +133,8 @@ def main(global_config, **settings):
     config.include('ziggurat_foundations.ext.pyramid.sign_in')
     es_server_list = aslist(settings['elasticsearch.nodes'])
     redis_url = settings['redis.url']
-    log.info('Elasticsearch server list: {}'.format(es_server_list))
-    log.info('Redis server: {}'.format(redis_url))
+    log.warning('Elasticsearch server list: {}'.format(es_server_list))
+    log.warning('Redis server: {}'.format(redis_url))
     config.registry.es_conn = pyelasticsearch.ElasticSearch(es_server_list)
     config.registry.redis_conn = redis.StrictRedis.from_url(redis_url)
 
