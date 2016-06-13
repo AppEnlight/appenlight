@@ -98,7 +98,7 @@ appenlight.public_api_key =
 # celery
 celery.broker_type = redis
 celery.broker_url = redis://localhost:6379/3
-celery.concurrency = 8
+celery.concurrency = 2
 celery.timezone = UTC
 
 [filter:paste_prefix]
@@ -125,14 +125,14 @@ pipeline = paste_prefix
 [server:main]
 use = egg:gunicorn#main
 host = 0.0.0.0:6543, unix:/tmp/appenlight.sock
-workers = 6
+workers = 2
 timeout = 90
 max_requests = 10000
 
 [server:api]
 use = egg:gunicorn#main
 host = 0.0.0.0:6553, unix:/tmp/api.appenlight.sock
-workers = 8
+workers = 2
 max_requests = 10000
 
 
