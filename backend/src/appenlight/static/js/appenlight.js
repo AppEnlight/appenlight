@@ -5748,10 +5748,10 @@ function kickstartAE() {
     "\n" +
     "<p>\n" +
     "    <span class=\"point\">1</span>\n" +
-    "    For App Enlight to operate you need to\n" +
-    "    <a data-ui-sref=\"applications.update({resourceId:'new'})\" target=\"_blank\"><strong>create app profile</strong></a> that allows\n" +
+    "    For App Enlight to operate, you need to\n" +
+    "    <a data-ui-sref=\"applications.update({resourceId:'new'})\" target=\"_blank\"><strong>create an app profile</strong></a> that allows\n" +
     "    you to\n" +
-    "    obtain <strong>API key</strong> that one of the clients can use.\n" +
+    "    obtain an <strong>API key</strong> that one of the clients can use.\n" +
     "</p>\n" +
     "\n" +
     "<div class=\"clear\"></div>\n" +
@@ -5767,7 +5767,7 @@ function kickstartAE() {
     "\n" +
     "<p>\n" +
     "    It can be the same email account you used to register withing App Enlight -\n" +
-    "    although we often recommend using separate <em>errors@...</em> account\n" +
+    "    although we often recommend using a separate <em>errors@...</em> account\n" +
     "    designated for alert notifications.\n" +
     "</p>\n" +
     "\n" +

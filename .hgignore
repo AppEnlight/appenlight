@@ -60,6 +60,9 @@ coverage.xml
 *.mo
 *.pot
 
+# Mac stuff:
+*.DS_Store
+
 # Django stuff:
 *.log
 local_settings.py
