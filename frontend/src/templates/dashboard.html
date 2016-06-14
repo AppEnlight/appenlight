@@ -127,10 +127,11 @@
                                 <span class="fa fa-chevron-right"></span>
                             </a><!--
 
-                        --><a class="combined-stat text-center" id="satisfying-requests" data-uib-tooltip="Requests under 1s">
-                            <small>Satisfying req.</small>
+                    --><a data-ui-sref="report.list_slow({resource:index.resource, min_duration:4, start_date:index.startDateFilter})" class="combined-stat text-center" id="frustrating-requests" data-uib-tooltip="Requests over 4s">
+                            <small>Frustrating req.</small>
                             <br/>
-                            <strong>{{index.satisfyingRequests|numberToThousands}}</strong>
+                            <strong>{{index.frustratingRequests|numberToThousands}}</strong>
+                            <span class="fa fa-chevron-right"></span>
                         </a><!--
 
                      --><a data-ui-sref="report.list_slow({resource:index.resource, min_duration:1, max_duration:4, start_date:index.startDateFilter})" class="combined-stat text-center" id="tolerated-requests"
@@ -140,12 +141,11 @@
                             <strong>{{index.toleratedRequests|numberToThousands}}</strong>
                             <span class="fa fa-chevron-right"></span>
                         </a><!--
-
-                    --><a data-ui-sref="report.list_slow({resource:index.resource, min_duration:4, start_date:index.startDateFilter})" class="combined-stat text-center" id="frustrating-requests" data-uib-tooltip="Requests over 4s">
-                            <small>Frustrating req.</small>
+                        
+                        --><a class="combined-stat text-center" id="satisfying-requests" data-uib-tooltip="Requests under 1s">
+                            <small>Satisfying req.</small>
                             <br/>
-                            <strong>{{index.frustratingRequests|numberToThousands}}</strong>
-                            <span class="fa fa-chevron-right"></span>
+                            <strong>{{index.satisfyingRequests|numberToThousands}}</strong>
                         </a><!--
 
                     --><a data-ui-sref="uptime({resource:index.resource})" class="combined-stat text-center" id="uptime-stats" data-uib-tooltip="Uptime">

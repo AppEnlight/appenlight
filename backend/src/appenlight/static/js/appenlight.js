@@ -4956,10 +4956,11 @@ function kickstartAE() {
     "                                <span class=\"fa fa-chevron-right\"></span>\n" +
     "                            </a><!--\n" +
     "\n" +
-    "                        --><a class=\"combined-stat text-center\" id=\"satisfying-requests\" data-uib-tooltip=\"Requests under 1s\">\n" +
-    "                            <small>Satisfying req.</small>\n" +
+    "                    --><a data-ui-sref=\"report.list_slow({resource:index.resource, min_duration:4, start_date:index.startDateFilter})\" class=\"combined-stat text-center\" id=\"frustrating-requests\" data-uib-tooltip=\"Requests over 4s\">\n" +
+    "                            <small>Frustrating req.</small>\n" +
     "                            <br/>\n" +
-    "                            <strong>{{index.satisfyingRequests|numberToThousands}}</strong>\n" +
+    "                            <strong>{{index.frustratingRequests|numberToThousands}}</strong>\n" +
+    "                            <span class=\"fa fa-chevron-right\"></span>\n" +
     "                        </a><!--\n" +
     "\n" +
     "                     --><a data-ui-sref=\"report.list_slow({resource:index.resource, min_duration:1, max_duration:4, start_date:index.startDateFilter})\" class=\"combined-stat text-center\" id=\"tolerated-requests\"\n" +
@@ -4970,11 +4971,10 @@ function kickstartAE() {
     "                            <span class=\"fa fa-chevron-right\"></span>\n" +
     "                        </a><!--\n" +
     "\n" +
-    "                    --><a data-ui-sref=\"report.list_slow({resource:index.resource, min_duration:4, start_date:index.startDateFilter})\" class=\"combined-stat text-center\" id=\"frustrating-requests\" data-uib-tooltip=\"Requests over 4s\">\n" +
-    "                            <small>Frustrating req.</small>\n" +
+    "                        --><a class=\"combined-stat text-center\" id=\"satisfying-requests\" data-uib-tooltip=\"Requests under 1s\">\n" +
+    "                            <small>Satisfying req.</small>\n" +
     "                            <br/>\n" +
-    "                            <strong>{{index.frustratingRequests|numberToThousands}}</strong>\n" +
-    "                            <span class=\"fa fa-chevron-right\"></span>\n" +
+    "                            <strong>{{index.satisfyingRequests|numberToThousands}}</strong>\n" +
     "                        </a><!--\n" +
     "\n" +
     "                    --><a data-ui-sref=\"uptime({resource:index.resource})\" class=\"combined-stat text-center\" id=\"uptime-stats\" data-uib-tooltip=\"Uptime\">\n" +
