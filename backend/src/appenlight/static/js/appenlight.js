@@ -4970,7 +4970,7 @@ function kickstartAE() {
     "                            <strong>{{index.toleratedRequests|numberToThousands}}</strong>\n" +
     "                            <span class=\"fa fa-chevron-right\"></span>\n" +
     "                        </a><!--\n" +
-    "\n" +
+    "                        \n" +
     "                        --><a class=\"combined-stat text-center\" id=\"satisfying-requests\" data-uib-tooltip=\"Requests under 1s\">\n" +
     "                            <small>Satisfying req.</small>\n" +
     "                            <br/>\n" +
@@ -5776,11 +5776,11 @@ function kickstartAE() {
     "\n" +
     "<p>\n" +
     "    <span class=\"point\">3</span>\n" +
-    "    In order for your application to stream meaningful information you will need to\n" +
+    "    In order for your application to stream meaningful information, you will need to\n" +
     "    integrate a compatible client for your language of choice.\n" +
     "</p>\n" +
     "\n" +
-    "<p>Head over to <a href=\"{{AeConfig.urls.docs}}\" target=\"_blank\">\n" +
+    "<p>Head over to the <a href=\"{{AeConfig.urls.docs}}\" target=\"_blank\">\n" +
     "    <strong>developers section</strong></a> for information on currently available\n" +
     "    clients that you can plug into your software</p>\n"
   );
