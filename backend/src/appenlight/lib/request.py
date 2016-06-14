@@ -108,7 +108,7 @@ def get_authomatic(request):
         # callback http://yourapp.com/social_auth/facebook
         'facebook': {
             'class_': oauth2.Facebook,
-            'consumer_key': settings.get('authomatic.pr.facebook.app_id', 'X'),
+            'consumer_key': settings.get('authomatic.pr.facebook.app_id', ''),
             'consumer_secret': settings.get('authomatic.pr.facebook.secret',
                                             ''),
             'scope': ['email'],
