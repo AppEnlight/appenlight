@@ -203,9 +203,21 @@ def register(request):
         headers = security.remember(request, new_user.id)
         return HTTPFound(location=request.route_url('/'),
                          headers=headers)
+    settings = request.registry.settings
+    social_plugins = {}
+    if settings.get('authomatic.pr.twitter.key', ''):
+        social_plugins['twitter'] = True
+    if settings.get('authomatic.pr.google.key', ''):
+        social_plugins['google'] = True
+    if settings.get('authomatic.pr.github.key', ''):
+        social_plugins['github'] = True
+    if settings.get('authomatic.pr.bitbucket.key', ''):
+        social_plugins['bitbucket'] = True
+
     return {
         "form": form,
-        "sign_in_form": sign_in_form
+        "sign_in_form": sign_in_form,
+        "social_plugins": social_plugins
     }
 
 

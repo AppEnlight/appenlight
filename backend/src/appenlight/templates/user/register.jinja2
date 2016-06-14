@@ -13,25 +13,31 @@
     <div class="m-t-1 row">
         {{ widgets.render_flash_messages(flash_msgs) }}
     </div>
-
+    {% if social_plugins %}
     <div class="row">
 
         <div class="col-sm-12 text-center" id="social-form">
 
             <h2>Log in or register using</h2>
-
+            {% if social_plugins.get('google') %}
             <a href="{{ request.route_url('social_auth', provider='google') }}"
                class="btn btn-default social" id="btn-google">
                 <span class="fa fa-google-plus-square fa-2x"></span> {{ _('Google') }}
             </a>
+            {% endif %}
+            {% if social_plugins.get('twitter') %}
             <a href="{{ request.route_url('social_auth', provider='twitter') }}"
                class="btn btn-default social" id="btn-twitter">
                 <span class="fa fa-twitter fa-2x"></span> {{ _('Twitter') }}
             </a>
+            {% endif %}
+            {% if social_plugins.get('bitbucket') %}
             <a href="{{ request.route_url('social_auth', provider='bitbucket') }}"
                class="btn btn-default social" id="btn-bitbucket">
                 <span class="fa fa-bitbucket fa-2x"></span> {{ _(' Bitbucket') }}
             </a>
+            {% endif %}
+            {% if social_plugins.get('github') %}
             <a tooltip-placement="bottom"
                data-uib-tooltip="Why do you ask private repository permissions?
                Unfortunately Github doesn't allow issue tracker integration
@@ -40,14 +46,15 @@
                class="btn btn-default social" id="btn-github">
                 <span class="fa fa-github fa-2x"></span> {{ _('Github') }}
             </a>
+            {% endif %}
 
         </div>
     </div>
-
-    <div class="row">
-
         <hr/>
 
+    {% endif %}
+
+    <div class="row">
 
         <div class="col-sm-5">
             <div id="sign-in-form">
