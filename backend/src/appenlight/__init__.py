@@ -29,8 +29,6 @@ from pkg_resources import iter_entry_points
 import appenlight.lib.jinja2_filters as jinja2_filters
 import appenlight.lib.encryption as encryption
 
-from authomatic.providers import oauth2, oauth1
-from authomatic import Authomatic
 from pyramid.config import PHASE3_CONFIG
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
@@ -125,6 +123,8 @@ def main(global_config, **settings):
                                 'unsafe_json_body', reify=True)
     config.add_request_method('appenlight.lib.request.add_flash_to_headers',
                               'add_flash_to_headers')
+    config.add_request_method('appenlight.lib.request.get_authomatic',
+                              'authomatic', reify=True)
 
     config.include('pyramid_redis_sessions')
     config.include('pyramid_tm')
@@ -180,49 +180,6 @@ def main(global_config, **settings):
     config.scan(ignore=['appenlight.migrations',
                         'appenlight.scripts',
                         'appenlight.tests'])
-
-    # authomatic social auth
-    authomatic_conf = {
-        # callback http://yourapp.com/social_auth/twitter
-        'twitter': {
-            'class_': oauth1.Twitter,
-            'consumer_key': settings.get('authomatic.pr.twitter.key', 'X'),
-            'consumer_secret': settings.get('authomatic.pr.twitter.secret',
-                                            'X'),
-        },
-        # callback http://yourapp.com/social_auth/facebook
-        'facebook': {
-            'class_': oauth2.Facebook,
-            'consumer_key': settings.get('authomatic.pr.facebook.app_id', 'X'),
-            'consumer_secret': settings.get('authomatic.pr.facebook.secret',
-                                            'X'),
-            'scope': ['email'],
-        },
-        # callback http://yourapp.com/social_auth/google
-        'google': {
-            'class_': oauth2.Google,
-            'consumer_key': settings.get('authomatic.pr.google.key', 'X'),
-            'consumer_secret': settings.get(
-                'authomatic.pr.google.secret', 'X'),
-            'scope': ['profile', 'email'],
-        },
-        'github': {
-            'class_': oauth2.GitHub,
-            'consumer_key': settings.get('authomatic.pr.github.key', 'X'),
-            'consumer_secret': settings.get(
-                'authomatic.pr.github.secret', 'X'),
-            'scope': ['repo', 'public_repo', 'user:email'],
-            'access_headers': {'User-Agent': 'AppEnlight'},
-        },
-        'bitbucket': {
-            'class_': oauth1.Bitbucket,
-            'consumer_key': settings.get('authomatic.pr.bitbucket.key', 'X'),
-            'consumer_secret': settings.get(
-                'authomatic.pr.bitbucket.secret', 'X')
-        }
-    }
-    config.registry.authomatic = Authomatic(
-        config=authomatic_conf, secret=settings['authomatic.secret'])
 
     # resource type information
     config.registry.resource_types = ['resource', 'application']

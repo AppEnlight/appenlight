@@ -19,9 +19,14 @@
 # services, and proprietary license terms, please see
 # https://rhodecode.com/licenses/
 
-import appenlight.lib.helpers as helpers
 import json
+
 from pyramid.security import unauthenticated_userid
+
+import appenlight.lib.helpers as helpers
+
+from authomatic.providers import oauth2, oauth1
+from authomatic import Authomatic
 from appenlight.models.user import User
 
 
@@ -87,3 +92,49 @@ def add_flash_to_headers(request, clear=True):
     flash_msgs = helpers.get_type_formatted_flash(request)
     request.response.headers['x-flash-messages'] = json.dumps(flash_msgs)
     helpers.clear_flash(request)
+
+
+def get_authomatic(request):
+    settings = request.registry.settings
+    # authomatic social auth
+    authomatic_conf = {
+        # callback http://yourapp.com/social_auth/twitter
+        'twitter': {
+            'class_': oauth1.Twitter,
+            'consumer_key': settings.get('authomatic.pr.twitter.key', ''),
+            'consumer_secret': settings.get('authomatic.pr.twitter.secret',
+                                            ''),
+        },
+        # callback http://yourapp.com/social_auth/facebook
+        'facebook': {
+            'class_': oauth2.Facebook,
+            'consumer_key': settings.get('authomatic.pr.facebook.app_id', 'X'),
+            'consumer_secret': settings.get('authomatic.pr.facebook.secret',
+                                            ''),
+            'scope': ['email'],
+        },
+        # callback http://yourapp.com/social_auth/google
+        'google': {
+            'class_': oauth2.Google,
+            'consumer_key': settings.get('authomatic.pr.google.key', ''),
+            'consumer_secret': settings.get(
+                'authomatic.pr.google.secret', ''),
+            'scope': ['profile', 'email'],
+        },
+        'github': {
+            'class_': oauth2.GitHub,
+            'consumer_key': settings.get('authomatic.pr.github.key', ''),
+            'consumer_secret': settings.get(
+                'authomatic.pr.github.secret', ''),
+            'scope': ['repo', 'public_repo', 'user:email'],
+            'access_headers': {'User-Agent': 'AppEnlight'},
+        },
+        'bitbucket': {
+            'class_': oauth1.Bitbucket,
+            'consumer_key': settings.get('authomatic.pr.bitbucket.key', ''),
+            'consumer_secret': settings.get(
+                'authomatic.pr.bitbucket.secret', '')
+        }
+    }
+    return Authomatic(
+        config=authomatic_conf, secret=settings['authomatic.secret'])

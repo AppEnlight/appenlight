@@ -512,7 +512,7 @@ def social_auth(request):
 
     # Start the login procedure.
     adapter = WebObAdapter(request, request.response)
-    result = request.registry.authomatic.login(adapter, provider_name)
+    result = request.authomatic.login(adapter, provider_name)
     if result:
         if result.error:
             return handle_auth_error(request, result)
