@@ -239,17 +239,4 @@ def app_main_index(request):
      - latest events
      (those last two come from subscribers.py that sets global renderer variables)
     """
-
-    if request.user:
-        request.user.last_login_date = datetime.datetime.utcnow()
-        applications = request.user.resources_with_perms(
-            ['view'], resource_types=['application'])
-        # convert for angular
-        applications = dict(
-            [(a.resource_id, a.resource_name) for a in applications.all()]
-        )
-    else:
-        applications = {}
-    return {
-        'applications': applications
-    }
+    return {}
