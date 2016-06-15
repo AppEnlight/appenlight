@@ -8573,13 +8573,19 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
 
     var intervalId = $interval(function () {
         if (_.contains(['30m', "1h"], vm.timeSpan.key)) {
+            // don't do anything if window is unfocused
+            if(document.hidden === true){
+                return ;
+            }
             vm.refreshData();
         }
     }, 60000);
 
     $scope.$on('$destroy',function(){
         $interval.cancel(intervalId);
-        vm.websocket.close();
+        if (vm.websocket && vm.websocket.readyState == 1){
+            vm.websocket.close();
+        }
     });
 
 
