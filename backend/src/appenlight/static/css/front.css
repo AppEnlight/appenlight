@@ -8005,6 +8005,7 @@ h4 {
   min-height: 50px;
 }
 .panel-heading {
+  padding: 14px;
   background: -moz-linear-gradient(top, rgba(252, 254, 255, 0) 0%, rgba(0, 0, 0, 0.05) 100%);
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(252, 254, 255, 0)), color-stop(100%, rgba(0, 0, 0, 0.05)));
   background: -webkit-linear-gradient(top, rgba(252, 254, 255, 0) 0%, rgba(0, 0, 0, 0.05) 100%);
@@ -8167,12 +8168,12 @@ h4 {
 }
 .top-state-front_dashboard .pause_stream {
   position: absolute;
-  top: 5px;
+  top: 7px;
   right: 50px;
 }
 .top-state-front_dashboard .limit_stream {
   position: absolute;
-  top: 5px;
+  top: 7px;
   right: 10px;
 }
 .top-state-front_dashboard .combined-stat {
@@ -8359,7 +8360,8 @@ h4 {
   display: inline-block;
   min-height: 33px;
   min-width: 33px;
-  padding: 8px 0 0;
+  padding: 8px;
+  margin-top: 8px;
   text-align: center;
 }
 .top-state-front_dashboard #slow-statements .type {
