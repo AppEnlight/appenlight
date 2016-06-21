@@ -8603,6 +8603,20 @@ table.log-list .log {
 .register-section #btn-demo {
   border: 1px solid #239100 !important;
 }
+.top-state-report h3 {
+  margin: 0 0 15px;
+}
+.top-state-report .tab-pane {
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  border-radius: 4px;
+}
+.top-state-report .perf_stats,
+.top-state-report .report-table {
+  margin-bottom: 30px;
+}
 .top-state-report .affected-user-list {
   margin: 0px;
   padding: 0px;
