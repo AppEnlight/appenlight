@@ -8447,6 +8447,12 @@ h4 {
 .top-state-front_dashboard .chart-layout-form {
   margin-bottom: 15px;
 }
+form.graph-type.form-inline {
+  margin: 0 10px 10px 0;
+}
+form.graph-type.form-inline select {
+  margin-right: 10px;
+}
 table.log-list .http_status {
   width: 52px;
 }
