@@ -101,6 +101,11 @@ celery.broker_url = redis://localhost:6379/3
 celery.concurrency = 2
 celery.timezone = UTC
 
+# tasks
+
+# how often run alerting tasks (60s default)
+tasks.notifications_reports.interval = 60
+
 [filter:paste_prefix]
 use = egg:PasteDeploy#prefix
 
@@ -108,6 +113,9 @@ use = egg:PasteDeploy#prefix
 [filter:appenlight_client]
 use = egg:appenlight_client
 appenlight.api_key =
+
+# appenlight.transport_config = http://127.0.0.1:6543?threaded=1&timeout=5&verify=0
+# by default uses api.appenlight.com server
 appenlight.transport_config =
 appenlight.report_local_vars = true
 appenlight.report_404 = true

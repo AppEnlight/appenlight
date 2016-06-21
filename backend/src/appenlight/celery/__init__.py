@@ -50,6 +50,7 @@ celery.user_options['preload'].add(
            help='Specifies pyramid configuration file location.')
 )
 
+
 @user_preload_options.connect
 def on_preload_parsed(options, **kwargs):
     """
@@ -75,7 +76,7 @@ def on_preload_parsed(options, **kwargs):
 
 
 celery_config = {
-    'CELERY_IMPORTS': ["appenlight.celery.tasks",],
+    'CELERY_IMPORTS': ["appenlight.celery.tasks", ],
     'CELERYD_TASK_TIME_LIMIT': 60,
     'CELERYD_MAX_TASKS_PER_CHILD': 1000,
     'CELERY_IGNORE_RESULT': True,
@@ -86,23 +87,37 @@ celery_config = {
     'CELERYD_CONCURRENCY': None,
     'CELERY_TIMEZONE': None,
     'CELERYBEAT_SCHEDULE': {
-        'alerting': {
-            'task': 'appenlight.celery.tasks.alerting',
+        'alerting_reports': {
+            'task': 'appenlight.celery.tasks.alerting_reports',
             'schedule': timedelta(seconds=60)
         },
-        'daily_digest': {
-            'task': 'appenlight.celery.tasks.daily_digest',
-            'schedule': crontab(minute=1, hour='4,12,20')
-        },
+        'close_alerts': {
+            'task': 'appenlight.celery.tasks.close_alerts',
+            'schedule': timedelta(seconds=60)
+        }
     }
 }
 celery.config_from_object(celery_config)
+
 
 def configure_celery(pyramid_registry):
     settings = pyramid_registry.settings
     celery_config['BROKER_URL'] = settings['celery.broker_url']
     celery_config['CELERYD_CONCURRENCY'] = settings['celery.concurrency']
     celery_config['CELERY_TIMEZONE'] = settings['celery.timezone']
+
+    notifications_seconds = int(settings.get('tasks.notifications_reports.interval', 60))
+
+    celery_config['CELERYBEAT_SCHEDULE']['notifications'] = {
+        'task': 'appenlight.celery.tasks.notifications_reports',
+        'schedule': timedelta(seconds=notifications_seconds)
+    }
+
+    celery_config['CELERYBEAT_SCHEDULE']['daily_digest'] = {
+        'task': 'appenlight.celery.tasks.daily_digest',
+        'schedule': crontab(minute=1, hour='4,12,20')
+    }
+
     if asbool(settings.get('celery.always_eager')):
         celery_config['CELERY_ALWAYS_EAGER'] = True
         celery_config['CELERY_EAGER_PROPAGATES_EXCEPTIONS'] = True
@@ -122,13 +137,13 @@ def task_prerun_signal(task_id, task, args, kwargs, **kwaargs):
         env = celery.pyramid
         env = prepare(registry=env['request'].registry)
         proper_base_url = env['request'].registry.settings['mailing.app_url']
-        tmp_request = Request.blank('/', base_url=proper_base_url)
+        tmp_req = Request.blank('/', base_url=proper_base_url)
         # ensure tasks generate url for right domain from config
-        env['request'].environ['HTTP_HOST'] = tmp_request.environ['HTTP_HOST']
-        env['request'].environ['SERVER_PORT'] = tmp_request.environ['SERVER_PORT']
-        env['request'].environ['SERVER_NAME'] = tmp_request.environ['SERVER_NAME']
-        env['request'].environ['wsgi.url_scheme'] = tmp_request.environ[
-            'wsgi.url_scheme']
+        env['request'].environ['HTTP_HOST'] = tmp_req.environ['HTTP_HOST']
+        env['request'].environ['SERVER_PORT'] = tmp_req.environ['SERVER_PORT']
+        env['request'].environ['SERVER_NAME'] = tmp_req.environ['SERVER_NAME']
+        env['request'].environ['wsgi.url_scheme'] = \
+            tmp_req.environ['wsgi.url_scheme']
     get_current_request().tm.begin()
 
 

@@ -38,6 +38,8 @@ REDIS_KEYS = {
         'metrics_per_minute_per_app': BASE.format(
             'metrics_per_minute_per_app:{}:{}'),
         'report_group_occurences': BASE.format('report_group_occurences:{}'),
+        'report_group_occurences_alerting': BASE.format(
+            'report_group_occurences_alerting:{}'),
         'report_group_occurences_10th': BASE.format(
             'report_group_occurences_10th:{}'),
         'report_group_occurences_100th': BASE.format(
@@ -53,7 +55,13 @@ REDIS_KEYS = {
     },
     'apps_that_had_reports': BASE.format('apps_that_had_reports'),
     'apps_that_had_error_reports': BASE.format('apps_that_had_error_reports'),
+    'apps_that_had_reports_alerting': BASE.format(
+        'apps_that_had_reports_alerting'),
+    'apps_that_had_error_reports_alerting': BASE.format(
+        'apps_that_had_error_reports_alerting'),
     'reports_to_notify_per_type_per_app': BASE.format(
         'reports_to_notify_per_type_per_app:{}:{}'),
+    'reports_to_notify_per_type_per_app_alerting': BASE.format(
+        'reports_to_notify_per_type_per_app_alerting:{}:{}'),
     'seen_tag_list': BASE.format('seen_tag_list')
 }

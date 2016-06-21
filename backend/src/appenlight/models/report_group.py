@@ -141,7 +141,7 @@ class ReportGroup(Base, BaseModel):
             report_dict = report.get_dict(request)
             # if was not processed yet
             if (rule_obj.match(report_dict) and
-                    action.pkey not in self.triggered_postprocesses_ids):
+                        action.pkey not in self.triggered_postprocesses_ids):
                 action.postprocess(self)
                 # this way sqla can track mutation of list
                 self.triggered_postprocesses_ids = \
@@ -193,14 +193,23 @@ class ReportGroup(Base, BaseModel):
             self.report_type, current_time)
         Datastores.redis.incr(key)
         Datastores.redis.expire(key, 3600 * 24)
-        # detailed app notification
+        # detailed app notification for alerts and notifications
         Datastores.redis.sadd(REDIS_KEYS['apps_that_had_reports'],
+                              self.resource_id)
+        Datastores.redis.sadd(REDIS_KEYS['apps_that_had_reports_alerting'],
                               self.resource_id)
         # only notify for exceptions here
         if self.report_type == ReportType.error:
-            Datastores.redis.sadd(REDIS_KEYS['apps_that_had_reports'],
-                                  self.resource_id)
+            Datastores.redis.sadd(
+                REDIS_KEYS['apps_that_had_reports'],
+                self.resource_id)
+            Datastores.redis.sadd(
+                REDIS_KEYS['apps_that_had_error_reports_alerting'],
+                self.resource_id)
         key = REDIS_KEYS['counters']['report_group_occurences'].format(self.id)
+        Datastores.redis.incr(key)
+        Datastores.redis.expire(key, 3600 * 24)
+        key = REDIS_KEYS['counters']['report_group_occurences_alerting'].format(self.id)
         Datastores.redis.incr(key)
         Datastores.redis.expire(key, 3600 * 24)
 
@@ -214,6 +223,10 @@ class ReportGroup(Base, BaseModel):
             Datastores.redis.setex(key, 3600 * 24, 1)
 
         key = REDIS_KEYS['reports_to_notify_per_type_per_app'].format(
+            self.report_type, self.resource_id)
+        Datastores.redis.sadd(key, self.id)
+        Datastores.redis.expire(key, 3600 * 24)
+        key = REDIS_KEYS['reports_to_notify_per_type_per_app_alerting'].format(
             self.report_type, self.resource_id)
         Datastores.redis.sadd(key, self.id)
         Datastores.redis.expire(key, 3600 * 24)

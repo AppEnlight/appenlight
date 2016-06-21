@@ -30,7 +30,7 @@ from appenlight_client.exceptions import get_current_traceback
 
 def generate_random_string(chars=10):
     return ''.join(random.sample(string.ascii_letters * 2 + string.digits,
-                                  chars))
+                                 chars))
 
 
 def to_integer_safe(input):
@@ -39,6 +39,7 @@ def to_integer_safe(input):
     except (TypeError, ValueError,):
         return None
 
+
 def print_traceback(log):
     traceback = get_current_traceback(skip=1, show_hidden_frames=True,
                                       ignore_system_exceptions=True)
@@ -46,6 +47,7 @@ def print_traceback(log):
     log.error(exception_text)
     log.error(traceback.plaintext)
     del traceback
+
 
 def get_callable(import_string):
     import_module, indexer_callable = import_string.split(':')

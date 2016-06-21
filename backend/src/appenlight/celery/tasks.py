@@ -410,7 +410,8 @@ def add_metrics_es(es_docs):
 
 
 @celery.task(queue="default", default_retry_delay=5, max_retries=2)
-def check_user_report_notifications(resource_id, since_when=None):
+def check_user_report_notifications(resource_id):
+    since_when = datetime.utcnow()
     try:
         request = get_current_request()
         application = ApplicationService.by_id(resource_id)
@@ -442,14 +443,13 @@ def check_user_report_notifications(resource_id, since_when=None):
 
         ApplicationService.check_for_groups_alert(
             application, 'alert', report_groups=report_groups,
-            occurence_dict=occurence_dict, since_when=since_when)
+            occurence_dict=occurence_dict)
         users = set([p.user for p in application.users_for_perm('view')])
         report_groups = report_groups.all()
         for user in users:
             UserService.report_notify(user, request, application,
                                       report_groups=report_groups,
-                                      occurence_dict=occurence_dict,
-                                      since_when=since_when)
+                                      occurence_dict=occurence_dict)
         for group in report_groups:
             # marks report_groups as notified
             if not group.notified:
@@ -459,9 +459,53 @@ def check_user_report_notifications(resource_id, since_when=None):
         raise
 
 
+@celery.task(queue="default", default_retry_delay=5, max_retries=2)
+def check_alerts(resource_id):
+    since_when = datetime.utcnow()
+    try:
+        request = get_current_request()
+        application = ApplicationService.by_id(resource_id)
+        if not application:
+            return
+        error_key = REDIS_KEYS[
+            'reports_to_notify_per_type_per_app_alerting'].format(
+            ReportType.error, resource_id)
+        slow_key = REDIS_KEYS[
+            'reports_to_notify_per_type_per_app_alerting'].format(
+            ReportType.slow, resource_id)
+        error_group_ids = Datastores.redis.smembers(error_key)
+        slow_group_ids = Datastores.redis.smembers(slow_key)
+        Datastores.redis.delete(error_key)
+        Datastores.redis.delete(slow_key)
+        err_gids = [int(g_id) for g_id in error_group_ids]
+        slow_gids = [int(g_id) for g_id in list(slow_group_ids)]
+        group_ids = err_gids + slow_gids
+        occurence_dict = {}
+        for g_id in group_ids:
+            key = REDIS_KEYS['counters'][
+                'report_group_occurences_alerting'].format(
+                g_id)
+            val = Datastores.redis.get(key)
+            Datastores.redis.delete(key)
+            if val:
+                occurence_dict[g_id] = int(val)
+            else:
+                occurence_dict[g_id] = 1
+        report_groups = ReportGroupService.by_ids(group_ids)
+        report_groups.options(sa.orm.joinedload(ReportGroup.last_report_ref))
+
+        ApplicationService.check_for_groups_alert(
+            application, 'alert', report_groups=report_groups,
+            occurence_dict=occurence_dict, since_when=since_when)
+    except Exception as exc:
+        print_traceback(log)
+        raise
+
+
 @celery.task(queue="default", default_retry_delay=1, max_retries=2)
-def close_alerts(since_when=None):
+def close_alerts():
     log.warning('Checking alerts')
+    since_when = datetime.utcnow()
     try:
         event_types = [Event.types['error_report_alert'],
                        Event.types['slow_report_alert'], ]
@@ -541,26 +585,34 @@ def daily_digest():
 
 
 @celery.task(queue="default")
-def alerting():
+def notifications_reports():
     """
     Loop that checks redis for info and then issues new tasks to celery to
-    perform the following:
-    - which applications should have new alerts opened
-    - which currently opened alerts should be closed
+    issue notifications
     """
-    start_time = datetime.utcnow()
-    # transactions are needed for mailer
     apps = Datastores.redis.smembers(REDIS_KEYS['apps_that_had_reports'])
     Datastores.redis.delete(REDIS_KEYS['apps_that_had_reports'])
     for app in apps:
         log.warning('Notify for app: %s' % app)
         check_user_report_notifications.delay(app.decode('utf8'))
-    # clear app ids from set
-    close_alerts.delay(since_when=start_time)
+
+@celery.task(queue="default")
+def alerting_reports():
+    """
+    Loop that checks redis for info and then issues new tasks to celery to
+    perform the following:
+    - which applications should have new alerts opened
+    """
+
+    apps = Datastores.redis.smembers(REDIS_KEYS['apps_that_had_reports_alerting'])
+    Datastores.redis.delete(REDIS_KEYS['apps_that_had_reports_alerting'])
+    for app in apps:
+        log.warning('Notify for app: %s' % app)
+        check_alerts.delay(app.decode('utf8'))
 
 
-@celery.task(queue="default", soft_time_limit=3600 * 4, hard_time_limit=3600 * 4,
-      max_retries=999)
+@celery.task(queue="default", soft_time_limit=3600 * 4,
+             hard_time_limit=3600 * 4, max_retries=999)
 def logs_cleanup(resource_id, filter_settings):
     request = get_current_request()
     request.tm.begin()

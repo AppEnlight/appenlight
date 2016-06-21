@@ -117,13 +117,11 @@ class UserService(BaseService):
 
     @classmethod
     def report_notify(cls, user, request, application, report_groups,
-                      occurence_dict, since_when=None, db_session=None):
+                      occurence_dict, db_session=None):
         db_session = get_db_session(db_session)
         if not report_groups:
             return True
-
-        if not since_when:
-            since_when = datetime.utcnow()
+        since_when = datetime.utcnow()
         for channel in cls.get_valid_channels(user):
             confirmed_groups = []
 
