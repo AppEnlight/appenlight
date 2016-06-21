@@ -5369,35 +5369,6 @@ function kickstartAE() {
   );
 
 
-  $templateCache.put('templates/directives/rule_read_only.html',
-    "<div class=\"rule-read-only\">\n" +
-    "\n" +
-    "    <span class=\"form-group\">\n" +
-    "        {{rule_ctrlr.readOnlyPossibleFields[rule_ctrlr.rule.field]}}\n" +
-    "    </span>\n" +
-    "\n" +
-    "    <span ng-if=\"rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__'\">\n" +
-    "          is {{rule_ctrlr.ruleDefinitions.allOps[rule_ctrlr.rule.op]}}  {{rule_ctrlr.rule.value}}\n" +
-    "    </span>\n" +
-    "\n" +
-    "    <span ng-if=\"rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__'\">\n" +
-    "        <p ng-if=\"parent\"><strong>Subrules</strong></p>\n" +
-    "        <div ng-repeat=\"subrule in rule_ctrlr.rule.rules\" class=\"m-l-2\">\n" +
-    "\n" +
-    "            <div class=\"panel panel-default\">\n" +
-    "                <div class=\"panel-body form-inline\">\n" +
-    "                    <recursive>\n" +
-    "                        <rule-read-only rule=\"subrule\" rule-definitions=\"rule_ctrlr.ruleDefinitions\" parent-rule=\"null\" parent-obj=\"rule_ctrlr.parentObj\"></rule-read-only>\n" +
-    "                    </recursive>\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "        </div>\n" +
-    "\n" +
-    "    </span>\n" +
-    "</div>\n"
-  );
-
-
   $templateCache.put('templates/directives/rule.html',
     "<div class=\"rule form-inline\">\n" +
     "\n" +
@@ -5443,6 +5414,35 @@ function kickstartAE() {
     "                  </ul>\n" +
     "            </span>\n" +
     "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('templates/directives/rule_read_only.html',
+    "<div class=\"rule-read-only\">\n" +
+    "\n" +
+    "    <span class=\"form-group\">\n" +
+    "        {{rule_ctrlr.readOnlyPossibleFields[rule_ctrlr.rule.field]}}\n" +
+    "    </span>\n" +
+    "\n" +
+    "    <span ng-if=\"rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__'\">\n" +
+    "          is {{rule_ctrlr.ruleDefinitions.allOps[rule_ctrlr.rule.op]}}  {{rule_ctrlr.rule.value}}\n" +
+    "    </span>\n" +
+    "\n" +
+    "    <span ng-if=\"rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__'\">\n" +
+    "        <p ng-if=\"parent\"><strong>Subrules</strong></p>\n" +
+    "        <div ng-repeat=\"subrule in rule_ctrlr.rule.rules\" class=\"m-l-2\">\n" +
+    "\n" +
+    "            <div class=\"panel panel-default\">\n" +
+    "                <div class=\"panel-body form-inline\">\n" +
+    "                    <recursive>\n" +
+    "                        <rule-read-only rule=\"subrule\" rule-definitions=\"rule_ctrlr.ruleDefinitions\" parent-rule=\"null\" parent-obj=\"rule_ctrlr.parentObj\"></rule-read-only>\n" +
+    "                    </recursive>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "    </span>\n" +
     "</div>\n"
   );
 
@@ -5791,6 +5791,99 @@ function kickstartAE() {
   );
 
 
+  $templateCache.put('templates/reports/list.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"reports_list.is_loading\"></ng-include>\n" +
+    "\n" +
+    "<div ng-if=\"reports_list.is_loading === false\">\n" +
+    "\n" +
+    "    <p class=\"search-params\">\n" +
+    "        <strong>Search params:</strong>\n" +
+    "        <span ng-repeat=\"tag in reports_list.searchParams.tags\" class=\"tag\">\n" +
+    "            <strong>{{tag.type}}</strong>\n" +
+    "            {{ tag.type == 'resource' ? reports_list.applications[tag.value].resource_name : tag.value }}\n" +
+    "\n" +
+    "            <a ng-click=\"reports_list.removeSearchTag(tag)\"><span class=\"fa fa-times\"></span></a>\n" +
+    "        </span>\n" +
+    "    </p>\n" +
+    "\n" +
+    "    <form class=\"form\">\n" +
+    "        <div class=\"typeahead-tags\">\n" +
+    "            <input type=\"text\" id=\"typeAhead\" ng-model=\"reports_list.filterTypeAhead\" placeholder=\"Start typing to filter reports - filter by tags, exception, priority or other properties.\"\n" +
+    "                   ng-keydown=\"reports_list.typeAheadTag($event)\"\n" +
+    "                   uib-typeahead=\"tag as tag.text for tag in reports_list.filterTypeAheadOptions | filter:$viewValue:aheadFilter\"\n" +
+    "                   typeahead-min-length=\"1\" class=\"form-control\"\n" +
+    "                   typeahead-template-url=\"templates/directives/search_type_ahead.html\">\n" +
+    "        </div>\n" +
+    "    </form>\n" +
+    "\n" +
+    "\n" +
+    "    <div class=\"well position-absolute increse-zindex\" ng-show=\"reports_list.showDatePicker\" ng-model=\"reports_list.pickerDate\" ng-change=\"reports_list.pickerDateChanged()\"\n" +
+    "         class=\"animate-show\">\n" +
+    "        <uib-datepicker></uib-datepicker>\n" +
+    "    </div>\n" +
+    "\n" +
+    "    </p>\n" +
+    "\n" +
+    "\n" +
+    "    <div class=\"text-center\">\n" +
+    "        <uib-pagination total-items=\"reports_list.itemCount\" items-per-page=\"reports_list.itemsPerPage\" ng-model=\"reports_list.searchParams.page\" max-size=\"10\"\n" +
+    "                        class=\"pagination pagination-sm\" boundary-links=\"true\" direction-links=\"false\"\n" +
+    "                        ng-change=\"reports_list.paginationChange()\"\n" +
+    "                        ng-show=\"!reports_list.is_loading\"></uib-pagination>\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <div class=\"panel panel-default\">\n" +
+    "        <!-- Default panel contents -->\n" +
+    "\n" +
+    "        <table class=\"table table-striped report-list\" ng-show=\"!reports_list.is_loading\">\n" +
+    "            <caption>Reports</caption>\n" +
+    "            <thead>\n" +
+    "            <tr>\n" +
+    "                <th class=\"c1 ordering occurences\">#</th>\n" +
+    "                <th class=\"c2 application\">Application</th>\n" +
+    "                <th class=\"c4 when\">When <input type=\"checkbox\" ng-model=\"reports_list.notRelativeTime\"\n" +
+    "                                                ng-change=\"reports_list.changeRelativeTime()\"\n" +
+    "                                                title=\"Tick to see UTC time instead relative\"></th>\n" +
+    "                <th class=\"c5 error_type\">Error</th>\n" +
+    "            </tr>\n" +
+    "            </thead>\n" +
+    "            <tbody>\n" +
+    "            <tr ng-repeat=\"report in reports_list.reportsPage track by report.id\">\n" +
+    "                <td class=\"c1 occurences\">\n" +
+    "                    <span class=\"priority-{{report.group.priority}}\" data-uib-tooltip=\"Report priority\">{{report.group.priority}}</span>\n" +
+    "              <span class=\"count {{report.presentation.className}}\" data-uib-tooltip=\"{{report.presentation.tooltip}}\">\n" +
+    "                  {{report.group.occurences|numberToThousands}}\n" +
+    "              </span>\n" +
+    "                </td>\n" +
+    "                <td class=\"c2 application\">\n" +
+    "                    <div class=\"app_name\">{{report.resource_name}}</div>\n" +
+    "                    <span class=\"server\">@{{report.tags.server_name}}</span></td>\n" +
+    "                <td class=\"c3 when\">\n" +
+    "                <span ng-show=\"!reports_list.notRelativeTime\"><span data-uib-tooltip=\"{{report.group.last_timestamp}}\"><iso-to-relative-time\n" +
+    "                        time=\"{{report.group.last_timestamp}}\"/></span>\n" +
+    "                </span>\n" +
+    "                    <span ng-show=\"reports_list.notRelativeTime\">{{report.group.last_timestamp.replace('T', ' ').slice(0,16)}}</span>\n" +
+    "                </td>\n" +
+    "                <td class=\"c4 report ellipsis\"><a  ui-sref=\"report.view_detail({groupId:report.group.id, reportId:report.id})\" title=\"{{report.error}}\">{{report.error || 'Unknown Exception'}}</a> <br/>\n" +
+    "                    <span class=\"url\">{{ report.tags.view_name || report.url_path}}</td>\n" +
+    "            </tr>\n" +
+    "\n" +
+    "            </tbody>\n" +
+    "        </table>\n" +
+    "    </div>\n" +
+    "\n" +
+    "\n" +
+    "    <div class=\"text-center\">\n" +
+    "        <uib-pagination total-items=\"reports_list.itemCount\" items-per-page=\"reports_list.itemsPerPage\" ng-model=\"reports_list.searchParams.page\" max-size=\"10\"\n" +
+    "                        class=\"pagination pagination-sm\" boundary-links=\"true\" direction-links=\"false\"\n" +
+    "                        ng-change=\"reports_list.paginationChange()\"\n" +
+    "                        ng-show=\"!reports_list.is_loading\"></uib-pagination>\n" +
+    "    </div>\n" +
+    "\n" +
+    "</div>\n"
+  );
+
+
   $templateCache.put('templates/reports/list_slow.html',
     "<ng-include src=\"'templates/loader.html'\" ng-if=\"reports_list.is_loading\"></ng-include>\n" +
     "\n" +
@@ -5878,99 +5971,6 @@ function kickstartAE() {
     "        </table>\n" +
     "\n" +
     "    </div>\n" +
-    "\n" +
-    "    <div class=\"text-center\">\n" +
-    "        <uib-pagination total-items=\"reports_list.itemCount\" items-per-page=\"reports_list.itemsPerPage\" ng-model=\"reports_list.searchParams.page\" max-size=\"10\"\n" +
-    "                        class=\"pagination pagination-sm\" boundary-links=\"true\" direction-links=\"false\"\n" +
-    "                        ng-change=\"reports_list.paginationChange()\"\n" +
-    "                        ng-show=\"!reports_list.is_loading\"></uib-pagination>\n" +
-    "    </div>\n" +
-    "\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/reports/list.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"reports_list.is_loading\"></ng-include>\n" +
-    "\n" +
-    "<div ng-if=\"reports_list.is_loading === false\">\n" +
-    "\n" +
-    "    <p class=\"search-params\">\n" +
-    "        <strong>Search params:</strong>\n" +
-    "        <span ng-repeat=\"tag in reports_list.searchParams.tags\" class=\"tag\">\n" +
-    "            <strong>{{tag.type}}</strong>\n" +
-    "            {{ tag.type == 'resource' ? reports_list.applications[tag.value].resource_name : tag.value }}\n" +
-    "\n" +
-    "            <a ng-click=\"reports_list.removeSearchTag(tag)\"><span class=\"fa fa-times\"></span></a>\n" +
-    "        </span>\n" +
-    "    </p>\n" +
-    "\n" +
-    "    <form class=\"form\">\n" +
-    "        <div class=\"typeahead-tags\">\n" +
-    "            <input type=\"text\" id=\"typeAhead\" ng-model=\"reports_list.filterTypeAhead\" placeholder=\"Start typing to filter reports - filter by tags, exception, priority or other properties.\"\n" +
-    "                   ng-keydown=\"reports_list.typeAheadTag($event)\"\n" +
-    "                   uib-typeahead=\"tag as tag.text for tag in reports_list.filterTypeAheadOptions | filter:$viewValue:aheadFilter\"\n" +
-    "                   typeahead-min-length=\"1\" class=\"form-control\"\n" +
-    "                   typeahead-template-url=\"templates/directives/search_type_ahead.html\">\n" +
-    "        </div>\n" +
-    "    </form>\n" +
-    "\n" +
-    "\n" +
-    "    <div class=\"well position-absolute increse-zindex\" ng-show=\"reports_list.showDatePicker\" ng-model=\"reports_list.pickerDate\" ng-change=\"reports_list.pickerDateChanged()\"\n" +
-    "         class=\"animate-show\">\n" +
-    "        <uib-datepicker></uib-datepicker>\n" +
-    "    </div>\n" +
-    "\n" +
-    "    </p>\n" +
-    "\n" +
-    "\n" +
-    "    <div class=\"text-center\">\n" +
-    "        <uib-pagination total-items=\"reports_list.itemCount\" items-per-page=\"reports_list.itemsPerPage\" ng-model=\"reports_list.searchParams.page\" max-size=\"10\"\n" +
-    "                        class=\"pagination pagination-sm\" boundary-links=\"true\" direction-links=\"false\"\n" +
-    "                        ng-change=\"reports_list.paginationChange()\"\n" +
-    "                        ng-show=\"!reports_list.is_loading\"></uib-pagination>\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <div class=\"panel panel-default\">\n" +
-    "        <!-- Default panel contents -->\n" +
-    "\n" +
-    "        <table class=\"table table-striped report-list\" ng-show=\"!reports_list.is_loading\">\n" +
-    "            <caption>Reports</caption>\n" +
-    "            <thead>\n" +
-    "            <tr>\n" +
-    "                <th class=\"c1 ordering occurences\">#</th>\n" +
-    "                <th class=\"c2 application\">Application</th>\n" +
-    "                <th class=\"c4 when\">When <input type=\"checkbox\" ng-model=\"reports_list.notRelativeTime\"\n" +
-    "                                                ng-change=\"reports_list.changeRelativeTime()\"\n" +
-    "                                                title=\"Tick to see UTC time instead relative\"></th>\n" +
-    "                <th class=\"c5 error_type\">Error</th>\n" +
-    "            </tr>\n" +
-    "            </thead>\n" +
-    "            <tbody>\n" +
-    "            <tr ng-repeat=\"report in reports_list.reportsPage track by report.id\">\n" +
-    "                <td class=\"c1 occurences\">\n" +
-    "                    <span class=\"priority-{{report.group.priority}}\" data-uib-tooltip=\"Report priority\">{{report.group.priority}}</span>\n" +
-    "              <span class=\"count {{report.presentation.className}}\" data-uib-tooltip=\"{{report.presentation.tooltip}}\">\n" +
-    "                  {{report.group.occurences|numberToThousands}}\n" +
-    "              </span>\n" +
-    "                </td>\n" +
-    "                <td class=\"c2 application\">\n" +
-    "                    <div class=\"app_name\">{{report.resource_name}}</div>\n" +
-    "                    <span class=\"server\">@{{report.tags.server_name}}</span></td>\n" +
-    "                <td class=\"c3 when\">\n" +
-    "                <span ng-show=\"!reports_list.notRelativeTime\"><span data-uib-tooltip=\"{{report.group.last_timestamp}}\"><iso-to-relative-time\n" +
-    "                        time=\"{{report.group.last_timestamp}}\"/></span>\n" +
-    "                </span>\n" +
-    "                    <span ng-show=\"reports_list.notRelativeTime\">{{report.group.last_timestamp.replace('T', ' ').slice(0,16)}}</span>\n" +
-    "                </td>\n" +
-    "                <td class=\"c4 report ellipsis\"><a  ui-sref=\"report.view_detail({groupId:report.group.id, reportId:report.id})\" title=\"{{report.error}}\">{{report.error || 'Unknown Exception'}}</a> <br/>\n" +
-    "                    <span class=\"url\">{{ report.tags.view_name || report.url_path}}</td>\n" +
-    "            </tr>\n" +
-    "\n" +
-    "            </tbody>\n" +
-    "        </table>\n" +
-    "    </div>\n" +
-    "\n" +
     "\n" +
     "    <div class=\"text-center\">\n" +
     "        <uib-pagination total-items=\"reports_list.itemCount\" items-per-page=\"reports_list.itemsPerPage\" ng-model=\"reports_list.searchParams.page\" max-size=\"10\"\n" +
@@ -6126,6 +6126,7 @@ function kickstartAE() {
     "<div ng-if=\"report.report !== null && !report.is_loading.report\">\n" +
     "\n" +
     "    <div ng-if=\"AeUser.id\" class=\"row\">\n" +
+    "      <div class=\"col-lg-12\">\n" +
     "        <a onclick=\"window.history.back()\" class=\"btn btn-default\" ng-if=\"report.window.history.length > 2\"><span class=\"fa fa-arrow-circle-o-left\"></span>\n" +
     "            Go back</a>\n" +
     "        <a class=\"btn btn-default\" ng-click=\"report.assignUsersModal()\" ng-if=\"report.reportType == 'report'\"><span\n" +
@@ -6156,6 +6157,7 @@ function kickstartAE() {
     "      <li><a ng-click=\"report.delete()\">Yes</a></li>\n" +
     "  </ul>\n" +
     "</span>\n" +
+    "      </div>\n" +
     "    </div>\n" +
     "\n" +
     "    <div class=\"row\">\n" +
@@ -6512,6 +6514,11 @@ function kickstartAE() {
   );
 
 
+  $templateCache.put('templates/user/alert_channels.html',
+    "<ui-view></ui-view>"
+  );
+
+
   $templateCache.put('templates/user/alert_channels_email.html',
     "<ng-include src=\"'templates/loader.html'\" ng-if=\"email.loading.email\"></ng-include>\n" +
     "\n" +
@@ -6610,11 +6617,6 @@ function kickstartAE() {
     "    </div>\n" +
     "\n" +
     "</div>\n"
-  );
-
-
-  $templateCache.put('templates/user/alert_channels.html',
-    "<ui-view></ui-view>"
   );
 
 
@@ -6765,6 +6767,11 @@ function kickstartAE() {
     "\n" +
     "    <div class=\"col-sm-9\" ui-view></div>\n" +
     "</div>\n"
+  );
+
+
+  $templateCache.put('templates/user/profile.html',
+    "<ui-view></ui-view>"
   );
 
 
@@ -6967,11 +6974,6 @@ function kickstartAE() {
     "        </div>\n" +
     "    </div>\n" +
     "</div>\n"
-  );
-
-
-  $templateCache.put('templates/user/profile.html',
-    "<ui-view></ui-view>"
   );
 
 }]);
@@ -9619,305 +9621,6 @@ function AssignReportCtrl($uibModalInstance, reportGroupPropertyResource, report
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-'use strict';
-
-/* Controllers */
-
-angular.module('appenlight.controllers')
-    .controller('ReportsListSlowController', ReportsListSlowController);
-
-ReportsListSlowController.$inject = ['$scope', '$location', '$cookies',
-    'stateHolder', 'typeAheadTagHelper', 'slowReportsResource', 'AeUser']
-
-function ReportsListSlowController($scope, $location, $cookies, stateHolder, typeAheadTagHelper, slowReportsResource, AeUser) {
-    var vm = this;
-    vm.applications = AeUser.applications_map;
-    stateHolder.section = 'slow_reports';
-    vm.today = function () {
-        vm.pickerDate = new Date();
-    };
-    vm.today();
-    vm.reportsPage = [];
-    vm.itemCount = 0;
-    vm.itemsPerPage = 250;
-    typeAheadTagHelper.tags = [];
-    vm.searchParams = {tags: [], page: 1, type: 'slow_report'};
-    vm.searchParams = parseSearchToTags($location.search());
-    vm.is_loading = false;
-    vm.filterTypeAheadOptions = [
-        {
-            type: 'view_name',
-            text: 'view_name:',
-            'description': 'Query reports occured in specific views',
-            tag: 'View Name',
-            example: "view_name:module.foo"
-        },
-        {
-            type: 'resource',
-            text: 'resource:',
-            'description': 'Restrict resultset to application',
-            tag: 'Application',
-            example: "resource:ID"
-        },
-        {
-            type: 'priority',
-            text: 'priority:',
-            'description': 'Show reports with specific priority',
-            example: 'priority:8',
-            tag: 'Priority'
-        },
-        {
-            type: 'min_occurences',
-            text: 'min_occurences:',
-            'description': 'Show reports from groups with at least X occurences',
-            example: 'min_occurences:25',
-            tag: 'Min. occurences'
-        },
-        {
-            type: 'min_duration',
-            text: 'min_duration:',
-            'description': 'Show reports from groups with average duration >= Xs',
-            example: 'min_duration:4.5',
-            tag: 'Min. duration'
-        },
-        {
-            type: 'url_path',
-            text: 'url_path:',
-            'description': 'Show reports from specific URL paths',
-            example: 'url_path:/foo/bar/baz',
-            tag: 'Url Path'
-        },
-        {
-            type: 'url_domain',
-            text: 'url_domain:',
-            'description': 'Show reports from specific domain',
-            example: 'url_domain:domain.com',
-            tag: 'Domain'
-        },
-        {
-            type: 'request_id',
-            text: 'request_id:',
-            'description': 'Show reports with specific request id',
-            example: "request_id:883143dc572e4c38aceae92af0ea5ae0",
-            tag: 'Request ID'
-        },
-        {
-            type: 'report_status',
-            text: 'report_status:',
-            'description': 'Show reports from groups with specific status',
-            example: 'report_status:never_reviewed',
-            tag: 'Status'
-        },
-        {
-            type: 'server_name',
-            text: 'server_name:',
-            'description': 'Show reports tagged with this key/value pair',
-            example: 'server_name:hostname',
-            tag: 'Tag'
-        },
-        {
-            type: 'start_date',
-            text: 'start_date:',
-            'description': 'Show reports newer than this date (press TAB for dropdown)',
-            example: 'start_date:2014-08-15T13:00',
-            tag: 'Start Date'
-        },
-        {
-            type: 'end_date',
-            text: 'end_date:',
-            'description': 'Show reports older than this date (press TAB for dropdown)',
-            example: 'start_date:2014-08-15T23:59',
-            tag: 'End Date'
-        }
-    ];
-
-    vm.filterTypeAhead = undefined;
-    vm.showDatePicker = false;
-    vm.aheadFilter = typeAheadTagHelper.aheadFilter;
-    vm.removeSearchTag = function (tag) {
-        $location.search(tag.type, null);
-    };
-    vm.addSearchTag = function (tag) {
-        $location.search(tag.type, tag.value);
-    };
-    vm.manualOpen = false;
-    vm.notRelativeTime = false;
-    if ($cookies.notRelativeTime) {
-        vm.notRelativeTime = JSON.parse($cookies.notRelativeTime);
-    }
-
-
-    vm.changeRelativeTime = function () {
-        $cookies.notRelativeTime = JSON.stringify(vm.notRelativeTime);
-    };
-
-    _.each(_.range(1, 11), function (priority) {
-        vm.filterTypeAheadOptions.push({
-            type: 'priority',
-            text: 'priority:' + priority.toString(),
-            description: 'Show entries with specific priority',
-            example: 'priority:' + priority,
-            tag: 'Priority'
-        });
-    });
-    _.each(['never_reviewed', 'reviewed', 'fixed', 'public'], function (status) {
-        vm.filterTypeAheadOptions.push({
-            type: 'report_status',
-            text: 'report_status:' + status,
-            'description': 'Show only reports with this status',
-            example: 'report_status:' + status,
-            tag: 'Status ' + status.toUpperCase()
-        });
-    });
-    _.each(AeUser.applications, function (item) {
-        vm.filterTypeAheadOptions.push({
-            type: 'resource',
-            text: 'resource:' + item.resource_id + ':' + item.resource_name,
-            example: 'resource:' + item.resource_id,
-            'tag': item.resource_name,
-            'description': 'Restrict resultset to this application'
-        });
-    });
-
-    vm.typeAheadTag = function (event) {
-        var text = vm.filterTypeAhead;
-        if (_.isObject(vm.filterTypeAhead)) {
-            text = vm.filterTypeAhead.text;
-        }
-        ;
-        if (!vm.filterTypeAhead) {
-            return
-        }
-        var parsed = text.split(':');
-        var tag = {'type': null, 'value': null};
-        // app tags have : twice
-        if (parsed.length > 2 && parsed[0] == 'resource') {
-            tag.type = 'resource';
-            tag.value = parsed[1];
-        }
-        // normal tag:value
-        else if (parsed.length > 1) {
-            tag.type = parsed[0];
-            var tagValue = parsed.slice(1);
-            if (tagValue) {
-                tag.value = tagValue.join(':');
-            }
-        }
-
-        // set datepicker hour based on type of field
-        if ('start_date:' == text) {
-            vm.showDatePicker = true;
-            vm.filterTypeAhead = 'start_date:' + moment(vm.pickerDate).utc().format();
-        }
-        else if ('end_date:' == text) {
-            vm.showDatePicker = true;
-            vm.filterTypeAhead = 'end_date:' + moment(vm.pickerDate).utc().hour(23).minute(59).format();
-        }
-
-        if (event.keyCode != 13 || !tag.type || !tag.value) {
-            return
-        }
-        vm.showDatePicker = false;
-        // aka we selected one of main options
-        $location.search(tag.type, tag.value);
-        // clear typeahead
-        vm.filterTypeAhead = undefined;
-    }
-
-    vm.paginationChange = function(){
-        $location.search('page', vm.searchParams.page);
-    }
-
-    vm.pickerDateChanged = function(){
-        if (vm.filterTypeAhead.indexOf('start_date:') == '0') {
-            vm.filterTypeAhead = 'start_date:' + moment(vm.pickerDate).utc().format();
-        }
-        else if (vm.filterTypeAhead.indexOf('end_date:') == '0') {
-            vm.filterTypeAhead = 'end_date:' + moment(vm.pickerDate).utc().hour(23).minute(59).format();
-        }
-        vm.showDatePicker = false;
-    }
-
-    var reportPresentation = function (report) {
-        report.presentation = {};
-        if (report.group.public) {
-            report.presentation.className = 'public';
-            report.presentation.tooltip = 'Public';
-        }
-        else if (report.group.fixed) {
-            report.presentation.className = 'fixed';
-            report.presentation.tooltip = 'Fixed';
-        }
-        else if (report.group.read) {
-            report.presentation.className = 'reviewed';
-            report.presentation.tooltip = 'Reviewed';
-        }
-        else {
-            report.presentation.className = 'new';
-            report.presentation.tooltip = 'New';
-        }
-        return report;
-    }
-
-    vm.fetchReports = function (searchParams) {
-        vm.is_loading = true;
-        slowReportsResource.query(searchParams, function (data, getResponseHeaders) {
-            var headers = getResponseHeaders();
-            
-            vm.is_loading = false;
-            vm.reportsPage = _.map(data, function (item) {
-                return reportPresentation(item);
-            });
-            vm.itemCount = headers['x-total-count'];
-            vm.itemsPerPage = headers['x-items-per-page'];
-        }, function () {
-            vm.is_loading = false;
-        });
-    }
-
-    vm.filterId = function (log) {
-        vm.searchParams.tags.push({
-            type: "request_id",
-            value: log.request_id
-        });
-    }
-    //initial load
-    var params = parseTagsToSearch(vm.searchParams);
-    vm.fetchReports(params);
-
-    $scope.$on('$locationChangeSuccess', function () {
-        
-        vm.searchParams = parseSearchToTags($location.search());
-        var params = parseTagsToSearch(vm.searchParams);
-        
-        if (vm.is_loading === false) {
-            
-            vm.fetchReports(params);
-        }
-    });
-
-
-}
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # App Enlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
 angular.module('appenlight.controllers')
     .controller('ReportsListController', ReportsListController);
 
@@ -10215,6 +9918,305 @@ function ReportsListController($scope, $location, $cookies, stateHolder,
             vm.fetchReports(params);
         }
 
+    });
+
+
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # App Enlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+'use strict';
+
+/* Controllers */
+
+angular.module('appenlight.controllers')
+    .controller('ReportsListSlowController', ReportsListSlowController);
+
+ReportsListSlowController.$inject = ['$scope', '$location', '$cookies',
+    'stateHolder', 'typeAheadTagHelper', 'slowReportsResource', 'AeUser']
+
+function ReportsListSlowController($scope, $location, $cookies, stateHolder, typeAheadTagHelper, slowReportsResource, AeUser) {
+    var vm = this;
+    vm.applications = AeUser.applications_map;
+    stateHolder.section = 'slow_reports';
+    vm.today = function () {
+        vm.pickerDate = new Date();
+    };
+    vm.today();
+    vm.reportsPage = [];
+    vm.itemCount = 0;
+    vm.itemsPerPage = 250;
+    typeAheadTagHelper.tags = [];
+    vm.searchParams = {tags: [], page: 1, type: 'slow_report'};
+    vm.searchParams = parseSearchToTags($location.search());
+    vm.is_loading = false;
+    vm.filterTypeAheadOptions = [
+        {
+            type: 'view_name',
+            text: 'view_name:',
+            'description': 'Query reports occured in specific views',
+            tag: 'View Name',
+            example: "view_name:module.foo"
+        },
+        {
+            type: 'resource',
+            text: 'resource:',
+            'description': 'Restrict resultset to application',
+            tag: 'Application',
+            example: "resource:ID"
+        },
+        {
+            type: 'priority',
+            text: 'priority:',
+            'description': 'Show reports with specific priority',
+            example: 'priority:8',
+            tag: 'Priority'
+        },
+        {
+            type: 'min_occurences',
+            text: 'min_occurences:',
+            'description': 'Show reports from groups with at least X occurences',
+            example: 'min_occurences:25',
+            tag: 'Min. occurences'
+        },
+        {
+            type: 'min_duration',
+            text: 'min_duration:',
+            'description': 'Show reports from groups with average duration >= Xs',
+            example: 'min_duration:4.5',
+            tag: 'Min. duration'
+        },
+        {
+            type: 'url_path',
+            text: 'url_path:',
+            'description': 'Show reports from specific URL paths',
+            example: 'url_path:/foo/bar/baz',
+            tag: 'Url Path'
+        },
+        {
+            type: 'url_domain',
+            text: 'url_domain:',
+            'description': 'Show reports from specific domain',
+            example: 'url_domain:domain.com',
+            tag: 'Domain'
+        },
+        {
+            type: 'request_id',
+            text: 'request_id:',
+            'description': 'Show reports with specific request id',
+            example: "request_id:883143dc572e4c38aceae92af0ea5ae0",
+            tag: 'Request ID'
+        },
+        {
+            type: 'report_status',
+            text: 'report_status:',
+            'description': 'Show reports from groups with specific status',
+            example: 'report_status:never_reviewed',
+            tag: 'Status'
+        },
+        {
+            type: 'server_name',
+            text: 'server_name:',
+            'description': 'Show reports tagged with this key/value pair',
+            example: 'server_name:hostname',
+            tag: 'Tag'
+        },
+        {
+            type: 'start_date',
+            text: 'start_date:',
+            'description': 'Show reports newer than this date (press TAB for dropdown)',
+            example: 'start_date:2014-08-15T13:00',
+            tag: 'Start Date'
+        },
+        {
+            type: 'end_date',
+            text: 'end_date:',
+            'description': 'Show reports older than this date (press TAB for dropdown)',
+            example: 'start_date:2014-08-15T23:59',
+            tag: 'End Date'
+        }
+    ];
+
+    vm.filterTypeAhead = undefined;
+    vm.showDatePicker = false;
+    vm.aheadFilter = typeAheadTagHelper.aheadFilter;
+    vm.removeSearchTag = function (tag) {
+        $location.search(tag.type, null);
+    };
+    vm.addSearchTag = function (tag) {
+        $location.search(tag.type, tag.value);
+    };
+    vm.manualOpen = false;
+    vm.notRelativeTime = false;
+    if ($cookies.notRelativeTime) {
+        vm.notRelativeTime = JSON.parse($cookies.notRelativeTime);
+    }
+
+
+    vm.changeRelativeTime = function () {
+        $cookies.notRelativeTime = JSON.stringify(vm.notRelativeTime);
+    };
+
+    _.each(_.range(1, 11), function (priority) {
+        vm.filterTypeAheadOptions.push({
+            type: 'priority',
+            text: 'priority:' + priority.toString(),
+            description: 'Show entries with specific priority',
+            example: 'priority:' + priority,
+            tag: 'Priority'
+        });
+    });
+    _.each(['never_reviewed', 'reviewed', 'fixed', 'public'], function (status) {
+        vm.filterTypeAheadOptions.push({
+            type: 'report_status',
+            text: 'report_status:' + status,
+            'description': 'Show only reports with this status',
+            example: 'report_status:' + status,
+            tag: 'Status ' + status.toUpperCase()
+        });
+    });
+    _.each(AeUser.applications, function (item) {
+        vm.filterTypeAheadOptions.push({
+            type: 'resource',
+            text: 'resource:' + item.resource_id + ':' + item.resource_name,
+            example: 'resource:' + item.resource_id,
+            'tag': item.resource_name,
+            'description': 'Restrict resultset to this application'
+        });
+    });
+
+    vm.typeAheadTag = function (event) {
+        var text = vm.filterTypeAhead;
+        if (_.isObject(vm.filterTypeAhead)) {
+            text = vm.filterTypeAhead.text;
+        }
+        ;
+        if (!vm.filterTypeAhead) {
+            return
+        }
+        var parsed = text.split(':');
+        var tag = {'type': null, 'value': null};
+        // app tags have : twice
+        if (parsed.length > 2 && parsed[0] == 'resource') {
+            tag.type = 'resource';
+            tag.value = parsed[1];
+        }
+        // normal tag:value
+        else if (parsed.length > 1) {
+            tag.type = parsed[0];
+            var tagValue = parsed.slice(1);
+            if (tagValue) {
+                tag.value = tagValue.join(':');
+            }
+        }
+
+        // set datepicker hour based on type of field
+        if ('start_date:' == text) {
+            vm.showDatePicker = true;
+            vm.filterTypeAhead = 'start_date:' + moment(vm.pickerDate).utc().format();
+        }
+        else if ('end_date:' == text) {
+            vm.showDatePicker = true;
+            vm.filterTypeAhead = 'end_date:' + moment(vm.pickerDate).utc().hour(23).minute(59).format();
+        }
+
+        if (event.keyCode != 13 || !tag.type || !tag.value) {
+            return
+        }
+        vm.showDatePicker = false;
+        // aka we selected one of main options
+        $location.search(tag.type, tag.value);
+        // clear typeahead
+        vm.filterTypeAhead = undefined;
+    }
+
+    vm.paginationChange = function(){
+        $location.search('page', vm.searchParams.page);
+    }
+
+    vm.pickerDateChanged = function(){
+        if (vm.filterTypeAhead.indexOf('start_date:') == '0') {
+            vm.filterTypeAhead = 'start_date:' + moment(vm.pickerDate).utc().format();
+        }
+        else if (vm.filterTypeAhead.indexOf('end_date:') == '0') {
+            vm.filterTypeAhead = 'end_date:' + moment(vm.pickerDate).utc().hour(23).minute(59).format();
+        }
+        vm.showDatePicker = false;
+    }
+
+    var reportPresentation = function (report) {
+        report.presentation = {};
+        if (report.group.public) {
+            report.presentation.className = 'public';
+            report.presentation.tooltip = 'Public';
+        }
+        else if (report.group.fixed) {
+            report.presentation.className = 'fixed';
+            report.presentation.tooltip = 'Fixed';
+        }
+        else if (report.group.read) {
+            report.presentation.className = 'reviewed';
+            report.presentation.tooltip = 'Reviewed';
+        }
+        else {
+            report.presentation.className = 'new';
+            report.presentation.tooltip = 'New';
+        }
+        return report;
+    }
+
+    vm.fetchReports = function (searchParams) {
+        vm.is_loading = true;
+        slowReportsResource.query(searchParams, function (data, getResponseHeaders) {
+            var headers = getResponseHeaders();
+            
+            vm.is_loading = false;
+            vm.reportsPage = _.map(data, function (item) {
+                return reportPresentation(item);
+            });
+            vm.itemCount = headers['x-total-count'];
+            vm.itemsPerPage = headers['x-items-per-page'];
+        }, function () {
+            vm.is_loading = false;
+        });
+    }
+
+    vm.filterId = function (log) {
+        vm.searchParams.tags.push({
+            type: "request_id",
+            value: log.request_id
+        });
+    }
+    //initial load
+    var params = parseTagsToSearch(vm.searchParams);
+    vm.fetchReports(params);
+
+    $scope.$on('$locationChangeSuccess', function () {
+        
+        vm.searchParams = parseSearchToTags($location.search());
+        var params = parseTagsToSearch(vm.searchParams);
+        
+        if (vm.is_loading === false) {
+            
+            vm.fetchReports(params);
+        }
     });
 
 
@@ -11838,50 +11840,6 @@ angular.module('appenlight.directives.reportAlertAction', []).directive('reportA
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.directives.ruleReadOnly', []).directive('ruleReadOnly', ['userSelfPropertyResource', function (userSelfPropertyResource) {
-    return {
-        scope: {},
-        bindToController:{
-            parentObj: '=',
-            rule: '=',
-            ruleDefinitions: '=',
-            parentRule: "=",
-            config: "="
-        },
-        restrict: 'E',
-        templateUrl: 'templates/directives/rule_read_only.html',
-        controller:RuleController,
-        controllerAs:'rule_ctrlr'
-    }
-    function RuleController(){
-        var vm = this;
-        vm.readOnlyPossibleFields = {};
-        var labelPairs = _.pairs(vm.parentObj.config);
-        _.each(labelPairs, function (entry) {
-            vm.readOnlyPossibleFields[entry[0]] = entry[1].human_label;
-        });
-    }
-}]);
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # App Enlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
 angular.module('appenlight.directives.rule', []).directive('rule', function () {
     return {
         scope: {},
@@ -11948,6 +11906,50 @@ angular.module('appenlight.directives.rule', []).directive('rule', function () {
         }
     }
 });
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # App Enlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.directives.ruleReadOnly', []).directive('ruleReadOnly', ['userSelfPropertyResource', function (userSelfPropertyResource) {
+    return {
+        scope: {},
+        bindToController:{
+            parentObj: '=',
+            rule: '=',
+            ruleDefinitions: '=',
+            parentRule: "=",
+            config: "="
+        },
+        restrict: 'E',
+        templateUrl: 'templates/directives/rule_read_only.html',
+        controller:RuleController,
+        controllerAs:'rule_ctrlr'
+    }
+    function RuleController(){
+        var vm = this;
+        vm.readOnlyPossibleFields = {};
+        var labelPairs = _.pairs(vm.parentObj.config);
+        _.each(labelPairs, function (entry) {
+            vm.readOnlyPossibleFields[entry[0]] = entry[1].human_label;
+        });
+    }
+}]);
 
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
 // #
