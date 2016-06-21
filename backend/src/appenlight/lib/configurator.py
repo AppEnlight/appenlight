@@ -1,7 +1,9 @@
 import inspect
+import logging
 
 from pyramid.config import Configurator
 
+log = logging.getLogger(__name__)
 
 class InspectProxy(object):
     """
@@ -59,3 +61,32 @@ class CythonCompatConfigurator(Configurator):
     a custom one that is cython compatible.
     """
     inspect = InspectProxy()
+
+
+def register_appenlight_plugin(config, plugin_name, plugin_config):
+    def register():
+        log.warning('Registering plugin: {}'.format(plugin_name))
+        if plugin_name not in config.registry.appenlight_plugins:
+            config.registry.appenlight_plugins[plugin_name] = {
+                'javascript': None,
+                'static': None,
+                'css': None,
+                'top_nav': None,
+                'celery_tasks': None,
+                'celery_beats': None,
+                'fulltext_indexer': None,
+                'sqlalchemy_migrations': None,
+                'default_values_setter': None,
+                'resource_types': [],
+                'url_gen': None
+            }
+        config.registry.appenlight_plugins[plugin_name].update(
+            plugin_config)
+        # inform AE what kind of resource types we have available
+        # so we can avoid failing when a plugin is removed but data
+        # is still present in the db
+        if plugin_config.get('resource_types'):
+            config.registry.resource_types.extend(
+                plugin_config['resource_types'])
+
+    config.action('appenlight_plugin={}'.format(plugin_name), register)

@@ -42,7 +42,8 @@ from redlock import Redlock
 from sqlalchemy import engine_from_config
 
 from appenlight.celery import configure_celery
-from appenlight.lib.configurator import CythonCompatConfigurator
+from appenlight.lib.configurator import (CythonCompatConfigurator,
+                                         register_appenlight_plugin)
 from appenlight.lib import cache_regions
 from appenlight.lib.ext_json import json
 from appenlight.security import groupfinder, AuthTokenAuthenticationPolicy
@@ -96,6 +97,13 @@ def main(global_config, **settings):
         authorization_policy=authorization_policy,
         root_factory='appenlight.security.RootFactory',
         default_permission='view')
+    # custom registry variables
+
+    # resource type information
+    config.registry.resource_types = ['resource', 'application']
+    # plugin information
+    config.registry.appenlight_plugins = {}
+
     config.set_default_csrf_options(require_csrf=True, header='X-XSRF-TOKEN')
     config.add_view_deriver('appenlight.predicates.csrf_view',
                             name='csrf_view')
@@ -177,43 +185,8 @@ def main(global_config, **settings):
 
     config.include('appenlight.views')
     config.include('appenlight.views.admin')
-    config.scan(ignore=['appenlight.migrations',
-                        'appenlight.scripts',
+    config.scan(ignore=['appenlight.migrations', 'appenlight.scripts',
                         'appenlight.tests'])
-
-    # resource type information
-    config.registry.resource_types = ['resource', 'application']
-
-    # plugin information
-    config.registry.appenlight_plugins = {}
-
-    def register_appenlight_plugin(config, plugin_name, plugin_config):
-        def register():
-            log.warning('Registering plugin: {}'.format(plugin_name))
-            if plugin_name not in config.registry.appenlight_plugins:
-                config.registry.appenlight_plugins[plugin_name] = {
-                    'javascript': None,
-                    'static': None,
-                    'css': None,
-                    'top_nav': None,
-                    'celery_tasks': None,
-                    'celery_beats': None,
-                    'fulltext_indexer': None,
-                    'sqlalchemy_migrations': None,
-                    'default_values_setter': None,
-                    'resource_types': [],
-                    'url_gen': None
-                }
-            config.registry.appenlight_plugins[plugin_name].update(
-                plugin_config)
-            # inform AE what kind of resource types we have available
-            # so we can avoid failing when a plugin is removed but data
-            # is still present in the db
-            if plugin_config.get('resource_types'):
-                config.registry.resource_types.extend(
-                    plugin_config['resource_types'])
-
-        config.action('appenlight_plugin={}'.format(plugin_name), register)
 
     config.add_directive('register_appenlight_plugin',
                          register_appenlight_plugin)
