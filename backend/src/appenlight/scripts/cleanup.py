@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # This program is dual-licensed. If you wish to learn more about the
-# App Enlight Enterprise Edition, including its added features, Support
+# AppEnlight Enterprise Edition, including its added features, Support
 # services, and proprietary license terms, please see
 # https://rhodecode.com/licenses/
 
@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 def main():
     choices = ['logs']
 
-    parser = argparse.ArgumentParser(description='Cleanup App Enlight logs')
+    parser = argparse.ArgumentParser(description='Cleanup AppEnlight logs')
     parser.add_argument('-c', '--config', required=True,
                         help='Configuration ini file of application')
     parser.add_argument('-t', '--types', choices=choices,

@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # This program is dual-licensed. If you wish to learn more about the
-# App Enlight Enterprise Edition, including its added features, Support
+# AppEnlight Enterprise Edition, including its added features, Support
 # services, and proprietary license terms, please see
 # https://rhodecode.com/licenses/
 
@@ -105,7 +105,7 @@ def lost_password(request):
             email_vars = {
                 'user': user,
                 'request': request,
-                'email_title': "App Enlight :: New password request"
+                'email_title': "AppEnlight :: New password request"
             }
             UserService.send_email(
                 request, recipients=[user.email],
@@ -194,7 +194,7 @@ def register(request):
 
         email_vars = {'user': new_user,
                       'request': request,
-                      'email_title': "App Enlight :: Start information"}
+                      'email_title': "AppEnlight :: Start information"}
         UserService.send_email(
             request, recipients=[new_user.email], variables=email_vars,
             template='/email_templates/registered.jinja2')

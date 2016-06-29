@@ -1,7 +1,7 @@
 {% extends "/email_templates/layout.jinja2" %}
 {% block page_title %}{{_('You have just registered. Welcome!')}}{% endblock %}
 {% block content %}
-    <p>Now that you are member of App Enlight you can enjoy features of our service:</p>
+    <p>Now that you are member of AppEnlight you can enjoy features of our service:</p>
     <ul>
         <li>Error collection and analysys</li>
         <li>Performance monitoring</li>
@@ -10,10 +10,10 @@
         <li>Alerts</li>
     </ul>
 
-    <h2 style="text-align: center">{{_('App Enlight quickstart')}}</h2>
+    <h2 style="text-align: center">{{_('AppEnlight quickstart')}}</h2>
     <h3 style="text-align: center"><span class="point">1 Create application</span></h3>
     <p>
-    For App Enlight to operate, you need to
+    For AppEnlight to operate, you need to
     <a href="{{request.route_url('/', _app_url=_mail_url)}}ui/applications/new/update" target="_blank"><strong>create an application profile</strong></a> that allows you to
     obtain an <strong>API key</strong> that one of the clients can use.
     </p>
@@ -40,7 +40,7 @@
     </p>
 
     <p>
-    It can be the same email account you used to register with App Enlight -
+    It can be the same email account you used to register with AppEnlight -
     although we often recommend using a separate <em>errors@...</em> account
     designated for alert notifications.
     </p>

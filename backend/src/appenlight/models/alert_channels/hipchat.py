@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # This program is dual-licensed. If you wish to learn more about the
-# App Enlight Enterprise Edition, including its added features, Support
+# AppEnlight Enterprise Edition, including its added features, Support
 # services, and proprietary license terms, please see
 # https://rhodecode.com/licenses/
 
@@ -82,7 +82,7 @@ class HipchatAlertChannel(AlertChannel):
             client.send({
                 "message_format": 'text',
                 "message": template_vars["title"],
-                "from": "App Enlight",
+                "from": "AppEnlight",
                 "room_id": room.strip(),
                 "color": "yellow"
             })
@@ -124,7 +124,7 @@ class HipchatAlertChannel(AlertChannel):
             client.send({
                 "message_format": 'text',
                 "message": title,
-                "from": "App Enlight",
+                "from": "AppEnlight",
                 "room_id": room.strip(),
                 "color": "red",
                 "notify": '1'
@@ -156,7 +156,7 @@ class HipchatAlertChannel(AlertChannel):
             client.send({
                 "message_format": 'text',
                 "message": message,
-                "from": "App Enlight",
+                "from": "AppEnlight",
                 "room_id": room.strip(),
                 "color": "red",
                 "notify": '1'
@@ -192,7 +192,7 @@ class HipchatAlertChannel(AlertChannel):
             client.send({
                 "message_format": 'text',
                 "message": message,
-                "from": "App Enlight",
+                "from": "AppEnlight",
                 "room_id": room.strip(),
                 "color": "red",
                 "notify": '1'
@@ -221,7 +221,7 @@ class HipchatAlertChannel(AlertChannel):
             client.send({
                 "message_format": 'text',
                 "message": message,
-                "from": "App Enlight",
+                "from": "AppEnlight",
                 "room_id": room.strip(),
                 "color": "green",
                 "notify": '1'

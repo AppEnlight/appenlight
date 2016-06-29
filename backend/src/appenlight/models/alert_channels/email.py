@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # This program is dual-licensed. If you wish to learn more about the
-# App Enlight Enterprise Edition, including its added features, Support
+# AppEnlight Enterprise Edition, including its added features, Support
 # services, and proprietary license terms, please see
 # https://rhodecode.com/licenses/
 
@@ -51,14 +51,14 @@ class EmailAlertChannel(AlertChannel):
         template_vars = self.report_alert_notification_vars(kwargs)
 
         if template_vars['confirmed_total'] > 1:
-            template_vars["title"] = "App Enlight :: %s - %s reports" % (
+            template_vars["title"] = "AppEnlight :: %s - %s reports" % (
                 template_vars['resource_name'],
                 template_vars['confirmed_total'],
             )
         else:
             error_title = truncate(template_vars['reports'][0][1].error or
                                    'slow report', 20)
-            template_vars["title"] = "App Enlight :: %s - '%s' report" % (
+            template_vars["title"] = "AppEnlight :: %s - '%s' report" % (
                 template_vars['resource_name'],
                 error_title)
         UserService.send_email(kwargs['request'],
@@ -84,7 +84,7 @@ class EmailAlertChannel(AlertChannel):
 
         """
         template_vars = self.report_alert_notification_vars(kwargs)
-        title = "App Enlight :: Daily report digest: %s - %s reports"
+        title = "AppEnlight :: Daily report digest: %s - %s reports"
         template_vars["email_title"] = title % (
             template_vars['resource_name'],
             template_vars['confirmed_total'],
@@ -116,14 +116,14 @@ class EmailAlertChannel(AlertChannel):
         template_vars = self.report_alert_notification_vars(kwargs)
 
         if kwargs['event'].unified_alert_action() == 'OPEN':
-            title = 'App Enlight :: ALERT %s: %s - %s %s' % (
+            title = 'AppEnlight :: ALERT %s: %s - %s %s' % (
                 template_vars['alert_action'],
                 template_vars['resource_name'],
                 kwargs['event'].values['reports'],
                 template_vars['report_type'],
             )
         else:
-            title = 'App Enlight :: ALERT %s: %s type: %s' % (
+            title = 'AppEnlight :: ALERT %s: %s type: %s' % (
                 template_vars['alert_action'],
                 template_vars['resource_name'],
                 template_vars['alert_type'].replace('_', ' '),
@@ -145,7 +145,7 @@ class EmailAlertChannel(AlertChannel):
 
         """
         template_vars = self.uptime_alert_notification_vars(kwargs)
-        title = 'App Enlight :: ALERT %s: %s has uptime issues' % (
+        title = 'AppEnlight :: ALERT %s: %s has uptime issues' % (
             template_vars['alert_action'],
             template_vars['resource_name'],
         )
@@ -168,7 +168,7 @@ class EmailAlertChannel(AlertChannel):
         """
         template_vars = self.chart_alert_notification_vars(kwargs)
 
-        title = 'App Enlight :: ALERT {} value in "{}" chart' \
+        title = 'AppEnlight :: ALERT {} value in "{}" chart' \
                 ' met alert "{}" criteria'.format(
             template_vars['alert_action'],
             template_vars['chart_name'],

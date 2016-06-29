@@ -1,4 +1,4 @@
-Javascript frontend for App Enlight
+Javascript frontend for AppEnlight
 ===================================
 
 To fetch all the requirememts you need to have nodejs and npm installed on your dev machine, then from this dir execute::

@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # This program is dual-licensed. If you wish to learn more about the
-# App Enlight Enterprise Edition, including its added features, Support
+# AppEnlight Enterprise Edition, including its added features, Support
 # services, and proprietary license terms, please see
 # https://rhodecode.com/licenses/
 
@@ -53,7 +53,7 @@ def mail(request):
     """
     request.environ['HTTP_HOST'] = 'appenlight.com'
     request.environ['wsgi.url_scheme'] = 'https'
-    renderer_vars = {"title": "You have just registered on App Enlight",
+    renderer_vars = {"title": "You have just registered on AppEnlight",
                      "username": "test",
                      "email": "grzegżółka",
                      'firstname': 'dupa'}

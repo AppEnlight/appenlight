@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # This program is dual-licensed. If you wish to learn more about the
-# App Enlight Enterprise Edition, including its added features, Support
+# AppEnlight Enterprise Edition, including its added features, Support
 # services, and proprietary license terms, please see
 # https://rhodecode.com/licenses/
 
@@ -697,7 +697,7 @@ class IntegrationHipchatForm(ReactorForm):
                     client.send({
                         "message_format": 'text',
                         "message": "testing for room existence",
-                        "from": "App Enlight",
+                        "from": "AppEnlight",
                         "room_id": room_id,
                         "color": "green"
                     })
@@ -743,7 +743,7 @@ class IntegrationSlackForm(ReactorForm):
         link = "<%s|%s>" % (registry.settings['mailing.app_url'],
                             registry.settings['mailing.from_name'])
         test_data = {
-            "username": "App Enlight",
+            "username": "AppEnlight",
             "icon_emoji": ":fire:",
             "attachments": [
                 {"fallback": "Testing integration channel: %s" % link,

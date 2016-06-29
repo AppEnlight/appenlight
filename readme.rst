@@ -1,4 +1,4 @@
-App Enlight
+AppEnlight
 -----------
 
 Automatic Installation

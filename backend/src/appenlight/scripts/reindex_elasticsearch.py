@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # This program is dual-licensed. If you wish to learn more about the
-# App Enlight Enterprise Edition, including its added features, Support
+# AppEnlight Enterprise Edition, including its added features, Support
 # services, and proprietary license terms, please see
 # https://rhodecode.com/licenses/
 
@@ -77,7 +77,7 @@ def main():
     # need parser twice because we first need to load ini file
     # bootstrap pyramid and then load plugins
     pre_parser = argparse.ArgumentParser(
-        description='Reindex App Enlight data',
+        description='Reindex AppEnlight data',
         add_help=False)
     pre_parser.add_argument('-c', '--config', required=True,
                             help='Configuration ini file of application')
@@ -90,7 +90,7 @@ def main():
     setup_logging(config_uri)
     log.setLevel(logging.INFO)
     env = bootstrap(config_uri)
-    parser = argparse.ArgumentParser(description='Reindex App Enlight data')
+    parser = argparse.ArgumentParser(description='Reindex AppEnlight data')
     choices = {
         'reports': 'appenlight.scripts.reindex_elasticsearch:reindex_reports',
         'logs': 'appenlight.scripts.reindex_elasticsearch:reindex_logs',

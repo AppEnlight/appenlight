@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # This program is dual-licensed. If you wish to learn more about the
-# App Enlight Enterprise Edition, including its added features, Support
+# AppEnlight Enterprise Edition, including its added features, Support
 # services, and proprietary license terms, please see
 # https://rhodecode.com/licenses/
 
@@ -77,7 +77,7 @@ class FlowdockAlertChannel(AlertChannel):
         client = FlowdockIntegration.create_client(
             self.integration.config['api_token'])
         payload = {
-            "source": "App Enlight",
+            "source": "AppEnlight",
             "from_address": kwargs['request'].registry.settings[
                 'mailing.from_email'],
             "subject": template_vars["title"],
@@ -119,7 +119,7 @@ class FlowdockAlertChannel(AlertChannel):
         client = FlowdockIntegration.create_client(
             self.integration.config['api_token'])
         payload = {
-            "source": "App Enlight",
+            "source": "AppEnlight",
             "from_address": kwargs['request'].registry.settings[
                 'mailing.from_email'],
             "subject": title,
@@ -152,7 +152,7 @@ class FlowdockAlertChannel(AlertChannel):
         client = FlowdockIntegration.create_client(
             self.integration.config['api_token'])
         payload = {
-            "source": "App Enlight",
+            "source": "AppEnlight",
             "from_address": kwargs['request'].registry.settings[
                 'mailing.from_email'],
             "subject": message,
@@ -182,7 +182,7 @@ class FlowdockAlertChannel(AlertChannel):
                   template_vars['timestamp'])
 
         payload = {
-            "source": "App Enlight",
+            "source": "AppEnlight",
             "from_address": kwargs['request'].registry.settings[
                 'mailing.from_email'],
             "subject": message,
@@ -227,7 +227,7 @@ class FlowdockAlertChannel(AlertChannel):
         client = FlowdockIntegration.create_client(
             self.integration.config['api_token'])
         payload = {
-            "source": "App Enlight",
+            "source": "AppEnlight",
             "from_address": kwargs['request'].registry.settings[
                 'mailing.from_email'],
             "subject": message,

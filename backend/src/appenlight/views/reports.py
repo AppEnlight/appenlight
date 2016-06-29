@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # This program is dual-licensed. If you wish to learn more about the
-# App Enlight Enterprise Edition, including its added features, Support
+# AppEnlight Enterprise Edition, including its added features, Support
 # services, and proprietary license terms, please see
 # https://rhodecode.com/licenses/
 
@@ -163,7 +163,7 @@ def comment_create(request):
                           'application': application,
                           'report_group': report_group,
                           'comment': comment,
-                          'email_title': "App Enlight :: New comment"}
+                          'email_title': "AppEnlight :: New comment"}
             UserService.send_email(
                 request,
                 recipients=[user.email],
@@ -243,7 +243,7 @@ def assign_users(request):
                           'request': request,
                           'application': application,
                           'report_group': report_group,
-                          'email_title': "App Enlight :: Assigned Report"}
+                          'email_title': "AppEnlight :: Assigned Report"}
             UserService.send_email(request, recipients=[user.email],
                                    variables=email_vars,
                                    template='/email_templates/assigned_report.jinja2')

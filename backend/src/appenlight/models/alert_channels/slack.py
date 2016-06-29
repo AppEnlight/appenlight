@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # This program is dual-licensed. If you wish to learn more about the
-# App Enlight Enterprise Edition, including its added features, Support
+# AppEnlight Enterprise Edition, including its added features, Support
 # services, and proprietary license terms, please see
 # https://rhodecode.com/licenses/
 
@@ -64,7 +64,7 @@ class SlackAlertChannel(AlertChannel):
         client = SlackIntegration.create_client(
             self.integration.config['webhook_url'])
         report_data = {
-            "username": "App Enlight",
+            "username": "AppEnlight",
             "icon_emoji": ":fire:",
             "attachments": [
                 {
@@ -128,7 +128,7 @@ class SlackAlertChannel(AlertChannel):
             self.integration.config['webhook_url']
         )
         report_data = {
-            "username": "App Enlight",
+            "username": "AppEnlight",
             "icon_emoji": ":rage:",
             "attachments": [
                 {
@@ -171,7 +171,7 @@ class SlackAlertChannel(AlertChannel):
             self.integration.config['webhook_url']
         )
         report_data = {
-            "username": "App Enlight",
+            "username": "AppEnlight",
             "icon_emoji": ":rage:",
             "attachments": [
                 {
@@ -221,7 +221,7 @@ class SlackAlertChannel(AlertChannel):
             self.integration.config['webhook_url']
         )
         report_data = {
-            "username": "App Enlight",
+            "username": "AppEnlight",
             "icon_emoji": ":rage:",
             "attachments": [
                 {"mrkdwn_in": ["text", "pretext", "title", "fallback"],
@@ -263,7 +263,7 @@ class SlackAlertChannel(AlertChannel):
             self.integration.config['webhook_url']
         )
         report_data = {
-            "username": "App Enlight",
+            "username": "AppEnlight",
             "attachments": [
                 {
                     "mrkdwn_in": ["text", "pretext", "title", "fallback"],

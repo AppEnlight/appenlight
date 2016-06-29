@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # This program is dual-licensed. If you wish to learn more about the
-# App Enlight Enterprise Edition, including its added features, Support
+# AppEnlight Enterprise Edition, including its added features, Support
 # services, and proprietary license terms, please see
 # https://rhodecode.com/licenses/
 
@@ -396,7 +396,7 @@ def alert_channels_POST(request):
                   'email': email,
                   'request': request,
                   'security_code': security_code,
-                  'email_title': "App Enlight :: "
+                  'email_title': "AppEnlight :: "
                                  "Please authorize your email"}
 
     UserService.send_email(request, recipients=[email],
