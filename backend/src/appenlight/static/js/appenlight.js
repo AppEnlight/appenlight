@@ -10994,6 +10994,7 @@ angular.module('appenlight.directives.appVersion', []).
             elm.text(version);
         };
     }])
+
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
 // #
 // # This program is free software: you can redistribute it and/or modify
@@ -11158,6 +11159,7 @@ directive('confirmValidate', [function () {
         }
     }
 }])
+
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
 // #
 // # This program is free software: you can redistribute it and/or modify
@@ -11184,6 +11186,7 @@ angular.module('appenlight.directives.focus', []).directive('focus', function ()
         });
     }
 });
+
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
 // #
 // # This program is free software: you can redistribute it and/or modify
@@ -11284,6 +11287,7 @@ directive('isoToRelativeTime', function () {
         }
     }
 })
+
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
 // #
 // # This program is free software: you can redistribute it and/or modify
@@ -11981,6 +11985,7 @@ directive('smallReportGroupList', [function () {
         templateUrl: 'templates/reports/small_report_group_list.html'
     }
 }])
+
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
 // #
 // # This program is free software: you can redistribute it and/or modify
@@ -12011,6 +12016,7 @@ angular.module('appenlight.directives.smallReportList', []).
             templateUrl: 'templates/reports/small_report_list.html'
         }
     }])
+
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
 // #
 // # This program is free software: you can redistribute it and/or modify
@@ -12841,6 +12847,7 @@ angular.module('appenlight.services.UUIDProvider', []).factory('UUIDProvider', f
     };
     return provider;
 });
+
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
 // #
 // # This program is free software: you can redistribute it and/or modify

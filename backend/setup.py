@@ -19,13 +19,29 @@ def parse_req(req):
 
 requires = [_f for _f in map(parse_req, REQUIREMENTS) if _f]
 
-if sys.version_info[:3] < (2, 5, 0):
-    requires.append('pysqlite')
+
+def _get_meta_var(name, data, callback_handler=None):
+    import re
+    matches = re.compile(r'(?:%s)\s*=\s*(.*)' % name).search(data)
+    if matches:
+        if not callable(callback_handler):
+            callback_handler = lambda v: v
+
+        return callback_handler(eval(matches.groups()[0]))
+
+with open(os.path.join(here, 'src', 'appenlight', '__init__.py'), 'r') as _meta:
+    _metadata = _meta.read()
+
+with open(os.path.join('src', 'appenlight', 'VERSION')) as _meta_version:
+    __version__ = _meta_version.read().strip()
+
+__license__ = _get_meta_var('__license__', _metadata)
+__author__ = _get_meta_var('__author__', _metadata)
+__url__ = _get_meta_var('__url__', _metadata)
 
 found_packages = find_packages('src')
 found_packages.append('appenlight.migrations.versions')
 setup(name='appenlight',
-      version='0.1',
       description='appenlight',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
@@ -34,9 +50,10 @@ setup(name='appenlight',
           "Topic :: Internet :: WWW/HTTP",
           "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
       ],
-      author='',
-      author_email='',
-      url='',
+      version=__version__,
+      license=__license__,
+      author=__author__,
+      url=__url__,
       keywords='web wsgi bfg pylons pyramid',
       package_dir={'': 'src'},
       packages=found_packages,

@@ -48,6 +48,10 @@ from appenlight.lib import cache_regions
 from appenlight.lib.ext_json import json
 from appenlight.security import groupfinder, AuthTokenAuthenticationPolicy
 
+__license__ = 'AGPLv3, and Commercial License'
+__author__ = 'RhodeCode GmbH'
+__url__ = 'http://rhodecode.com'
+
 json_renderer = JSON(serializer=json.dumps, indent=4)
 
 log = logging.getLogger(__name__)
