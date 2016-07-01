@@ -1,10 +1,10 @@
 # appenlight README
 
 
-To run the app you need to have meet prerequusites:
+To run the app you need to have meet prerequsites:
 
-- running elasticsearch (2.2 tested)
-- running postgresql 9.5
+- running elasticsearch (2.3+ tested)
+- running postgresql (9.5+ required)
 - running redis
 
 # Setup basics
@@ -17,6 +17,7 @@ Set up basic elasticsearch schema:
 
     appenlight-reindex-elasticsearch -c config.ini -t all
 
+Installed the appenlight uptime plugin
 
 # Running
 
@@ -28,6 +29,9 @@ To run celery queue processing:
 
     celery worker -A appenlight.celery -Q "reports,logs,metrics,default" --ini=development.ini
 
+You should also run the channelstream websocket server for real-time notifications
+
+    channelstream -i filename.ini
 
 # Testing
 
