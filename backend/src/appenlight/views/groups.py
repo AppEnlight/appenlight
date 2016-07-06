@@ -47,7 +47,7 @@ def groups_list(request):
     groups = Group.all().order_by(Group.group_name)
     list_groups = ConfigService.by_key_and_section(
         'list_groups_to_non_admins', 'global')
-    if list_groups or request.has_permission('root_administration'):
+    if list_groups.value or request.has_permission('root_administration'):
         return [g.get_dict() for g in groups]
     else:
         return []
