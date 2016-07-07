@@ -254,8 +254,10 @@ def after_update(mapper, connection, target):
 
 def after_delete(mapper, connection, target):
     query = {'term': {'group_id': target.id}}
-    Datastores.es.delete_by_query(target.partition_id, 'report', query,
-                                  query_params={'routing':str(target.id)})
+    # TODO: routing seems unnecessary, need to test a bit more
+    #Datastores.es.delete_by_query(target.partition_id, 'report', query,
+    #                              query_params={'routing':str(target.id)})
+    Datastores.es.delete_by_query(target.partition_id, 'report', query)
     query = {'term': {'pg_id': target.id}}
     Datastores.es.delete_by_query(target.partition_id, 'report_group', query)
 
