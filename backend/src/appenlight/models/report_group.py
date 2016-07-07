@@ -254,7 +254,8 @@ def after_update(mapper, connection, target):
 
 def after_delete(mapper, connection, target):
     query = {'term': {'group_id': target.id}}
-    Datastores.es.delete_by_query(target.partition_id, 'report', query)
+    Datastores.es.delete_by_query(target.partition_id, 'report', query,
+                                  sourcerouting=str(target.id))
     query = {'term': {'pg_id': target.id}}
     Datastores.es.delete_by_query(target.partition_id, 'report_group', query)
 
