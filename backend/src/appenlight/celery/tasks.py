@@ -53,15 +53,16 @@ from appenlight.lib.enums import ReportType
 
 log = get_task_logger(__name__)
 
-sample_boundries = list(range(100, 10000, 100))
+sample_boundries = list(range(100, 1000, 100)) + \
+                   list(range(1000, 10000, 1000)) + \
+                   list(range(10000, 100000, 5000))
 
 
-def pick_sample(total_occurences, report_type=1):
+def pick_sample(total_occurences, report_type=None):
     every = 1.0
     position = bisect.bisect_left(sample_boundries, total_occurences)
     if position > 0:
-        # 404
-        if report_type == 2:
+        if report_type == ReportType.not_found:
             divide = 10.0
         else:
             divide = 100.0
