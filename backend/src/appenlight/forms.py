@@ -253,9 +253,7 @@ class UserRegisterForm(ReactorForm):
                                 validators=[email_validator,
                                             unique_email_validator,
                                             blocked_email_validator,
-                                            wtforms.validators.DataRequired()],
-                                description=_("We promise we will not share "
-                                              "your email with anyone"))
+                                            wtforms.validators.DataRequired()])
     first_name = wtforms.HiddenField(_('First Name'))
     last_name = wtforms.HiddenField(_('Last Name'))
 
