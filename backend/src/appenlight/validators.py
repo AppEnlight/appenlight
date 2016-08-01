@@ -360,23 +360,8 @@ class ReportSchemaBase(colander.MappingSchema):
     tags = TagSchemaList()
 
 
-class ReportSchema_0_4(ReportSchemaBase):
-    error_type = colander.SchemaNode(colander.String(),
-                                     preparer=[shortener_factory(512)],
-                                     missing='')
-    report_details = ReportDetailListSchema()
-
-
 class ReportSchema_0_5(ReportSchemaBase, ReportDetailSchema_0_5):
     pass
-
-
-class ReportListSchema_0_4(colander.SequenceSchema):
-    """
-    Validates format of list of report groups
-    """
-    report = ReportSchema_0_4()
-    validator = colander.Length(1)
 
 
 class ReportListSchema_0_5(colander.SequenceSchema):

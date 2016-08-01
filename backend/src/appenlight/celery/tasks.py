@@ -99,40 +99,11 @@ def add_reports(resource_id, params, dataset, environ=None, **kwargs):
         es_report_docs = {}
         es_report_group_docs = {}
         resource = ApplicationService.by_id(resource_id)
-        reports = []
-
-        if proto_version.major < 1 and proto_version.minor < 5:
-            for report_data in dataset:
-                report_details = report_data.get('report_details', [])
-                for i, detail_data in enumerate(report_details):
-                    report_data.update(detail_data)
-                    report_data.pop('report_details')
-                    traceback = report_data.get('traceback')
-                    if traceback is None:
-                        report_data['traceback'] = report_data.get('frameinfo')
-                    # for 0.3 api
-                    error = report_data.pop('error_type', '')
-                    if error:
-                        report_data['error'] = error
-                    if proto_version.minor < 4:
-                        # convert "Unknown" slow reports to
-                        # '' (from older clients)
-                        if (report_data['error'] and
-                                    report_data['http_status'] < 500):
-                            report_data['error'] = ''
-                    message = report_data.get('message')
-                    if 'extra' not in report_data:
-                        report_data['extra'] = []
-                    if message:
-                        report_data['extra'] = [('message', message), ]
-                    reports.append(report_data)
-        else:
-            reports = dataset
 
         tags = []
         es_slow_calls_docs = {}
         es_reports_stats_rows = {}
-        for report_data in reports:
+        for report_data in dataset:
             # build report details for later
             added_details = 0
             report = Report()
