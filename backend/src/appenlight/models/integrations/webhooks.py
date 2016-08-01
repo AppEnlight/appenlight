@@ -69,10 +69,10 @@ class WebhooksClient(object):
                                              timeout=3)
         except Exception as e:
             raise IntegrationException(
-                _('Error communicating with Webhooks: %s').format(e))
+                _('Error communicating with Webhooks: {}').format(e))
         if resp.status_code > 299:
             raise IntegrationException(
-                'Error communicating with Webhooks - status code: %s'.format(
+                'Error communicating with Webhooks - status code: {}'.format(
                     resp.status_code))
         return resp
 
