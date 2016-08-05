@@ -56,8 +56,9 @@ angular.module('appenlight.directives.rule', []).directive('rule', function () {
         };
 
         vm.fieldChange = function () {
-            var new_is_compound = ['__AND__', '__OR__'].indexOf(vm.rule.field) !== -1;
-            var old_was_compound = ['__AND__', '__OR__'].indexOf(vm.oldField) !== -1;
+            var compound_types = ['__AND__', '__OR__', '__NOT__'];
+            var new_is_compound = compound_types.indexOf(vm.rule.field) !== -1;
+            var old_was_compound = compound_types.indexOf(vm.oldField) !== -1;
 
             if (!new_is_compound) {
                 vm.rule.op = vm.ruleDefinitions.fieldOps[vm.rule.field][0];

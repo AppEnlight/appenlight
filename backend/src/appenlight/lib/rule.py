@@ -188,6 +188,10 @@ class Rule(RuleBase):
             rule = OR(self.config['rules'], self.type_matrix,
                       config_manipulator=self.config_manipulator)
             return rule.match(struct)
+        elif field_name == '__NOT__':
+            rule = NOT(self.config['rules'], self.type_matrix,
+                      config_manipulator=self.config_manipulator)
+            return rule.match(struct)
 
         if test_value is None:
             return False
@@ -236,6 +240,16 @@ class AND(Rule):
                     in self.rules])
 
 
+class NOT(Rule):
+    def __init__(self, rules, *args, **kwargs):
+        super(NOT, self).__init__({}, *args, **kwargs)
+        self.rules = rules
+
+    def match(self, struct):
+        return all([not self.subrule_check(r_conf, struct) for r_conf
+                    in self.rules])
+
+
 class OR(Rule):
     def __init__(self, rules, *args, **kwargs):
         super(OR, self).__init__({}, *args, **kwargs)
@@ -266,7 +280,8 @@ class RuleService(object):
         if manipulator_func is None:
             def label_rewriter_func(rule):
                 field = rule.config.get('field')
-                if not field or rule.config['field'] in ['__OR__', '__AND__']:
+                if not field or rule.config['field'] in ['__OR__',
+                                                         '__AND__', '__NOT__']:
                     return
 
                 to_map = field_mappings.get(rule.config['field'])

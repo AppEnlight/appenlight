@@ -29,6 +29,10 @@ To run celery queue processing:
 
     celery worker -A appenlight.celery -Q "reports,logs,metrics,default" --ini=development.ini
 
+To run celery beats scheduling:
+
+    celery beat -A appenlight.celery --ini=development.ini
+
 You should also run the channelstream websocket server for real-time notifications
 
     channelstream -i filename.ini

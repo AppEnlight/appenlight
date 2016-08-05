@@ -716,7 +716,7 @@ def build_rule_schema(ruleset, check_matrix):
     schema = colander.SchemaNode(colander.Mapping())
     schema.add(colander.SchemaNode(colander.String(), name='field'))
 
-    if ruleset['field'] in ['__AND__', '__OR__']:
+    if ruleset['field'] in ['__AND__', '__OR__', '__NOT__']:
         subrules = colander.SchemaNode(colander.Tuple(), name='rules')
         for rule in ruleset['rules']:
             subrules.add(build_rule_schema(rule, check_matrix))

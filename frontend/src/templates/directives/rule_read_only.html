@@ -4,11 +4,11 @@
         {{rule_ctrlr.readOnlyPossibleFields[rule_ctrlr.rule.field]}}
     </span>
 
-    <span ng-if="rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__'">
+    <span ng-if="rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__' && rule_ctrlr.rule.field !='__NOT__'">
           is {{rule_ctrlr.ruleDefinitions.allOps[rule_ctrlr.rule.op]}}  {{rule_ctrlr.rule.value}}
     </span>
 
-    <span ng-if="rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__'">
+    <span ng-if="rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__' || rule_ctrlr.rule.field =='__NOT__'">
         <p ng-if="parent"><strong>Subrules</strong></p>
         <div ng-repeat="subrule in rule_ctrlr.rule.rules" class="m-l-2">
 

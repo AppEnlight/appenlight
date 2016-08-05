@@ -70,6 +70,7 @@ function AlertChannelsController(userSelfPropertyResource, applicationsNoIdResou
     var possibleFields = {
         '__AND__': 'All met (composite rule)',
         '__OR__': 'One met (composite rule)',
+        '__NOT__': 'Not met (composite rule)',
         'http_status': 'HTTP Status',
         'duration': 'Request duration',
         'group:priority': 'Group -> Priority',

@@ -7,7 +7,7 @@
                 ng-options="key as label for (key, label) in rule_ctrlr.ruleDefinitions.possibleFields"></select>
     </div>
 
-    <div ng-if="rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__'" class="form-group">
+    <div ng-if="rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__' && rule_ctrlr.rule.field !='__NOT__'" class="form-group">
 
             <select ng-model="rule_ctrlr.rule.op" class="form-control"
                     ng-change="rule_ctrlr.setDirty()"
@@ -18,7 +18,7 @@
 
     </div>
 
-    <span ng-if="rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__'">
+    <span ng-if="rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__' || rule_ctrlr.rule.field =='__NOT__'">
         <p ng-if="parent"><strong>Subrules</strong></p>
         <div ng-repeat="subrule in rule_ctrlr.rule.rules" class="m-l-2">
             <div class="panel panel-default">

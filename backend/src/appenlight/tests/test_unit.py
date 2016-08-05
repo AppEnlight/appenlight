@@ -1031,6 +1031,38 @@ class TestRulesParsing():
 
 @pytest.mark.usefixtures('report_type_matrix')
 class TestNestedRuleParsing():
+
+    @pytest.mark.parametrize("data, result", [
+        ({"http_status": 501, "group": {"priority": 7, "occurences": 11}},
+         False),
+        ({"http_status": 101, "group": {"priority": 7, "occurences": 11}},
+         False),
+        ({"http_status": 500, "group": {"priority": 1, "occurences": 11}},
+         False),
+        ({"http_status": 101, "group": {"priority": 3, "occurences": 5}},
+         True),
+    ])
+    def test_NOT_rule(self, data, result, report_type_matrix):
+        from appenlight.lib.rule import Rule
+        rule_config = {
+            "field": "__NOT__",
+            "rules": [
+                {
+                    "op": "ge",
+                    "field": "group:occurences",
+                    "value": "10"
+                },
+                {
+                    "op": "ge",
+                    "field": "group:priority",
+                    "value": "4"
+                }
+            ]
+        }
+
+        rule = Rule(rule_config, report_type_matrix)
+        assert rule.match(data) is result
+
     @pytest.mark.parametrize("data, result", [
         ({"http_status": 501, "group": {"priority": 7, "occurences": 11}},
          True),

@@ -5376,11 +5376,11 @@ function kickstartAE() {
     "        {{rule_ctrlr.readOnlyPossibleFields[rule_ctrlr.rule.field]}}\n" +
     "    </span>\n" +
     "\n" +
-    "    <span ng-if=\"rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__'\">\n" +
+    "    <span ng-if=\"rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__' && rule_ctrlr.rule.field !='__NOT__'\">\n" +
     "          is {{rule_ctrlr.ruleDefinitions.allOps[rule_ctrlr.rule.op]}}  {{rule_ctrlr.rule.value}}\n" +
     "    </span>\n" +
     "\n" +
-    "    <span ng-if=\"rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__'\">\n" +
+    "    <span ng-if=\"rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__' || rule_ctrlr.rule.field =='__NOT__'\">\n" +
     "        <p ng-if=\"parent\"><strong>Subrules</strong></p>\n" +
     "        <div ng-repeat=\"subrule in rule_ctrlr.rule.rules\" class=\"m-l-2\">\n" +
     "\n" +
@@ -5408,7 +5408,7 @@ function kickstartAE() {
     "                ng-options=\"key as label for (key, label) in rule_ctrlr.ruleDefinitions.possibleFields\"></select>\n" +
     "    </div>\n" +
     "\n" +
-    "    <div ng-if=\"rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__'\" class=\"form-group\">\n" +
+    "    <div ng-if=\"rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__' && rule_ctrlr.rule.field !='__NOT__'\" class=\"form-group\">\n" +
     "\n" +
     "            <select ng-model=\"rule_ctrlr.rule.op\" class=\"form-control\"\n" +
     "                    ng-change=\"rule_ctrlr.setDirty()\"\n" +
@@ -5419,7 +5419,7 @@ function kickstartAE() {
     "\n" +
     "    </div>\n" +
     "\n" +
-    "    <span ng-if=\"rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__'\">\n" +
+    "    <span ng-if=\"rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__' || rule_ctrlr.rule.field =='__NOT__'\">\n" +
     "        <p ng-if=\"parent\"><strong>Subrules</strong></p>\n" +
     "        <div ng-repeat=\"subrule in rule_ctrlr.rule.rules\" class=\"m-l-2\">\n" +
     "            <div class=\"panel panel-default\">\n" +
@@ -10694,6 +10694,7 @@ function AlertChannelsController(userSelfPropertyResource, applicationsNoIdResou
     var possibleFields = {
         '__AND__': 'All met (composite rule)',
         '__OR__': 'One met (composite rule)',
+        '__NOT__': 'Not met (composite rule)',
         'http_status': 'HTTP Status',
         'duration': 'Request duration',
         'group:priority': 'Group -> Priority',
@@ -11610,6 +11611,7 @@ angular.module('appenlight.directives.postProcessAction', []).directive('postPro
         var possibleFields = {
             '__AND__': 'All met (composite rule)',
             '__OR__': 'One met (composite rule)',
+            '__NOT__': 'Not met (composite rule)',
             'http_status': 'HTTP Status',
             'duration': 'Request duration',
             'group:priority': 'Group -> Priority',
@@ -11927,8 +11929,9 @@ angular.module('appenlight.directives.rule', []).directive('rule', function () {
         };
 
         vm.fieldChange = function () {
-            var new_is_compound = ['__AND__', '__OR__'].indexOf(vm.rule.field) !== -1;
-            var old_was_compound = ['__AND__', '__OR__'].indexOf(vm.oldField) !== -1;
+            var compound_types = ['__AND__', '__OR__', '__NOT__'];
+            var new_is_compound = compound_types.indexOf(vm.rule.field) !== -1;
+            var old_was_compound = compound_types.indexOf(vm.oldField) !== -1;
 
             if (!new_is_compound) {
                 vm.rule.op = vm.ruleDefinitions.fieldOps[vm.rule.field][0];
