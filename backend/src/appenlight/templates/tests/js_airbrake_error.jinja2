@@ -1,57 +1,54 @@
-{% extends "/layout.jinja2" %}
-{% from '/reports/reports_small_list_old.jinja2' import render_reports with context %}
-{% block additional_layout_scripts %}
-<script src="/static/scripts/jerrormator.js" type="text/javascript"></script>
-{% endblock %}
-{% block content_class %}{% endblock %}
-{% set layout_disable_menu = True %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
 
-{% block additional_styles %}
+    <title>Error test</title>
+    <meta name="description" content="">
+</head>
+<body>
+
+<h1>Error test</h1>
 
 
 <script type="text/javascript">
-  (function(callback) {
-    var ab = document.createElement('script');
-    ab.type = 'text/javascript'; ab.async = true;
-    ab.onload = ab.onreadystatechange = callback;
-    // this should match your copy of the compiled notifier.js or notifier.min.js
-    //ab.src = (("https:" == document.location.protocol) ? "https://ssljscdn" : "http://jscdn") + ".airbrake.io/notifier.min.js";
-    ab.src = "/static/scripts/notifier.js";
-    var p = document.getElementsByTagName('script')[0];
-    p.parentNode.insertBefore(ab, p);
-  }(function () {
-    Airbrake.setGuessFunctionName(true);
-    Airbrake.setHost('api.appenlight.com');
-    console.log(Airbrake)
-    // insert your public api key
-    Airbrake.setKey('1ec3119102154a8caaa307a4495b8558');
-    Airbrake.setEnvironment('production');
-    Airbrake.setErrorDefaults({
-      url: document.URL,
-      component: "",
-      action: "",
-      user: "someuser",
-    });
-  }));
-  // example error
-setTimeout(function(){
-    try {
-        cvxzvcxzcvxv + 263
-    } catch (e) {
-        window.Airbrake.captureException(e);
-    }
-    console.log('foo');
-},2000);
+    (function(callback) {
+        var ab = document.createElement('script');
+        ab.type = 'text/javascript'; ab.async = true;
+        ab.onload = ab.onreadystatechange = callback;
+        // this should match your copy of the compiled notifier.js or notifier.min.js
+        //ab.src = (("https:" == document.location.protocol) ? "https://ssljscdn" : "http://jscdn") + ".airbrake.io/notifier.min.js";
+        ab.src = "/static/scripts/notifier.js";
+        var p = document.getElementsByTagName('script')[0];
+        p.parentNode.insertBefore(ab, p);
+    }(function () {
+        Airbrake.setGuessFunctionName(true);
+        Airbrake.setHost('api.appenlight.com');
+        console.log(Airbrake)
+        // insert your public api key
+        Airbrake.setKey('{{ request.registry.settings.get('appenlight.public_api_key') }}');
+        Airbrake.setEnvironment('production');
+        Airbrake.setErrorDefaults({
+            url: document.URL,
+            component: "",
+            action: "",
+            user: "someuser",
+        });
+    }));
+    // example error
+    setTimeout(function(){
+        try {
+            cvxzvcxzcvxv + 263
+        } catch (e) {
+            window.Airbrake.captureException(e);
+        }
+        console.log('foo');
+    },2000);
 
 
 
 
 </script>
-{% endblock %}
 
-{% block page_title %}
-<h1 class="page-title">{{_('JS')}}</h1>
-{% endblock %}
-{% block content %}
-
-{% endblock %}
+</body>
+</html>

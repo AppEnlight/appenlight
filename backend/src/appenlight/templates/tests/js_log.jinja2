@@ -1,33 +1,58 @@
-{% extends "/layout.jinja2" %}
-{% block additional_layout_scripts %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
 
-{% endblock %}
+    <title>Error test</title>
+    <meta name="description" content="">
+    {% if request.registry.settings.get('appenlight.public_api_key') %}
+        <script type="application/javascript">
+            var initAppEnlight = function () {
+                if(this.readyState!='loading'){
+                    AppEnlight.init({
+                        apiKey:'{{ request.registry.settings.get('appenlight.public_api_key') }}',
+                        windowOnError: 1 // enable to hook to window.onerror
+                    });
+                    // setting request info is completly optional
+                    AppEnlight.setRequestInfo({
+                        server:"{{ request.environ.get('SERVER_NAME', '<unknown>') }}",
+                        {% if request.user %}
+                            username:'{{ request.user.user_name }}',
+                        {% endif %}
+                        ip: "{{ request.environ.get('REMOTE_ADDR', '') }}",
+                        request_id:"{{ request.environ.get('appenlight.request_id', '') }}"
+                    });
 
-{% block additional_styles %}
+                    AppEnlight.addGlobalTags({framework:'angular', 'language':'javascript'});
+                    AppEnlight.addGlobalExtra({some_key:'on every request'});
+
+                }
+            };
+            //  load the script asynchroneously
+            var scrElem = document.createElement('script');
+            scrElem.type = 'text/javascript';
+            scrElem.async = true;
+            scrElem.onload = scrElem.onreadystatechange = initAppEnlight;
+            scrElem.src = "//cdn.jsdelivr.net/appenlight/latest/appenlight-client.min.js";
+            scrElem.src = "/static/appenlight/js/appenlight-client.js";
+            var p = document.getElementsByTagName('script')[0];
+            p.parentNode.insertBefore(scrElem, p);
+        </script>
+    {% endif %}
+</head>
+<body>
+
+<h1>Error test</h1>
+
 <script type="text/javascript">
-setTimeout(function(){
-      AppEnlight.log('error',"some test message");
-      AppEnlight.log('info',"some info message");
-      AppEnlight.log('warning',"some warn message");
-},2000);
 
-
-
-
+    setTimeout(function(){
+        AppEnlight.log('error',"some test message");
+        AppEnlight.log('info',"some info message");
+        AppEnlight.log('warning',"some warn message");
+    },2000);
 
 </script>
-{% endblock %}
 
-{% block content_class %}{% endblock %}
-{% set layout_disable_menu = True %}
-
-
-
-{% block page_title %}
-<h1 class="page-title">{{_('JS')}}</h1>
-{% endblock %}
-{% block content %}
-
-
-
-{% endblock %}
+</body>
+</html>
