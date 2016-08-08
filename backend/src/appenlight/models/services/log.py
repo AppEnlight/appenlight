@@ -103,7 +103,13 @@ class LogService(BaseService):
         messages = filter_settings.get('message')
         if messages:
             query['query']['filtered']['query'] = {
-                'match': {"message": ' '.join(messages)}}
+                'match': {
+                    'message': {
+                        'query': ' '.join(messages),
+                        'operator': 'and'
+                    }
+                }
+            }
         return query
 
     @classmethod
