@@ -90,7 +90,7 @@ def test_retry_exception_task():
         test_retry_exception_task.retry(exc=exc)
 
 
-@celery.task(queue="reports", default_retry_delay=600, max_retries=999)
+@celery.task(queue="reports", default_retry_delay=600, max_retries=144)
 def add_reports(resource_id, params, dataset, environ=None, **kwargs):
     proto_version = parse_proto(params.get('protocol_version', ''))
     current_time = datetime.utcnow().replace(second=0, microsecond=0)
@@ -211,7 +211,7 @@ def add_reports(resource_id, params, dataset, environ=None, **kwargs):
         add_reports.retry(exc=exc)
 
 
-@celery.task(queue="es", default_retry_delay=600, max_retries=999)
+@celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_reports_es(report_group_docs, report_docs):
     for k, v in report_group_docs.items():
         Datastores.es.bulk_index(k, 'report_group', v, id_field="_id")
@@ -220,19 +220,19 @@ def add_reports_es(report_group_docs, report_docs):
                                  parent_field='_parent')
 
 
-@celery.task(queue="es", default_retry_delay=600, max_retries=999)
+@celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_reports_slow_calls_es(es_docs):
     for k, v in es_docs.items():
         Datastores.es.bulk_index(k, 'log', v)
 
 
-@celery.task(queue="es", default_retry_delay=600, max_retries=999)
+@celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_reports_stats_rows_es(es_docs):
     for k, v in es_docs.items():
         Datastores.es.bulk_index(k, 'log', v)
 
 
-@celery.task(queue="logs", default_retry_delay=600, max_retries=999)
+@celery.task(queue="logs", default_retry_delay=600, max_retries=144)
 def add_logs(resource_id, request, dataset, environ=None, **kwargs):
     proto_version = request.get('protocol_version')
     current_time = datetime.utcnow().replace(second=0, microsecond=0)
@@ -321,13 +321,13 @@ def add_logs(resource_id, request, dataset, environ=None, **kwargs):
         add_logs.retry(exc=exc)
 
 
-@celery.task(queue="es", default_retry_delay=600, max_retries=999)
+@celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_logs_es(es_docs):
     for k, v in es_docs.items():
         Datastores.es.bulk_index(k, 'log', v)
 
 
-@celery.task(queue="metrics", default_retry_delay=600, max_retries=999)
+@celery.task(queue="metrics", default_retry_delay=600, max_retries=144)
 def add_metrics(resource_id, request, dataset, proto_version):
     current_time = datetime.utcnow().replace(second=0, microsecond=0)
     try:
@@ -374,7 +374,7 @@ def add_metrics(resource_id, request, dataset, proto_version):
         add_metrics.retry(exc=exc)
 
 
-@celery.task(queue="es", default_retry_delay=600, max_retries=999)
+@celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_metrics_es(es_docs):
     for doc in es_docs:
         partition = 'rcae_m_%s' % doc['timestamp'].strftime('%Y_%m_%d')
@@ -496,7 +496,7 @@ def close_alerts():
         raise
 
 
-@celery.task(queue="default", default_retry_delay=600, max_retries=999)
+@celery.task(queue="default", default_retry_delay=600, max_retries=144)
 def update_tag_counter(tag_name, tag_value, count):
     try:
         query = DBSession.query(Tag).filter(Tag.name == tag_name).filter(
@@ -584,7 +584,7 @@ def alerting_reports():
 
 
 @celery.task(queue="default", soft_time_limit=3600 * 4,
-             hard_time_limit=3600 * 4, max_retries=999)
+             hard_time_limit=3600 * 4, max_retries=144)
 def logs_cleanup(resource_id, filter_settings):
     request = get_current_request()
     request.tm.begin()
