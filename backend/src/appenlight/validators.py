@@ -480,7 +480,7 @@ class GeneralMetricSchema(colander.MappingSchema):
                                       missing='unknown')
     timestamp = colander.SchemaNode(NonTZDate(), validator=limited_date,
                                     missing=deferred_utcnow)
-    tags = TagSchemaList()
+    tags = TagSchemaList(missing=colander.required)
 
 
 class GeneralMetricsListSchema(colander.SequenceSchema):
