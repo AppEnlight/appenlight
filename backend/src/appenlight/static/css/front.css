@@ -8455,6 +8455,9 @@ form.graph-type.form-inline {
 form.graph-type.form-inline select {
   margin-right: 10px;
 }
+table.log-list tbody > tr > td {
+  vertical-align: top;
+}
 table.log-list .http_status {
   width: 52px;
 }
@@ -8550,6 +8553,7 @@ table.log-list .critical {
 table.log-list .log {
   font-size: 85%;
   margin-top: 5px;
+  white-space: pre-wrap;
 }
 .register-section #social_block {
   margin-bottom: 20px;

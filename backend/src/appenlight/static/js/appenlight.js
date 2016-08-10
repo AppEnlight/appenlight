@@ -5717,9 +5717,7 @@ function kickstartAE() {
     "                        <span class=\"name\">namespace:</span> {{log.namespace}}</a>\n" +
     "                    <a ng-repeat=\"(tag, value) in log.tags\" class=\"tag\" ng-click=\"logs.addSearchTag({type:tag, value:value})\">\n" +
     "                        <span class=\"name\">{{tag}}:</span> {{value}}</a>\n" +
-    "                    <div class=\"log\">\n" +
-    "                        {{log.message}}\n" +
-    "                    </div>\n" +
+    "                    <div class=\"log\">{{log.message}}</div>\n" +
     "                </td>\n" +
     "                <td class=\"c3 when\">\n" +
     "                    <a ng-click=\"logs.filterId(log)\" data-uib-tooltip=\"{{log.timestamp}}\">\n" +
