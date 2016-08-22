@@ -799,7 +799,7 @@ class TestAPIGeneralMetricsView(object):
 
     def test_single_json_payload(self):
         import appenlight.tests.payload_examples as payload_examples
-        from appenlight.models.request_metric import Metric
+        from appenlight.models.metric import Metric
         from appenlight.views.api import general_metrics_create
         from appenlight.models.services.application import ApplicationService
         route = mock.Mock()
@@ -818,7 +818,7 @@ class TestAPIGeneralMetricsView(object):
 
     def test_multiple_json_payload(self):
         import appenlight.tests.payload_examples as payload_examples
-        from appenlight.models.request_metric import Metric
+        from appenlight.models.metric import Metric
         from appenlight.views.api import general_metrics_create
         from appenlight.models.services.application import ApplicationService
         route = mock.Mock()

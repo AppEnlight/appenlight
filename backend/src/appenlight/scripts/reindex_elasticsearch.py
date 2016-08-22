@@ -38,7 +38,7 @@ from appenlight.models.report import Report
 from appenlight.models.report_stat import ReportStat
 from appenlight.models.log import Log
 from appenlight.models.slow_call import SlowCall
-from appenlight.models.request_metric import Metric
+from appenlight.models.metric import Metric
 
 
 log = logging.getLogger(__name__)

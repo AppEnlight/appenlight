@@ -33,7 +33,7 @@ To run celery beats scheduling:
 
     celery beat -A appenlight.celery --ini=development.ini
 
-You should also run the channelstream websocket server for real-time notifications
+You should also run the `channelstream websocket server for real-time notifications
 
     channelstream -i filename.ini
 

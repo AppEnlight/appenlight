@@ -106,7 +106,7 @@ from appenlight.models.application import Application
 from appenlight.models.user import User
 from appenlight.models.alert_channel import AlertChannel
 from appenlight.models.alert_channel_action import AlertChannelAction
-from appenlight.models.request_metric import Metric
+from appenlight.models.metric import Metric
 from appenlight.models.application_postprocess_conf import \
     ApplicationPostprocessConf
 from appenlight.models.auth_token import AuthToken

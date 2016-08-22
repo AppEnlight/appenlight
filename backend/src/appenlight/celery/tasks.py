@@ -35,7 +35,7 @@ from appenlight.models.report_group import ReportGroup
 from appenlight.models import DBSession, Datastores
 from appenlight.models.report import Report
 from appenlight.models.log import Log
-from appenlight.models.request_metric import Metric
+from appenlight.models.metric import Metric
 from appenlight.models.event import Event
 
 from appenlight.models.services.application import ApplicationService
