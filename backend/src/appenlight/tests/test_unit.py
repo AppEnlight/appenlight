@@ -53,116 +53,6 @@ class TestMigration(object):
         assert 1 == 1
 
 
-class TestAPIReports_0_4_Validation(object):
-    @pytest.mark.parametrize('dummy_json', ['', {}, [], None])
-    def test_no_payload(self, dummy_json):
-        import colander
-        from appenlight.validators import ReportListSchema_0_4
-        utcnow = datetime.utcnow()
-        schema = ReportListSchema_0_4().bind(utcnow=utcnow)
-        with pytest.raises(colander.Invalid):
-            schema.deserialize(dummy_json)
-
-    def test_minimal_payload(self, report_04_schema):
-        dummy_json = [{}]
-        import colander
-        from appenlight.validators import ReportListSchema_0_4
-        utcnow = datetime.utcnow()
-        schema = ReportListSchema_0_4().bind(utcnow=utcnow)
-        with pytest.raises(colander.Invalid):
-            schema.deserialize(dummy_json)
-
-    def test_minimal_payload(self):
-        from appenlight.validators import ReportListSchema_0_4
-        dummy_json = [{'report_details': [{}]}]
-        utcnow = datetime.utcnow()
-        schema = ReportListSchema_0_4().bind(utcnow=utcnow)
-        deserialized = schema.deserialize(dummy_json)
-
-        expected_deserialization = [
-            {'error_type': '',
-             'language': 'unknown',
-             'report_details': [
-                 {'username': '',
-                  'traceback': None,
-                  'extra': None,
-                  'frameinfo': None,
-                  'url': '',
-                  'ip': None,
-                  'start_time': utcnow,
-                  'group_string': None,
-                  'request': {},
-                  'request_stats': None,
-                  'end_time': None,
-                  'request_id': '',
-                  'message': '',
-                  'slow_calls': [],
-                  'user_agent': ''}],
-             'server': 'unknown',
-             'occurences': 1,
-             'priority': 5,
-             'view_name': '',
-             'client': 'unknown',
-             'http_status': 200,
-             'error': '',
-             'tags': None}
-        ]
-        assert deserialized == expected_deserialization
-
-    def test_full_payload(self):
-        import appenlight.tests.payload_examples as payload_examples
-        from appenlight.validators import ReportListSchema_0_4
-        utcnow = datetime.utcnow()
-        schema = ReportListSchema_0_4().bind(utcnow=utcnow)
-        PYTHON_PAYLOAD = copy.deepcopy(payload_examples.PYTHON_PAYLOAD_0_4)
-        utcnow = datetime.utcnow()
-        PYTHON_PAYLOAD["tags"] = [("foo", 1), ("action", "test"), ("baz", 1.1),
-                                  ("date",
-                                   utcnow.strftime('%Y-%m-%dT%H:%M:%S.0'))]
-        dummy_json = [PYTHON_PAYLOAD]
-
-        deserialized = schema.deserialize(dummy_json)
-        assert deserialized[0]['error'] == PYTHON_PAYLOAD['error']
-        assert deserialized[0]['language'] == PYTHON_PAYLOAD['language']
-        assert deserialized[0]['server'] == PYTHON_PAYLOAD['server']
-        assert deserialized[0]['priority'] == PYTHON_PAYLOAD['priority']
-        assert deserialized[0]['view_name'] == PYTHON_PAYLOAD['view_name']
-        assert deserialized[0]['client'] == PYTHON_PAYLOAD['client']
-        assert deserialized[0]['http_status'] == PYTHON_PAYLOAD['http_status']
-        assert deserialized[0]['error'] == PYTHON_PAYLOAD['error']
-        assert deserialized[0]['occurences'] == PYTHON_PAYLOAD['occurences']
-        first_detail = deserialized[0]['report_details'][0]
-        payload_detail = PYTHON_PAYLOAD['report_details'][0]
-        assert first_detail['username'] == payload_detail['username']
-        assert first_detail['traceback'] == payload_detail['traceback']
-        assert first_detail['url'] == payload_detail['url']
-        assert first_detail['ip'] == payload_detail['ip']
-        assert first_detail['start_time'].strftime('%Y-%m-%dT%H:%M:%S.0') == \
-               payload_detail['start_time']
-        assert first_detail['ip'] == payload_detail['ip']
-        assert first_detail['group_string'] is None
-        assert first_detail['request_stats'] == payload_detail['request_stats']
-        assert first_detail['end_time'].strftime('%Y-%m-%dT%H:%M:%S.0') == \
-               payload_detail['end_time']
-        assert first_detail['request_id'] == payload_detail['request_id']
-        assert first_detail['message'] == payload_detail['message']
-        assert first_detail['user_agent'] == payload_detail['user_agent']
-        slow_call = first_detail['slow_calls'][0]
-        expected_slow_call = payload_detail['slow_calls'][0]
-        assert slow_call['start'].strftime('%Y-%m-%dT%H:%M:%S.0') == \
-               expected_slow_call['start']
-        assert slow_call['end'].strftime('%Y-%m-%dT%H:%M:%S.0') == \
-               expected_slow_call['end']
-        assert slow_call['statement'] == expected_slow_call['statement']
-        assert slow_call['parameters'] == expected_slow_call['parameters']
-        assert slow_call['type'] == expected_slow_call['type']
-        assert slow_call['subtype'] == expected_slow_call['subtype']
-        assert slow_call['location'] == ''
-        assert deserialized[0]['tags'] == [
-            ('foo', 1), ('action', 'test'),
-            ('baz', 1.1), ('date', utcnow.strftime('%Y-%m-%dT%H:%M:%S.0'))]
-
-
 class TestSentryProto_7(object):
     def test_log_payload(self):
         import appenlight.tests.payload_examples as payload_examples
@@ -461,11 +351,11 @@ class TestAPIGeneralMetricsValidation(object):
             general_metrics_schema.deserialize(dummy_json)
 
     def test_minimal_payload(self, general_metrics_schema):
-        dummy_json = [{}]
+        dummy_json = [{'tags': [['counter_a', 15.5], ['counter_b', 63]]}]
         deserialized = general_metrics_schema.deserialize(dummy_json)[0]
         expected = {'namespace': '',
                     'server_name': 'unknown',
-                    'tags': None,
+                    'tags': [('counter_a', 15.5), ('counter_b', 63)],
                     'timestamp': datetime.utcnow()}
         assert deserialized['namespace'] == expected['namespace']
         assert deserialized['server_name'] == expected['server_name']

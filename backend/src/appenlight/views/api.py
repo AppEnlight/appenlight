@@ -405,7 +405,12 @@ def sentry_compat(request):
     event, event_type = parse_sentry_event(json_body)
 
     if event_type == ParsedSentryEventType.LOG:
-        schema = LogSchema().bind(utcnow=datetime.datetime.utcnow())
+        if application.allow_permanent_storage:
+            schema = LogSchemaPermanent().bind(
+                utcnow=datetime.datetime.utcnow())
+        else:
+            schema = LogSchema().bind(
+                utcnow=datetime.datetime.utcnow())
         deserialized_logs = schema.deserialize(event)
         non_pkey_logs = [deserialized_logs]
         log.debug('%s non-pkey logs received: %s' % (application,

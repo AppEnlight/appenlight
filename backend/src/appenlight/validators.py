@@ -192,17 +192,20 @@ class SlowCallSchema(colander.MappingSchema):
 
 def limited_date(node, value):
     """ checks to make sure that the value is not older/newer than 2h """
-    hours = 2
-    min_time = datetime.datetime.utcnow() - datetime.timedelta(hours=72)
-    max_time = datetime.datetime.utcnow() + datetime.timedelta(hours=2)
+    past_hours = 72
+    future_hours = 2
+    min_time = datetime.datetime.utcnow() - datetime.timedelta(
+        hours=past_hours)
+    max_time = datetime.datetime.utcnow() + datetime.timedelta(
+        hours=future_hours)
     if min_time > value:
-        msg = '%r is older from current UTC time by ' + str(hours) + ' hours.'
-        msg += ' Ask administrator to enable permanent logging for ' \
+        msg = '%r is older from current UTC time by ' + str(past_hours)
+        msg += ' hours. Ask administrator to enable permanent logging for ' \
                'your application to store logs with dates in past.'
         raise colander.Invalid(node, msg % value)
     if max_time < value:
-        msg = '%r is newer from current UTC time by ' + str(hours) + ' hours'
-        msg += ' Ask administrator to enable permanent logging for ' \
+        msg = '%r is newer from current UTC time by ' + str(future_hours)
+        msg += ' hours. Ask administrator to enable permanent logging for ' \
                'your application to store logs with dates in future.'
         raise colander.Invalid(node, msg % value)
 
@@ -311,20 +314,13 @@ class ReportDetailBaseSchema(colander.MappingSchema):
     extra = ExtraSchemaList()
 
 
-class ReportDetailSchema_0_4(ReportDetailBaseSchema):
-    frameinfo = FrameInfoListSchema(missing=None)
-
-
 class ReportDetailSchema_0_5(ReportDetailBaseSchema):
     pass
 
 
-class ReportDetailListSchema(colander.SequenceSchema):
-    """
-    Validates format of list of reports
-    """
-    report_detail = ReportDetailSchema_0_4()
-    validator = colander.Length(1)
+class ReportDetailSchemaPermissiveDate_0_5(ReportDetailSchema_0_5):
+    start_time = colander.SchemaNode(NonTZDate(), missing=deferred_utcnow)
+    end_time = colander.SchemaNode(NonTZDate(), missing=None)
 
 
 class ReportSchemaBase(colander.MappingSchema):
@@ -364,11 +360,24 @@ class ReportSchema_0_5(ReportSchemaBase, ReportDetailSchema_0_5):
     pass
 
 
+class ReportSchemaPermissiveDate_0_5(ReportSchemaBase,
+                                 ReportDetailSchemaPermissiveDate_0_5):
+    pass
+
+
 class ReportListSchema_0_5(colander.SequenceSchema):
     """
     Validates format of list of report groups
     """
     report = ReportSchema_0_5()
+    validator = colander.Length(1)
+
+
+class ReportListPermissiveDateSchema_0_5(colander.SequenceSchema):
+    """
+    Validates format of list of report groups
+    """
+    report = ReportSchemaPermissiveDate_0_5()
     validator = colander.Length(1)
 
 
