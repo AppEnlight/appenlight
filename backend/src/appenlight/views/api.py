@@ -42,7 +42,9 @@ from appenlight.lib.request import JSONException
 from appenlight.validators import (LogListSchema,
                                    MetricsListSchema,
                                    GeneralMetricsListSchema,
+                                   GeneralMetricsPermanentListSchema,
                                    GeneralMetricSchema,
+                                   GeneralMetricPermanentSchema,
                                    LogListPermanentSchema,
                                    ReportListSchema_0_5,
                                    LogSchema,
@@ -235,10 +237,19 @@ def general_metrics_create(request):
     payload = request.unsafe_json_body
     sequence_accepted = request.matched_route.name == 'api_general_metrics'
     if sequence_accepted:
-        schema = GeneralMetricsListSchema().bind(
-            utcnow=datetime.datetime.utcnow())
+        if application.allow_permanent_storage:
+            schema = GeneralMetricsPermanentListSchema().bind(
+                utcnow=datetime.datetime.utcnow())
+        else:
+            schema = GeneralMetricsListSchema().bind(
+                utcnow=datetime.datetime.utcnow())
     else:
-        schema = GeneralMetricSchema().bind(utcnow=datetime.datetime.utcnow())
+        if application.allow_permanent_storage:
+            schema = GeneralMetricPermanentSchema().bind(
+                utcnow=datetime.datetime.utcnow())
+        else:
+            schema = GeneralMetricSchema().bind(
+                utcnow=datetime.datetime.utcnow())
 
     deserialized_metrics = schema.deserialize(payload)
     if sequence_accepted is False:

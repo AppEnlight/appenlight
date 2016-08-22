@@ -492,8 +492,21 @@ class GeneralMetricSchema(colander.MappingSchema):
     tags = TagSchemaList(missing=colander.required)
 
 
+class GeneralMetricPermanentSchema(GeneralMetricSchema):
+    """
+    Validates universal metric schema
+
+    """
+    timestamp = colander.SchemaNode(NonTZDate(), missing=deferred_utcnow)
+
+
 class GeneralMetricsListSchema(colander.SequenceSchema):
     metric = GeneralMetricSchema()
+    validator = colander.Length(1)
+
+
+class GeneralMetricsPermanentListSchema(colander.SequenceSchema):
+    metric = GeneralMetricPermanentSchema()
     validator = colander.Length(1)
 
 
