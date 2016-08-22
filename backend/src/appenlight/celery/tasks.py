@@ -297,7 +297,8 @@ def add_logs(resource_id, request, dataset, environ=None, **kwargs):
                             Datastores.es.delete_by_query(
                                 es_index, 'log', query)
                         except pyelasticsearch.ElasticHttpNotFoundError as exc:
-                            log.error(exc)
+                            msg = 'skipping index {}'.format(es_index)
+                            log.info(msg)
 
         total_logs = len(dataset)
 
