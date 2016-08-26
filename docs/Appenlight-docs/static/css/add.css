@@ -1,0 +1,13 @@
+.menuselection, .guilabel {
+    font-size: .90em;
+    font-family: "proximanovaregular", "Proxima Nova Regular", "Proxima Nova", sans-serif;
+    font-style: oblique;
+}
+
+.version{
+    display: none;
+    }
+
+.pre{
+    color:#000
+    }

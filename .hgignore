@@ -155,3 +155,6 @@ packer/packer
 
 syntax: regexp
 install_appenlight_production.yaml
+^docs/result$
+^docs/Appenlight-docs/_build$
+^docs/www$
