@@ -254,13 +254,12 @@ class Report(Base, BaseModel):
 
             instance_dict['group']['next_report'] = None
             instance_dict['group']['previous_report'] = None
-            next_in_group = self.get_next_in_group()
-            previous_in_group = self.get_previous_in_group()
+            next_in_group = self.get_next_in_group(request)
+            previous_in_group = self.get_previous_in_group(request)
             if next_in_group:
-                instance_dict['group']['next_report'] = next_in_group.id
+                instance_dict['group']['next_report'] = next_in_group
             if previous_in_group:
-                instance_dict['group']['previous_report'] = \
-                    previous_in_group.id
+                instance_dict['group']['previous_report'] = previous_in_group
 
             # slow call ordering
             def find_parent(row, data):
@@ -301,21 +300,45 @@ class Report(Base, BaseModel):
                 del instance_dict[k]
         return instance_dict
 
-    def get_previous_in_group(self):
-        start_day = self.report_group_time.date().replace(day=1)
-        end_day = start_day.replace(month=start_day.month+1)
-        query = self.report_group.reports.filter(Report.id < self.id)
-        query = query.filter(Report.report_group_time.between(
-            start_day, end_day))
-        return query.order_by(sa.desc(Report.id)).first()
+    def get_previous_in_group(self, request):
+        query = {
+            "size": 1,
+            "query": {
+                "filtered": {
+                    "filter": {
+                        "and": [{"term": {"group_id": self.group_id}},
+                                {"range": {"pg_id": {"lt": self.id}}}]
+                    }
+                }
+            },
+            "sort": [
+                {"_doc": {"order": "desc"}},
+            ],
+        }
+        result = request.es_conn.search(query, index=self.partition_id,
+                                        doc_type='report')
+        if result['hits']['total']:
+            return result['hits']['hits'][0]['_source']['pg_id']
 
-    def get_next_in_group(self):
-        start_day = self.report_group_time.date().replace(day=1)
-        end_day = start_day.replace(month=start_day.month+1)
-        query = self.report_group.reports.filter(Report.id > self.id)
-        query = query.filter(Report.report_group_time.between(
-            start_day, end_day))
-        return query.order_by(sa.asc(Report.id)).first()
+    def get_next_in_group(self, request):
+        query = {
+            "size": 1,
+            "query": {
+                "filtered": {
+                    "filter": {
+                        "and": [{"term": {"group_id": self.group_id}},
+                                {"range": {"pg_id": {"gt": self.id}}}]
+                    }
+                }
+            },
+            "sort": [
+                {"_doc": {"order": "asc"}},
+            ],
+        }
+        result = request.es_conn.search(query, index=self.partition_id,
+                                        doc_type='report')
+        if result['hits']['total']:
+            return result['hits']['hits'][0]['_source']['pg_id']
 
     def get_public_url(self, request=None, report_group=None, _app_url=None):
         """
