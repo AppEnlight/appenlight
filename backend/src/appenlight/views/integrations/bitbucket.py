@@ -86,7 +86,7 @@ class BitbucketView(IntegrationView):
             return {'error_messages': [str(e)]}
 
         comment_body = 'Bitbucket issue created: %s ' % issue['web_url']
-        comment = ReportComment(user_name=self.request.user.user_name,
+        comment = ReportComment(owner_id=self.request.user.id,
                                 report_time=report.first_timestamp,
                                 body=comment_body)
         report.comments.append(comment)

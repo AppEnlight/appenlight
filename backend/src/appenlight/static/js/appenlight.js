@@ -4613,6 +4613,11 @@ function kickstartAE() {
     "                <div class=\"col-sm-8 col-lg-9\">\n" +
     "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.host_name\"></data-form-errors>\n" +
     "                    <input class=\"form-control\" id=\"host_name\" name=\"host_name\" type=\"text\" ng-model=\"integration.config.host_name\">\n" +
+    "\n" +
+    "                    <p>\n" +
+    "                        <small>https://servername.atlassian.net</small>\n" +
+    "                    </p>\n" +
+    "\n" +
     "                </div>\n" +
     "            </div>\n" +
     "            <div class=\"form-group\" id=\"row-user_name\">\n" +
@@ -4624,6 +4629,11 @@ function kickstartAE() {
     "\n" +
     "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.user_name\"></data-form-errors>\n" +
     "                    <input class=\"form-control\" id=\"user_name\" name=\"user_name\" type=\"text\" ng-model=\"integration.config.user_name\">\n" +
+    "\n" +
+    "                    <p>\n" +
+    "                        <small>user@email.com</small>\n" +
+    "                    </p>\n" +
+    "\n" +
     "                </div>\n" +
     "            </div>\n" +
     "            <div class=\"form-group\" id=\"row-password\">\n" +
@@ -5609,6 +5619,11 @@ function kickstartAE() {
     "            <label for=\"issue_title\">Issue Title</label>\n" +
     "            <input type=\"text\" class=\"form-control\" id=\"issue_title\" placeholder=\"Issue title\" ng-model=\"ctrl.form.title\">\n" +
     "          </div>\n" +
+    "\n" +
+    "        <div class=\"form-group\">\n" +
+    "            <label for=\"issue_type\">Issue Type</label>\n" +
+    "            <select class=\"form-control\" id=\"issue_type\" ng-options=\"i.name for i in ctrl.issue_types\" ng-model=\"ctrl.form.issue_type\"></select>\n" +
+    "        </div>\n" +
     "          <div class=\"form-group row\">\n" +
     "              <div class=\"col-sm-6\">\n" +
     "            <label for=\"issue_priority\">Priority</label>\n" +
@@ -9091,6 +9106,7 @@ function JiraIntegrationCtrl($uibModalInstance, $state, report, integrationName,
     vm.integrationName = integrationName;
     vm.statuses = [];
     vm.priorities = [];
+    vm.issue_types = [];
     vm.error_messages = [];
     vm.form = {
         content: '\n' +
@@ -9111,6 +9127,8 @@ function JiraIntegrationCtrl($uibModalInstance, $state, report, integrationName,
                 }
                 vm.assignees = data.assignees;
                 vm.priorities = data.priorities;
+                vm.issue_types = data.issue_types;
+                vm.form.issue_type = vm.issue_types[0];
                 vm.form.responsible = vm.assignees[0];
                 vm.form.priority = vm.priorities[0];
             }, function (error_data) {

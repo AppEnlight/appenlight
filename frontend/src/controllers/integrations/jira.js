@@ -30,6 +30,7 @@ function JiraIntegrationCtrl($uibModalInstance, $state, report, integrationName,
     vm.integrationName = integrationName;
     vm.statuses = [];
     vm.priorities = [];
+    vm.issue_types = [];
     vm.error_messages = [];
     vm.form = {
         content: '\n' +
@@ -50,6 +51,8 @@ function JiraIntegrationCtrl($uibModalInstance, $state, report, integrationName,
                 }
                 vm.assignees = data.assignees;
                 vm.priorities = data.priorities;
+                vm.issue_types = data.issue_types;
+                vm.form.issue_type = vm.issue_types[0];
                 vm.form.responsible = vm.assignees[0];
                 vm.form.priority = vm.priorities[0];
             }, function (error_data) {

@@ -68,15 +68,19 @@ class JiraView(IntegrationView):
             return {'error_messages': [str(e)]}
         assignees = []
         priorities = []
-        metadata = client.get_metadata()
-        for issue_type in metadata:
+        issue_types = []
+        possible_issue_types = client.get_issue_types(self.request)
+        for issue_type in possible_issue_types:
             for field in issue_type['fields']:
                 if field['id'] == 'assignee':
                     assignees = field['values']
                 if field['id'] == 'priority':
                     priorities = field['values']
+            issue_types.append({'name':issue_type['name'],
+                                'id':issue_type['id']})
         return {'assignees': assignees,
-                'priorities': priorities}
+                'priorities': priorities,
+                'issue_types': issue_types}
 
     @view_config(route_name='integrations_id',
                  match_param=['action=create-issue',
@@ -92,20 +96,20 @@ class JiraView(IntegrationView):
             'title': self.request.unsafe_json_body.get('title',
                                                        'Unknown Title'),
             'content': self.request.unsafe_json_body.get('content', ''),
-            'kind': 'bug',
+            'issue_type': self.request.unsafe_json_body['issue_type']['id'],
             'priority': self.request.unsafe_json_body['priority']['id'],
             'responsible': self.request.unsafe_json_body['responsible']['id'],
             'project': self.integration.config['project']
         }
         try:
             client = self.create_client()
-            issue = client.create_issue(form_data)
+            issue = client.create_issue(form_data, request=self.request)
         except IntegrationException as e:
             self.request.response.status_code = 503
             return {'error_messages': [str(e)]}
 
         comment_body = 'Jira issue created: %s ' % issue['web_url']
-        comment = ReportComment(user_name=self.request.user.user_name,
+        comment = ReportComment(owner_id=self.request.user.id,
                                 report_time=report.first_timestamp,
                                 body=comment_body)
         report.comments.append(comment)
