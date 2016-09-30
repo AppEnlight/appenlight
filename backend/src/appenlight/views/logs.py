@@ -79,7 +79,6 @@ def logs_fetch_series(request):
         filter_settings['start_date'] = now - delta
     filter_settings['end_date'] = filter_settings['start_date'] \
                                   + timedelta(days=7)
-    since_when = filter_settings['start_date']
 
     @request.registry.cache_regions.redis_sec_30.cache_on_arguments(
         'logs_graphs')
