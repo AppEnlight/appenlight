@@ -17,21 +17,17 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-var aeuser = angular.module('appenlight.user', []);
-aeuser.factory('AeUser', ['AeConfig', function () {
-    var decodedAeUser = decodeEncodedJSON(window.AE.user);
-    console.log('decodedAeUser', decodedAeUser);
+function buildUser(jsonData){
     var AeUser = {
-        user_name: decodedAeUser.user_name || null,
-        id: decodedAeUser.id,
-        assigned_reports: decodedAeUser.assigned_reports || null,
-        latest_events: decodedAeUser.latest_events || null,
-        permissions: decodedAeUser.permissions || null,
-        groups: decodedAeUser.groups || null,
+        user_name: jsonData.user_name || null,
+        id: jsonData.id,
+        assigned_reports: jsonData.assigned_reports || null,
+        latest_events: jsonData.latest_events || null,
+        permissions: jsonData.permissions || null,
+        groups: jsonData.groups || null,
         applications: [],
         dashboards: []
     };
-    console.log('AeUser', AeUser);
     AeUser.applications_map = {};
     AeUser.dashboards_map = {};
     AeUser.addApplication = function (item) {
@@ -80,12 +76,11 @@ aeuser.factory('AeUser', ['AeConfig', function () {
         return hasPerm;
     };
 
-    _.each(decodedAeUser.applications, function (item) {
+    _.each(jsonData.applications, function (item) {
         AeUser.addApplication(item);
     });
-    _.each(decodedAeUser.dashboards, function (item) {
+    _.each(jsonData.dashboards, function (item) {
         AeUser.addDashboard(item);
     });
-
     return AeUser;
-}]);
+}

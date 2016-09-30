@@ -21,12 +21,12 @@ angular.module('appenlight.controllers')
     .controller('ReportsListController', ReportsListController);
 
 ReportsListController.$inject = ['$scope', '$location', '$cookies',
-    'stateHolder', 'typeAheadTagHelper', 'reportsResource', 'AeUser'];
+    'stateHolder', 'typeAheadTagHelper', 'reportsResource'];
 
 function ReportsListController($scope, $location, $cookies, stateHolder,
-                               typeAheadTagHelper, reportsResource, AeUser) {
+                               typeAheadTagHelper, reportsResource) {
     var vm = this;
-    vm.applications = AeUser.applications_map;
+    vm.applications = stateHolder.AeUser.applications_map;
     stateHolder.section = 'reports';
     vm.today = function () {
         vm.pickerDate = new Date();
@@ -184,7 +184,7 @@ function ReportsListController($scope, $location, $cookies, stateHolder,
             tag: 'Status ' + status.toUpperCase()
         });
     });
-    _.each(AeUser.applications, function (item) {
+    _.each(stateHolder.AeUser.applications, function (item) {
         vm.filterTypeAheadOptions.push({
             type: 'resource',
             text: 'resource:' + item.resource_id + ':' + item.resource_name,

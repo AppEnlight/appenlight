@@ -25,11 +25,11 @@ angular.module('appenlight.controllers')
     .controller('ReportsListSlowController', ReportsListSlowController);
 
 ReportsListSlowController.$inject = ['$scope', '$location', '$cookies',
-    'stateHolder', 'typeAheadTagHelper', 'slowReportsResource', 'AeUser']
+    'stateHolder', 'typeAheadTagHelper', 'slowReportsResource']
 
-function ReportsListSlowController($scope, $location, $cookies, stateHolder, typeAheadTagHelper, slowReportsResource, AeUser) {
+function ReportsListSlowController($scope, $location, $cookies, stateHolder, typeAheadTagHelper, slowReportsResource) {
     var vm = this;
-    vm.applications = AeUser.applications_map;
+    vm.applications = stateHolder.AeUser.applications_map;
     stateHolder.section = 'slow_reports';
     vm.today = function () {
         vm.pickerDate = new Date();
@@ -167,7 +167,7 @@ function ReportsListSlowController($scope, $location, $cookies, stateHolder, typ
             tag: 'Status ' + status.toUpperCase()
         });
     });
-    _.each(AeUser.applications, function (item) {
+    _.each(stateHolder.AeUser.applications, function (item) {
         vm.filterTypeAheadOptions.push({
             type: 'resource',
             text: 'resource:' + item.resource_id + ':' + item.resource_name,

@@ -94,7 +94,7 @@
 
 <div ng-if="report.report !== null && !report.is_loading.report">
 
-    <div ng-if="AeUser.id" class="row">
+    <div ng-if="stateHolder.AeUser.id" class="row">
       <div class="col-lg-12">
         <a onclick="window.history.back()" class="btn btn-default" ng-if="report.window.history.length > 2"><span class="fa fa-arrow-circle-o-left"></span>
             Go back</a>

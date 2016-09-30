@@ -20,9 +20,9 @@
 angular.module('appenlight.controllers').controller('ReportsViewController', ReportsViewController);
 ReportsViewController.$inject = ['$window', '$location', '$state', '$uibModal',
     '$cookies', 'reportGroupPropertyResource', 'reportGroupResource',
-    'logsNoIdResource', 'AeUser'];
+    'logsNoIdResource', 'stateHolder'];
 
-function ReportsViewController($window, $location, $state, $uibModal, $cookies, reportGroupPropertyResource, reportGroupResource, logsNoIdResource, AeUser) {
+function ReportsViewController($window, $location, $state, $uibModal, $cookies, reportGroupPropertyResource, reportGroupResource, logsNoIdResource, stateHolder) {
     var vm = this;
     vm.window = $window;
     vm.reportHistoryConfig = {
@@ -202,7 +202,7 @@ function ReportsViewController($window, $location, $state, $uibModal, $cookies, 
                 vm.rawTraceback += '    ' + frame.cline + "\r\n";
             });
 
-            if (AeUser.id){
+            if (stateHolder.AeUser.id){
                 vm.fetchHistory();
             }
 

@@ -20,9 +20,9 @@
 angular.module('appenlight.controllers')
     .controller('IndexDashboardController', IndexDashboardController);
 
-IndexDashboardController.$inject = ['$scope', '$location','$cookies', '$interval', 'stateHolder', 'userSelfPropertyResource', 'applicationsPropertyResource', 'AeConfig', 'AeUser'];
+IndexDashboardController.$inject = ['$scope', '$location','$cookies', '$interval', 'stateHolder', 'userSelfPropertyResource', 'applicationsPropertyResource', 'AeConfig'];
 
-function IndexDashboardController($scope, $location, $cookies, $interval, stateHolder, userSelfPropertyResource, applicationsPropertyResource, AeConfig, AeUser) {
+function IndexDashboardController($scope, $location, $cookies, $interval, stateHolder, userSelfPropertyResource, applicationsPropertyResource, AeConfig) {
     var vm = this;
     stateHolder.section = 'dashboard';
     vm.timeOptions = {};
@@ -33,7 +33,7 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
         }
     });
     vm.urls = AeConfig.urls;
-    vm.applications = AeUser.applications_map;
+    vm.applications = stateHolder.AeUser.applications_map;
     vm.show_dashboard = false;
     vm.resource = null;
     vm.graphType = {selected: null};
@@ -427,7 +427,7 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
     });
 
     vm.determineStartState = function () {
-        if (AeUser.applications.length) {
+        if (stateHolder.AeUser.applications.length) {
             vm.resource = Number($location.search().resource);
 
             if (!vm.resource){
@@ -438,7 +438,7 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
                     vm.resource = cookieResource;
                 }
                 else{
-                    vm.resource = AeUser.applications[0].resource_id;
+                    vm.resource = stateHolder.AeUser.applications[0].resource_id;
                 }
             }
         }
@@ -682,7 +682,7 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
         ;
     }
 
-    if (AeUser.applications.length){
+    if (stateHolder.AeUser.applications.length){
         vm.show_dashboard = true;
         vm.determineStartState();
         vm.refreshData();

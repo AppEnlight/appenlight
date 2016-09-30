@@ -14,20 +14,20 @@
 <div class="row">
     <div class="col-sm-12 dashboard" id="content">
 
-        <div ng-if="!AeUser.applications.length">
+        <div ng-if="!stateHolder.AeUser.applications.length">
 
             <div ng-include="'templates/quickstart.html'"></div>
 
         </div>
 
-        <div ng-if="AeUser.applications.length">
+        <div ng-if="stateHolder.AeUser.applications.length">
 
             <div class="row">
                 <div class="col-sm-6">
                     <div class="panel panel-default">
                         <div class="panel-body">
                             <form class="graph-type form-inline">
-                                <select ng-model="index.resource" ng-options="r.resource_id as r.resource_name for r in AeUser.applications" ng-change="index.updateSearchParams()"
+                                <select ng-model="index.resource" ng-options="r.resource_id as r.resource_name for r in stateHolder.AeUser.applications" ng-change="index.updateSearchParams()"
                                         class="SelectField form-control input-sm slim-input"></select>
 
                                 <select class="SelectField form-control input-sm slim-input" ng-model="index.timeSpan"

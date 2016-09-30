@@ -19,9 +19,9 @@
 
 angular.module('appenlight.controllers').controller('LogsController', LogsController);
 
-LogsController.$inject = ['$scope', '$location', 'stateHolder', 'typeAheadTagHelper', 'logsNoIdResource', 'sectionViewResource', 'AeUser'];
+LogsController.$inject = ['$scope', '$location', 'stateHolder', 'typeAheadTagHelper', 'logsNoIdResource', 'sectionViewResource'];
 
-function LogsController($scope, $location, stateHolder, typeAheadTagHelper, logsNoIdResource, sectionViewResource, AeUser) {
+function LogsController($scope, $location, stateHolder, typeAheadTagHelper, logsNoIdResource, sectionViewResource) {
     var vm = this;
     vm.logEventsChartConfig = {
         data: {
@@ -83,7 +83,7 @@ function LogsController($scope, $location, stateHolder, typeAheadTagHelper, logs
     };
     vm.today();
 
-    vm.applications = AeUser.applications_map;
+    vm.applications = stateHolder.AeUser.applications_map;
     vm.logsPage = [];
     vm.itemCount = 0;
     vm.itemsPerPage = 250;

@@ -181,9 +181,10 @@ def users_self(request):
             request.session.flash(_('Your profile got updated.'))
         else:
             return HTTPUnprocessableEntity(body=form.errors_json)
-    return request.user.get_dict(exclude_keys=['security_code_date', 'notes',
-                                               'security_code',
-                                               'user_password'])
+    return request.user.get_dict(
+        exclude_keys=['security_code_date', 'notes', 'security_code',
+                      'user_password'],
+        extended_info=True)
 
 
 @view_config(route_name='users_self_property',
@@ -440,7 +441,7 @@ def alert_channel_DELETE(request):
     channel = None
     for chan in user.alert_channels:
         if (chan.channel_name == request.params.get('channel_name') and
-                chan.channel_value == request.params.get('channel_value')):
+                    chan.channel_value == request.params.get('channel_value')):
             channel = chan
             break
     if channel:

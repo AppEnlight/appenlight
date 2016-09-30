@@ -1,6 +1,6 @@
 {% import 'widgets.jinja2' as widgets %}
 <!DOCTYPE html>
-<html  {% block ng_controller %}{% endblock %} {% block ng_app %}data-ng-app="appenlight"{% endblock %}>
+<html  {% block ng_controller %}{% endblock %}>
 <head>
     <title>{% block title %}Application performance, exception and error monitoring for Python,
         Django, Flask and Javascript - AppEnlight{% endblock %}</title>
@@ -22,23 +22,14 @@
 
     {% endblock %}
     {% block additional_styles %}{% endblock %}
-
     <script type="text/javascript">
         var AE = {};
         AE.urls = {{ url_list|tojson|safe }};
         AE.ws_url = '{{ request.registry.settings['cometd.ws_url'] }}';
-        {% if request.user %}
-                AE.user = {{ request.user.get_dict(include_keys=['user_name','id', 'applications', 'assigned_reports', 'latest_events', 'permissions', 'groups'], extended_info=True) |toJSONUnsafe}}
-        {% else %}
-                AE.user = '{"user_name": null, "id": null}';
-        {% endif %}
         AE.flash_messages = {{ flash_msgs|toJSONUnsafe }};
         AE.timeOptions = {{ h.time_options|toJSONUnsafe }};
         AE.plugins = {{ js_plugins|toJSONUnsafe }};
     </script>
-    {% block scripts %}
-        {% block additional_layout_scripts %}{% endblock %}
-    {% endblock %}
     {% if request.registry.settings.get('appenlight.public_api_key') %}
         <script type="application/javascript">
             var initAppEnlight = function () {
@@ -76,7 +67,36 @@
     {% for plugin in js_plugins %}
     <script src="{{ request.static_url('appenlight:webassets/{}/js/{}'.format(plugin['name'], plugin['config']['src']), _query={'rev':js_hash}) }}"></script>
     {% endfor %}
-    <script> kickstartAE(); </script>
+    <script>
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', AE.urls.userSelf);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                kickstartAE(JSON.parse(xhr.responseText));
+                angular.bootstrap(document, ['appenlight']);
+            }
+            else {
+                kickstartAE(null);
+                angular.bootstrap(document, ['appenlight']);
+            }
+        };
+        // do not run angular on register page
+
+        var noAngularRoutes = [
+                AE.urls.otherRoutes.register,
+                AE.urls.otherRoutes.lostPassword,
+            AE.urls.otherRoutes.lostPasswordGenerate,
+        ];
+        shouldRunAngular = true;
+        for (var i=0; i< noAngularRoutes.length; i++){
+            if (window.location.toString().indexOf(noAngularRoutes[i]) !== -1) {
+                shouldRunAngular = false;
+            }
+        }
+        if (shouldRunAngular) {
+            xhr.send();
+        }
+    </script>
 </head>
 <body class="{% block section_name %}{% endblock %} {% raw %}top-state-{{$state.current.name.split('.')[0].replace('.', '-').replace('.', '-')}} state-{{$state.current.name.replace('.', '-').replace('.', '-')}}{% endraw %} {% if request.user %}user-logged {% else %}user-unlogged{% endif %}" id="html_body">
 <div class="extra-deco1"></div>

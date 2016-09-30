@@ -20,13 +20,13 @@
 angular.module('appenlight.controllers')
     .controller('HeaderCtrl', HeaderCtrl);
 
-HeaderCtrl.$inject = ['$state', 'stateHolder', 'AeUser'];
+HeaderCtrl.$inject = ['$state', 'stateHolder'];
 
-function HeaderCtrl($state, stateHolder, AeUser) {
+function HeaderCtrl($state, stateHolder) {
     var vm = this;
     vm.stateHolder = stateHolder;
-    vm.assignedReports = AeUser.assigned_reports;
-    vm.latestEvents = AeUser.latest_events;
+    vm.assignedReports = stateHolder.AeUser.assigned_reports;
+    vm.latestEvents = stateHolder.AeUser.latest_events;
     vm.activeEvents = 0;
     _.each(vm.latestEvents, function (event) {
         if (event.status === 1 && event.end_date === null) {

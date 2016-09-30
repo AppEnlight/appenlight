@@ -74,7 +74,6 @@ angular.module('appenlight.plugins', pluginsToLoad);
 var app = angular.module('appenlight', [
     'appenlight.base',
     'appenlight.config',
-    'appenlight.user',
     'appenlight.templates',
     'appenlight.filters',
     'appenlight.services',
@@ -83,10 +82,8 @@ var app = angular.module('appenlight', [
     'appenlight.plugins'
 ]);
 
-function kickstartAE() {
-
-
-
+// needs manual execution because of plugin files
+function kickstartAE(initialUserData) {
     app.config(['$httpProvider', '$uibTooltipProvider', '$locationProvider', function ($httpProvider, $uibTooltipProvider, $locationProvider) {
         $locationProvider.html5Mode(true);
         $httpProvider.interceptors.push(['$q', '$rootScope', '$timeout', 'stateHolder', function ($q, $rootScope, $timeout, stateHolder) {
@@ -138,14 +135,14 @@ function kickstartAE() {
         });
     });
 
-    app.run(['$rootScope', '$timeout', 'stateHolder', '$state', '$location', '$transitions', '$window', 'AeConfig', 'AeUser',
-        function ($rootScope, $timeout, stateHolder, $state, $location, $transitions, $window, AeConfig, AeUser) {
+    app.run(['$rootScope', '$timeout', 'stateHolder', '$state', '$location', '$transitions', '$window', 'AeConfig',
+        function ($rootScope, $timeout, stateHolder, $state, $location, $transitions, $window, AeConfig) {
+            stateHolder.AeUser = buildUser(initialUserData || {"user_name": null, "id": null});
             $rootScope.$state = $state;
             $rootScope.stateHolder = stateHolder;
             $rootScope.flash = stateHolder.flashMessages.list;
             $rootScope.closeAlert = stateHolder.flashMessages.closeAlert;
             $rootScope.AeConfig = AeConfig;
-            $rootScope.AeUser = AeUser;
 
             var transitionApp = function($transition$, $state) {
                 // redirect user to /register unless its one of open views
@@ -172,14 +169,22 @@ function kickstartAE() {
                         isOpenView = true;
                     }
                 });
-                if (AeUser.id === null && !isGuestState && !isOpenView) {
+                if (stateHolder.AeUser.id === null && !isGuestState && !isOpenView) {
                     if (window.location.toString().indexOf(AeConfig.urls.otherRoutes.register) === -1) {
                         console.log('redirect to register');
-                        $window.location = AeConfig.urls.otherRoutes.register + '?came_from=' + encodeURIComponent(window.location);
+                        var newLocation = AeConfig.urls.otherRoutes.register + '?came_from=' + encodeURIComponent(window.location);
+                        // fix infinite digest here
+                        $rootScope.$on('$locationChangeStart',
+                            function(event, toState, toParams, fromState, fromParams, options){
+                                event.preventDefault();
+                                $window.location = newLocation;
+                            });
+                        $window.location = newLocation;
                         return false;
                     }
                     return false;
                 }
+                return true;
             };
             $transitions.onBefore({}, transitionApp);
 

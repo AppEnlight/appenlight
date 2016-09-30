@@ -20,9 +20,9 @@
 angular.module('appenlight.controllers')
     .controller('ApplicationsUpdateController', ApplicationsUpdateController)
 
-ApplicationsUpdateController.$inject = ['$state', 'applicationsNoIdResource', 'applicationsResource', 'applicationsPropertyResource', 'AeUser'];
+ApplicationsUpdateController.$inject = ['$state', 'applicationsNoIdResource', 'applicationsResource', 'applicationsPropertyResource', 'stateHolder'];
 
-function ApplicationsUpdateController($state, applicationsNoIdResource, applicationsResource, applicationsPropertyResource, AeUser) {
+function ApplicationsUpdateController($state, applicationsNoIdResource, applicationsResource, applicationsPropertyResource, stateHolder) {
     'use strict';
     console.debug('ApplicationsUpdateController');
     var vm = this;
@@ -68,9 +68,7 @@ function ApplicationsUpdateController($state, applicationsNoIdResource, applicat
         vm.loading.application = true;
         if (vm.resource.resource_id === null) {
             applicationsNoIdResource.save(null, vm.resource, function (data) {
-                console.log('apps',AeUser.applications);
-                AeUser.addApplication(data);
-                console.log('apps',AeUser.applications);
+                stateHolder.AeUser.addApplication(data);
                 $state.go('applications.update', {resourceId: data.resource_id});
                 setServerValidation(vm.BasicForm);
             }, function (response) {
@@ -137,9 +135,7 @@ function ApplicationsUpdateController($state, applicationsNoIdResource, applicat
                 key: 'delete_resource'
             }, vm.formDeleteModel,
             function (data) {
-                console.log('apps',AeUser.applications);
-                AeUser.removeApplicationById(vm.resource.resource_id);
-                console.log('apps',AeUser.applications);
+                stateHolder.AeUser.removeApplicationById(vm.resource.resource_id);
                 $state.go('applications.list');
             },
             function (response) {

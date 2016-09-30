@@ -86,6 +86,7 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder', ['$
         resource: null,
         plugins: Plugins,
         flashMessages: flashMessages,
+        AeUser: {"user_name": null, "id": null}
     };
     return stateHolder;
 }]);

@@ -2709,7 +2709,6 @@ angular.module('appenlight.plugins', pluginsToLoad);
 var app = angular.module('appenlight', [
     'appenlight.base',
     'appenlight.config',
-    'appenlight.user',
     'appenlight.templates',
     'appenlight.filters',
     'appenlight.services',
@@ -2718,10 +2717,8 @@ var app = angular.module('appenlight', [
     'appenlight.plugins'
 ]);
 
-function kickstartAE() {
-
-
-
+// needs manual execution because of plugin files
+function kickstartAE(initialUserData) {
     app.config(['$httpProvider', '$uibTooltipProvider', '$locationProvider', function ($httpProvider, $uibTooltipProvider, $locationProvider) {
         $locationProvider.html5Mode(true);
         $httpProvider.interceptors.push(['$q', '$rootScope', '$timeout', 'stateHolder', function ($q, $rootScope, $timeout, stateHolder) {
@@ -2773,14 +2770,14 @@ function kickstartAE() {
         });
     });
 
-    app.run(['$rootScope', '$timeout', 'stateHolder', '$state', '$location', '$transitions', '$window', 'AeConfig', 'AeUser',
-        function ($rootScope, $timeout, stateHolder, $state, $location, $transitions, $window, AeConfig, AeUser) {
+    app.run(['$rootScope', '$timeout', 'stateHolder', '$state', '$location', '$transitions', '$window', 'AeConfig',
+        function ($rootScope, $timeout, stateHolder, $state, $location, $transitions, $window, AeConfig) {
+            stateHolder.AeUser = buildUser(initialUserData || {"user_name": null, "id": null});
             $rootScope.$state = $state;
             $rootScope.stateHolder = stateHolder;
             $rootScope.flash = stateHolder.flashMessages.list;
             $rootScope.closeAlert = stateHolder.flashMessages.closeAlert;
             $rootScope.AeConfig = AeConfig;
-            $rootScope.AeUser = AeUser;
 
             var transitionApp = function($transition$, $state) {
                 // redirect user to /register unless its one of open views
@@ -2807,14 +2804,22 @@ function kickstartAE() {
                         isOpenView = true;
                     }
                 });
-                if (AeUser.id === null && !isGuestState && !isOpenView) {
+                if (stateHolder.AeUser.id === null && !isGuestState && !isOpenView) {
                     if (window.location.toString().indexOf(AeConfig.urls.otherRoutes.register) === -1) {
                         
-                        $window.location = AeConfig.urls.otherRoutes.register + '?came_from=' + encodeURIComponent(window.location);
+                        var newLocation = AeConfig.urls.otherRoutes.register + '?came_from=' + encodeURIComponent(window.location);
+                        // fix infinite digest here
+                        $rootScope.$on('$locationChangeStart',
+                            function(event, toState, toParams, fromState, fromParams, options){
+                                event.preventDefault();
+                                $window.location = newLocation;
+                            });
+                        $window.location = newLocation;
                         return false;
                     }
                     return false;
                 }
+                return true;
             };
             $transitions.onBefore({}, transitionApp);
 
@@ -4853,20 +4858,20 @@ function kickstartAE() {
     "<div class=\"row\">\n" +
     "    <div class=\"col-sm-12 dashboard\" id=\"content\">\n" +
     "\n" +
-    "        <div ng-if=\"!AeUser.applications.length\">\n" +
+    "        <div ng-if=\"!stateHolder.AeUser.applications.length\">\n" +
     "\n" +
     "            <div ng-include=\"'templates/quickstart.html'\"></div>\n" +
     "\n" +
     "        </div>\n" +
     "\n" +
-    "        <div ng-if=\"AeUser.applications.length\">\n" +
+    "        <div ng-if=\"stateHolder.AeUser.applications.length\">\n" +
     "\n" +
     "            <div class=\"row\">\n" +
     "                <div class=\"col-sm-6\">\n" +
     "                    <div class=\"panel panel-default\">\n" +
     "                        <div class=\"panel-body\">\n" +
     "                            <form class=\"graph-type form-inline\">\n" +
-    "                                <select ng-model=\"index.resource\" ng-options=\"r.resource_id as r.resource_name for r in AeUser.applications\" ng-change=\"index.updateSearchParams()\"\n" +
+    "                                <select ng-model=\"index.resource\" ng-options=\"r.resource_id as r.resource_name for r in stateHolder.AeUser.applications\" ng-change=\"index.updateSearchParams()\"\n" +
     "                                        class=\"SelectField form-control input-sm slim-input\"></select>\n" +
     "\n" +
     "                                <select class=\"SelectField form-control input-sm slim-input\" ng-model=\"index.timeSpan\"\n" +
@@ -6138,7 +6143,7 @@ function kickstartAE() {
     "\n" +
     "<div ng-if=\"report.report !== null && !report.is_loading.report\">\n" +
     "\n" +
-    "    <div ng-if=\"AeUser.id\" class=\"row\">\n" +
+    "    <div ng-if=\"stateHolder.AeUser.id\" class=\"row\">\n" +
     "      <div class=\"col-lg-12\">\n" +
     "        <a onclick=\"window.history.back()\" class=\"btn btn-default\" ng-if=\"report.window.history.length > 2\"><span class=\"fa fa-arrow-circle-o-left\"></span>\n" +
     "            Go back</a>\n" +
@@ -7684,9 +7689,9 @@ function AdminUsersController(usersResource) {
 angular.module('appenlight.controllers')
     .controller('ApplicationsUpdateController', ApplicationsUpdateController)
 
-ApplicationsUpdateController.$inject = ['$state', 'applicationsNoIdResource', 'applicationsResource', 'applicationsPropertyResource', 'AeUser'];
+ApplicationsUpdateController.$inject = ['$state', 'applicationsNoIdResource', 'applicationsResource', 'applicationsPropertyResource', 'stateHolder'];
 
-function ApplicationsUpdateController($state, applicationsNoIdResource, applicationsResource, applicationsPropertyResource, AeUser) {
+function ApplicationsUpdateController($state, applicationsNoIdResource, applicationsResource, applicationsPropertyResource, stateHolder) {
     'use strict';
     
     var vm = this;
@@ -7732,9 +7737,7 @@ function ApplicationsUpdateController($state, applicationsNoIdResource, applicat
         vm.loading.application = true;
         if (vm.resource.resource_id === null) {
             applicationsNoIdResource.save(null, vm.resource, function (data) {
-                
-                AeUser.addApplication(data);
-                
+                stateHolder.AeUser.addApplication(data);
                 $state.go('applications.update', {resourceId: data.resource_id});
                 setServerValidation(vm.BasicForm);
             }, function (response) {
@@ -7801,9 +7804,7 @@ function ApplicationsUpdateController($state, applicationsNoIdResource, applicat
                 key: 'delete_resource'
             }, vm.formDeleteModel,
             function (data) {
-                
-                AeUser.removeApplicationById(vm.resource.resource_id);
-                
+                stateHolder.AeUser.removeApplicationById(vm.resource.resource_id);
                 $state.go('applications.list');
             },
             function (response) {
@@ -8120,9 +8121,9 @@ function EventsController(eventsNoIdResource, eventsResource) {
 angular.module('appenlight.controllers')
     .controller('IndexDashboardController', IndexDashboardController);
 
-IndexDashboardController.$inject = ['$scope', '$location','$cookies', '$interval', 'stateHolder', 'userSelfPropertyResource', 'applicationsPropertyResource', 'AeConfig', 'AeUser'];
+IndexDashboardController.$inject = ['$scope', '$location','$cookies', '$interval', 'stateHolder', 'userSelfPropertyResource', 'applicationsPropertyResource', 'AeConfig'];
 
-function IndexDashboardController($scope, $location, $cookies, $interval, stateHolder, userSelfPropertyResource, applicationsPropertyResource, AeConfig, AeUser) {
+function IndexDashboardController($scope, $location, $cookies, $interval, stateHolder, userSelfPropertyResource, applicationsPropertyResource, AeConfig) {
     var vm = this;
     stateHolder.section = 'dashboard';
     vm.timeOptions = {};
@@ -8133,7 +8134,7 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
         }
     });
     vm.urls = AeConfig.urls;
-    vm.applications = AeUser.applications_map;
+    vm.applications = stateHolder.AeUser.applications_map;
     vm.show_dashboard = false;
     vm.resource = null;
     vm.graphType = {selected: null};
@@ -8527,7 +8528,7 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
     });
 
     vm.determineStartState = function () {
-        if (AeUser.applications.length) {
+        if (stateHolder.AeUser.applications.length) {
             vm.resource = Number($location.search().resource);
 
             if (!vm.resource){
@@ -8538,7 +8539,7 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
                     vm.resource = cookieResource;
                 }
                 else{
-                    vm.resource = AeUser.applications[0].resource_id;
+                    vm.resource = stateHolder.AeUser.applications[0].resource_id;
                 }
             }
         }
@@ -8782,7 +8783,7 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
         ;
     }
 
-    if (AeUser.applications.length){
+    if (stateHolder.AeUser.applications.length){
         vm.show_dashboard = true;
         vm.determineStartState();
         vm.refreshData();
@@ -8821,13 +8822,13 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
 angular.module('appenlight.controllers')
     .controller('HeaderCtrl', HeaderCtrl);
 
-HeaderCtrl.$inject = ['$state', 'stateHolder', 'AeUser'];
+HeaderCtrl.$inject = ['$state', 'stateHolder'];
 
-function HeaderCtrl($state, stateHolder, AeUser) {
+function HeaderCtrl($state, stateHolder) {
     var vm = this;
     vm.stateHolder = stateHolder;
-    vm.assignedReports = AeUser.assigned_reports;
-    vm.latestEvents = AeUser.latest_events;
+    vm.assignedReports = stateHolder.AeUser.assigned_reports;
+    vm.latestEvents = stateHolder.AeUser.latest_events;
     vm.activeEvents = 0;
     _.each(vm.latestEvents, function (event) {
         if (event.status === 1 && event.end_date === null) {
@@ -9193,9 +9194,9 @@ function JiraIntegrationCtrl($uibModalInstance, $state, report, integrationName,
 
 angular.module('appenlight.controllers').controller('LogsController', LogsController);
 
-LogsController.$inject = ['$scope', '$location', 'stateHolder', 'typeAheadTagHelper', 'logsNoIdResource', 'sectionViewResource', 'AeUser'];
+LogsController.$inject = ['$scope', '$location', 'stateHolder', 'typeAheadTagHelper', 'logsNoIdResource', 'sectionViewResource'];
 
-function LogsController($scope, $location, stateHolder, typeAheadTagHelper, logsNoIdResource, sectionViewResource, AeUser) {
+function LogsController($scope, $location, stateHolder, typeAheadTagHelper, logsNoIdResource, sectionViewResource) {
     var vm = this;
     vm.logEventsChartConfig = {
         data: {
@@ -9257,7 +9258,7 @@ function LogsController($scope, $location, stateHolder, typeAheadTagHelper, logs
     };
     vm.today();
 
-    vm.applications = AeUser.applications_map;
+    vm.applications = stateHolder.AeUser.applications_map;
     vm.logsPage = [];
     vm.itemCount = 0;
     vm.itemsPerPage = 250;
@@ -9645,11 +9646,11 @@ angular.module('appenlight.controllers')
     .controller('ReportsListSlowController', ReportsListSlowController);
 
 ReportsListSlowController.$inject = ['$scope', '$location', '$cookies',
-    'stateHolder', 'typeAheadTagHelper', 'slowReportsResource', 'AeUser']
+    'stateHolder', 'typeAheadTagHelper', 'slowReportsResource']
 
-function ReportsListSlowController($scope, $location, $cookies, stateHolder, typeAheadTagHelper, slowReportsResource, AeUser) {
+function ReportsListSlowController($scope, $location, $cookies, stateHolder, typeAheadTagHelper, slowReportsResource) {
     var vm = this;
-    vm.applications = AeUser.applications_map;
+    vm.applications = stateHolder.AeUser.applications_map;
     stateHolder.section = 'slow_reports';
     vm.today = function () {
         vm.pickerDate = new Date();
@@ -9787,7 +9788,7 @@ function ReportsListSlowController($scope, $location, $cookies, stateHolder, typ
             tag: 'Status ' + status.toUpperCase()
         });
     });
-    _.each(AeUser.applications, function (item) {
+    _.each(stateHolder.AeUser.applications, function (item) {
         vm.filterTypeAheadOptions.push({
             type: 'resource',
             text: 'resource:' + item.resource_id + ':' + item.resource_name,
@@ -9940,12 +9941,12 @@ angular.module('appenlight.controllers')
     .controller('ReportsListController', ReportsListController);
 
 ReportsListController.$inject = ['$scope', '$location', '$cookies',
-    'stateHolder', 'typeAheadTagHelper', 'reportsResource', 'AeUser'];
+    'stateHolder', 'typeAheadTagHelper', 'reportsResource'];
 
 function ReportsListController($scope, $location, $cookies, stateHolder,
-                               typeAheadTagHelper, reportsResource, AeUser) {
+                               typeAheadTagHelper, reportsResource) {
     var vm = this;
-    vm.applications = AeUser.applications_map;
+    vm.applications = stateHolder.AeUser.applications_map;
     stateHolder.section = 'reports';
     vm.today = function () {
         vm.pickerDate = new Date();
@@ -10103,7 +10104,7 @@ function ReportsListController($scope, $location, $cookies, stateHolder,
             tag: 'Status ' + status.toUpperCase()
         });
     });
-    _.each(AeUser.applications, function (item) {
+    _.each(stateHolder.AeUser.applications, function (item) {
         vm.filterTypeAheadOptions.push({
             type: 'resource',
             text: 'resource:' + item.resource_id + ':' + item.resource_name,
@@ -10260,9 +10261,9 @@ function ReportsListController($scope, $location, $cookies, stateHolder,
 angular.module('appenlight.controllers').controller('ReportsViewController', ReportsViewController);
 ReportsViewController.$inject = ['$window', '$location', '$state', '$uibModal',
     '$cookies', 'reportGroupPropertyResource', 'reportGroupResource',
-    'logsNoIdResource', 'AeUser'];
+    'logsNoIdResource', 'stateHolder'];
 
-function ReportsViewController($window, $location, $state, $uibModal, $cookies, reportGroupPropertyResource, reportGroupResource, logsNoIdResource, AeUser) {
+function ReportsViewController($window, $location, $state, $uibModal, $cookies, reportGroupPropertyResource, reportGroupResource, logsNoIdResource, stateHolder) {
     var vm = this;
     vm.window = $window;
     vm.reportHistoryConfig = {
@@ -10442,7 +10443,7 @@ function ReportsViewController($window, $location, $state, $uibModal, $cookies, 
                 vm.rawTraceback += '    ' + frame.cline + "\r\n";
             });
 
-            if (AeUser.id){
+            if (stateHolder.AeUser.id){
                 vm.fetchHistory();
             }
 
@@ -12772,6 +12773,7 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder', ['$
         resource: null,
         plugins: Plugins,
         flashMessages: flashMessages,
+        AeUser: {"user_name": null, "id": null}
     };
     return stateHolder;
 }]);
@@ -12910,21 +12912,17 @@ underscore.factory('_', function () {
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-var aeuser = angular.module('appenlight.user', []);
-aeuser.factory('AeUser', ['AeConfig', function () {
-    var decodedAeUser = decodeEncodedJSON(window.AE.user);
-    
+function buildUser(jsonData){
     var AeUser = {
-        user_name: decodedAeUser.user_name || null,
-        id: decodedAeUser.id,
-        assigned_reports: decodedAeUser.assigned_reports || null,
-        latest_events: decodedAeUser.latest_events || null,
-        permissions: decodedAeUser.permissions || null,
-        groups: decodedAeUser.groups || null,
+        user_name: jsonData.user_name || null,
+        id: jsonData.id,
+        assigned_reports: jsonData.assigned_reports || null,
+        latest_events: jsonData.latest_events || null,
+        permissions: jsonData.permissions || null,
+        groups: jsonData.groups || null,
         applications: [],
         dashboards: []
     };
-    
     AeUser.applications_map = {};
     AeUser.dashboards_map = {};
     AeUser.addApplication = function (item) {
@@ -12973,12 +12971,11 @@ aeuser.factory('AeUser', ['AeConfig', function () {
         return hasPerm;
     };
 
-    _.each(decodedAeUser.applications, function (item) {
+    _.each(jsonData.applications, function (item) {
         AeUser.addApplication(item);
     });
-    _.each(decodedAeUser.dashboards, function (item) {
+    _.each(jsonData.dashboards, function (item) {
         AeUser.addDashboard(item);
     });
-
     return AeUser;
-}]);
+}

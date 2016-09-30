@@ -1,8 +1,5 @@
 {% extends "/layout.jinja2" %}
 {% from '/reports/reports_small_list_old.jinja2' import render_reports with context %}
-{% block additional_layout_scripts %}
-dojo.require('appenlight.dashboard.index');
-{% endblock %}
 {% block content_class %}{% endblock %}
 {% set layout_disable_menu = True %}
 
