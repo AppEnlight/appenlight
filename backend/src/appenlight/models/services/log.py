@@ -122,7 +122,10 @@ class LogService(BaseService):
                 "date_histogram": {
                     "field": "timestamp",
                     "interval": "1h",
-                    "min_doc_count": 0
+                    "min_doc_count": 0,
+                    'extended_bounds': {
+                        'max': filter_settings.get('end_date'),
+                        'min': filter_settings.get('start_date')}
                 }
             }
         }
