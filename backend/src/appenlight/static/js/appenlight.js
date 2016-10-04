@@ -2671,7 +2671,12 @@ angular.module('appenlight.base', [
 
 angular.module('appenlight.filters', []);
 angular.module('appenlight.templates', []);
-angular.module('appenlight.controllers', ['appenlight.base']);
+angular.module('appenlight.controllers', [
+    'appenlight.base'
+]);
+angular.module('appenlight.components', [
+    'appenlight.components.channelstream'
+]);
 angular.module('appenlight.directives', [
     'appenlight.directives.appVersion',
     'appenlight.directives.c3chart',
@@ -2714,6 +2719,7 @@ var app = angular.module('appenlight', [
     'appenlight.services',
     'appenlight.directives',
     'appenlight.controllers',
+    'appenlight.components',
     'appenlight.plugins'
 ]);
 
@@ -2731,7 +2737,6 @@ function kickstartAE(initialUserData) {
                     return response;
                 },
                 'responseError': function (rejection) {
-                    
                     if (rejection.status > 299 && rejection.status !== 422) {
                         stateHolder.flashMessages.extend([{
                             msg: 'Response status code: ' + rejection.status + ', "' + rejection.statusText + '", url: ' + rejection.config.url,
@@ -7017,6 +7022,64 @@ function kickstartAE(initialUserData) {
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
+angular.module('appenlight.components.channelstream', [])
+    .component('channelstream', {
+        controller: ChannelstreamController,
+        bindings: {
+            config: '='
+        }
+    });
+
+ChannelstreamController.$inject = ['$rootScope','userSelfPropertyResource'];
+
+function ChannelstreamController($rootScope, userSelfPropertyResource){
+    userSelfPropertyResource.get({key: 'websocket'}, function (data) {
+        stateHolder.websocket = new ReconnectingWebSocket(this.config.ws_url + '/ws?conn_id=' + data.conn_id);
+        stateHolder.websocket.onopen = function (event) {
+            
+        };
+        stateHolder.websocket.onmessage = function (event) {
+            var data = JSON.parse(event.data);
+            _.each(data, function (message) {
+                
+                if(typeof message.message.topic !== 'undefined'){
+                    $rootScope.$broadcast(
+                        'channelstream-message.'+message.message.topic, message);
+                }
+                else{
+                    $rootScope.$broadcast('channelstream-message', message);
+                }
+            });
+        };
+        stateHolder.websocket.onclose = function (event) {
+            
+        };
+
+        stateHolder.websocket.onerror = function (event) {
+            
+        };
+    });
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
 var aeconfig = angular.module('appenlight.config', []);
 aeconfig.factory('AeConfig', function () {
     var obj = {};
@@ -8478,55 +8541,31 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
         'series': true
     };
     vm.stream = {paused: false, filtered: false, messages: [], reports: []};
-    vm.websocket = null;
-    userSelfPropertyResource.get({key: 'websocket'}, function (data) {
-        
-        
-        vm.websocket = new ReconnectingWebSocket(AeConfig.ws_url + '/ws?conn_id=' + data.conn_id);
-        vm.websocket.onopen = function (event) {
-            
-        };
-        vm.websocket.onmessage = function (event) {
-            var data = JSON.parse(event.data);
-            
-            $scope.$apply(function (scope) {
-                _.each(data, function (message) {
-                    if (message.type === 'message'){
-                        ws_report = message.message.report;
-                        if (ws_report.http_status != 500) {
-                            return
-                        }
-                        if (vm.stream.paused == true) {
-                            return
-                        }
-                        if (vm.stream.filtered && ws_report.resource_id != vm.resource) {
-                            return
-                        }
-                        var should_insert = true;
-                        _.each(vm.stream.reports, function (report) {
-                            if (report.report_id == ws_report.report_id) {
-                                report.occurences = ws_report.occurences;
-                                should_insert = false;
-                            }
-                        });
-                        if (should_insert) {
-                            if (vm.stream.reports.length > 7) {
-                                vm.stream.reports.pop();
-                            }
-                            vm.stream.reports.unshift(ws_report);
-                        }
-                    }
-                });
-            });
-        };
-        vm.websocket.onclose = function (event) {
-            
-        };
 
-        vm.websocket.onerror = function (event) {
-            
-        };
-
+    $scope.$on('channelstream-message.front_dashboard.new_topic', function(event, message){
+        var ws_report = message.message.report;
+        if (ws_report.http_status != 500) {
+            return
+        }
+        if (vm.stream.paused == true) {
+            return
+        }
+        if (vm.stream.filtered && ws_report.resource_id != vm.resource) {
+            return
+        }
+        var should_insert = true;
+        _.each(vm.stream.reports, function (report) {
+            if (report.report_id == ws_report.report_id) {
+                report.occurences = ws_report.occurences;
+                should_insert = false;
+            }
+        });
+        if (should_insert) {
+            if (vm.stream.reports.length > 7) {
+                vm.stream.reports.pop();
+            }
+            vm.stream.reports.unshift(ws_report);
+        }
     });
 
     vm.determineStartState = function () {
@@ -8582,12 +8621,12 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
         vm.fetchMetrics();
         vm.fetchRequestsBreakdown();
         vm.fetchSlowCalls();
-    }
+    };
 
     vm.changedTimeSpan = function(){
         vm.startDateFilter = timeSpanToStartDate(vm.timeSpan.key);
         vm.refreshData();
-    }
+    };
 
     var intervalId = $interval(function () {
         if (_.contains(['30m', "1h"], vm.timeSpan.key)) {
@@ -8598,14 +8637,6 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
             vm.refreshData();
         }
     }, 60000);
-
-    $scope.$on('$destroy',function(){
-        $interval.cancel(intervalId);
-        if (vm.websocket && vm.websocket.readyState == 1){
-            vm.websocket.close();
-        }
-    });
-
 
     vm.fetchApdexStats = function () {
         vm.loading.apdex = true;
@@ -12706,7 +12737,8 @@ angular.module('appenlight.services.resources').factory('resourcesPropertyResour
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.services.stateHolder', []).factory('stateHolder', ['$timeout', 'AeConfig', function ($timeout, AeConfig) {
+angular.module('appenlight.services.stateHolder', []).factory('stateHolder', 
+    ['$timeout', '$rootScope', 'AeConfig', function ($timeout, $rootScope, AeConfig) {
 
     var AeUser = {"user_name": null, "id": null};
     AeUser.update = function (jsonData) {

@@ -32,7 +32,7 @@ from appenlight.models import Base, Datastores
 from appenlight.lib.utils.date_utils import convert_date
 from appenlight.lib.utils import convert_es_type
 from appenlight.models.slow_call import SlowCall
-from appenlight.lib.utils import cometd_request
+from appenlight.lib.utils import channelstream_request
 from appenlight.lib.enums import ReportType, Language
 from pyramid.threadlocal import get_current_registry, get_current_request
 from sqlalchemy.dialects.postgresql import JSON
@@ -410,7 +410,7 @@ class Report(Base, BaseModel):
         Sends notification to websocket channel
         """
         settings = get_current_registry().settings
-        log.info('notify cometd')
+        log.info('notify channelstream')
         if self.report_type != ReportType.error:
             return
         payload = {
@@ -418,7 +418,7 @@ class Report(Base, BaseModel):
             "user": '__system__',
             "channel": 'app_%s' % self.resource_id,
             'message': {
-                'type': 'report',
+                'topic': 'front_dashboard.new_topic',
                 'report': {
                     'group': {
                         'priority': report_group.priority,
@@ -441,8 +441,7 @@ class Report(Base, BaseModel):
             }
 
         }
-
-        cometd_request(settings['cometd.secret'], '/message', [payload],
+        channelstream_request(settings['cometd.secret'], '/message', [payload],
                        servers=[settings['cometd_servers']])
 
     def es_doc(self):

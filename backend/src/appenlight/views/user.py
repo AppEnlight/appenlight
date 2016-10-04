@@ -37,7 +37,7 @@ from ziggurat_foundations.models.services.external_identity import \
 
 from appenlight.lib import generate_random_string
 from appenlight.lib.social import handle_social_data
-from appenlight.lib.utils import cometd_request, add_cors_headers, \
+from appenlight.lib.utils import channelstream_request, add_cors_headers, \
     permission_tuple_to_dict
 from appenlight.models import DBSession
 from appenlight.models.alert_channels.email import EmailAlertChannel
@@ -259,7 +259,7 @@ def users_websocket(request):
                "channels": channels
                }
     settings = request.registry.settings
-    response = cometd_request(
+    response = channelstream_request(
         settings['cometd.secret'], '/connect', payload,
         servers=[request.registry.settings['cometd_servers']],
         throw_exceptions=True)

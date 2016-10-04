@@ -104,7 +104,7 @@ class DateTimeEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def cometd_request(secret, endpoint, payload, throw_exceptions=False,
+def channelstream_request(secret, endpoint, payload, throw_exceptions=False,
                    servers=None):
     responses = []
     if not servers:

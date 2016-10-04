@@ -375,55 +375,31 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
         'series': true
     };
     vm.stream = {paused: false, filtered: false, messages: [], reports: []};
-    vm.websocket = null;
-    userSelfPropertyResource.get({key: 'websocket'}, function (data) {
-        console.log(data);
-        console.log(AeConfig.ws_url + '/ws?conn_id=' + data.conn_id);
-        vm.websocket = new ReconnectingWebSocket(AeConfig.ws_url + '/ws?conn_id=' + data.conn_id);
-        vm.websocket.onopen = function (event) {
-            console.log('open');
-        };
-        vm.websocket.onmessage = function (event) {
-            var data = JSON.parse(event.data);
-            console.log('message');
-            $scope.$apply(function (scope) {
-                _.each(data, function (message) {
-                    if (message.type === 'message'){
-                        ws_report = message.message.report;
-                        if (ws_report.http_status != 500) {
-                            return
-                        }
-                        if (vm.stream.paused == true) {
-                            return
-                        }
-                        if (vm.stream.filtered && ws_report.resource_id != vm.resource) {
-                            return
-                        }
-                        var should_insert = true;
-                        _.each(vm.stream.reports, function (report) {
-                            if (report.report_id == ws_report.report_id) {
-                                report.occurences = ws_report.occurences;
-                                should_insert = false;
-                            }
-                        });
-                        if (should_insert) {
-                            if (vm.stream.reports.length > 7) {
-                                vm.stream.reports.pop();
-                            }
-                            vm.stream.reports.unshift(ws_report);
-                        }
-                    }
-                });
-            });
-        };
-        vm.websocket.onclose = function (event) {
-            console.log('closed');
-        };
 
-        vm.websocket.onerror = function (event) {
-            console.log('error');
-        };
-
+    $scope.$on('channelstream-message.front_dashboard.new_topic', function(event, message){
+        var ws_report = message.message.report;
+        if (ws_report.http_status != 500) {
+            return
+        }
+        if (vm.stream.paused == true) {
+            return
+        }
+        if (vm.stream.filtered && ws_report.resource_id != vm.resource) {
+            return
+        }
+        var should_insert = true;
+        _.each(vm.stream.reports, function (report) {
+            if (report.report_id == ws_report.report_id) {
+                report.occurences = ws_report.occurences;
+                should_insert = false;
+            }
+        });
+        if (should_insert) {
+            if (vm.stream.reports.length > 7) {
+                vm.stream.reports.pop();
+            }
+            vm.stream.reports.unshift(ws_report);
+        }
     });
 
     vm.determineStartState = function () {
@@ -479,12 +455,12 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
         vm.fetchMetrics();
         vm.fetchRequestsBreakdown();
         vm.fetchSlowCalls();
-    }
+    };
 
     vm.changedTimeSpan = function(){
         vm.startDateFilter = timeSpanToStartDate(vm.timeSpan.key);
         vm.refreshData();
-    }
+    };
 
     var intervalId = $interval(function () {
         if (_.contains(['30m', "1h"], vm.timeSpan.key)) {
@@ -495,14 +471,6 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
             vm.refreshData();
         }
     }, 60000);
-
-    $scope.$on('$destroy',function(){
-        $interval.cancel(intervalId);
-        if (vm.websocket && vm.websocket.readyState == 1){
-            vm.websocket.close();
-        }
-    });
-
 
     vm.fetchApdexStats = function () {
         vm.loading.apdex = true;

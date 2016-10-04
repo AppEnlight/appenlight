@@ -36,7 +36,12 @@ angular.module('appenlight.base', [
 
 angular.module('appenlight.filters', []);
 angular.module('appenlight.templates', []);
-angular.module('appenlight.controllers', ['appenlight.base']);
+angular.module('appenlight.controllers', [
+    'appenlight.base'
+]);
+angular.module('appenlight.components', [
+    'appenlight.components.channelstream'
+]);
 angular.module('appenlight.directives', [
     'appenlight.directives.appVersion',
     'appenlight.directives.c3chart',
@@ -79,6 +84,7 @@ var app = angular.module('appenlight', [
     'appenlight.services',
     'appenlight.directives',
     'appenlight.controllers',
+    'appenlight.components',
     'appenlight.plugins'
 ]);
 
@@ -96,7 +102,6 @@ function kickstartAE(initialUserData) {
                     return response;
                 },
                 'responseError': function (rejection) {
-                    console.log(rejection);
                     if (rejection.status > 299 && rejection.status !== 422) {
                         stateHolder.flashMessages.extend([{
                             msg: 'Response status code: ' + rejection.status + ', "' + rejection.statusText + '", url: ' + rejection.config.url,

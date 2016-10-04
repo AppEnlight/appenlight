@@ -17,7 +17,8 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.services.stateHolder', []).factory('stateHolder', ['$timeout', 'AeConfig', function ($timeout, AeConfig) {
+angular.module('appenlight.services.stateHolder', []).factory('stateHolder',
+    ['$timeout', 'AeConfig', function ($timeout, AeConfig) {
 
     var AeUser = {"user_name": null, "id": null};
     AeUser.update = function (jsonData) {
