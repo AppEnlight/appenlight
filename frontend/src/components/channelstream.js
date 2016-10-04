@@ -38,15 +38,17 @@ function ChannelstreamController($rootScope, stateHolder, userSelfPropertyResour
         };
         stateHolder.websocket.onmessage = function (event) {
             var data = JSON.parse(event.data);
-            _.each(data, function (message) {
-                console.log('channelstream-message', message);
-                if(typeof message.message.topic !== 'undefined'){
-                    $rootScope.$broadcast(
-                        'channelstream-message.'+message.message.topic, message);
-                }
-                else{
-                    $rootScope.$broadcast('channelstream-message', message);
-                }
+            $scope.$apply(function (scope) {
+                _.each(data, function (message) {
+                    console.log('channelstream-message', message);
+                    if(typeof message.message.topic !== 'undefined'){
+                        $rootScope.$broadcast(
+                            'channelstream-message.'+message.message.topic, message);
+                    }
+                    else{
+                        $rootScope.$broadcast('channelstream-message', message);
+                    }
+                });
             });
         };
         stateHolder.websocket.onclose = function (event) {
