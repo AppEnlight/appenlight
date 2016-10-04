@@ -25,9 +25,12 @@ angular.module('appenlight.components.channelstream', [])
         }
     });
 
-ChannelstreamController.$inject = ['$rootScope','userSelfPropertyResource'];
+ChannelstreamController.$inject = ['$rootScope', 'stateHolder', 'userSelfPropertyResource'];
 
-function ChannelstreamController($rootScope, userSelfPropertyResource){
+function ChannelstreamController($rootScope, stateHolder, userSelfPropertyResource){
+    if (stateHolder.AeUser.id === null){
+        return
+    }
     userSelfPropertyResource.get({key: 'websocket'}, function (data) {
         stateHolder.websocket = new ReconnectingWebSocket(this.config.ws_url + '/ws?conn_id=' + data.conn_id);
         stateHolder.websocket.onopen = function (event) {

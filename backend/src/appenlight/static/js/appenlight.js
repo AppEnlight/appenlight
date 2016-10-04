@@ -7030,9 +7030,12 @@ angular.module('appenlight.components.channelstream', [])
         }
     });
 
-ChannelstreamController.$inject = ['$rootScope','userSelfPropertyResource'];
+ChannelstreamController.$inject = ['$rootScope', 'stateHolder', 'userSelfPropertyResource'];
 
-function ChannelstreamController($rootScope, userSelfPropertyResource){
+function ChannelstreamController($rootScope, stateHolder, userSelfPropertyResource){
+    if (stateHolder.AeUser.id === null){
+        return
+    }
     userSelfPropertyResource.get({key: 'websocket'}, function (data) {
         stateHolder.websocket = new ReconnectingWebSocket(this.config.ws_url + '/ws?conn_id=' + data.conn_id);
         stateHolder.websocket.onopen = function (event) {
@@ -12737,8 +12740,8 @@ angular.module('appenlight.services.resources').factory('resourcesPropertyResour
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.services.stateHolder', []).factory('stateHolder', 
-    ['$timeout', '$rootScope', 'AeConfig', function ($timeout, $rootScope, AeConfig) {
+angular.module('appenlight.services.stateHolder', []).factory('stateHolder',
+    ['$timeout', 'AeConfig', function ($timeout, AeConfig) {
 
     var AeUser = {"user_name": null, "id": null};
     AeUser.update = function (jsonData) {
