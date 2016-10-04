@@ -137,7 +137,9 @@ function kickstartAE(initialUserData) {
 
     app.run(['$rootScope', '$timeout', 'stateHolder', '$state', '$location', '$transitions', '$window', 'AeConfig',
         function ($rootScope, $timeout, stateHolder, $state, $location, $transitions, $window, AeConfig) {
-            stateHolder.AeUser = buildUser(initialUserData || {"user_name": null, "id": null});
+            if (initialUserData){
+                stateHolder.AeUser.update(initialUserData);
+            }
             $rootScope.$state = $state;
             $rootScope.stateHolder = stateHolder;
             $rootScope.flash = stateHolder.flashMessages.list;

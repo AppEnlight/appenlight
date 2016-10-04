@@ -2772,7 +2772,9 @@ function kickstartAE(initialUserData) {
 
     app.run(['$rootScope', '$timeout', 'stateHolder', '$state', '$location', '$transitions', '$window', 'AeConfig',
         function ($rootScope, $timeout, stateHolder, $state, $location, $transitions, $window, AeConfig) {
-            stateHolder.AeUser = buildUser(initialUserData || {"user_name": null, "id": null});
+            if (initialUserData){
+                stateHolder.AeUser.update(initialUserData);
+            }
             $rootScope.$state = $state;
             $rootScope.stateHolder = stateHolder;
             $rootScope.flash = stateHolder.flashMessages.list;
@@ -12705,6 +12707,73 @@ angular.module('appenlight.services.resources').factory('resourcesPropertyResour
 // # https://rhodecode.com/licenses/
 
 angular.module('appenlight.services.stateHolder', []).factory('stateHolder', ['$timeout', 'AeConfig', function ($timeout, AeConfig) {
+
+    var AeUser = {"user_name": null, "id": null};
+    AeUser.update = function (jsonData) {
+        jsonData = jsonData || {};
+        this.applications_map = {};
+        this.dashboards_map = {};
+        this.user_name = jsonData.user_name || null;
+        this.id = jsonData.id;
+        this.assigned_reports = jsonData.assigned_reports || null;
+        this.latest_events = jsonData.latest_events || null;
+        this.permissions = jsonData.permissions || null;
+        this.groups = jsonData.groups || null;
+        this.applications = [];
+        this.dashboards = [];
+        _.each(jsonData.applications, function (item) {
+            this.addApplication(item);
+        }.bind(this));
+        _.each(jsonData.dashboards, function (item) {
+            this.addDashboard(item);
+        }.bind(this));
+    };
+    AeUser.addApplication = function (item) {
+        this.applications.push(item);
+        this.applications_map[item.resource_id] = item;
+    };
+    AeUser.addDashboard = function (item) {
+        this.dashboards.push(item);
+        this.dashboards_map[item.resource_id] = item;
+    };
+
+    AeUser.removeApplicationById = function (applicationId) {
+        this.applications = _.filter(this.applications, function (item) {
+            return item.resource_id != applicationId;
+        });
+        delete this.applications_map[applicationId];
+    };
+    AeUser.removeDashboardById = function (dashboardId) {
+        this.dashboards = _.filter(this.dashboards, function (item) {
+            return item.resource_id != dashboardId;
+        });
+        delete this.dashboards_map[dashboardId];
+    };
+
+    AeUser.hasAppPermission = function (perm_name) {
+        if (this.permissions.indexOf('root_administration') !== -1) {
+            return true
+        }
+        return this.permissions.indexOf(perm_name) !== -1;
+    };
+
+    AeUser.hasContextPermission = function (permName, ACLList) {
+        var hasPerm = false;
+        _.each(ACLList, function (ACL) {
+            // is this the right perm?
+            if (ACL.perm_name == permName ||
+                ACL.perm_name == '__all_permissions__') {
+                // perm for this user or a group user belongs to
+                if (ACL.user_name === this.user_name ||
+                    this.groups.indexOf(ACL.group_name) !== -1) {
+                    hasPerm = true
+                }
+            }
+        }.bind(this));
+        
+        return hasPerm;
+    };
+
     /**
      * Holds some common stuff like flash messages, but important part is
      * plugins property that is a registry that holds all information about
@@ -12766,14 +12835,14 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder', ['$
             }
             self.inclusions[name].push(inclusion);
         }
-    }
+    };
 
     var stateHolder = {
         section: 'settings',
         resource: null,
         plugins: Plugins,
         flashMessages: flashMessages,
-        AeUser: {"user_name": null, "id": null}
+        AeUser: AeUser
     };
     return stateHolder;
 }]);
@@ -12892,90 +12961,3 @@ var underscore = angular.module('underscore', []);
 underscore.factory('_', function () {
     return window._; // assumes underscore has already been loaded on the page
 });
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-function buildUser(jsonData){
-    var AeUser = {
-        user_name: jsonData.user_name || null,
-        id: jsonData.id,
-        assigned_reports: jsonData.assigned_reports || null,
-        latest_events: jsonData.latest_events || null,
-        permissions: jsonData.permissions || null,
-        groups: jsonData.groups || null,
-        applications: [],
-        dashboards: []
-    };
-    AeUser.applications_map = {};
-    AeUser.dashboards_map = {};
-    AeUser.addApplication = function (item) {
-        AeUser.applications.push(item);
-        AeUser.applications_map[item.resource_id] = item;
-    };
-    AeUser.addDashboard = function (item) {
-        AeUser.dashboards.push(item);
-        AeUser.dashboards_map[item.resource_id] = item;
-    };
-
-    AeUser.removeApplicationById = function (applicationId) {
-        AeUser.applications = _.filter(AeUser.applications, function (item) {
-            return item.resource_id != applicationId;
-        });
-        delete AeUser.applications_map[applicationId];
-    };
-    AeUser.removeDashboardById = function (dashboardId) {
-        AeUser.dashboards = _.filter(AeUser.dashboards, function (item) {
-            return item.resource_id != dashboardId;
-        });
-        delete AeUser.dashboards_map[dashboardId];
-    };
-
-    AeUser.hasAppPermission = function (perm_name) {
-        if (AeUser.permissions.indexOf('root_administration') !== -1) {
-            return true
-        }
-        return AeUser.permissions.indexOf(perm_name) !== -1;
-    };
-
-    AeUser.hasContextPermission = function (permName, ACLList) {
-        var hasPerm = false;
-        _.each(ACLList, function (ACL) {
-            // is this the right perm?
-            if (ACL.perm_name == permName ||
-                ACL.perm_name == '__all_permissions__') {
-                // perm for this user or a group user belongs to
-                if (ACL.user_name === AeUser.user_name ||
-                    AeUser.groups.indexOf(ACL.group_name) !== -1) {
-                    hasPerm = true
-                }
-            }
-        });
-        
-        return hasPerm;
-    };
-
-    _.each(jsonData.applications, function (item) {
-        AeUser.addApplication(item);
-    });
-    _.each(jsonData.dashboards, function (item) {
-        AeUser.addDashboard(item);
-    });
-    return AeUser;
-}
