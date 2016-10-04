@@ -38,7 +38,7 @@ function ChannelstreamController($rootScope, stateHolder, userSelfPropertyResour
         };
         stateHolder.websocket.onmessage = function (event) {
             var data = JSON.parse(event.data);
-            $scope.$apply(function (scope) {
+            $rootScope.$apply(function (scope) {
                 _.each(data, function (message) {
                     console.log('channelstream-message', message);
                     if(typeof message.message.topic !== 'undefined'){
