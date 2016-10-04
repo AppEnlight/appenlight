@@ -7061,7 +7061,7 @@ function ChannelstreamController($rootScope, stateHolder, userSelfPropertyResour
         stateHolder.websocket.onerror = function (event) {
             
         };
-    });
+    }.bind(this));
 }
 
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH

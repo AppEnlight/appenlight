@@ -56,5 +56,5 @@ function ChannelstreamController($rootScope, stateHolder, userSelfPropertyResour
         stateHolder.websocket.onerror = function (event) {
             console.log('error');
         };
-    });
+    }.bind(this));
 }
