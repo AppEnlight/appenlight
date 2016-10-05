@@ -30,7 +30,7 @@ angular.module('appenlight.directives.reportAlertAction', []).directive('reportA
         controller:reportAlertActionController,
         controllerAs:'ctrl',
         restrict: 'E',
-        templateUrl: 'templates/directives/report_alert_action.html'
+        templateUrl: 'directives/report_alert_action/report_alert_action.html'
     };
     function reportAlertActionController(){
         var vm = this;

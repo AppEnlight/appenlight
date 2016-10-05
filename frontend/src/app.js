@@ -45,7 +45,6 @@ angular.module('appenlight.components', [
     'appenlight.components.appenlightHeader'
 ]);
 angular.module('appenlight.directives', [
-    'appenlight.directives.appVersion',
     'appenlight.directives.c3chart',
     'appenlight.directives.confirmValidate',
     'appenlight.directives.focus',

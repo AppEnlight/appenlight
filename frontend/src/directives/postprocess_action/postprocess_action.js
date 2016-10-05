@@ -27,7 +27,7 @@ angular.module('appenlight.directives.postProcessAction', []).directive('postPro
         controller:postProcessActionController,
         controllerAs:'ctrl',
         restrict: 'E',
-        templateUrl: 'templates/directives/postprocess_action.html'
+        templateUrl: 'directives/postprocess_action/postprocess_action.html'
     };
     function postProcessActionController(){
         var vm = this;

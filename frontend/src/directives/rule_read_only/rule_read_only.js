@@ -28,7 +28,7 @@ angular.module('appenlight.directives.ruleReadOnly', []).directive('ruleReadOnly
             config: "="
         },
         restrict: 'E',
-        templateUrl: 'templates/directives/rule_read_only.html',
+        templateUrl: 'directives/rule_read_only/rule_read_only.html',
         controller:RuleController,
         controllerAs:'rule_ctrlr'
     }

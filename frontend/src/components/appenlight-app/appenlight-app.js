@@ -17,9 +17,20 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.directives.appVersion', []).
-    directive('appVersion', ['version', function (version) {
-        return function (scope, elm, attrs) {
-            elm.text(version);
-        };
-    }])
+angular.module('appenlight.components.appenlightApp', [])
+    .component('appenlightApp', {
+        templateUrl: 'components/appenlight-app/appenlight-app.html',
+        controller: AppEnlightAppController
+    });
+
+AppEnlightAppController.$inject = ['$scope','$state', 'stateHolder', 'AeConfig'];
+
+function AppEnlightAppController($scope, $state, stateHolder, AeConfig){
+    console.log('app start');
+    // to keep bw compatibility
+    $scope.$state = $state;
+    $scope.stateHolder = stateHolder;
+    $scope.flash = stateHolder.flashMessages.list;
+    $scope.closeAlert = stateHolder.flashMessages.closeAlert;
+    $scope.AeConfig = AeConfig;
+}

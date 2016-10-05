@@ -19,7 +19,7 @@
 
 angular.module('appenlight.components.appenlightHeader', [])
     .component('appenlightHeader', {
-        templateUrl: 'templates/components/appenlight-header.html',
+        templateUrl: 'components/appenlight-header/appenlight-header.html',
         controller: AppEnlightHeaderController
     });
 

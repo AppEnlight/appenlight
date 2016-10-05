@@ -2680,7 +2680,6 @@ angular.module('appenlight.components', [
     'appenlight.components.appenlightHeader'
 ]);
 angular.module('appenlight.directives', [
-    'appenlight.directives.appVersion',
     'appenlight.directives.c3chart',
     'appenlight.directives.confirmValidate',
     'appenlight.directives.focus',
@@ -2837,6 +2836,388 @@ function kickstartAE(initialUserData) {
 
 ;angular.module('appenlight.templates').run(['$templateCache', function($templateCache) {
   'use strict';
+
+  $templateCache.put('components/appenlight-app/appenlight-app.html',
+    "<channelstream config=\"AeConfig\"></channelstream>\n" +
+    "<appenlight-header></appenlight-header>\n" +
+    "<div id=\"outer-content\">\n" +
+    "    <div ui-view class=\"container\"></div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/appenlight-header/appenlight-header.html',
+    "<!-- Fixed navbar -->\n" +
+    "<div id=\"top-navbar\" class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\">\n" +
+    "    <div class=\"pattern\">\n" +
+    "        <div class=\"container\">\n" +
+    "            <div class=\"navbar-header pull-left\">\n" +
+    "                <a data-ui-sref=\"front_dashboard\" class=\"navbar-brand\">\n" +
+    "                    <div id=\"logo-normal\" class=\"hidden-sm hidden-xs\"></div>\n" +
+    "                    <div id=\"logo-icon\" class=\"visible-sm visible-xs\"></div>\n" +
+    "                </a>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"container-fluid\">\n" +
+    "                <div>\n" +
+    "                        <ul class=\"nav navbar-nav navbar-right\" ng-if=\"$ctrl.stateHolder.AeUser.id !== null\">\n" +
+    "                            <li id=\"user-notifications\" class=\"dropdown ng-cloak\" data-uib-dropdown>\n" +
+    "\n" +
+    "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle>\n" +
+    "                                    <span class=\"badge\">{{$ctrl.assignedReports.length}}</span>\n" +
+    "                                    <span class=\"fa fa-envelope-o\"></span>\n" +
+    "                                </a>\n" +
+    "                                <ul class=\"dropdown-menu\">\n" +
+    "                                    <li role=\"presentation\" class=\"dropdown-header\">Assigned reports</li>\n" +
+    "                                    <li data-ng-repeat=\"report in $ctrl.assignedReports\" role=\"presentation\">\n" +
+    "                                        <a href=\"{{report.front_url}}\" role=\"menuitem\" tabindex=\"-1\">\n" +
+    "                                            <small>{{ report.error || 'Slow Report: ' + report.view_name |truncate:65}}</small>\n" +
+    "                                        </a>\n" +
+    "\n" +
+    "                                    </li>\n" +
+    "                                    <li data-ng-if=\"$ctrl.assignedReports.length == 0\"><a><small>No reports</small></a></li>\n" +
+    "                                </ul>\n" +
+    "                            </li>\n" +
+    "                            <li id=\"alert-notifications\" class=\"dropdown ng-cloak\" data-uib-dropdown auto-close=\"outsideClick\">\n" +
+    "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle>\n" +
+    "                                    <span class=\"badge {{ activeEvents ? 'danger' : '' }}\">{{$ctrl.activeEvents}}</span>\n" +
+    "                                    <span class=\"fa fa-bell-o\"></span></a>\n" +
+    "                                <ul class=\"dropdown-menu\">\n" +
+    "                                    <li role=\"presentation\" class=\"dropdown-header\">\n" +
+    "                                        <a data-ui-sref=\"events\" class=\"btn btn-xs btn-default\">Show me more</a></li>\n" +
+    "                                    <li role=\"presentation\" class=\"dropdown-header\">Latest events</li>\n" +
+    "                                    <li data-ng-repeat=\"event in $ctrl.latestEvents\" role=\"presentation\">\n" +
+    "                                        <a data-ng-click=\"$ctrl.clickedEvent(event)\"><small class=\"resource-name\">For {{ event.resource_name }}</small><br/>\n" +
+    "                                            <small>{{ event.text |truncate:65}}</small><br/>\n" +
+    "                                            <small class=\"date\" data-uib-tooltip=\"{{event.start_date}}\">created: <iso-to-relative-time time=\"{{event.start_date}}\"/></small>\n" +
+    "                                            <small class=\"date\" data-ng-show=\"event.end_date\" data-uib-tooltip=\"{{event.end_date}}\">closed: <iso-to-relative-time time=\"{{event.end_date}}\"/></small>\n" +
+    "                                        </a>\n" +
+    "                                    </li>\n" +
+    "                                    <li data-ng-if=\"$ctrl.latestEvents.length == 0\"><a><small>No events</small></a></li>\n" +
+    "                                </ul>\n" +
+    "                            </li>\n" +
+    "\n" +
+    "                            <li id=\"dashboards\" class=\"dropdown\" data-uib-dropdown>\n" +
+    "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle tooltip-placement=\"bottom\" data-uib-tooltip=\"Dashboards\">\n" +
+    "                                    <span class=\"fa fa-bar-chart-o \"></span></a>\n" +
+    "                                <ul class=\"dropdown-menu\">\n" +
+    "                                    <li role=\"presentation\"><a data-ui-sref=\"front_dashboard\">Main dashboard</a></li>\n" +
+    "                                    <li role=\"presentation\" ng-repeat=\"item in $ctrl.AeConfig.topNav.menu_dashboards_items\">\n" +
+    "                                        <a data-ui-sref=\"{{ item.sref }}\">{{ item.label }}</a>\n" +
+    "                                    </li>\n" +
+    "                                </ul>\n" +
+    "                            </li>\n" +
+    "\n" +
+    "                            <li class=\"dropdown\" data-uib-dropdown>\n" +
+    "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle tooltip-placement=\"bottom\" data-uib-tooltip=\"Reports\">\n" +
+    "                                    <span class=\"fa fa-exclamation-triangle\"></span></a>\n" +
+    "                                <ul class=\"dropdown-menu\">\n" +
+    "                                    <li role=\"presentation\">\n" +
+    "                                        <a data-ui-sref=\"report.list({resource:$ctrl.stateHolder.resource})\">Error Reports</a>\n" +
+    "                                    </li>\n" +
+    "                                    <li role=\"presentation\">\n" +
+    "                                        <a data-ui-sref=\"report.list_slow({resource:$ctrl.stateHolder.resource})\">Slowness Reports</a>\n" +
+    "                                    </li>\n" +
+    "\n" +
+    "                                </ul>\n" +
+    "                            </li>\n" +
+    "\n" +
+    "                            <li>\n" +
+    "                                <a data-ui-sref=\"logs({resource:$ctrl.stateHolder.resource})\" data-uib-tooltip=\"Logs\" tooltip-placement=\"bottom\"><span class=\"fa fa-list-alt \"></span></a></li>\n" +
+    "                            <li>\n" +
+    "                                <a data-ui-sref=\"user\" data-uib-tooltip=\"Settings\" tooltip-placement=\"bottom\"><span class=\"fa fa-cog \"></span></a>\n" +
+    "                            </li>\n" +
+    "                            <li class=\"dropdown\" data-uib-dropdown data-ng-if=\"$ctrl.AeConfig.topNav.menu_admin_items.length\">\n" +
+    "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle tooltip-placement=\"bottom\" data-uib-tooltip=\"Admin Settings\">\n" +
+    "                                    <span class=\"fa fa-wrench\"></span></a>\n" +
+    "                                <ul class=\"dropdown-menu\">\n" +
+    "                                    <li role=\"presentation\" ng-repeat=\"item in $ctrl.AeConfig.topNav.menu_admin_items\">\n" +
+    "                                        <a data-ui-sref=\"{{ item.sref }}\">{{ item.label }}</a>\n" +
+    "                                    </li>\n" +
+    "                                </ul>\n" +
+    "                            </li>\n" +
+    "                            <li><a href=\"{{ $ctrl.AeConfig.urls.otherRoutes.signOut }}\" target=\"_self\"\n" +
+    "                                   data-uib-tooltip=\"Sign out\" tooltip-placement=\"bottom\">\n" +
+    "                                <span class=\"fa fa-power-off \"></span></a></li>\n" +
+    "                        </ul>\n" +
+    "                        <ul class=\"nav navbar-nav pull-right\" ng-if=\"$ctrl.stateHolder.AeUser.id === null\">\n" +
+    "                            <li><a href=\"{{ $ctrl.AeConfig.urls.otherRoutes.register }}\" target=\"_self\" class=\"btn btn-orange\">Sign In</a></li>\n" +
+    "                        </ul>\n" +
+    "                </div><!-- /.navbar-collapse -->\n" +
+    "            </div><!-- /.container-fluid -->\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('directives/permissions/permissions.html',
+    "<div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">\n" +
+    "        <h3 class=\"panel-title\">Permissions</h3>\n" +
+    "    </div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "        <p>Here you can <strong>set permissions</strong> for others to access your app data.</p>\n" +
+    "\n" +
+    "        <p>For example you can let other staff member view or alter error reports.</p>\n" +
+    "\n" +
+    "        <div ng-if=\"permissions.possibleGroups.length > 0\">\n" +
+    "            <h3>Group permissions</h3>\n" +
+    "\n" +
+    "            <ul class=\"list-group\">\n" +
+    "                <li ng-repeat=\"perm in permissions.currentPermissions.group\" class=\"animate-repeat list-group-item\">\n" +
+    "                    <strong>{{ perm.self.group_name }}</strong>\n" +
+    "                    <div  ng-repeat=\"perm_name in perm.permissions\" class=\"pull-right animate-repeat m-l-1\">\n" +
+    "                        <span ng-if=\"perm_name == '__all_permissions__'\">Resource owner</span>\n" +
+    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\" ng-if=\"perm_name != '__all_permissions__'\">\n" +
+    "                            <a class=\"btn btn-danger btn-xs\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> {{ perm_name }}</a>\n" +
+    "                          <ul class=\"dropdown-menu\">\n" +
+    "                              <li><a>No</a></li>\n" +
+    "                              <li><a ng-click=\"permissions.removeGroupPermission(perm_name, perm)\">Yes</a></li>\n" +
+    "                          </ul>\n" +
+    "                        </span>\n" +
+    "                    </div>\n" +
+    "                </li>\n" +
+    "            </ul>\n" +
+    "\n" +
+    "            <form name=\"add_permission\" class=\"form-inline\" ng-submit=\"permissions.setGroupPermission()\">\n" +
+    "                <div class=\"form-group\">\n" +
+    "                    <select class=\"form-control\" ng-model=\"permissions.form.selectedGroup\" ng-options=\"g.id as g.group_name for g in permissions.possibleGroups\"></select>\n" +
+    "                </div>\n" +
+    "                <div class=\"form-group\">\n" +
+    "                    <span ng-repeat=\"permission in permissions.possiblePermissions\">\n" +
+    "                    <input type=\"checkbox\" ng-model=\"permissions.form.selectedGroupPermissions[permission]\"> {{ permission }}\n" +
+    "                    </span>\n" +
+    "                </div>\n" +
+    "                <div class=\"form-group\">\n" +
+    "                    <button class=\"btn btn-info\"><span class=\"fa fa-user\"></span> Give permission</button>\n" +
+    "                </div>\n" +
+    "            </form>\n" +
+    "\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <h3>User permissions</h3>\n" +
+    "        <div>\n" +
+    "            <ul class=\"list-group\">\n" +
+    "                <li ng-repeat=\"perm in permissions.currentPermissions.user\" class=\"animate-repeat list-group-item\">\n" +
+    "                    <strong>{{ perm.self.user_name }}</strong>\n" +
+    "                    <div ng-repeat=\"perm_name in perm.permissions\" class=\"pull-right animate-repeat m-l-1\">\n" +
+    "                        <span ng-if=\"perm_name == '__all_permissions__'\">Resource owner</span>\n" +
+    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\" ng-if=\"perm_name != '__all_permissions__'\">\n" +
+    "                            <a class=\"btn btn-danger btn-xs\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> {{ perm_name }}</a>\n" +
+    "                          <ul class=\"dropdown-menu\">\n" +
+    "                              <li><a>No</a></li>\n" +
+    "                              <li><a ng-click=\"permissions.removeUserPermission(perm_name,perm)\">Yes</a></li>\n" +
+    "                          </ul>\n" +
+    "                        </span>\n" +
+    "                    </div>\n" +
+    "                </li>\n" +
+    "            </ul>\n" +
+    "        </div>\n" +
+    "        <div>\n" +
+    "            <p>First enter username or full email of person you want to give access to (the person needs to be <strong>already registered in AppEnlight</strong>)</p>\n" +
+    "\n" +
+    "            <form name=\"add_permission\" class=\"form-inline\" ng-submit=\"permissions.setUserPermission()\">\n" +
+    "                <div class=\"form-group\">\n" +
+    "                    <input type=\"text\" class=\"autocomplete form-control\" placeholder=\"Search for user/email\" ng-model=\"permissions.form.autocompleteUser\"\n" +
+    "                           uib-typeahead=\"u.user for u in permissions.searchUsers($viewValue) | limitTo:8\" typeahead-loading=\"permissions.searchingUsers\" typeahead-wait-ms=\"250\"\n" +
+    "                           typeahead-template-url=\"templates/directives/user_search_type_ahead.html\"\n" +
+    "                    />\n" +
+    "                </div>\n" +
+    "                <div class=\"form-group\">\n" +
+    "                    <span ng-repeat=\"permission in permissions.possiblePermissions\">\n" +
+    "                    <input type=\"checkbox\" ng-model=\"permissions.form.selectedUserPermissions[permission]\"> {{ permission }}\n" +
+    "                    </span>\n" +
+    "                </div>\n" +
+    "                <div class=\"form-group\">\n" +
+    "                    <button class=\"btn btn-info\" ng-disabled=\"!permissions.form.autocompleteUser\"><span class=\"fa fa-user\"></span> Give permission</button>\n" +
+    "                </div>\n" +
+    "            </form>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('directives/plugin_config/plugin_config.html',
+    "<div ng-repeat=\"tmpl in plugin_ctrlr.inclusions track by $index\">\n" +
+    "    <div><strong>Plugin: {{tmpl.name}}</strong></div>\n" +
+    "    <ng-include src=\"tmpl.template\"></ng-include>\n" +
+    "    <hr/>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('directives/postprocess_action/postprocess_action.html',
+    "<div class=\"panel panel-default action\">\n" +
+    "    <div class=\"panel-body form-inline\">\n" +
+    "        <div class=\"pull-right\">\n" +
+    "            <span class=\"dropdown\" data-uib-dropdown>\n" +
+    "                <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
+    "                  <ul class=\"dropdown-menu\">\n" +
+    "                      <li><a>No</a></li>\n" +
+    "                      <li><a ng-click=\"ctrl.deleteAction(ctrl.action)\">Yes</a></li>\n" +
+    "                  </ul>\n" +
+    "            </span>\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <div class=\"form-group\">\n" +
+    "        <label>Action</label>\n" +
+    "\n" +
+    "        <div class=\"form-group\">\n" +
+    "            <select class=\"form-control\" ng-model=\"ctrl.action.new_value\" ng-options=\"f[0] as f[1] for f in ctrl.possibleActions\" ng-change=\"ctrl.setDirty()\"></select>\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <a class=\"btn btn-success\" ng-if=\"ctrl.action.dirty\" ng-click=\"ctrl.saveAction()\"><span class=\"fa fa-save\"></span> &nbsp;Save changes</a>\n" +
+    "\n" +
+    "        </div>\n" +
+    "        <hr/>\n" +
+    "        <p>Meeting following criteria:</p>\n" +
+    "        <form-errors errors=\"ctrl.errors\"></form-errors>\n" +
+    "        {{ctrl.rule}}\n" +
+    "        <rule rule=\"ctrl.action.rule\" rule-definitions=\"ctrl.ruleDefinitions\" parent-rule=\"null\" parent-obj=\"ctrl.action\"></rule>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('directives/report_alert_action/report_alert_action.html',
+    "<div class=\"panel panel-default action\">\n" +
+    "    <div class=\"panel-body form-inline\">\n" +
+    "        <div class=\"pull-right\">\n" +
+    "            <span class=\"dropdown\" data-uib-dropdown>\n" +
+    "                <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
+    "                  <ul class=\"dropdown-menu\">\n" +
+    "                      <li><a>No</a></li>\n" +
+    "                      <li><a ng-click=\"ctrl.deleteAction(ctrl.actions, ctrl.action)\">Yes</a></li>\n" +
+    "                  </ul>\n" +
+    "            </span>\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <div class=\"form-group\">\n" +
+    "            <label>Applies to</label>\n" +
+    "        <select class=\"form-control\" ng-model=\"ctrl.action.resource_id\" ng-options=\"f.resource_id as f.resource_name for f in ctrl.applications\" ng-change=\"ctrl.setDirty()\">\n" +
+    "            <option value=\"\">All Resources</option>\n" +
+    "        </select>\n" +
+    "        </div>\n" +
+    "        <div class=\"form-group\">\n" +
+    "        <label>Notify</label>\n" +
+    "        <select class=\"form-control\" ng-model=\"ctrl.action.action\" ng-change=\"ctrl.setDirty()\" ng-options=\"f[0] as f[1] for f in ctrl.possibleNotifications\"></select>\n" +
+    "\n" +
+    "            <a class=\"btn btn-success\" ng-if=\"ctrl.action.dirty\" ng-click=\"ctrl.saveAction()\"><span class=\"fa fa-save\"></span> &nbsp;Save changes</a>\n" +
+    "\n" +
+    "        </div>\n" +
+    "        <div>\n" +
+    "            <p><strong>Channels:</strong></p>\n" +
+    "            <ul class=\"list-group\">\n" +
+    "                <li class=\"list-group-item\" ng-repeat=\"channel in ctrl.action.channels\">\n" +
+    "                    <strong>{{channel.channel_visible_value}}</strong>\n" +
+    "                    <div class=\"pull-right\">\n" +
+    "                        <span class=\"dropdown\" data-uib-dropdown>\n" +
+    "                            <a class=\"btn btn-danger btn-xs\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
+    "                              <ul class=\"dropdown-menu\">\n" +
+    "                                  <li><a>No</a></li>\n" +
+    "                                  <li><a ng-click=\"ctrl.unBindChannel(channel)\">Yes</a></li>\n" +
+    "                              </ul>\n" +
+    "                        </span>\n" +
+    "                    </div>\n" +
+    "                </li>\n" +
+    "            </ul>\n" +
+    "            <div class=\"form-group\" ng-if=\"ctrl.possibleChannels.length\">\n" +
+    "                <select class=\"form-control\" ng-model=\"ctrl.channelToBind\" ng-options=\"c as c.channel_visible_value for c in ctrl.possibleChannels |filter: c.supports_report_alerting\"></select>\n" +
+    "                <a class=\"btn btn-info\" ng-click=\"ctrl.bindChannel(channel, ctrl.action)\"><span class=\"fa fa-plus-circle\"></span> Add Channel</a>\n" +
+    "            </div>\n" +
+    "            <div class=\"alert alert-danger\" ng-if=\"!ctrl.possibleChannels.length\">\n" +
+    "                <span class=\"fa fa-exclamation-triangle \"></span>You need to create an alert channel before you can assign it to your rule.\n" +
+    "            </div>\n" +
+    "\n" +
+    "        </div>\n" +
+    "        <hr/>\n" +
+    "        <p>Meeting following criteria:</p>\n" +
+    "        <form-errors errors=\"ctrl.errors\"></form-errors>\n" +
+    "        <rule rule=\"ctrl.action.rule\" rule-definitions=\"ctrl.ruleDefinitions\" parent-rule=\"null\" parent-obj=\"ctrl.action\"></rule>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('directives/rule_read_only/rule_read_only.html',
+    "<div class=\"rule-read-only\">\n" +
+    "\n" +
+    "    <span class=\"form-group\">\n" +
+    "        {{rule_ctrlr.readOnlyPossibleFields[rule_ctrlr.rule.field]}}\n" +
+    "    </span>\n" +
+    "\n" +
+    "    <span ng-if=\"rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__' && rule_ctrlr.rule.field !='__NOT__'\">\n" +
+    "          is {{rule_ctrlr.ruleDefinitions.allOps[rule_ctrlr.rule.op]}}  {{rule_ctrlr.rule.value}}\n" +
+    "    </span>\n" +
+    "\n" +
+    "    <span ng-if=\"rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__' || rule_ctrlr.rule.field =='__NOT__'\">\n" +
+    "        <p ng-if=\"parent\"><strong>Subrules</strong></p>\n" +
+    "        <div ng-repeat=\"subrule in rule_ctrlr.rule.rules\" class=\"m-l-2\">\n" +
+    "\n" +
+    "            <div class=\"panel panel-default\">\n" +
+    "                <div class=\"panel-body form-inline\">\n" +
+    "                    <recursive>\n" +
+    "                        <rule-read-only rule=\"subrule\" rule-definitions=\"rule_ctrlr.ruleDefinitions\" parent-rule=\"null\" parent-obj=\"rule_ctrlr.parentObj\"></rule-read-only>\n" +
+    "                    </recursive>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "    </span>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('directives/rule/rule.html',
+    "<div class=\"rule form-inline\">\n" +
+    "\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <select class=\"form-control\"\n" +
+    "                ng-model=\"rule_ctrlr.rule.field\"\n" +
+    "                ng-change=\"rule_ctrlr.fieldChange()\"\n" +
+    "                ng-options=\"key as label for (key, label) in rule_ctrlr.ruleDefinitions.possibleFields\"></select>\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <div ng-if=\"rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__' && rule_ctrlr.rule.field !='__NOT__'\" class=\"form-group\">\n" +
+    "\n" +
+    "            <select ng-model=\"rule_ctrlr.rule.op\" class=\"form-control\"\n" +
+    "                    ng-change=\"rule_ctrlr.setDirty()\"\n" +
+    "                    ng-options=\"op as rule_ctrlr.ruleDefinitions.allOps[op] for op in rule_ctrlr.ruleDefinitions.fieldOps[rule_ctrlr.rule.field]\">\n" +
+    "            </select>\n" +
+    "\n" +
+    "        <input type=\"text\" placeholder=\"Value\" ng-model=\"rule_ctrlr.rule.value\" ng-change=\"rule_ctrlr.setDirty()\" class=\"form-control\">\n" +
+    "\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <span ng-if=\"rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__' || rule_ctrlr.rule.field =='__NOT__'\">\n" +
+    "        <p ng-if=\"parent\"><strong>Subrules</strong></p>\n" +
+    "        <div ng-repeat=\"subrule in rule_ctrlr.rule.rules\" class=\"m-l-2\">\n" +
+    "            <div class=\"panel panel-default\">\n" +
+    "                <div class=\"panel-body form-inline\">\n" +
+    "                    <recursive>\n" +
+    "                        <rule rule=\"subrule\" rule-definitions=\"rule_ctrlr.ruleDefinitions\" parent-rule=\"rule_ctrlr.rule\" parent-obj=\"rule_ctrlr.parentObj\"></rule>\n" +
+    "                    </recursive>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <span ng-if=\"(rule_ctrlr.config.disable_subrules == false) == false\" class=\"btn btn-info\" ng-click=\"rule_ctrlr.add()\"><span class=\"fa fa-plus-circle\"></span> Add rule</span>\n" +
+    "\n" +
+    "    </span>\n" +
+    "    <div class=\"pull-right\" ng-if=\"rule_ctrlr.parentRule\">\n" +
+    "            <span class=\"dropdown\" data-uib-dropdown>\n" +
+    "                <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
+    "                  <ul class=\"dropdown-menu\">\n" +
+    "                      <li><a>No</a></li>\n" +
+    "                      <li><a  ng-click=\"rule_ctrlr.deleteRule(rule_ctrlr.parentRule, rule_ctrlr.rule)\">Yes</a></li>\n" +
+    "                  </ul>\n" +
+    "            </span>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
 
   $templateCache.put('templates/admin/applications/applications_list.html',
     "<ng-include src=\"'templates/loader.html'\" ng-if=\"applications.loading.applications\"></ng-include>\n" +
@@ -4850,120 +5231,6 @@ function kickstartAE(initialUserData) {
   );
 
 
-  $templateCache.put('templates/components/appenlight-app.html',
-    "<channelstream config=\"AeConfig\"></channelstream>\n" +
-    "<appenlight-header></appenlight-header>\n" +
-    "<div id=\"outer-content\">\n" +
-    "    <div ui-view class=\"container\"></div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/components/appenlight-header.html',
-    "<!-- Fixed navbar -->\n" +
-    "<div id=\"top-navbar\" class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\">\n" +
-    "    <div class=\"pattern\">\n" +
-    "        <div class=\"container\">\n" +
-    "            <div class=\"navbar-header pull-left\">\n" +
-    "                <a data-ui-sref=\"front_dashboard\" class=\"navbar-brand\">\n" +
-    "                    <div id=\"logo-normal\" class=\"hidden-sm hidden-xs\"></div>\n" +
-    "                    <div id=\"logo-icon\" class=\"visible-sm visible-xs\"></div>\n" +
-    "                </a>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"container-fluid\">\n" +
-    "                <div>\n" +
-    "                        <ul class=\"nav navbar-nav navbar-right\" ng-if=\"$ctrl.stateHolder.AeUser.id !== null\">\n" +
-    "                            <li id=\"user-notifications\" class=\"dropdown ng-cloak\" data-uib-dropdown>\n" +
-    "\n" +
-    "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle>\n" +
-    "                                    <span class=\"badge\">{{$ctrl.assignedReports.length}}</span>\n" +
-    "                                    <span class=\"fa fa-envelope-o\"></span>\n" +
-    "                                </a>\n" +
-    "                                <ul class=\"dropdown-menu\">\n" +
-    "                                    <li role=\"presentation\" class=\"dropdown-header\">Assigned reports</li>\n" +
-    "                                    <li data-ng-repeat=\"report in $ctrl.assignedReports\" role=\"presentation\">\n" +
-    "                                        <a href=\"{{report.front_url}}\" role=\"menuitem\" tabindex=\"-1\">\n" +
-    "                                            <small>{{ report.error || 'Slow Report: ' + report.view_name |truncate:65}}</small>\n" +
-    "                                        </a>\n" +
-    "\n" +
-    "                                    </li>\n" +
-    "                                    <li data-ng-if=\"$ctrl.assignedReports.length == 0\"><a><small>No reports</small></a></li>\n" +
-    "                                </ul>\n" +
-    "                            </li>\n" +
-    "                            <li id=\"alert-notifications\" class=\"dropdown ng-cloak\" data-uib-dropdown auto-close=\"outsideClick\">\n" +
-    "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle>\n" +
-    "                                    <span class=\"badge {{ activeEvents ? 'danger' : '' }}\">{{$ctrl.activeEvents}}</span>\n" +
-    "                                    <span class=\"fa fa-bell-o\"></span></a>\n" +
-    "                                <ul class=\"dropdown-menu\">\n" +
-    "                                    <li role=\"presentation\" class=\"dropdown-header\">\n" +
-    "                                        <a data-ui-sref=\"events\" class=\"btn btn-xs btn-default\">Show me more</a></li>\n" +
-    "                                    <li role=\"presentation\" class=\"dropdown-header\">Latest events</li>\n" +
-    "                                    <li data-ng-repeat=\"event in $ctrl.latestEvents\" role=\"presentation\">\n" +
-    "                                        <a data-ng-click=\"$ctrl.clickedEvent(event)\"><small class=\"resource-name\">For {{ event.resource_name }}</small><br/>\n" +
-    "                                            <small>{{ event.text |truncate:65}}</small><br/>\n" +
-    "                                            <small class=\"date\" data-uib-tooltip=\"{{event.start_date}}\">created: <iso-to-relative-time time=\"{{event.start_date}}\"/></small>\n" +
-    "                                            <small class=\"date\" data-ng-show=\"event.end_date\" data-uib-tooltip=\"{{event.end_date}}\">closed: <iso-to-relative-time time=\"{{event.end_date}}\"/></small>\n" +
-    "                                        </a>\n" +
-    "                                    </li>\n" +
-    "                                    <li data-ng-if=\"$ctrl.latestEvents.length == 0\"><a><small>No events</small></a></li>\n" +
-    "                                </ul>\n" +
-    "                            </li>\n" +
-    "\n" +
-    "                            <li id=\"dashboards\" class=\"dropdown\" data-uib-dropdown>\n" +
-    "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle tooltip-placement=\"bottom\" data-uib-tooltip=\"Dashboards\">\n" +
-    "                                    <span class=\"fa fa-bar-chart-o \"></span></a>\n" +
-    "                                <ul class=\"dropdown-menu\">\n" +
-    "                                    <li role=\"presentation\"><a data-ui-sref=\"front_dashboard\">Main dashboard</a></li>\n" +
-    "                                    <li role=\"presentation\" ng-repeat=\"item in $ctrl.AeConfig.topNav.menu_dashboards_items\">\n" +
-    "                                        <a data-ui-sref=\"{{ item.sref }}\">{{ item.label }}</a>\n" +
-    "                                    </li>\n" +
-    "                                </ul>\n" +
-    "                            </li>\n" +
-    "\n" +
-    "                            <li class=\"dropdown\" data-uib-dropdown>\n" +
-    "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle tooltip-placement=\"bottom\" data-uib-tooltip=\"Reports\">\n" +
-    "                                    <span class=\"fa fa-exclamation-triangle\"></span></a>\n" +
-    "                                <ul class=\"dropdown-menu\">\n" +
-    "                                    <li role=\"presentation\">\n" +
-    "                                        <a data-ui-sref=\"report.list({resource:$ctrl.stateHolder.resource})\">Error Reports</a>\n" +
-    "                                    </li>\n" +
-    "                                    <li role=\"presentation\">\n" +
-    "                                        <a data-ui-sref=\"report.list_slow({resource:$ctrl.stateHolder.resource})\">Slowness Reports</a>\n" +
-    "                                    </li>\n" +
-    "\n" +
-    "                                </ul>\n" +
-    "                            </li>\n" +
-    "\n" +
-    "                            <li>\n" +
-    "                                <a data-ui-sref=\"logs({resource:$ctrl.stateHolder.resource})\" data-uib-tooltip=\"Logs\" tooltip-placement=\"bottom\"><span class=\"fa fa-list-alt \"></span></a></li>\n" +
-    "                            <li>\n" +
-    "                                <a data-ui-sref=\"user\" data-uib-tooltip=\"Settings\" tooltip-placement=\"bottom\"><span class=\"fa fa-cog \"></span></a>\n" +
-    "                            </li>\n" +
-    "                            <li class=\"dropdown\" data-uib-dropdown data-ng-if=\"$ctrl.AeConfig.topNav.menu_admin_items.length\">\n" +
-    "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle tooltip-placement=\"bottom\" data-uib-tooltip=\"Admin Settings\">\n" +
-    "                                    <span class=\"fa fa-wrench\"></span></a>\n" +
-    "                                <ul class=\"dropdown-menu\">\n" +
-    "                                    <li role=\"presentation\" ng-repeat=\"item in $ctrl.AeConfig.topNav.menu_admin_items\">\n" +
-    "                                        <a data-ui-sref=\"{{ item.sref }}\">{{ item.label }}</a>\n" +
-    "                                    </li>\n" +
-    "                                </ul>\n" +
-    "                            </li>\n" +
-    "                            <li><a href=\"{{ $ctrl.AeConfig.urls.otherRoutes.signOut }}\" target=\"_self\"\n" +
-    "                                   data-uib-tooltip=\"Sign out\" tooltip-placement=\"bottom\">\n" +
-    "                                <span class=\"fa fa-power-off \"></span></a></li>\n" +
-    "                        </ul>\n" +
-    "                        <ul class=\"nav navbar-nav pull-right\" ng-if=\"$ctrl.stateHolder.AeUser.id === null\">\n" +
-    "                            <li><a href=\"{{ $ctrl.AeConfig.urls.otherRoutes.register }}\" target=\"_self\" class=\"btn btn-orange\">Sign In</a></li>\n" +
-    "                        </ul>\n" +
-    "                </div><!-- /.navbar-collapse -->\n" +
-    "            </div><!-- /.container-fluid -->\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
   $templateCache.put('templates/dashboard.html',
     "<style type=\"text/css\">\n" +
     "    #metrics_chart .c3-line {\n" +
@@ -5311,274 +5578,6 @@ function kickstartAE(initialUserData) {
     "\n" +
     "            </div>\n" +
     "        </div>\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/directives/permissions.html',
-    "<div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-heading\">\n" +
-    "        <h3 class=\"panel-title\">Permissions</h3>\n" +
-    "    </div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "        <p>Here you can <strong>set permissions</strong> for others to access your app data.</p>\n" +
-    "\n" +
-    "        <p>For example you can let other staff member view or alter error reports.</p>\n" +
-    "\n" +
-    "        <div ng-if=\"permissions.possibleGroups.length > 0\">\n" +
-    "            <h3>Group permissions</h3>\n" +
-    "\n" +
-    "            <ul class=\"list-group\">\n" +
-    "                <li ng-repeat=\"perm in permissions.currentPermissions.group\" class=\"animate-repeat list-group-item\">\n" +
-    "                    <strong>{{ perm.self.group_name }}</strong>\n" +
-    "                    <div  ng-repeat=\"perm_name in perm.permissions\" class=\"pull-right animate-repeat m-l-1\">\n" +
-    "                        <span ng-if=\"perm_name == '__all_permissions__'\">Resource owner</span>\n" +
-    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\" ng-if=\"perm_name != '__all_permissions__'\">\n" +
-    "                            <a class=\"btn btn-danger btn-xs\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> {{ perm_name }}</a>\n" +
-    "                          <ul class=\"dropdown-menu\">\n" +
-    "                              <li><a>No</a></li>\n" +
-    "                              <li><a ng-click=\"permissions.removeGroupPermission(perm_name, perm)\">Yes</a></li>\n" +
-    "                          </ul>\n" +
-    "                        </span>\n" +
-    "                    </div>\n" +
-    "                </li>\n" +
-    "            </ul>\n" +
-    "\n" +
-    "            <form name=\"add_permission\" class=\"form-inline\" ng-submit=\"permissions.setGroupPermission()\">\n" +
-    "                <div class=\"form-group\">\n" +
-    "                    <select class=\"form-control\" ng-model=\"permissions.form.selectedGroup\" ng-options=\"g.id as g.group_name for g in permissions.possibleGroups\"></select>\n" +
-    "                </div>\n" +
-    "                <div class=\"form-group\">\n" +
-    "                    <span ng-repeat=\"permission in permissions.possiblePermissions\">\n" +
-    "                    <input type=\"checkbox\" ng-model=\"permissions.form.selectedGroupPermissions[permission]\"> {{ permission }}\n" +
-    "                    </span>\n" +
-    "                </div>\n" +
-    "                <div class=\"form-group\">\n" +
-    "                    <button class=\"btn btn-info\"><span class=\"fa fa-user\"></span> Give permission</button>\n" +
-    "                </div>\n" +
-    "            </form>\n" +
-    "\n" +
-    "        </div>\n" +
-    "\n" +
-    "        <h3>User permissions</h3>\n" +
-    "        <div>\n" +
-    "            <ul class=\"list-group\">\n" +
-    "                <li ng-repeat=\"perm in permissions.currentPermissions.user\" class=\"animate-repeat list-group-item\">\n" +
-    "                    <strong>{{ perm.self.user_name }}</strong>\n" +
-    "                    <div ng-repeat=\"perm_name in perm.permissions\" class=\"pull-right animate-repeat m-l-1\">\n" +
-    "                        <span ng-if=\"perm_name == '__all_permissions__'\">Resource owner</span>\n" +
-    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\" ng-if=\"perm_name != '__all_permissions__'\">\n" +
-    "                            <a class=\"btn btn-danger btn-xs\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> {{ perm_name }}</a>\n" +
-    "                          <ul class=\"dropdown-menu\">\n" +
-    "                              <li><a>No</a></li>\n" +
-    "                              <li><a ng-click=\"permissions.removeUserPermission(perm_name,perm)\">Yes</a></li>\n" +
-    "                          </ul>\n" +
-    "                        </span>\n" +
-    "                    </div>\n" +
-    "                </li>\n" +
-    "            </ul>\n" +
-    "        </div>\n" +
-    "        <div>\n" +
-    "            <p>First enter username or full email of person you want to give access to (the person needs to be <strong>already registered in AppEnlight</strong>)</p>\n" +
-    "\n" +
-    "            <form name=\"add_permission\" class=\"form-inline\" ng-submit=\"permissions.setUserPermission()\">\n" +
-    "                <div class=\"form-group\">\n" +
-    "                    <input type=\"text\" class=\"autocomplete form-control\" placeholder=\"Search for user/email\" ng-model=\"permissions.form.autocompleteUser\"\n" +
-    "                           uib-typeahead=\"u.user for u in permissions.searchUsers($viewValue) | limitTo:8\" typeahead-loading=\"permissions.searchingUsers\" typeahead-wait-ms=\"250\"\n" +
-    "                           typeahead-template-url=\"templates/directives/user_search_type_ahead.html\"\n" +
-    "                    />\n" +
-    "                </div>\n" +
-    "                <div class=\"form-group\">\n" +
-    "                    <span ng-repeat=\"permission in permissions.possiblePermissions\">\n" +
-    "                    <input type=\"checkbox\" ng-model=\"permissions.form.selectedUserPermissions[permission]\"> {{ permission }}\n" +
-    "                    </span>\n" +
-    "                </div>\n" +
-    "                <div class=\"form-group\">\n" +
-    "                    <button class=\"btn btn-info\" ng-disabled=\"!permissions.form.autocompleteUser\"><span class=\"fa fa-user\"></span> Give permission</button>\n" +
-    "                </div>\n" +
-    "            </form>\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/directives/plugin_config.html',
-    "<div ng-repeat=\"tmpl in plugin_ctrlr.inclusions track by $index\">\n" +
-    "    <div><strong>Plugin: {{tmpl.name}}</strong></div>\n" +
-    "    <ng-include src=\"tmpl.template\"></ng-include>\n" +
-    "    <hr/>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/directives/postprocess_action.html',
-    "<div class=\"panel panel-default action\">\n" +
-    "    <div class=\"panel-body form-inline\">\n" +
-    "        <div class=\"pull-right\">\n" +
-    "            <span class=\"dropdown\" data-uib-dropdown>\n" +
-    "                <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
-    "                  <ul class=\"dropdown-menu\">\n" +
-    "                      <li><a>No</a></li>\n" +
-    "                      <li><a ng-click=\"ctrl.deleteAction(ctrl.action)\">Yes</a></li>\n" +
-    "                  </ul>\n" +
-    "            </span>\n" +
-    "        </div>\n" +
-    "\n" +
-    "        <div class=\"form-group\">\n" +
-    "        <label>Action</label>\n" +
-    "\n" +
-    "        <div class=\"form-group\">\n" +
-    "            <select class=\"form-control\" ng-model=\"ctrl.action.new_value\" ng-options=\"f[0] as f[1] for f in ctrl.possibleActions\" ng-change=\"ctrl.setDirty()\"></select>\n" +
-    "        </div>\n" +
-    "\n" +
-    "        <a class=\"btn btn-success\" ng-if=\"ctrl.action.dirty\" ng-click=\"ctrl.saveAction()\"><span class=\"fa fa-save\"></span> &nbsp;Save changes</a>\n" +
-    "\n" +
-    "        </div>\n" +
-    "        <hr/>\n" +
-    "        <p>Meeting following criteria:</p>\n" +
-    "        <form-errors errors=\"ctrl.errors\"></form-errors>\n" +
-    "        {{ctrl.rule}}\n" +
-    "        <rule rule=\"ctrl.action.rule\" rule-definitions=\"ctrl.ruleDefinitions\" parent-rule=\"null\" parent-obj=\"ctrl.action\"></rule>\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/directives/report_alert_action.html',
-    "<div class=\"panel panel-default action\">\n" +
-    "    <div class=\"panel-body form-inline\">\n" +
-    "        <div class=\"pull-right\">\n" +
-    "            <span class=\"dropdown\" data-uib-dropdown>\n" +
-    "                <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
-    "                  <ul class=\"dropdown-menu\">\n" +
-    "                      <li><a>No</a></li>\n" +
-    "                      <li><a ng-click=\"ctrl.deleteAction(ctrl.actions, ctrl.action)\">Yes</a></li>\n" +
-    "                  </ul>\n" +
-    "            </span>\n" +
-    "        </div>\n" +
-    "\n" +
-    "        <div class=\"form-group\">\n" +
-    "            <label>Applies to</label>\n" +
-    "        <select class=\"form-control\" ng-model=\"ctrl.action.resource_id\" ng-options=\"f.resource_id as f.resource_name for f in ctrl.applications\" ng-change=\"ctrl.setDirty()\">\n" +
-    "            <option value=\"\">All Resources</option>\n" +
-    "        </select>\n" +
-    "        </div>\n" +
-    "        <div class=\"form-group\">\n" +
-    "        <label>Notify</label>\n" +
-    "        <select class=\"form-control\" ng-model=\"ctrl.action.action\" ng-change=\"ctrl.setDirty()\" ng-options=\"f[0] as f[1] for f in ctrl.possibleNotifications\"></select>\n" +
-    "\n" +
-    "            <a class=\"btn btn-success\" ng-if=\"ctrl.action.dirty\" ng-click=\"ctrl.saveAction()\"><span class=\"fa fa-save\"></span> &nbsp;Save changes</a>\n" +
-    "\n" +
-    "        </div>\n" +
-    "        <div>\n" +
-    "            <p><strong>Channels:</strong></p>\n" +
-    "            <ul class=\"list-group\">\n" +
-    "                <li class=\"list-group-item\" ng-repeat=\"channel in ctrl.action.channels\">\n" +
-    "                    <strong>{{channel.channel_visible_value}}</strong>\n" +
-    "                    <div class=\"pull-right\">\n" +
-    "                        <span class=\"dropdown\" data-uib-dropdown>\n" +
-    "                            <a class=\"btn btn-danger btn-xs\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
-    "                              <ul class=\"dropdown-menu\">\n" +
-    "                                  <li><a>No</a></li>\n" +
-    "                                  <li><a ng-click=\"ctrl.unBindChannel(channel)\">Yes</a></li>\n" +
-    "                              </ul>\n" +
-    "                        </span>\n" +
-    "                    </div>\n" +
-    "                </li>\n" +
-    "            </ul>\n" +
-    "            <div class=\"form-group\" ng-if=\"ctrl.possibleChannels.length\">\n" +
-    "                <select class=\"form-control\" ng-model=\"ctrl.channelToBind\" ng-options=\"c as c.channel_visible_value for c in ctrl.possibleChannels |filter: c.supports_report_alerting\"></select>\n" +
-    "                <a class=\"btn btn-info\" ng-click=\"ctrl.bindChannel(channel, ctrl.action)\"><span class=\"fa fa-plus-circle\"></span> Add Channel</a>\n" +
-    "            </div>\n" +
-    "            <div class=\"alert alert-danger\" ng-if=\"!ctrl.possibleChannels.length\">\n" +
-    "                <span class=\"fa fa-exclamation-triangle \"></span>You need to create an alert channel before you can assign it to your rule.\n" +
-    "            </div>\n" +
-    "\n" +
-    "        </div>\n" +
-    "        <hr/>\n" +
-    "        <p>Meeting following criteria:</p>\n" +
-    "        <form-errors errors=\"ctrl.errors\"></form-errors>\n" +
-    "        <rule rule=\"ctrl.action.rule\" rule-definitions=\"ctrl.ruleDefinitions\" parent-rule=\"null\" parent-obj=\"ctrl.action\"></rule>\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/directives/rule_read_only.html',
-    "<div class=\"rule-read-only\">\n" +
-    "\n" +
-    "    <span class=\"form-group\">\n" +
-    "        {{rule_ctrlr.readOnlyPossibleFields[rule_ctrlr.rule.field]}}\n" +
-    "    </span>\n" +
-    "\n" +
-    "    <span ng-if=\"rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__' && rule_ctrlr.rule.field !='__NOT__'\">\n" +
-    "          is {{rule_ctrlr.ruleDefinitions.allOps[rule_ctrlr.rule.op]}}  {{rule_ctrlr.rule.value}}\n" +
-    "    </span>\n" +
-    "\n" +
-    "    <span ng-if=\"rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__' || rule_ctrlr.rule.field =='__NOT__'\">\n" +
-    "        <p ng-if=\"parent\"><strong>Subrules</strong></p>\n" +
-    "        <div ng-repeat=\"subrule in rule_ctrlr.rule.rules\" class=\"m-l-2\">\n" +
-    "\n" +
-    "            <div class=\"panel panel-default\">\n" +
-    "                <div class=\"panel-body form-inline\">\n" +
-    "                    <recursive>\n" +
-    "                        <rule-read-only rule=\"subrule\" rule-definitions=\"rule_ctrlr.ruleDefinitions\" parent-rule=\"null\" parent-obj=\"rule_ctrlr.parentObj\"></rule-read-only>\n" +
-    "                    </recursive>\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "        </div>\n" +
-    "\n" +
-    "    </span>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/directives/rule.html',
-    "<div class=\"rule form-inline\">\n" +
-    "\n" +
-    "    <div class=\"form-group\">\n" +
-    "        <select class=\"form-control\"\n" +
-    "                ng-model=\"rule_ctrlr.rule.field\"\n" +
-    "                ng-change=\"rule_ctrlr.fieldChange()\"\n" +
-    "                ng-options=\"key as label for (key, label) in rule_ctrlr.ruleDefinitions.possibleFields\"></select>\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <div ng-if=\"rule_ctrlr.rule.field != '__AND__' && rule_ctrlr.rule.field !='__OR__' && rule_ctrlr.rule.field !='__NOT__'\" class=\"form-group\">\n" +
-    "\n" +
-    "            <select ng-model=\"rule_ctrlr.rule.op\" class=\"form-control\"\n" +
-    "                    ng-change=\"rule_ctrlr.setDirty()\"\n" +
-    "                    ng-options=\"op as rule_ctrlr.ruleDefinitions.allOps[op] for op in rule_ctrlr.ruleDefinitions.fieldOps[rule_ctrlr.rule.field]\">\n" +
-    "            </select>\n" +
-    "\n" +
-    "        <input type=\"text\" placeholder=\"Value\" ng-model=\"rule_ctrlr.rule.value\" ng-change=\"rule_ctrlr.setDirty()\" class=\"form-control\">\n" +
-    "\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <span ng-if=\"rule_ctrlr.rule.field == '__AND__' || rule_ctrlr.rule.field =='__OR__' || rule_ctrlr.rule.field =='__NOT__'\">\n" +
-    "        <p ng-if=\"parent\"><strong>Subrules</strong></p>\n" +
-    "        <div ng-repeat=\"subrule in rule_ctrlr.rule.rules\" class=\"m-l-2\">\n" +
-    "            <div class=\"panel panel-default\">\n" +
-    "                <div class=\"panel-body form-inline\">\n" +
-    "                    <recursive>\n" +
-    "                        <rule rule=\"subrule\" rule-definitions=\"rule_ctrlr.ruleDefinitions\" parent-rule=\"rule_ctrlr.rule\" parent-obj=\"rule_ctrlr.parentObj\"></rule>\n" +
-    "                    </recursive>\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "        </div>\n" +
-    "\n" +
-    "        <span ng-if=\"(rule_ctrlr.config.disable_subrules == false) == false\" class=\"btn btn-info\" ng-click=\"rule_ctrlr.add()\"><span class=\"fa fa-plus-circle\"></span> Add rule</span>\n" +
-    "\n" +
-    "    </span>\n" +
-    "    <div class=\"pull-right\" ng-if=\"rule_ctrlr.parentRule\">\n" +
-    "            <span class=\"dropdown\" data-uib-dropdown>\n" +
-    "                <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
-    "                  <ul class=\"dropdown-menu\">\n" +
-    "                      <li><a>No</a></li>\n" +
-    "                      <li><a  ng-click=\"rule_ctrlr.deleteRule(rule_ctrlr.parentRule, rule_ctrlr.rule)\">Yes</a></li>\n" +
-    "                  </ul>\n" +
-    "            </span>\n" +
     "    </div>\n" +
     "</div>\n"
   );
@@ -7139,7 +7138,7 @@ function kickstartAE(initialUserData) {
 
 angular.module('appenlight.components.appenlightApp', [])
     .component('appenlightApp', {
-        templateUrl: 'templates/components/appenlight-app.html',
+        templateUrl: 'components/appenlight-app/appenlight-app.html',
         controller: AppEnlightAppController
     });
 
@@ -7209,7 +7208,7 @@ function AppEnlightFooterController(stateHolder, AeConfig){
 
 angular.module('appenlight.components.appenlightHeader', [])
     .component('appenlightHeader', {
-        templateUrl: 'templates/components/appenlight-header.html',
+        templateUrl: 'components/appenlight-header/appenlight-header.html',
         controller: AppEnlightHeaderController
     });
 
@@ -11232,32 +11231,6 @@ function UserProfileController(userSelfResource) {
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.directives.appVersion', []).
-    directive('appVersion', ['version', function (version) {
-        return function (scope, elm, attrs) {
-            elm.text(version);
-        };
-    }])
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
 // This code is inspired by https://github.com/jettro/c3-angular-sample/tree/master/js
 // License is MIT
 
@@ -11746,7 +11719,7 @@ angular.module('appenlight.directives.permissionsForm',[])
                 possiblePermissions: '=',
                 resource: '='
             },
-            templateUrl: 'templates/directives/permissions.html'
+            templateUrl: 'directives/permissions/permissions.html'
         }
     })
 
@@ -11777,7 +11750,7 @@ angular.module('appenlight.directives.pluginConfig', []).directive('pluginConfig
             section: '='
         },
         restrict: 'E',
-        templateUrl: 'templates/directives/plugin_config.html',
+        templateUrl: 'directives/plugin_config/plugin_config.html',
         controller: PluginConfig,
         controllerAs: 'plugin_ctrlr'
     };
@@ -11820,7 +11793,7 @@ angular.module('appenlight.directives.postProcessAction', []).directive('postPro
         controller:postProcessActionController,
         controllerAs:'ctrl',
         restrict: 'E',
-        templateUrl: 'templates/directives/postprocess_action.html'
+        templateUrl: 'directives/postprocess_action/postprocess_action.html'
     };
     function postProcessActionController(){
         var vm = this;
@@ -11984,7 +11957,7 @@ angular.module('appenlight.directives.reportAlertAction', []).directive('reportA
         controller:reportAlertActionController,
         controllerAs:'ctrl',
         restrict: 'E',
-        templateUrl: 'templates/directives/report_alert_action.html'
+        templateUrl: 'directives/report_alert_action/report_alert_action.html'
     };
     function reportAlertActionController(){
         var vm = this;
@@ -12100,7 +12073,7 @@ angular.module('appenlight.directives.ruleReadOnly', []).directive('ruleReadOnly
             config: "="
         },
         restrict: 'E',
-        templateUrl: 'templates/directives/rule_read_only.html',
+        templateUrl: 'directives/rule_read_only/rule_read_only.html',
         controller:RuleController,
         controllerAs:'rule_ctrlr'
     }
@@ -12144,7 +12117,7 @@ angular.module('appenlight.directives.rule', []).directive('rule', function () {
             config: "="
         },
         restrict: 'E',
-        templateUrl: 'templates/directives/rule.html',
+        templateUrl: 'directives/rule/rule.html',
         controller:RuleController,
         controllerAs:'rule_ctrlr'
     };

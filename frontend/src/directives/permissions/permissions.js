@@ -212,6 +212,6 @@ angular.module('appenlight.directives.permissionsForm',[])
                 possiblePermissions: '=',
                 resource: '='
             },
-            templateUrl: 'templates/directives/permissions.html'
+            templateUrl: 'directives/permissions/permissions.html'
         }
     })

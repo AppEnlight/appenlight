@@ -28,7 +28,7 @@ angular.module('appenlight.directives.rule', []).directive('rule', function () {
             config: "="
         },
         restrict: 'E',
-        templateUrl: 'templates/directives/rule.html',
+        templateUrl: 'directives/rule/rule.html',
         controller:RuleController,
         controllerAs:'rule_ctrlr'
     };

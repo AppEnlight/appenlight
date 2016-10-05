@@ -17,20 +17,24 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.components.appenlightApp', [])
-    .component('appenlightApp', {
-        templateUrl: 'templates/components/appenlight-app.html',
-        controller: AppEnlightAppController
-    });
+angular.module('appenlight.directives.pluginConfig', []).directive('pluginConfig', function () {
+    return {
+        scope: {},
+        bindToController: {
+            resource: '=',
+            section: '='
+        },
+        restrict: 'E',
+        templateUrl: 'directives/plugin_config/plugin_config.html',
+        controller: PluginConfig,
+        controllerAs: 'plugin_ctrlr'
+    };
 
-AppEnlightAppController.$inject = ['$scope','$state', 'stateHolder', 'AeConfig'];
+    PluginConfig.$inject = ['stateHolder'];
 
-function AppEnlightAppController($scope, $state, stateHolder, AeConfig){
-    console.log('app start');
-    // to keep bw compatibility
-    $scope.$state = $state;
-    $scope.stateHolder = stateHolder;
-    $scope.flash = stateHolder.flashMessages.list;
-    $scope.closeAlert = stateHolder.flashMessages.closeAlert;
-    $scope.AeConfig = AeConfig;
-}
+    function PluginConfig(stateHolder) {
+        var vm = this;
+        vm.plugins = {};
+        vm.inclusions = stateHolder.plugins.inclusions[vm.section];
+    }
+});
