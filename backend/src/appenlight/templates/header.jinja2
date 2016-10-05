@@ -1,115 +1,22 @@
 <!-- Fixed navbar -->
-<div id="top-navbar" class="navbar navbar-default navbar-fixed-top" role="navigation"  data-ng-controller="HeaderCtrl as header">
-{% raw %}<channelstream config="AeConfig"></channelstream>{% endraw %}
-<div class="pattern">
-    <div class="container">
+<div id="top-navbar" class="navbar navbar-default navbar-fixed-top"
+     role="navigation">
+    <div class="pattern">
+        <div class="container">
             <div class="navbar-header pull-left">
                 <a href="{{ request.route_url('/') }}" class="navbar-brand">
-                <div id="logo-normal" class="hidden-sm hidden-xs"></div>
-                <div id="logo-icon" class="visible-sm visible-xs"></div>
+                    <div id="logo-normal" class="hidden-sm hidden-xs"></div>
+                    <div id="logo-icon" class="visible-sm visible-xs"></div>
                 </a>
             </div>
-
             <div class="container-fluid">
-                <div>
-            {% if request.user -%}
-                <ul class="nav navbar-nav navbar-right">
-                    <li id="user-notifications" class="dropdown ng-cloak" data-uib-dropdown>
-
-                        <a class="dropdown-toggle" data-uib-dropdown-toggle>
-                            <span class="badge">{% raw %}{{header.assignedReports.length}}{% endraw %}</span>
-                            <span class="fa fa-envelope-o"></span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li role="presentation" class="dropdown-header">Assigned reports</li>
-                            {% raw %}
-                            <li data-ng-repeat="report in header.assignedReports" role="presentation">
-                                <a href="{{report.front_url}}" role="menuitem" tabindex="-1">
-                                    <small>{{ report.error || 'Slow Report: ' + report.view_name |truncate:65}}</small>
-                                </a>
-
-                            </li>
-                            <li data-ng-if="header.assignedReports.length == 0"><a><small>No reports</small></a></li>
-                            {% endraw %}
-                        </ul>
-                    </li>
-                    <li id="alert-notifications" class="dropdown ng-cloak" data-uib-dropdown auto-close="outsideClick">
-                        {% raw %}
-                        <a class="dropdown-toggle" data-uib-dropdown-toggle>
-                            <span class="badge {{ activeEvents ? 'danger' : '' }}">{{header.activeEvents}}</span>
-                            <span class="fa fa-bell-o"></span></a>
-                        <ul class="dropdown-menu">
-                            <li role="presentation" class="dropdown-header">
-                                <a data-ui-sref="events" class="btn btn-xs btn-default">Show me more</a></li>
-                            <li role="presentation" class="dropdown-header">Latest events</li>
-                            <li data-ng-repeat="event in header.latestEvents" role="presentation">
-                                <a data-ng-click="header.clickedEvent(event)"><small class="resource-name">For {{ event.resource_name }}</small><br/>
-                                    <small>{{ event.text |truncate:65}}</small><br/>
-                                    <small class="date" data-uib-tooltip="{{event.start_date}}">created: <iso-to-relative-time time="{{event.start_date}}"/></small>
-                                    <small class="date" data-ng-show="event.end_date" data-uib-tooltip="{{event.end_date}}">closed: <iso-to-relative-time time="{{event.end_date}}"/></small>
-                                </a>
-                            </li>
-                            <li data-ng-if="header.latestEvents.length == 0"><a><small>No events</small></a></li>
-                            {% endraw %}
-                        </ul>
-                    </li>
-
-                    <li id="dashboards" class="dropdown" data-uib-dropdown>
-                        <a class="dropdown-toggle" data-uib-dropdown-toggle tooltip-placement="bottom" data-uib-tooltip="Dashboards">
-                            <span class="fa fa-bar-chart-o "></span></a>
-                        <ul class="dropdown-menu">
-                            <li role="presentation"><a data-ui-sref="front_dashboard">Main dashboard</a>
-                            {% for item in top_nav['menu_dashboards_items'] %}
-                                <li role="presentation">
-                                    <a data-ui-sref="{{ item.sref }}">{{ item.label }}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-
-                    <li class="dropdown" data-uib-dropdown>
-                        <a class="dropdown-toggle" data-uib-dropdown-toggle tooltip-placement="bottom" data-uib-tooltip="Reports">
-                            <span class="fa fa-exclamation-triangle"></span></a>
-                        <ul class="dropdown-menu">
-                            <li role="presentation">
-                                <a data-ui-sref="report.list({resource:stateHolder.resource})">Error Reports</a>
-                            </li>
-                            <li role="presentation">
-                                <a data-ui-sref="report.list_slow({resource:stateHolder.resource})">Slowness Reports</a>
-                            </li>
-
-                        </ul>
-                    </li>
-
-                    <li>
-                        <a data-ui-sref="logs({resource:stateHolder.resource})" data-uib-tooltip="Logs" tooltip-placement="bottom"><span class="fa fa-list-alt "></span></a></li>
-                    <li>
-                        <a data-ui-sref="user" data-uib-tooltip="Settings" tooltip-placement="bottom"><span class="fa fa-cog "></span></a>
-                    </li>
-                    {% if top_nav['menu_admin_items'] %}
-                        <li class="dropdown" data-uib-dropdown>
-                            <a class="dropdown-toggle" data-uib-dropdown-toggle tooltip-placement="bottom" data-uib-tooltip="Admin Settings">
-                                <span class="fa fa-wrench"></span></a>
-                            <ul class="dropdown-menu">
-                                {% for item in top_nav['menu_admin_items'] %}
-                                <li role="presentation">
-                                    <a data-ui-sref="{{ item.sref }}">{{ item.label }}</a>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </li>
-                    {% endif %}
-                    <li><a href="{{ request.route_url('ziggurat.routes.sign_out') }}" target="_self"
-                           data-uib-tooltip="Sign out" tooltip-placement="bottom">
-                        <span class="fa fa-power-off "></span></a></li>
-                </ul>
-            {% else -%}
                 <ul class="nav navbar-nav pull-right">
-                    <li><a href="{{ request.route_url('register', _query={'sign_in':'1'}) }}" target="_self" class="btn btn-orange">{{ _('Sign In') }}</a></li>
+                    <li>
+                        <a href="{{ request.route_url('register', _query={'sign_in':'1'}) }}"
+                           target="_self"
+                           class="btn btn-orange">{{ _('Sign In') }}</a></li>
                 </ul>
-        {% endif %}
-                </div><!-- /.navbar-collapse -->
             </div><!-- /.container-fluid -->
+        </div>
     </div>
-</div>
 </div>

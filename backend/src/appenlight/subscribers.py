@@ -65,7 +65,8 @@ def gen_urls(request):
         'otherRoutes': {
             'register':  request.route_url('register') ,
             'lostPassword':  request.route_url('lost_password') ,
-            'lostPasswordGenerate':  request.route_url('lost_password_generate')
+            'lostPasswordGenerate':  request.route_url('lost_password_generate'),
+            'signOut': request.route_url('ziggurat.routes.sign_out')
         },
         'social_auth': {
             'google':request.route_url('social_auth', provider='google'),

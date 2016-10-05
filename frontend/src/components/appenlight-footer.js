@@ -17,19 +17,16 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-var aeconfig = angular.module('appenlight.config', []);
-aeconfig.factory('AeConfig', function () {
-    var obj = {};
-    obj.flashMessages = decodeEncodedJSON(window.AE.flash_messages);
-    obj.timeOptions = decodeEncodedJSON(window.AE.timeOptions);
-    obj.plugins = decodeEncodedJSON(window.AE.plugins);
-    obj.topNav = decodeEncodedJSON(window.AE.topNav);
-    obj.ws_url = window.AE.ws_url;
-    obj.urls = window.AE.urls;
-    // set keys on values because we wont be able to retrieve them everywhere
-    for (var key in obj.timeOptions) {
-        obj.timeOptions[key]['key'] = key;
-    }
-    console.info('config', obj);
-    return obj;
-});
+angular.module('appenlight.components.appenlightHeader', [])
+    .component('appenlightFooter', {
+        templateUrl: 'templates/components/appenlight-footer.html',
+        controller: AppEnlightFooterController
+    });
+
+ChannelstreamController.$inject = ['stateHolder', 'AeConfig'];
+
+function AppEnlightFooterController(stateHolder, AeConfig){
+    var vm = this;
+    vm.AeConfig = AeConfig;
+    vm.stateHolder = stateHolder;
+}

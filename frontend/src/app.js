@@ -40,7 +40,9 @@ angular.module('appenlight.controllers', [
     'appenlight.base'
 ]);
 angular.module('appenlight.components', [
-    'appenlight.components.channelstream'
+    'appenlight.components.channelstream',
+    'appenlight.components.appenlightApp',
+    'appenlight.components.appenlightHeader'
 ]);
 angular.module('appenlight.directives', [
     'appenlight.directives.appVersion',

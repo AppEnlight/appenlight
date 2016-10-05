@@ -17,19 +17,20 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-var aeconfig = angular.module('appenlight.config', []);
-aeconfig.factory('AeConfig', function () {
-    var obj = {};
-    obj.flashMessages = decodeEncodedJSON(window.AE.flash_messages);
-    obj.timeOptions = decodeEncodedJSON(window.AE.timeOptions);
-    obj.plugins = decodeEncodedJSON(window.AE.plugins);
-    obj.topNav = decodeEncodedJSON(window.AE.topNav);
-    obj.ws_url = window.AE.ws_url;
-    obj.urls = window.AE.urls;
-    // set keys on values because we wont be able to retrieve them everywhere
-    for (var key in obj.timeOptions) {
-        obj.timeOptions[key]['key'] = key;
-    }
-    console.info('config', obj);
-    return obj;
-});
+angular.module('appenlight.components.appenlightApp', [])
+    .component('appenlightApp', {
+        templateUrl: 'templates/components/appenlight-app.html',
+        controller: AppEnlightAppController
+    });
+
+AppEnlightAppController.$inject = ['$scope','$state', 'stateHolder', 'AeConfig'];
+
+function AppEnlightAppController($scope, $state, stateHolder, AeConfig){
+    console.log('app start');
+    // to keep bw compatibility
+    $scope.$state = $state;
+    $scope.stateHolder = stateHolder;
+    $scope.flash = stateHolder.flashMessages.list;
+    $scope.closeAlert = stateHolder.flashMessages.closeAlert;
+    $scope.AeConfig = AeConfig;
+}

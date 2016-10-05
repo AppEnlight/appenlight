@@ -222,13 +222,13 @@ def register(request):
 
 
 @view_config(route_name='/',
-             renderer='appenlight:templates/dashboard/index.jinja2',
+             renderer='appenlight:templates/app.jinja2',
              permission=NO_PERMISSION_REQUIRED)
 @view_config(route_name='angular_app_ui',
-             renderer='appenlight:templates/dashboard/index.jinja2',
+             renderer='appenlight:templates/app.jinja2',
              permission=NO_PERMISSION_REQUIRED)
 @view_config(route_name='angular_app_ui_ix',
-             renderer='appenlight:templates/dashboard/index.jinja2',
+             renderer='appenlight:templates/app.jinja2',
              permission=NO_PERMISSION_REQUIRED)
 def app_main_index(request):
     """

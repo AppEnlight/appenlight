@@ -94,7 +94,7 @@
 
 <div ng-if="report.report !== null && !report.is_loading.report">
 
-    <div ng-if="stateHolder.AeUser.id" class="row">
+    <div ng-if="report.stateHolder.AeUser.id" class="row">
       <div class="col-lg-12">
         <a onclick="window.history.back()" class="btn btn-default" ng-if="report.window.history.length > 2"><span class="fa fa-arrow-circle-o-left"></span>
             Go back</a>
@@ -154,7 +154,7 @@
                             <td class="table-label">Public URL</td>
                             <td class="data">
                                 <form>
-                                    <textarea class="TextAreaField form-control" id="public-url" onclick="this.select()">{{$state.href($state.current.name, $state.params, {absolute: true})}}</textarea>
+                                    <textarea class="TextAreaField form-control" id="public-url" onclick="this.select()">{{report.$state.href(report.$state.current.name, report.$state.params, {absolute: true})}}</textarea>
                                 </form>
                             </td>
                         </tr>

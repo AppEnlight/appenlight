@@ -154,7 +154,8 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder',
         resource: null,
         plugins: Plugins,
         flashMessages: flashMessages,
-        AeUser: AeUser
+        AeUser: AeUser,
+        AeConfig: AeConfig
     };
     return stateHolder;
 }]);

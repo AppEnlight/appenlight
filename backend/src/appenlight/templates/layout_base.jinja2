@@ -1,6 +1,6 @@
 {% import 'widgets.jinja2' as widgets %}
 <!DOCTYPE html>
-<html  {% block ng_controller %}{% endblock %}>
+<html>
 <head>
     <title>{% block title %}Application performance, exception and error monitoring for Python,
         Django, Flask and Javascript - AppEnlight{% endblock %}</title>
@@ -19,9 +19,7 @@
     {% block styles %}
         <link href="{{ request.static_url('appenlight:webassets/appenlight/css/front.css', _query={'rev':css_hash}) }}" rel="stylesheet" type="text/css"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     {% endblock %}
-    {% block additional_styles %}{% endblock %}
     <script type="text/javascript">
         var AE = {};
         AE.urls = {{ url_list|tojson|safe }};
@@ -29,6 +27,7 @@
         AE.flash_messages = {{ flash_msgs|toJSONUnsafe }};
         AE.timeOptions = {{ h.time_options|toJSONUnsafe }};
         AE.plugins = {{ js_plugins|toJSONUnsafe }};
+        AE.topNav = {{ top_nav|toJSONUnsafe }};
     </script>
     {% if request.registry.settings.get('appenlight.public_api_key') %}
         <script type="application/javascript">
@@ -99,18 +98,25 @@
     </script>
 </head>
 <body class="{% block section_name %}{% endblock %} {% raw %}top-state-{{$state.current.name.split('.')[0].replace('.', '-').replace('.', '-')}} state-{{$state.current.name.replace('.', '-').replace('.', '-')}}{% endraw %} {% if request.user %}user-logged {% else %}user-unlogged{% endif %}" id="html_body">
-<div class="extra-deco1"></div>
-<div class="extra-deco2"></div>
-
-
 <div id="holder">
-{% include "/header.jinja2" with context %}
-<div id="outer-content">
-{% block outer_content %}Content{% endblock %}
-</div>
+{% block app_block %}
+    <appenlight-app>
+    <div class="text-center">
+        <span class="fa fa-cog fa-spin fa-5x loader"></span>
+    </div>
+    </appenlight-app>
+{% endblock %}
+
+{% block non_angular_content %}
+{% if not request.user %}
+    {% include "/header.jinja2" with context %}
+    <div id="outer-content">
+        {% block outer_content %}{% endblock %}
+    </div>
+{% endif %}
+{% endblock %}
 
 {% include "/footer.jinja2" %}
 </div>
-
 </body>
 </html>

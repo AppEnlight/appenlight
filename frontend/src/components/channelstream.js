@@ -42,11 +42,11 @@ function ChannelstreamController($rootScope, stateHolder, userSelfPropertyResour
                 _.each(data, function (message) {
                     console.log('channelstream-message', message);
                     if(typeof message.message.topic !== 'undefined'){
-                        $rootScope.$broadcast(
+                        $rootScope.$emit(
                             'channelstream-message.'+message.message.topic, message);
                     }
                     else{
-                        $rootScope.$broadcast('channelstream-message', message);
+                        $rootScope.$emit('channelstream-message', message);
                     }
                 });
             });

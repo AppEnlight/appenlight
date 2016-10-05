@@ -25,6 +25,8 @@ ReportsViewController.$inject = ['$window', '$location', '$state', '$uibModal',
 function ReportsViewController($window, $location, $state, $uibModal, $cookies, reportGroupPropertyResource, reportGroupResource, logsNoIdResource, stateHolder) {
     var vm = this;
     vm.window = $window;
+    vm.stateHolder = stateHolder;
+    vm.$state = $state;
     vm.reportHistoryConfig = {
         data: {
             json: [],

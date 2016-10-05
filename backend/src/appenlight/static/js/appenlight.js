@@ -2675,7 +2675,9 @@ angular.module('appenlight.controllers', [
     'appenlight.base'
 ]);
 angular.module('appenlight.components', [
-    'appenlight.components.channelstream'
+    'appenlight.components.channelstream',
+    'appenlight.components.appenlightApp',
+    'appenlight.components.appenlightHeader'
 ]);
 angular.module('appenlight.directives', [
     'appenlight.directives.appVersion',
@@ -4848,6 +4850,120 @@ function kickstartAE(initialUserData) {
   );
 
 
+  $templateCache.put('templates/components/appenlight-app.html',
+    "<channelstream config=\"AeConfig\"></channelstream>\n" +
+    "<appenlight-header></appenlight-header>\n" +
+    "<div id=\"outer-content\">\n" +
+    "    <div ui-view class=\"container\"></div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('templates/components/appenlight-header.html',
+    "<!-- Fixed navbar -->\n" +
+    "<div id=\"top-navbar\" class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\">\n" +
+    "    <div class=\"pattern\">\n" +
+    "        <div class=\"container\">\n" +
+    "            <div class=\"navbar-header pull-left\">\n" +
+    "                <a data-ui-sref=\"front_dashboard\" class=\"navbar-brand\">\n" +
+    "                    <div id=\"logo-normal\" class=\"hidden-sm hidden-xs\"></div>\n" +
+    "                    <div id=\"logo-icon\" class=\"visible-sm visible-xs\"></div>\n" +
+    "                </a>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"container-fluid\">\n" +
+    "                <div>\n" +
+    "                        <ul class=\"nav navbar-nav navbar-right\" ng-if=\"$ctrl.stateHolder.AeUser.id !== null\">\n" +
+    "                            <li id=\"user-notifications\" class=\"dropdown ng-cloak\" data-uib-dropdown>\n" +
+    "\n" +
+    "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle>\n" +
+    "                                    <span class=\"badge\">{{$ctrl.assignedReports.length}}</span>\n" +
+    "                                    <span class=\"fa fa-envelope-o\"></span>\n" +
+    "                                </a>\n" +
+    "                                <ul class=\"dropdown-menu\">\n" +
+    "                                    <li role=\"presentation\" class=\"dropdown-header\">Assigned reports</li>\n" +
+    "                                    <li data-ng-repeat=\"report in $ctrl.assignedReports\" role=\"presentation\">\n" +
+    "                                        <a href=\"{{report.front_url}}\" role=\"menuitem\" tabindex=\"-1\">\n" +
+    "                                            <small>{{ report.error || 'Slow Report: ' + report.view_name |truncate:65}}</small>\n" +
+    "                                        </a>\n" +
+    "\n" +
+    "                                    </li>\n" +
+    "                                    <li data-ng-if=\"$ctrl.assignedReports.length == 0\"><a><small>No reports</small></a></li>\n" +
+    "                                </ul>\n" +
+    "                            </li>\n" +
+    "                            <li id=\"alert-notifications\" class=\"dropdown ng-cloak\" data-uib-dropdown auto-close=\"outsideClick\">\n" +
+    "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle>\n" +
+    "                                    <span class=\"badge {{ activeEvents ? 'danger' : '' }}\">{{$ctrl.activeEvents}}</span>\n" +
+    "                                    <span class=\"fa fa-bell-o\"></span></a>\n" +
+    "                                <ul class=\"dropdown-menu\">\n" +
+    "                                    <li role=\"presentation\" class=\"dropdown-header\">\n" +
+    "                                        <a data-ui-sref=\"events\" class=\"btn btn-xs btn-default\">Show me more</a></li>\n" +
+    "                                    <li role=\"presentation\" class=\"dropdown-header\">Latest events</li>\n" +
+    "                                    <li data-ng-repeat=\"event in $ctrl.latestEvents\" role=\"presentation\">\n" +
+    "                                        <a data-ng-click=\"$ctrl.clickedEvent(event)\"><small class=\"resource-name\">For {{ event.resource_name }}</small><br/>\n" +
+    "                                            <small>{{ event.text |truncate:65}}</small><br/>\n" +
+    "                                            <small class=\"date\" data-uib-tooltip=\"{{event.start_date}}\">created: <iso-to-relative-time time=\"{{event.start_date}}\"/></small>\n" +
+    "                                            <small class=\"date\" data-ng-show=\"event.end_date\" data-uib-tooltip=\"{{event.end_date}}\">closed: <iso-to-relative-time time=\"{{event.end_date}}\"/></small>\n" +
+    "                                        </a>\n" +
+    "                                    </li>\n" +
+    "                                    <li data-ng-if=\"$ctrl.latestEvents.length == 0\"><a><small>No events</small></a></li>\n" +
+    "                                </ul>\n" +
+    "                            </li>\n" +
+    "\n" +
+    "                            <li id=\"dashboards\" class=\"dropdown\" data-uib-dropdown>\n" +
+    "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle tooltip-placement=\"bottom\" data-uib-tooltip=\"Dashboards\">\n" +
+    "                                    <span class=\"fa fa-bar-chart-o \"></span></a>\n" +
+    "                                <ul class=\"dropdown-menu\">\n" +
+    "                                    <li role=\"presentation\"><a data-ui-sref=\"front_dashboard\">Main dashboard</a></li>\n" +
+    "                                    <li role=\"presentation\" ng-repeat=\"item in $ctrl.AeConfig.topNav.menu_dashboards_items\">\n" +
+    "                                        <a data-ui-sref=\"{{ item.sref }}\">{{ item.label }}</a>\n" +
+    "                                    </li>\n" +
+    "                                </ul>\n" +
+    "                            </li>\n" +
+    "\n" +
+    "                            <li class=\"dropdown\" data-uib-dropdown>\n" +
+    "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle tooltip-placement=\"bottom\" data-uib-tooltip=\"Reports\">\n" +
+    "                                    <span class=\"fa fa-exclamation-triangle\"></span></a>\n" +
+    "                                <ul class=\"dropdown-menu\">\n" +
+    "                                    <li role=\"presentation\">\n" +
+    "                                        <a data-ui-sref=\"report.list({resource:$ctrl.stateHolder.resource})\">Error Reports</a>\n" +
+    "                                    </li>\n" +
+    "                                    <li role=\"presentation\">\n" +
+    "                                        <a data-ui-sref=\"report.list_slow({resource:$ctrl.stateHolder.resource})\">Slowness Reports</a>\n" +
+    "                                    </li>\n" +
+    "\n" +
+    "                                </ul>\n" +
+    "                            </li>\n" +
+    "\n" +
+    "                            <li>\n" +
+    "                                <a data-ui-sref=\"logs({resource:$ctrl.stateHolder.resource})\" data-uib-tooltip=\"Logs\" tooltip-placement=\"bottom\"><span class=\"fa fa-list-alt \"></span></a></li>\n" +
+    "                            <li>\n" +
+    "                                <a data-ui-sref=\"user\" data-uib-tooltip=\"Settings\" tooltip-placement=\"bottom\"><span class=\"fa fa-cog \"></span></a>\n" +
+    "                            </li>\n" +
+    "                            <li class=\"dropdown\" data-uib-dropdown data-ng-if=\"$ctrl.AeConfig.topNav.menu_admin_items.length\">\n" +
+    "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle tooltip-placement=\"bottom\" data-uib-tooltip=\"Admin Settings\">\n" +
+    "                                    <span class=\"fa fa-wrench\"></span></a>\n" +
+    "                                <ul class=\"dropdown-menu\">\n" +
+    "                                    <li role=\"presentation\" ng-repeat=\"item in $ctrl.AeConfig.topNav.menu_admin_items\">\n" +
+    "                                        <a data-ui-sref=\"{{ item.sref }}\">{{ item.label }}</a>\n" +
+    "                                    </li>\n" +
+    "                                </ul>\n" +
+    "                            </li>\n" +
+    "                            <li><a href=\"{{ $ctrl.AeConfig.urls.otherRoutes.signOut }}\" target=\"_self\"\n" +
+    "                                   data-uib-tooltip=\"Sign out\" tooltip-placement=\"bottom\">\n" +
+    "                                <span class=\"fa fa-power-off \"></span></a></li>\n" +
+    "                        </ul>\n" +
+    "                        <ul class=\"nav navbar-nav pull-right\" ng-if=\"$ctrl.stateHolder.AeUser.id === null\">\n" +
+    "                            <li><a href=\"{{ $ctrl.AeConfig.urls.otherRoutes.register }}\" target=\"_self\" class=\"btn btn-orange\">Sign In</a></li>\n" +
+    "                        </ul>\n" +
+    "                </div><!-- /.navbar-collapse -->\n" +
+    "            </div><!-- /.container-fluid -->\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
   $templateCache.put('templates/dashboard.html',
     "<style type=\"text/css\">\n" +
     "    #metrics_chart .c3-line {\n" +
@@ -4864,21 +4980,20 @@ function kickstartAE(initialUserData) {
     "\n" +
     "<div class=\"row\">\n" +
     "    <div class=\"col-sm-12 dashboard\" id=\"content\">\n" +
-    "\n" +
-    "        <div ng-if=\"!stateHolder.AeUser.applications.length\">\n" +
+    "        <div ng-if=\"!index.stateHolder.AeUser.applications.length\">\n" +
     "\n" +
     "            <div ng-include=\"'templates/quickstart.html'\"></div>\n" +
     "\n" +
     "        </div>\n" +
     "\n" +
-    "        <div ng-if=\"stateHolder.AeUser.applications.length\">\n" +
+    "        <div ng-if=\"index.stateHolder.AeUser.applications.length\">\n" +
     "\n" +
     "            <div class=\"row\">\n" +
     "                <div class=\"col-sm-6\">\n" +
     "                    <div class=\"panel panel-default\">\n" +
     "                        <div class=\"panel-body\">\n" +
     "                            <form class=\"graph-type form-inline\">\n" +
-    "                                <select ng-model=\"index.resource\" ng-options=\"r.resource_id as r.resource_name for r in stateHolder.AeUser.applications\" ng-change=\"index.updateSearchParams()\"\n" +
+    "                                <select ng-model=\"index.resource\" ng-options=\"r.resource_id as r.resource_name for r in index.stateHolder.AeUser.applications\" ng-change=\"index.updateSearchParams()\"\n" +
     "                                        class=\"SelectField form-control input-sm slim-input\"></select>\n" +
     "\n" +
     "                                <select class=\"SelectField form-control input-sm slim-input\" ng-model=\"index.timeSpan\"\n" +
@@ -6150,7 +6265,7 @@ function kickstartAE(initialUserData) {
     "\n" +
     "<div ng-if=\"report.report !== null && !report.is_loading.report\">\n" +
     "\n" +
-    "    <div ng-if=\"stateHolder.AeUser.id\" class=\"row\">\n" +
+    "    <div ng-if=\"report.stateHolder.AeUser.id\" class=\"row\">\n" +
     "      <div class=\"col-lg-12\">\n" +
     "        <a onclick=\"window.history.back()\" class=\"btn btn-default\" ng-if=\"report.window.history.length > 2\"><span class=\"fa fa-arrow-circle-o-left\"></span>\n" +
     "            Go back</a>\n" +
@@ -6210,7 +6325,7 @@ function kickstartAE(initialUserData) {
     "                            <td class=\"table-label\">Public URL</td>\n" +
     "                            <td class=\"data\">\n" +
     "                                <form>\n" +
-    "                                    <textarea class=\"TextAreaField form-control\" id=\"public-url\" onclick=\"this.select()\">{{$state.href($state.current.name, $state.params, {absolute: true})}}</textarea>\n" +
+    "                                    <textarea class=\"TextAreaField form-control\" id=\"public-url\" onclick=\"this.select()\">{{report.$state.href(report.$state.current.name, report.$state.params, {absolute: true})}}</textarea>\n" +
     "                                </form>\n" +
     "                            </td>\n" +
     "                        </tr>\n" +
@@ -7022,6 +7137,135 @@ function kickstartAE(initialUserData) {
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
+angular.module('appenlight.components.appenlightApp', [])
+    .component('appenlightApp', {
+        templateUrl: 'templates/components/appenlight-app.html',
+        controller: AppEnlightAppController
+    });
+
+AppEnlightAppController.$inject = ['$scope','$state', 'stateHolder', 'AeConfig'];
+
+function AppEnlightAppController($scope, $state, stateHolder, AeConfig){
+    
+    // to keep bw compatibility
+    $scope.$state = $state;
+    $scope.stateHolder = stateHolder;
+    $scope.flash = stateHolder.flashMessages.list;
+    $scope.closeAlert = stateHolder.flashMessages.closeAlert;
+    $scope.AeConfig = AeConfig;
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.appenlightHeader', [])
+    .component('appenlightFooter', {
+        templateUrl: 'templates/components/appenlight-footer.html',
+        controller: AppEnlightFooterController
+    });
+
+ChannelstreamController.$inject = ['stateHolder', 'AeConfig'];
+
+function AppEnlightFooterController(stateHolder, AeConfig){
+    var vm = this;
+    vm.AeConfig = AeConfig;
+    vm.stateHolder = stateHolder;
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.appenlightHeader', [])
+    .component('appenlightHeader', {
+        templateUrl: 'templates/components/appenlight-header.html',
+        controller: AppEnlightHeaderController
+    });
+
+ChannelstreamController.$inject = ['$state', 'stateHolder', 'AeConfig'];
+
+function AppEnlightHeaderController($state, stateHolder, AeConfig){
+    var vm = this;
+    vm.AeConfig = AeConfig;
+    vm.stateHolder = stateHolder;
+    vm.assignedReports = stateHolder.AeUser.assigned_reports;
+    vm.latestEvents = stateHolder.AeUser.latest_events;
+    vm.activeEvents = 0;
+    _.each(vm.latestEvents, function (event) {
+        if (event.status === 1 && event.end_date === null) {
+            vm.activeEvents += 1;
+        }
+    });
+
+    vm.clickedEvent = function(event){
+        // exception reports
+        if (_.contains([1,2], event.event_type)){
+            $state.go('report.list', {resource:event.resource_id, start_date:event.start_date});
+        }
+        // slowness reports
+        else if (_.contains([3,4], event.event_type)){
+            $state.go('report.list_slow', {resource:event.resource_id, start_date:event.start_date});
+        }
+        // uptime reports
+        else if (_.contains([7,8], event.event_type)){
+            $state.go('uptime', {resource:event.resource_id, start_date:event.start_date});
+        }
+        else{
+            
+        }
+    }
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
 angular.module('appenlight.components.channelstream', [])
     .component('channelstream', {
         controller: ChannelstreamController,
@@ -7047,11 +7291,11 @@ function ChannelstreamController($rootScope, stateHolder, userSelfPropertyResour
                 _.each(data, function (message) {
                     
                     if(typeof message.message.topic !== 'undefined'){
-                        $rootScope.$broadcast(
+                        $rootScope.$emit(
                             'channelstream-message.'+message.message.topic, message);
                     }
                     else{
-                        $rootScope.$broadcast('channelstream-message', message);
+                        $rootScope.$emit('channelstream-message', message);
                     }
                 });
             });
@@ -7091,9 +7335,9 @@ aeconfig.factory('AeConfig', function () {
     obj.flashMessages = decodeEncodedJSON(window.AE.flash_messages);
     obj.timeOptions = decodeEncodedJSON(window.AE.timeOptions);
     obj.plugins = decodeEncodedJSON(window.AE.plugins);
+    obj.topNav = decodeEncodedJSON(window.AE.topNav);
     obj.ws_url = window.AE.ws_url;
     obj.urls = window.AE.urls;
-
     // set keys on values because we wont be able to retrieve them everywhere
     for (var key in obj.timeOptions) {
         obj.timeOptions[key]['key'] = key;
@@ -8191,9 +8435,9 @@ function EventsController(eventsNoIdResource, eventsResource) {
 angular.module('appenlight.controllers')
     .controller('IndexDashboardController', IndexDashboardController);
 
-IndexDashboardController.$inject = ['$scope', '$location','$cookies', '$interval', 'stateHolder', 'userSelfPropertyResource', 'applicationsPropertyResource', 'AeConfig'];
+IndexDashboardController.$inject = ['$rootScope', '$scope', '$location','$cookies', '$interval', 'stateHolder', 'applicationsPropertyResource', 'AeConfig'];
 
-function IndexDashboardController($scope, $location, $cookies, $interval, stateHolder, userSelfPropertyResource, applicationsPropertyResource, AeConfig) {
+function IndexDashboardController($rootScope, $scope, $location, $cookies, $interval, stateHolder, applicationsPropertyResource, AeConfig) {
     var vm = this;
     stateHolder.section = 'dashboard';
     vm.timeOptions = {};
@@ -8203,6 +8447,7 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
             vm.timeOptions[key] = AeConfig.timeOptions[key];
         }
     });
+    vm.stateHolder = stateHolder;
     vm.urls = AeConfig.urls;
     vm.applications = stateHolder.AeUser.applications_map;
     vm.show_dashboard = false;
@@ -8547,7 +8792,7 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
     };
     vm.stream = {paused: false, filtered: false, messages: [], reports: []};
 
-    $scope.$on('channelstream-message.front_dashboard.new_topic', function(event, message){
+    $rootScope.$on('channelstream-message.front_dashboard.new_topic', function(event, message){
         var ws_report = message.message.report;
         if (ws_report.http_status != 500) {
             return
@@ -8817,9 +9062,8 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
             function () {
                 vm.loading.reports = false;
             }
-        )
-        ;
-    }
+        );
+    };
 
     if (stateHolder.AeUser.applications.length){
         vm.show_dashboard = true;
@@ -8835,64 +9079,6 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
         }
     });
 
-
-}
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers')
-    .controller('HeaderCtrl', HeaderCtrl);
-
-HeaderCtrl.$inject = ['$state', 'stateHolder'];
-
-function HeaderCtrl($state, stateHolder) {
-    var vm = this;
-    vm.stateHolder = stateHolder;
-    vm.assignedReports = stateHolder.AeUser.assigned_reports;
-    vm.latestEvents = stateHolder.AeUser.latest_events;
-    vm.activeEvents = 0;
-    _.each(vm.latestEvents, function (event) {
-        if (event.status === 1 && event.end_date === null) {
-            vm.activeEvents += 1;
-        }
-    });
-
-    vm.clickedEvent = function(event){
-        
-        // (from Event model)
-        // exception reports
-        if (_.contains([1,2], event.event_type)){
-            $state.go('report.list', {resource:event.resource_id, start_date:event.start_date});
-        }
-        // slowness reports
-        else if (_.contains([3,4], event.event_type)){
-            $state.go('report.list_slow', {resource:event.resource_id, start_date:event.start_date});
-        }
-        // uptime reports
-        else if (_.contains([7,8], event.event_type)){
-            $state.go('uptime', {resource:event.resource_id, start_date:event.start_date});
-        }
-        else{
-            
-        }
-    }
 }
 
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
@@ -10304,6 +10490,8 @@ ReportsViewController.$inject = ['$window', '$location', '$state', '$uibModal',
 function ReportsViewController($window, $location, $state, $uibModal, $cookies, reportGroupPropertyResource, reportGroupResource, logsNoIdResource, stateHolder) {
     var vm = this;
     vm.window = $window;
+    vm.stateHolder = stateHolder;
+    vm.$state = $state;
     vm.reportHistoryConfig = {
         data: {
             json: [],
@@ -12879,7 +13067,8 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder',
         resource: null,
         plugins: Plugins,
         flashMessages: flashMessages,
-        AeUser: AeUser
+        AeUser: AeUser,
+        AeConfig: AeConfig
     };
     return stateHolder;
 }]);

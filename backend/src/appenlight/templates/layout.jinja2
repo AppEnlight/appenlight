@@ -10,15 +10,8 @@
             {% endraw %}
         </div>
     </div>
-
-    <div {% block ng_view %}{% endblock %}>
-        <div class="row">
-            <!-- container -->
-            <!-- content -->
-            {% block content %}{% endblock %}
-            <!-- content -->
-            <!-- container -->
-        </div>
+    <div class="row">
+        {% block content %}{% endblock %}
     </div>
 </div>
 

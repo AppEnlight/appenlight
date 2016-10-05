@@ -20,9 +20,9 @@
 angular.module('appenlight.controllers')
     .controller('IndexDashboardController', IndexDashboardController);
 
-IndexDashboardController.$inject = ['$scope', '$location','$cookies', '$interval', 'stateHolder', 'userSelfPropertyResource', 'applicationsPropertyResource', 'AeConfig'];
+IndexDashboardController.$inject = ['$rootScope', '$scope', '$location','$cookies', '$interval', 'stateHolder', 'applicationsPropertyResource', 'AeConfig'];
 
-function IndexDashboardController($scope, $location, $cookies, $interval, stateHolder, userSelfPropertyResource, applicationsPropertyResource, AeConfig) {
+function IndexDashboardController($rootScope, $scope, $location, $cookies, $interval, stateHolder, applicationsPropertyResource, AeConfig) {
     var vm = this;
     stateHolder.section = 'dashboard';
     vm.timeOptions = {};
@@ -32,6 +32,7 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
             vm.timeOptions[key] = AeConfig.timeOptions[key];
         }
     });
+    vm.stateHolder = stateHolder;
     vm.urls = AeConfig.urls;
     vm.applications = stateHolder.AeUser.applications_map;
     vm.show_dashboard = false;
@@ -376,7 +377,7 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
     };
     vm.stream = {paused: false, filtered: false, messages: [], reports: []};
 
-    $scope.$on('channelstream-message.front_dashboard.new_topic', function(event, message){
+    $rootScope.$on('channelstream-message.front_dashboard.new_topic', function(event, message){
         var ws_report = message.message.report;
         if (ws_report.http_status != 500) {
             return
@@ -646,9 +647,8 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
             function () {
                 vm.loading.reports = false;
             }
-        )
-        ;
-    }
+        );
+    };
 
     if (stateHolder.AeUser.applications.length){
         vm.show_dashboard = true;
@@ -663,6 +663,5 @@ function IndexDashboardController($scope, $location, $cookies, $interval, stateH
             vm.refreshData();
         }
     });
-
 
 }

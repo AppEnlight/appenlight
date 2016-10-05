@@ -17,13 +17,17 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers')
-    .controller('HeaderCtrl', HeaderCtrl);
+angular.module('appenlight.components.appenlightHeader', [])
+    .component('appenlightHeader', {
+        templateUrl: 'templates/components/appenlight-header.html',
+        controller: AppEnlightHeaderController
+    });
 
-HeaderCtrl.$inject = ['$state', 'stateHolder'];
+ChannelstreamController.$inject = ['$state', 'stateHolder', 'AeConfig'];
 
-function HeaderCtrl($state, stateHolder) {
+function AppEnlightHeaderController($state, stateHolder, AeConfig){
     var vm = this;
+    vm.AeConfig = AeConfig;
     vm.stateHolder = stateHolder;
     vm.assignedReports = stateHolder.AeUser.assigned_reports;
     vm.latestEvents = stateHolder.AeUser.latest_events;
@@ -35,8 +39,6 @@ function HeaderCtrl($state, stateHolder) {
     });
 
     vm.clickedEvent = function(event){
-        console.log(event);
-        // (from Event model)
         // exception reports
         if (_.contains([1,2], event.event_type)){
             $state.go('report.list', {resource:event.resource_id, start_date:event.start_date});
