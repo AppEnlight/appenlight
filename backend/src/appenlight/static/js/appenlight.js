@@ -8859,10 +8859,12 @@ function IndexDashboardController($rootScope, $scope, $location, $cookies, $inte
         $location.search('timespan', vm.timeSpan.key);
         $location.search('graphtype', vm.graphType.selected);
         stateHolder.resource = vm.resource;
+
         if (vm.resource){
             $cookies.putObject('resource', vm.resource,
                 {expires:new Date(3000, 1, 1)});
         }
+        vm.refreshData();
     };
 
     vm.refreshData = function () {
@@ -8878,7 +8880,7 @@ function IndexDashboardController($rootScope, $scope, $location, $cookies, $inte
         vm.refreshData();
     };
 
-    var intervalId = $interval(function () {
+    vm.intervalId = $interval(function () {
         if (_.contains(['30m', "1h"], vm.timeSpan.key)) {
             // don't do anything if window is unfocused
             if(document.hidden === true){
@@ -9064,6 +9066,10 @@ function IndexDashboardController($rootScope, $scope, $location, $cookies, $inte
             }
         );
     };
+
+    $scope.$on('$destroy',function(){
+        $interval.cancel(vm.intervalId);
+    });
 
     if (stateHolder.AeUser.applications.length){
         vm.show_dashboard = true;
