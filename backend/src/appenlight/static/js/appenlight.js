@@ -2679,7 +2679,8 @@ angular.module('appenlight.components', [
     'appenlight.components.channelstream',
     'appenlight.components.appenlightApp',
     'appenlight.components.appenlightHeader',
-    'appenlight.components.indexDashboardView'
+    'appenlight.components.indexDashboardView',
+    'appenlight.components.logsBrowserView',
 ]);
 angular.module('appenlight.directives', [
     'appenlight.directives.c3chart',
@@ -3299,6 +3300,106 @@ function kickstartAE(initialUserData) {
     "            </div>\n" +
     "        </div>\n" +
     "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/logs-browser/logs-browser.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.isLoading.logs\"></ng-include>\n" +
+    "\n" +
+    "<div ng-if=\"$ctrl.isLoading.logs === false\">\n" +
+    "\n" +
+    "    <p class=\"search-params\">\n" +
+    "        <strong>Search params:</strong>\n" +
+    "        <span ng-repeat=\"tag in $ctrl.searchParams.tags\" class=\"tag\">\n" +
+    "            <strong>{{tag.type}}</strong>\n" +
+    "            {{ tag.type == 'resource' ? $ctrl.applications[tag.value].resource_name : tag.value }}\n" +
+    "\n" +
+    "            <a ng-click=\"$ctrl.removeSearchTag(tag)\"><span class=\"fa fa-times\"></span></a>\n" +
+    "        </span>\n" +
+    "    </p>\n" +
+    "\n" +
+    "    <p>\n" +
+    "\n" +
+    "        <script type=\"text/ng-template\" id=\"SearchTypeAheadUrl.html\">\n" +
+    "\n" +
+    "        </script>\n" +
+    "\n" +
+    "    <form class=\"form\">\n" +
+    "        <div class=\"typeahead-tags\">\n" +
+    "            <input type=\"text\" id=\"typeAhead\" ng-model=\"$ctrl.filterTypeAhead\" placeholder=\"Start typing to filter logs for events, filter by servers, namespaces, levels.\"\n" +
+    "                   ng-keydown=\"$ctrl.typeAheadTag($event)\"\n" +
+    "                   uib-typeahead=\"tag as tag.text for tag in $ctrl.filterTypeAheadOptions | filter:$viewValue:$ctrl.aheadFilter\"\n" +
+    "                   typeahead-min-length=\"1\" class=\"form-control\"\n" +
+    "                   typeahead-template-url=\"templates/directives/search_type_ahead.html\">\n" +
+    "        </div>\n" +
+    "    </form>\n" +
+    "\n" +
+    "    <div class=\"well animate-show position-absolute increse-zindex\" ng-if=\"$ctrl.showDatePicker\" ng-model=\"$ctrl.pickerDate\" ng-change=\"$ctrl.pickerDateChanged()\">\n" +
+    "        <uib-datepicker></uib-datepicker>\n" +
+    "    </div>\n" +
+    "\n" +
+    "    </p>\n" +
+    "\n" +
+    "    <div class=\"panel\">\n" +
+    "\n" +
+    "        <div class=\"panel-body\">\n" +
+    "            <c3chart data-domid=\"log_events_chart\" data-data=\"$ctrl.logEventsChartData\" data-config=\"$ctrl.logEventsChartConfig\">\n" +
+    "            </c3chart>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "\n" +
+    "\n" +
+    "    <div class=\"text-center\">\n" +
+    "        <uib-pagination total-items=\"$ctrl.itemCount\" items-per-page=\"$ctrl.itemsPerPage\" ng-model=\"$ctrl.page\" max-size=\"10\"\n" +
+    "                        ng-change=\"$ctrl.paginationChange()\"\n" +
+    "                        class=\"pagination pagination-sm\" boundary-links=\"true\" direction-links=\"false\"></uib-pagination>\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <div class=\"panel panel-default\">\n" +
+    "\n" +
+    "        <table class=\"table table-striped log-list\">\n" +
+    "            <caption>Logs</caption>\n" +
+    "            <thead>\n" +
+    "            <tr>\n" +
+    "                <th class=\"c1 resource\">Application</th>\n" +
+    "                <th class=\"c2 message\">Message</th>\n" +
+    "                <th class=\"c3 when\">When</th>\n" +
+    "            </tr>\n" +
+    "            </thead>\n" +
+    "            <tbody>\n" +
+    "            <tr ng-repeat=\"log in $ctrl.logsPage track by log.log_id\" class=\"{{$odd ? 'odd' : 'even'}}\">\n" +
+    "                <td class=\"c1\">\n" +
+    "                    <a class=\"tag application\" ng-click=\"$ctrl.addSearchTag({type:'resource', value:log.resource_id})\">\n" +
+    "                        <span class=\"name\">{{log.resource_name}}</span></a>\n" +
+    "                </td>\n" +
+    "                <td class=\"c2\">\n" +
+    "                    <a class=\"tag {{log.log_level|lowercase}}\" ng-click=\"$ctrl.addSearchTag({type:'level', value:log.log_level})\">\n" +
+    "                        <span class=\"name\">level:</span> {{log.log_level}}</a>\n" +
+    "                    <a class=\"tag\" ng-click=\"$ctrl.addSearchTag({type:'namespace', value:log.namespace})\">\n" +
+    "                        <span class=\"name\">namespace:</span> {{log.namespace}}</a>\n" +
+    "                    <a ng-repeat=\"(tag, value) in log.tags\" class=\"tag\" ng-click=\"$ctrl.addSearchTag({type:tag, value:value})\">\n" +
+    "                        <span class=\"name\">{{tag}}:</span> {{value}}</a>\n" +
+    "                    <div class=\"log\">{{log.message}}</div>\n" +
+    "                </td>\n" +
+    "                <td class=\"c3 when\">\n" +
+    "                    <a ng-click=\"$ctrl.filterId(log)\" data-uib-tooltip=\"{{log.timestamp}}\">\n" +
+    "                        <iso-to-relative-time time=\"{{log.timestamp}}\"/>\n" +
+    "                    </a>\n" +
+    "                </td>\n" +
+    "            </tr>\n" +
+    "\n" +
+    "            </tbody>\n" +
+    "        </table>\n" +
+    "\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <div class=\"text-center\">\n" +
+    "        <uib-pagination total-items=\"$ctrl.itemCount\" items-per-page=\"$ctrl.itemsPerPage\" ng-model=\"$ctrl.page\" max-size=\"10\"\n" +
+    "                        ng-change=\"$ctrl.paginationChange()\"\n" +
+    "                        class=\"pagination pagination-sm\" boundary-links=\"true\" direction-links=\"false\"></uib-pagination>\n" +
+    "    </div>\n" +
+    "\n" +
     "</div>\n"
   );
 
@@ -5782,106 +5883,6 @@ function kickstartAE(initialUserData) {
   );
 
 
-  $templateCache.put('templates/logs.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"logs.isLoading.logs\"></ng-include>\n" +
-    "\n" +
-    "<div ng-if=\"logs.isLoading.logs === false\">\n" +
-    "\n" +
-    "    <p class=\"search-params\">\n" +
-    "        <strong>Search params:</strong>\n" +
-    "        <span ng-repeat=\"tag in logs.searchParams.tags\" class=\"tag\">\n" +
-    "            <strong>{{tag.type}}</strong>\n" +
-    "            {{ tag.type == 'resource' ? logs.applications[tag.value].resource_name : tag.value }}\n" +
-    "\n" +
-    "            <a ng-click=\"logs.removeSearchTag(tag)\"><span class=\"fa fa-times\"></span></a>\n" +
-    "        </span>\n" +
-    "    </p>\n" +
-    "\n" +
-    "    <p>\n" +
-    "\n" +
-    "        <script type=\"text/ng-template\" id=\"SearchTypeAheadUrl.html\">\n" +
-    "\n" +
-    "        </script>\n" +
-    "\n" +
-    "    <form class=\"form\">\n" +
-    "        <div class=\"typeahead-tags\">\n" +
-    "            <input type=\"text\" id=\"typeAhead\" ng-model=\"logs.filterTypeAhead\" placeholder=\"Start typing to filter logs for events, filter by servers, namespaces, levels.\"\n" +
-    "                   ng-keydown=\"logs.typeAheadTag($event)\"\n" +
-    "                   uib-typeahead=\"tag as tag.text for tag in logs.filterTypeAheadOptions | filter:$viewValue:logs.aheadFilter\"\n" +
-    "                   typeahead-min-length=\"1\" class=\"form-control\"\n" +
-    "                   typeahead-template-url=\"templates/directives/search_type_ahead.html\">\n" +
-    "        </div>\n" +
-    "    </form>\n" +
-    "\n" +
-    "    <div class=\"well animate-show position-absolute increse-zindex\" ng-if=\"logs.showDatePicker\" ng-model=\"logs.pickerDate\" ng-change=\"logs.pickerDateChanged()\">\n" +
-    "        <uib-datepicker></uib-datepicker>\n" +
-    "    </div>\n" +
-    "\n" +
-    "    </p>\n" +
-    "\n" +
-    "    <div class=\"panel\">\n" +
-    "\n" +
-    "        <div class=\"panel-body\">\n" +
-    "            <c3chart data-domid=\"log_events_chart\" data-data=\"logs.logEventsChartData\" data-config=\"logs.logEventsChartConfig\">\n" +
-    "            </c3chart>\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "\n" +
-    "\n" +
-    "    <div class=\"text-center\">\n" +
-    "        <uib-pagination total-items=\"logs.itemCount\" items-per-page=\"logs.itemsPerPage\" ng-model=\"logs.page\" max-size=\"10\"\n" +
-    "                        ng-change=\"logs.paginationChange()\"\n" +
-    "                        class=\"pagination pagination-sm\" boundary-links=\"true\" direction-links=\"false\"></uib-pagination>\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <div class=\"panel panel-default\">\n" +
-    "\n" +
-    "        <table class=\"table table-striped log-list\">\n" +
-    "            <caption>Logs</caption>\n" +
-    "            <thead>\n" +
-    "            <tr>\n" +
-    "                <th class=\"c1 resource\">Application</th>\n" +
-    "                <th class=\"c2 message\">Message</th>\n" +
-    "                <th class=\"c3 when\">When</th>\n" +
-    "            </tr>\n" +
-    "            </thead>\n" +
-    "            <tbody>\n" +
-    "            <tr ng-repeat=\"log in logs.logsPage track by log.log_id\" class=\"{{$odd ? 'odd' : 'even'}}\">\n" +
-    "                <td class=\"c1\">\n" +
-    "                    <a class=\"tag application\" ng-click=\"logs.addSearchTag({type:'resource', value:log.resource_id})\">\n" +
-    "                        <span class=\"name\">{{log.resource_name}}</span></a>\n" +
-    "                </td>\n" +
-    "                <td class=\"c2\">\n" +
-    "                    <a class=\"tag {{log.log_level|lowercase}}\" ng-click=\"logs.addSearchTag({type:'level', value:log.log_level})\">\n" +
-    "                        <span class=\"name\">level:</span> {{log.log_level}}</a>\n" +
-    "                    <a class=\"tag\" ng-click=\"logs.addSearchTag({type:'namespace', value:log.namespace})\">\n" +
-    "                        <span class=\"name\">namespace:</span> {{log.namespace}}</a>\n" +
-    "                    <a ng-repeat=\"(tag, value) in log.tags\" class=\"tag\" ng-click=\"logs.addSearchTag({type:tag, value:value})\">\n" +
-    "                        <span class=\"name\">{{tag}}:</span> {{value}}</a>\n" +
-    "                    <div class=\"log\">{{log.message}}</div>\n" +
-    "                </td>\n" +
-    "                <td class=\"c3 when\">\n" +
-    "                    <a ng-click=\"logs.filterId(log)\" data-uib-tooltip=\"{{log.timestamp}}\">\n" +
-    "                        <iso-to-relative-time time=\"{{log.timestamp}}\"/>\n" +
-    "                    </a>\n" +
-    "                </td>\n" +
-    "            </tr>\n" +
-    "\n" +
-    "            </tbody>\n" +
-    "        </table>\n" +
-    "\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <div class=\"text-center\">\n" +
-    "        <uib-pagination total-items=\"logs.itemCount\" items-per-page=\"logs.itemsPerPage\" ng-model=\"logs.page\" max-size=\"10\"\n" +
-    "                        ng-change=\"logs.paginationChange()\"\n" +
-    "                        class=\"pagination pagination-sm\" boundary-links=\"true\" direction-links=\"false\"></uib-pagination>\n" +
-    "    </div>\n" +
-    "\n" +
-    "</div>\n"
-  );
-
-
   $templateCache.put('templates/quickstart.html',
     "<h2>AppEnlight quickstart</h2>\n" +
     "\n" +
@@ -7996,6 +7997,305 @@ function IndexDashboardController($rootScope, $scope, $location, $cookies, $inte
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
+angular.module('appenlight.components.logsBrowserView', [])
+    .component('logsBrowserView', {
+        templateUrl: 'components/views/logs-browser/logs-browser.html',
+        controller: LogsBrowserController
+    });
+
+LogsBrowserController.$inject = ['$location', 'stateHolder', 'typeAheadTagHelper', 'logsNoIdResource', 'sectionViewResource'];
+
+function LogsBrowserController($location, stateHolder, typeAheadTagHelper, logsNoIdResource, sectionViewResource) {
+    var vm = this;
+    vm.logEventsChartConfig = {
+        data: {
+            json: [],
+            xFormat: '%Y-%m-%dT%H:%M:%S'
+        },
+        color: {
+            pattern: ['#6baed6', '#e6550d', '#74c476', '#fdd0a2', '#8c564b']
+        },
+        axis: {
+            x: {
+                type: 'timeseries',
+                tick: {
+                    format: '%Y-%m-%d'
+                }
+            },
+            y: {
+                tick: {
+                    count: 5,
+                    format: d3.format('.2s')
+                }
+            }
+        },
+        subchart: {
+            show: true,
+            size: {
+                height: 20
+            }
+        },
+        size: {
+            height: 250
+        },
+        zoom: {
+            rescale: true
+        },
+        grid: {
+            x: {
+                show: true
+            },
+            y: {
+                show: true
+            }
+        },
+        tooltip: {
+            format: {
+                title: function (d) {
+                    return '' + d;
+                },
+                value: function (v) {
+                    return v
+                }
+            }
+        }
+    };
+    vm.logEventsChartData = {};
+    stateHolder.section = 'logs';
+    vm.today = function () {
+        vm.pickerDate = new Date();
+    };
+    vm.today();
+
+    vm.applications = stateHolder.AeUser.applications_map;
+    vm.logsPage = [];
+    vm.itemCount = 0;
+    vm.itemsPerPage = 250;
+    vm.page = 1;
+    vm.$location = $location;
+    vm.isLoading = {
+        logs: true,
+        series: true
+    };
+    vm.filterTypeAheadOptions = [
+        {
+            type: 'message',
+            text: 'message:',
+            'description': 'Full-text search in your logs',
+            tag: 'Message',
+            example: 'message:text-im-looking-for'
+        },
+        {
+            type: 'namespace',
+            text: 'namespace:',
+            'description': 'Query logs from specific namespace',
+            tag: 'Namespace',
+            example: "namespace:module.foo"
+        },
+        {
+            type: 'resource',
+            text: 'resource:',
+            'description': 'Restrict resultset to application',
+            tag: 'Application',
+            example: "resource:ID"
+        },
+        {
+            type: 'request_id',
+            text: 'request_id:',
+            'description': 'Show logs with specific request id',
+            example: "request_id:883143dc572e4c38aceae92af0ea5ae0",
+            tag: 'Request ID'
+        },
+        {
+            type: 'level',
+            text: 'level:',
+            'description': 'Show entries with specific log level',
+            example: 'level:warning',
+            tag: 'Level'
+        },
+        {
+            type: 'server_name',
+            text: 'server_name:',
+            'description': 'Show entries tagged with this key/value pair',
+            example: 'server_name:hostname',
+            tag: 'Tag'
+        },
+        {
+            type: 'start_date',
+            text: 'start_date:',
+            'description': 'Show results newer than this date (press TAB for dropdown)',
+            example: 'start_date:2014-08-15T13:00',
+            tag: 'Start Date'
+        },
+        {
+            type: 'end_date',
+            text: 'end_date:',
+            'description': 'Show results older than this date (press TAB for dropdown)',
+            example: 'start_date:2014-08-15T23:59',
+            tag: 'End Date'
+        },
+        {type: 'level', value: 'debug', text: 'level:debug'},
+        {type: 'level', value: 'info', text: 'level:info'},
+        {type: 'level', value: 'warning', text: 'level:warning'},
+        {type: 'level', value: 'critical', text: 'level:critical'}
+    ];
+    vm.filterTypeAhead = null;
+    vm.showDatePicker = false;
+    vm.manualOpen = false;
+    vm.aheadFilter = typeAheadTagHelper.aheadFilter;
+    vm.removeSearchTag = function (tag) {
+        $location.search(tag.type, null);
+        vm.refresh();
+    };
+    vm.addSearchTag = function (tag) {
+        $location.search(tag.type, tag.value);
+        vm.refresh();
+    };
+
+    vm.paginationChange = function(){
+        $location.search('page', vm.page);
+        vm.refresh();
+    };
+
+
+    _.each(vm.applications, function (item) {
+        vm.filterTypeAheadOptions.push({
+            type: 'resource',
+            text: 'resource:' + item.resource_id + ':' + item.resource_name,
+            example: 'resource:' + item.resource_id,
+            'tag': item.resource_name,
+            'description': 'Restrict resultset to this application'
+        });
+    });
+
+    vm.typeAheadTag = function (event) {
+        var text = vm.filterTypeAhead;
+        if (_.isObject(vm.filterTypeAhead)) {
+            text = vm.filterTypeAhead.text;
+        };
+        if (!vm.filterTypeAhead) {
+            return
+        }
+        var parsed = text.split(':');
+        var tag = {'type': null, 'value': null};
+        // app tags have : twice
+        if (parsed.length > 2 && parsed[0] == 'resource') {
+            tag.type = 'resource';
+            tag.value = parsed[1];
+        }
+        // normal tag:value
+        else if (parsed.length > 1) {
+            tag.type = parsed[0];
+            tag.value = parsed.slice(1).join(':');
+        }
+        else {
+            tag.type = 'message';
+            tag.value = parsed.join(':');
+        }
+
+        // set datepicker hour based on type of field
+        if ('start_date:' == text) {
+            vm.showDatePicker = true;
+            vm.filterTypeAhead = 'start_date:' + moment(vm.pickerDate).utc().format();
+        }
+        else if ('end_date:' == text) {
+            vm.showDatePicker = true;
+            vm.filterTypeAhead = 'end_date:' + moment(vm.pickerDate).utc().hour(23).minute(59).format();
+        }
+
+        if (event.keyCode != 13 || !tag.type || !tag.value) {
+            return
+        }
+        vm.showDatePicker = false;
+        // aka we selected one of main options
+        vm.addSearchTag({type: tag.type, value: tag.value});
+        // clear typeahead
+        vm.filterTypeAhead = undefined;
+    };
+
+
+    vm.pickerDateChanged = function(){
+        if (vm.filterTypeAhead.indexOf('start_date:') == '0') {
+            vm.filterTypeAhead = 'start_date:' + moment(vm.pickerDate).utc().format();
+        }
+        else if (vm.filterTypeAhead.indexOf('end_date:') == '0') {
+            vm.filterTypeAhead = 'end_date:' + moment(vm.pickerDate).utc().hour(23).minute(59).format();
+        }
+        vm.showDatePicker = false;
+    };
+
+    vm.fetchLogs = function (searchParams) {
+        vm.isLoading.logs = true;
+        logsNoIdResource.query(searchParams, function (data, getResponseHeaders) {
+            vm.isLoading.logs = false;
+            var headers = getResponseHeaders();
+            vm.logsPage = data;
+            vm.itemCount = headers['x-total-count'];
+            vm.itemsPerPage = headers['x-items-per-page'];
+        }, function () {
+            vm.isLoading.logs = false;
+        });
+    };
+
+    vm.fetchSeriesData = function (searchParams) {
+        searchParams['section'] = 'logs_section';
+        searchParams['view'] = 'fetch_series';
+        vm.isLoading.series = true;
+        sectionViewResource.query(searchParams, function (data) {
+            
+            vm.logEventsChartData = {
+                json: data,
+                xFormat: '%Y-%m-%dT%H:%M:%S',
+                keys: {
+                    x: 'x',
+                    value: ["logs"]
+                },
+                names: {
+                    logs: 'Log events'
+                },
+                type: 'bar'
+            };
+            vm.isLoading.series = false;
+        }, function () {
+            vm.isLoading.series = false;
+        });
+    };
+
+    vm.filterId = function (log) {
+        $location.search('request_id', log.request_id);
+        vm.refresh();
+    };
+
+    vm.refresh = function(){
+        vm.searchParams = parseSearchToTags($location.search());
+        vm.page = Number(vm.searchParams.page) || 1;
+        var params = parseTagsToSearch(vm.searchParams);
+        vm.fetchLogs(params);
+        vm.fetchSeriesData(params);
+    };
+    console.info('page load');
+    vm.refresh();
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
 var aeconfig = angular.module('appenlight.config', []);
 aeconfig.factory('AeConfig', function () {
     var obj = {};
@@ -9394,329 +9694,6 @@ function JiraIntegrationCtrl($uibModalInstance, $state, report, integrationName,
         $uibModalInstance.dismiss('cancel');
     };
     vm.fetchInfo();
-}
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers').controller('LogsController', LogsController);
-
-LogsController.$inject = ['$location', 'stateHolder', 'typeAheadTagHelper', 'logsNoIdResource', 'sectionViewResource'];
-
-function LogsController($location, stateHolder, typeAheadTagHelper, logsNoIdResource, sectionViewResource) {
-    var vm = this;
-    vm.logEventsChartConfig = {
-        data: {
-            json: [],
-            xFormat: '%Y-%m-%dT%H:%M:%S'
-        },
-        color: {
-            pattern: ['#6baed6', '#e6550d', '#74c476', '#fdd0a2', '#8c564b']
-        },
-        axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    format: '%Y-%m-%d'
-                }
-            },
-            y: {
-                tick: {
-                    count: 5,
-                    format: d3.format('.2s')
-                }
-            }
-        },
-        subchart: {
-            show: true,
-            size: {
-                height: 20
-            }
-        },
-        size: {
-            height: 250
-        },
-        zoom: {
-            rescale: true
-        },
-        grid: {
-            x: {
-                show: true
-            },
-            y: {
-                show: true
-            }
-        },
-        tooltip: {
-            format: {
-                title: function (d) {
-                    return '' + d;
-                },
-                value: function (v) {
-                    return v
-                }
-            }
-        }
-    };
-    vm.logEventsChartData = {};
-    stateHolder.section = 'logs';
-    vm.today = function () {
-        vm.pickerDate = new Date();
-    };
-    vm.today();
-
-    vm.applications = stateHolder.AeUser.applications_map;
-    vm.logsPage = [];
-    vm.itemCount = 0;
-    vm.itemsPerPage = 250;
-    vm.page = 1;
-    vm.$location = $location;
-    vm.isLoading = {
-        logs: true,
-        series: true
-    };
-    vm.filterTypeAheadOptions = [
-        {
-            type: 'message',
-            text: 'message:',
-            'description': 'Full-text search in your logs',
-            tag: 'Message',
-            example: 'message:text-im-looking-for'
-        },
-        {
-            type: 'namespace',
-            text: 'namespace:',
-            'description': 'Query logs from specific namespace',
-            tag: 'Namespace',
-            example: "namespace:module.foo"
-        },
-        {
-            type: 'resource',
-            text: 'resource:',
-            'description': 'Restrict resultset to application',
-            tag: 'Application',
-            example: "resource:ID"
-        },
-        {
-            type: 'request_id',
-            text: 'request_id:',
-            'description': 'Show logs with specific request id',
-            example: "request_id:883143dc572e4c38aceae92af0ea5ae0",
-            tag: 'Request ID'
-        },
-        {
-            type: 'level',
-            text: 'level:',
-            'description': 'Show entries with specific log level',
-            example: 'level:warning',
-            tag: 'Level'
-        },
-        {
-            type: 'server_name',
-            text: 'server_name:',
-            'description': 'Show entries tagged with this key/value pair',
-            example: 'server_name:hostname',
-            tag: 'Tag'
-        },
-        {
-            type: 'start_date',
-            text: 'start_date:',
-            'description': 'Show results newer than this date (press TAB for dropdown)',
-            example: 'start_date:2014-08-15T13:00',
-            tag: 'Start Date'
-        },
-        {
-            type: 'end_date',
-            text: 'end_date:',
-            'description': 'Show results older than this date (press TAB for dropdown)',
-            example: 'start_date:2014-08-15T23:59',
-            tag: 'End Date'
-        },
-        {type: 'level', value: 'debug', text: 'level:debug'},
-        {type: 'level', value: 'info', text: 'level:info'},
-        {type: 'level', value: 'warning', text: 'level:warning'},
-        {type: 'level', value: 'critical', text: 'level:critical'}
-    ];
-    vm.filterTypeAhead = null;
-    vm.showDatePicker = false;
-    vm.manualOpen = false;
-    vm.aheadFilter = typeAheadTagHelper.aheadFilter;
-    vm.removeSearchTag = function (tag) {
-        $location.search(tag.type, null);
-        vm.refresh();
-    };
-    vm.addSearchTag = function (tag) {
-        $location.search(tag.type, tag.value);
-        vm.refresh();
-    };
-
-    vm.paginationChange = function(){
-        $location.search('page', vm.page);
-        vm.refresh();
-    };
-
-
-    _.each(vm.applications, function (item) {
-        vm.filterTypeAheadOptions.push({
-            type: 'resource',
-            text: 'resource:' + item.resource_id + ':' + item.resource_name,
-            example: 'resource:' + item.resource_id,
-            'tag': item.resource_name,
-            'description': 'Restrict resultset to this application'
-        });
-    });
-
-    vm.typeAheadTag = function (event) {
-        var text = vm.filterTypeAhead;
-        if (_.isObject(vm.filterTypeAhead)) {
-            text = vm.filterTypeAhead.text;
-        };
-        if (!vm.filterTypeAhead) {
-            return
-        }
-        var parsed = text.split(':');
-        var tag = {'type': null, 'value': null};
-        // app tags have : twice
-        if (parsed.length > 2 && parsed[0] == 'resource') {
-            tag.type = 'resource';
-            tag.value = parsed[1];
-        }
-        // normal tag:value
-        else if (parsed.length > 1) {
-            tag.type = parsed[0];
-            tag.value = parsed.slice(1).join(':');
-        }
-        else {
-            tag.type = 'message';
-            tag.value = parsed.join(':');
-        }
-
-        // set datepicker hour based on type of field
-        if ('start_date:' == text) {
-            vm.showDatePicker = true;
-            vm.filterTypeAhead = 'start_date:' + moment(vm.pickerDate).utc().format();
-        }
-        else if ('end_date:' == text) {
-            vm.showDatePicker = true;
-            vm.filterTypeAhead = 'end_date:' + moment(vm.pickerDate).utc().hour(23).minute(59).format();
-        }
-
-        if (event.keyCode != 13 || !tag.type || !tag.value) {
-            return
-        }
-        vm.showDatePicker = false;
-        // aka we selected one of main options
-        vm.addSearchTag({type: tag.type, value: tag.value});
-        // clear typeahead
-        vm.filterTypeAhead = undefined;
-    };
-
-
-    vm.pickerDateChanged = function(){
-        if (vm.filterTypeAhead.indexOf('start_date:') == '0') {
-            vm.filterTypeAhead = 'start_date:' + moment(vm.pickerDate).utc().format();
-        }
-        else if (vm.filterTypeAhead.indexOf('end_date:') == '0') {
-            vm.filterTypeAhead = 'end_date:' + moment(vm.pickerDate).utc().hour(23).minute(59).format();
-        }
-        vm.showDatePicker = false;
-    };
-
-    vm.fetchLogs = function (searchParams) {
-        vm.isLoading.logs = true;
-        logsNoIdResource.query(searchParams, function (data, getResponseHeaders) {
-            vm.isLoading.logs = false;
-            var headers = getResponseHeaders();
-            vm.logsPage = data;
-            vm.itemCount = headers['x-total-count'];
-            vm.itemsPerPage = headers['x-items-per-page'];
-        }, function () {
-            vm.isLoading.logs = false;
-        });
-    };
-
-    vm.fetchSeriesData = function (searchParams) {
-        searchParams['section'] = 'logs_section';
-        searchParams['view'] = 'fetch_series';
-        vm.isLoading.series = true;
-        sectionViewResource.query(searchParams, function (data) {
-            
-            vm.logEventsChartData = {
-                json: data,
-                xFormat: '%Y-%m-%dT%H:%M:%S',
-                keys: {
-                    x: 'x',
-                    value: ["logs"]
-                },
-                names: {
-                    logs: 'Log events'
-                },
-                type: 'bar'
-            };
-            vm.isLoading.series = false;
-        }, function () {
-            vm.isLoading.series = false;
-        });
-    };
-
-    vm.filterId = function (log) {
-        $location.search('request_id', log.request_id);
-        vm.refresh();
-    };
-
-    vm.refresh = function(){
-        vm.searchParams = parseSearchToTags($location.search());
-        vm.page = Number(vm.searchParams.page) || 1;
-        var params = parseTagsToSearch(vm.searchParams);
-        vm.fetchLogs(params);
-        vm.fetchSeriesData(params);
-    };
-    console.info('page load');
-    vm.refresh();
-}
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers')
-    .controller('OverviewCtrl', OverviewCtrl);
-
-OverviewCtrl.$inject = [];
-
-function OverviewCtrl() {
-
 }
 
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
@@ -12357,8 +12334,7 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
 
     $stateProvider.state('logs', {
         url: '/ui/logs?resource',
-        templateUrl: 'templates/logs.html',
-        controller: 'LogsController as logs'
+        component: 'logsBrowserView'
     });
 
     $stateProvider.state('front_dashboard', {

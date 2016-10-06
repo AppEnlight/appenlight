@@ -23,8 +23,7 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
 
     $stateProvider.state('logs', {
         url: '/ui/logs?resource',
-        templateUrl: 'templates/logs.html',
-        controller: 'LogsController as logs'
+        component: 'logsBrowserView'
     });
 
     $stateProvider.state('front_dashboard', {

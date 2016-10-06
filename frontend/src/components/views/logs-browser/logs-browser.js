@@ -17,11 +17,15 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers').controller('LogsController', LogsController);
+angular.module('appenlight.components.logsBrowserView', [])
+    .component('logsBrowserView', {
+        templateUrl: 'components/views/logs-browser/logs-browser.html',
+        controller: LogsBrowserController
+    });
 
-LogsController.$inject = ['$location', 'stateHolder', 'typeAheadTagHelper', 'logsNoIdResource', 'sectionViewResource'];
+LogsBrowserController.$inject = ['$location', 'stateHolder', 'typeAheadTagHelper', 'logsNoIdResource', 'sectionViewResource'];
 
-function LogsController($location, stateHolder, typeAheadTagHelper, logsNoIdResource, sectionViewResource) {
+function LogsBrowserController($location, stateHolder, typeAheadTagHelper, logsNoIdResource, sectionViewResource) {
     var vm = this;
     vm.logEventsChartConfig = {
         data: {
