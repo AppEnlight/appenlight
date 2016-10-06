@@ -17,12 +17,16 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers').controller('EventsController', EventsController);
+angular.module('appenlight.components.eventBrowserView', [])
+    .component('eventBrowserView', {
+        templateUrl: 'components/views/event-browser/event-browser.html',
+        controller: EventBrowserController
+    });
 
-EventsController.$inject = ['eventsNoIdResource', 'eventsResource'];
+EventBrowserController.$inject = ['eventsNoIdResource', 'eventsResource'];
 
-function EventsController(eventsNoIdResource, eventsResource) {
-    console.info('EventsController');
+function EventBrowserController(eventsNoIdResource, eventsResource) {
+    console.info('EventBrowserController');
     var vm = this;
 
     vm.loading = {events: true};

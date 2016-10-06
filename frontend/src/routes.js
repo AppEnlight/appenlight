@@ -61,8 +61,7 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
     });
     $stateProvider.state('events', {
         url: '/ui/events',
-        templateUrl: 'templates/events.html',
-        controller: 'EventsController as events'
+        component: 'eventBrowserView'
     });
     $stateProvider.state('admin', {
         url: '/ui/admin',

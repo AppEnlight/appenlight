@@ -4,7 +4,7 @@
         <h1>Event history</h1>
 
         <table class="table table-striped event-table">
-            <tr ng-repeat="event in events.events track by event.id">
+            <tr ng-repeat="event in $ctrl.events track by event.id">
                 <td class="text-center icons">
                     <span ng-if="event.event_type === 1" class="fa fa-exclamation-triangle fa-2x" style="color:orangered"></span>
                     <span ng-if="event.event_type === 3" class="fa fa-clock-o fa-2x" style="color:darkorange"></span>
@@ -30,7 +30,7 @@
                       </a>
                       <ul class="dropdown-menu">
                           <li>
-                              <a ng-click="events.closeEvent(event)">Close event</a>
+                              <a ng-click="$ctrl.closeEvent(event)">Close event</a>
                               <a>Do nothing</a>
                           </li>
                       </ul>
