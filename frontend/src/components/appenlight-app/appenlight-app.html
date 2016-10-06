@@ -1,5 +1,16 @@
 <channelstream config="AeConfig"></channelstream>
 <appenlight-header></appenlight-header>
+<div class="container" data-ng-if="flash.length">
+    <div class="row" style="margin-bottom: 10px">
+        <div class="col-xs-12">
+            <uib-alert data-ng-repeat="message in flash"
+                       type="{{ message.type }}"
+                       close="closeAlert($index)" class="animate-repeat">
+                {{ message.msg }}</uib-alert>
+        </div>
+    </div>
+</div>
+
 <div id="outer-content">
     <div ui-view class="container"></div>
 </div>

@@ -3,13 +3,6 @@
 {% block outer_content %}
 <!-- Begin page content -->
 <div class="container">
-    <div class="row ng-cloak" data-ng-if="flash.length" style="margin-bottom: 10px">
-        <div class="col-xs-12">
-            {% raw %}
-            <uib-alert data-ng-repeat="message in flash" type="{{ message.type}}" close="closeAlert($index)" class="animate-repeat">{{message.msg}}</uib-alert>
-            {% endraw %}
-        </div>
-    </div>
     <div class="row">
         {% block content %}{% endblock %}
     </div>

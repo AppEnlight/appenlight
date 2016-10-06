@@ -140,25 +140,23 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
     });
 
     $stateProvider.state('admin.configs.list', {
-        url: '',
+        url: '/list',
         templateUrl: 'templates/admin/configs/edit.html',
         controller: 'ConfigsListController as configs'
     });
 
     $stateProvider.state('user', {
         url: '/ui/user',
-        templateUrl: 'templates/user/parent_view.html'
+        component: 'settingsView'
     });
 
     $stateProvider.state('user.profile', {
         abstract: true,
-        url: '/profile',
-        templateUrl: 'templates/user/profile.html'
+        template: '<ui-view></ui-view>'
     });
     $stateProvider.state('user.profile.edit', {
-        url: '',
-        templateUrl: 'templates/user/profile_edit.html',
-        controller: 'UserProfileController as profile'
+        url: '/profile',
+        component: 'userProfileView'
     });
 
 
@@ -170,8 +168,7 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
 
     $stateProvider.state('user.profile.identities', {
         url: '/identities',
-        templateUrl: 'templates/user/profile_identities.html',
-        controller: 'UserIdentitiesController as identities'
+        component: 'userIdentitiesView'
     });
 
     $stateProvider.state('user.profile.auth_tokens', {
@@ -187,7 +184,7 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
     });
 
     $stateProvider.state('user.alert_channels.list', {
-        url: '',
+        url: '/list',
         templateUrl: 'templates/user/alert_channels_list.html',
         controller: 'AlertChannelsController as channels'
     });
@@ -205,7 +202,7 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
     });
 
     $stateProvider.state('applications.list', {
-        url: '',
+        url: '/list',
         templateUrl: 'templates/applications/list.html',
         controller: 'ApplicationsListController as applications'
     });

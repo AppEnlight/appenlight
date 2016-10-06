@@ -45,7 +45,10 @@ angular.module('appenlight.components', [
     'appenlight.components.appenlightHeader',
     'appenlight.components.indexDashboardView',
     'appenlight.components.logsBrowserView',
-    'appenlight.components.eventBrowserView'
+    'appenlight.components.eventBrowserView',
+    'appenlight.components.userProfileView',
+    'appenlight.components.userIdentitiesView',
+    'appenlight.components.settingsView'
 ]);
 angular.module('appenlight.directives', [
     'appenlight.directives.c3chart',
