@@ -105,7 +105,6 @@ angular.module('appenlight.directives.c3chart', [])
                         scope.chart = scope.chart.destroy();
                         delete element;
                         delete scope.chart;
-                        console.log('destroy called');
                     }
                 }
             );

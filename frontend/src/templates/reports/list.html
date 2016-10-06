@@ -32,7 +32,7 @@
 
 
     <div class="text-center">
-        <uib-pagination total-items="reports_list.itemCount" items-per-page="reports_list.itemsPerPage" ng-model="reports_list.searchParams.page" max-size="10"
+        <uib-pagination total-items="reports_list.itemCount" items-per-page="reports_list.itemsPerPage" ng-model="reports_list.page" max-size="10"
                         class="pagination pagination-sm" boundary-links="true" direction-links="false"
                         ng-change="reports_list.paginationChange()"
                         ng-show="!reports_list.is_loading"></uib-pagination>
@@ -80,7 +80,7 @@
 
 
     <div class="text-center">
-        <uib-pagination total-items="reports_list.itemCount" items-per-page="reports_list.itemsPerPage" ng-model="reports_list.searchParams.page" max-size="10"
+        <uib-pagination total-items="reports_list.itemCount" items-per-page="reports_list.itemsPerPage" ng-model="reports_list.page" max-size="10"
                         class="pagination pagination-sm" boundary-links="true" direction-links="false"
                         ng-change="reports_list.paginationChange()"
                         ng-show="!reports_list.is_loading"></uib-pagination>

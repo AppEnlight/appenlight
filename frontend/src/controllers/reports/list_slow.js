@@ -24,10 +24,10 @@
 angular.module('appenlight.controllers')
     .controller('ReportsListSlowController', ReportsListSlowController);
 
-ReportsListSlowController.$inject = ['$scope', '$location', '$cookies',
+ReportsListSlowController.$inject = ['$location', '$cookies',
     'stateHolder', 'typeAheadTagHelper', 'slowReportsResource']
 
-function ReportsListSlowController($scope, $location, $cookies, stateHolder, typeAheadTagHelper, slowReportsResource) {
+function ReportsListSlowController($location, $cookies, stateHolder, typeAheadTagHelper, slowReportsResource) {
     var vm = this;
     vm.applications = stateHolder.AeUser.applications_map;
     stateHolder.section = 'slow_reports';
@@ -36,11 +36,11 @@ function ReportsListSlowController($scope, $location, $cookies, stateHolder, typ
     };
     vm.today();
     vm.reportsPage = [];
+    vm.page = 1;
     vm.itemCount = 0;
     vm.itemsPerPage = 250;
     typeAheadTagHelper.tags = [];
     vm.searchParams = {tags: [], page: 1, type: 'slow_report'};
-    vm.searchParams = parseSearchToTags($location.search());
     vm.is_loading = false;
     vm.filterTypeAheadOptions = [
         {
@@ -134,9 +134,11 @@ function ReportsListSlowController($scope, $location, $cookies, stateHolder, typ
     vm.aheadFilter = typeAheadTagHelper.aheadFilter;
     vm.removeSearchTag = function (tag) {
         $location.search(tag.type, null);
+        vm.refresh();
     };
     vm.addSearchTag = function (tag) {
         $location.search(tag.type, tag.value);
+        vm.refresh();
     };
     vm.manualOpen = false;
     vm.notRelativeTime = false;
@@ -181,8 +183,7 @@ function ReportsListSlowController($scope, $location, $cookies, stateHolder, typ
         var text = vm.filterTypeAhead;
         if (_.isObject(vm.filterTypeAhead)) {
             text = vm.filterTypeAhead.text;
-        }
-        ;
+        };
         if (!vm.filterTypeAhead) {
             return
         }
@@ -217,14 +218,15 @@ function ReportsListSlowController($scope, $location, $cookies, stateHolder, typ
         }
         vm.showDatePicker = false;
         // aka we selected one of main options
-        $location.search(tag.type, tag.value);
+        vm.addSearchTag({type: tag.type, value: tag.value});
         // clear typeahead
         vm.filterTypeAhead = undefined;
-    }
+    };
 
     vm.paginationChange = function(){
-        $location.search('page', vm.searchParams.page);
-    }
+        $location.search('page', vm.page);
+        vm.refresh();
+    };
 
     vm.pickerDateChanged = function(){
         if (vm.filterTypeAhead.indexOf('start_date:') == '0') {
@@ -234,7 +236,7 @@ function ReportsListSlowController($scope, $location, $cookies, stateHolder, typ
             vm.filterTypeAhead = 'end_date:' + moment(vm.pickerDate).utc().hour(23).minute(59).format();
         }
         vm.showDatePicker = false;
-    }
+    };
 
     var reportPresentation = function (report) {
         report.presentation = {};
@@ -255,7 +257,7 @@ function ReportsListSlowController($scope, $location, $cookies, stateHolder, typ
             report.presentation.tooltip = 'New';
         }
         return report;
-    }
+    };
 
     vm.fetchReports = function (searchParams) {
         vm.is_loading = true;
@@ -271,28 +273,22 @@ function ReportsListSlowController($scope, $location, $cookies, stateHolder, typ
         }, function () {
             vm.is_loading = false;
         });
-    }
+    };
 
     vm.filterId = function (log) {
         vm.searchParams.tags.push({
             type: "request_id",
             value: log.request_id
         });
-    }
-    //initial load
-    var params = parseTagsToSearch(vm.searchParams);
-    vm.fetchReports(params);
-
-    $scope.$on('$locationChangeSuccess', function () {
-        console.log('$locationChangeSuccess ReportsListSlowController ');
+        vm.refresh();
+    };
+    vm.refresh = function(){
         vm.searchParams = parseSearchToTags($location.search());
+        vm.page = Number(vm.searchParams.page) || 1;
         var params = parseTagsToSearch(vm.searchParams);
-        console.log($location.path());
-        if (vm.is_loading === false) {
-            console.log(params);
-            vm.fetchReports(params);
-        }
-    });
+        vm.fetchReports(params);
+    };
 
-
+    //initial load
+    vm.refresh();
 }

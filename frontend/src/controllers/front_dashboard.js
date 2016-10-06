@@ -655,13 +655,4 @@ function IndexDashboardController($rootScope, $scope, $location, $cookies, $inte
         vm.determineStartState();
         vm.refreshData();
     }
-
-    $scope.$on('$locationChangeSuccess', function () {
-        console.log('$locationChangeSuccess IndexDashboardController');
-        if (vm.loading.series === false) {
-            vm.determineStartState();
-            vm.refreshData();
-        }
-    });
-
 }

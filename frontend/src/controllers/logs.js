@@ -19,9 +19,9 @@
 
 angular.module('appenlight.controllers').controller('LogsController', LogsController);
 
-LogsController.$inject = ['$scope', '$location', 'stateHolder', 'typeAheadTagHelper', 'logsNoIdResource', 'sectionViewResource'];
+LogsController.$inject = ['$location', 'stateHolder', 'typeAheadTagHelper', 'logsNoIdResource', 'sectionViewResource'];
 
-function LogsController($scope, $location, stateHolder, typeAheadTagHelper, logsNoIdResource, sectionViewResource) {
+function LogsController($location, stateHolder, typeAheadTagHelper, logsNoIdResource, sectionViewResource) {
     var vm = this;
     vm.logEventsChartConfig = {
         data: {
@@ -87,7 +87,7 @@ function LogsController($scope, $location, stateHolder, typeAheadTagHelper, logs
     vm.logsPage = [];
     vm.itemCount = 0;
     vm.itemsPerPage = 250;
-    vm.searchParams = parseSearchToTags($location.search());
+    vm.page = 1;
     vm.$location = $location;
     vm.isLoading = {
         logs: true,
@@ -161,13 +161,16 @@ function LogsController($scope, $location, stateHolder, typeAheadTagHelper, logs
     vm.aheadFilter = typeAheadTagHelper.aheadFilter;
     vm.removeSearchTag = function (tag) {
         $location.search(tag.type, null);
+        vm.refresh();
     };
     vm.addSearchTag = function (tag) {
         $location.search(tag.type, tag.value);
+        vm.refresh();
     };
 
     vm.paginationChange = function(){
-        $location.search('page', vm.searchParams.page);
+        $location.search('page', vm.page);
+        vm.refresh();
     };
 
 
@@ -185,8 +188,7 @@ function LogsController($scope, $location, stateHolder, typeAheadTagHelper, logs
         var text = vm.filterTypeAhead;
         if (_.isObject(vm.filterTypeAhead)) {
             text = vm.filterTypeAhead.text;
-        }
-        ;
+        };
         if (!vm.filterTypeAhead) {
             return
         }
@@ -222,8 +224,7 @@ function LogsController($scope, $location, stateHolder, typeAheadTagHelper, logs
         }
         vm.showDatePicker = false;
         // aka we selected one of main options
-        $location.search(tag.type, tag.value);
-
+        vm.addSearchTag({type: tag.type, value: tag.value});
         // clear typeahead
         vm.filterTypeAhead = undefined;
     };
@@ -278,22 +279,16 @@ function LogsController($scope, $location, stateHolder, typeAheadTagHelper, logs
 
     vm.filterId = function (log) {
         $location.search('request_id', log.request_id);
+        vm.refresh();
     };
 
-    var params = parseTagsToSearch(vm.searchParams);
-    vm.fetchLogs(params);
-    vm.fetchSeriesData(params);
-
-    $scope.$on('$locationChangeSuccess', function () {
-        console.log('$locationChangeSuccess LogsController');
+    vm.refresh = function(){
         vm.searchParams = parseSearchToTags($location.search());
+        vm.page = Number(vm.searchParams.page) || 1;
         var params = parseTagsToSearch(vm.searchParams);
-        console.log($location.path());
-        if (vm.isLoading.logs === false) {
-            console.log(params);
-            vm.fetchLogs(params);
-            vm.fetchSeriesData(params);
-        }
-    });
-
+        vm.fetchLogs(params);
+        vm.fetchSeriesData(params);
+    };
+    console.info('page load');
+    vm.refresh();
 }

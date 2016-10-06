@@ -20,10 +20,10 @@
 angular.module('appenlight.controllers')
     .controller('ReportsListController', ReportsListController);
 
-ReportsListController.$inject = ['$scope', '$location', '$cookies',
+ReportsListController.$inject = ['$location', '$cookies',
     'stateHolder', 'typeAheadTagHelper', 'reportsResource'];
 
-function ReportsListController($scope, $location, $cookies, stateHolder,
+function ReportsListController($location, $cookies, stateHolder,
                                typeAheadTagHelper, reportsResource) {
     var vm = this;
     vm.applications = stateHolder.AeUser.applications_map;
@@ -33,11 +33,11 @@ function ReportsListController($scope, $location, $cookies, stateHolder,
     };
     vm.today();
     vm.reportsPage = [];
+    vm.page = 1;
     vm.itemCount = 0;
     vm.itemsPerPage = 250;
     typeAheadTagHelper.tags = [];
     vm.searchParams = {tags: [], page: 1, type: 'report'};
-    vm.searchParams = parseSearchToTags($location.search());
     vm.is_loading = false;
     vm.filterTypeAheadOptions = [
         {
@@ -153,9 +153,11 @@ function ReportsListController($scope, $location, $cookies, stateHolder,
     vm.aheadFilter = typeAheadTagHelper.aheadFilter;
     vm.removeSearchTag = function (tag) {
         $location.search(tag.type, null);
+        vm.refresh();
     };
     vm.addSearchTag = function (tag) {
         $location.search(tag.type, tag.value);
+        vm.refresh();
     };
     vm.notRelativeTime = false;
     if ($cookies.notRelativeTime) {
@@ -164,7 +166,7 @@ function ReportsListController($scope, $location, $cookies, stateHolder,
 
     vm.changeRelativeTime = function () {
         $cookies.notRelativeTime = JSON.stringify(vm.notRelativeTime);
-    }
+    };
 
     _.each(_.range(1, 11), function (priority) {
         vm.filterTypeAheadOptions.push({
@@ -195,7 +197,8 @@ function ReportsListController($scope, $location, $cookies, stateHolder,
     });
 
     vm.paginationChange = function(){
-        $location.search('page', vm.searchParams.page);
+        $location.search('page', vm.page);
+        vm.refresh();
     };
 
     vm.typeAheadTag = function (event) {
@@ -242,10 +245,10 @@ function ReportsListController($scope, $location, $cookies, stateHolder,
         }
         vm.showDatePicker = false;
         // aka we selected one of main options
-        $location.search(tag.type, tag.value);
+        vm.addSearchTag({type: tag.type, value: tag.value});
         // clear typeahead
         vm.filterTypeAhead = undefined;
-    }
+    };
 
     vm.pickerDateChanged = function(){
         if (vm.filterTypeAhead.indexOf('start_date:') == '0') {
@@ -299,22 +302,16 @@ function ReportsListController($scope, $location, $cookies, stateHolder,
             type: "request_id",
             value: log.request_id
         });
+        vm.refresh();
+    };
+
+    vm.refresh = function(){
+        vm.searchParams = parseSearchToTags($location.search());
+        vm.page = Number(vm.searchParams.page) || 1;
+        var params = parseTagsToSearch(vm.searchParams);
+        console.log(params);
+        vm.fetchReports(params);
     };
     // initial load
-    var params = parseTagsToSearch(vm.searchParams);
-    vm.fetchReports(params);
-
-    $scope.$on('$locationChangeSuccess', function () {
-        console.log('$locationChangeSuccess ReportsListController ');
-        vm.searchParams = parseSearchToTags($location.search());
-        var params = parseTagsToSearch(vm.searchParams);
-        console.log($location.path());
-        if (vm.is_loading === false) {
-            console.log(params);
-            vm.fetchReports(params);
-        }
-
-    });
-
-
+    vm.refresh();
 }
