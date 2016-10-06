@@ -662,6 +662,5 @@ function IndexDashboardController($rootScope, $scope, $location, $cookies, $inte
     if (stateHolder.AeUser.applications.length){
         vm.show_dashboard = true;
         vm.determineStartState();
-        vm.refreshData();
     }
 }
