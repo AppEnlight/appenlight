@@ -17,8 +17,11 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers')
-    .controller('IndexDashboardController', IndexDashboardController);
+angular.module('appenlight.components.indexDashboardView', [])
+    .component('indexDashboardView', {
+        templateUrl: 'components/views/index-dashboard/index-dashboard.html',
+        controller: IndexDashboardController
+    });
 
 IndexDashboardController.$inject = ['$rootScope', '$scope', '$location','$cookies', '$interval', 'stateHolder', 'applicationsPropertyResource', 'AeConfig'];
 

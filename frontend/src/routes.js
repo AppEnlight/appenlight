@@ -29,8 +29,7 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
 
     $stateProvider.state('front_dashboard', {
         url: '/ui',
-        templateUrl: 'templates/dashboard.html',
-        controller: 'IndexDashboardController as index'
+        component: 'indexDashboardView'
     });
     
     $stateProvider.state('report', {

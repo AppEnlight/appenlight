@@ -42,7 +42,8 @@ angular.module('appenlight.controllers', [
 angular.module('appenlight.components', [
     'appenlight.components.channelstream',
     'appenlight.components.appenlightApp',
-    'appenlight.components.appenlightHeader'
+    'appenlight.components.appenlightHeader',
+    'appenlight.components.indexDashboardView'
 ]);
 angular.module('appenlight.directives', [
     'appenlight.directives.c3chart',

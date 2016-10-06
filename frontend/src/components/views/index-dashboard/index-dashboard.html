@@ -7,51 +7,49 @@
         stroke-width: 0;
         opacity: 0.75;
     }
-
-
 </style>
 
 <div class="row">
     <div class="col-sm-12 dashboard" id="content">
-        <div ng-if="!index.stateHolder.AeUser.applications.length">
+        <div ng-if="!$ctrl.stateHolder.AeUser.applications.length">
 
             <div ng-include="'templates/quickstart.html'"></div>
 
         </div>
 
-        <div ng-if="index.stateHolder.AeUser.applications.length">
+        <div ng-if="$ctrl.stateHolder.AeUser.applications.length">
 
             <div class="row">
                 <div class="col-sm-6">
                     <div class="panel panel-default">
                         <div class="panel-body">
                             <form class="graph-type form-inline">
-                                <select ng-model="index.resource" ng-options="r.resource_id as r.resource_name for r in index.stateHolder.AeUser.applications" ng-change="index.updateSearchParams()"
+                                <select ng-model="$ctrl.resource" ng-options="r.resource_id as r.resource_name for r in $ctrl.stateHolder.AeUser.applications" ng-change="$ctrl.updateSearchParams()"
                                         class="SelectField form-control input-sm slim-input"></select>
 
-                                <select class="SelectField form-control input-sm slim-input" ng-model="index.timeSpan"
-                                        ng-options="i as i.label for i in index.timeOptions | objectToOrderedArray:'minutes'" ng-change="index.updateSearchParams()"
+                                <select class="SelectField form-control input-sm slim-input" ng-model="$ctrl.timeSpan"
+                                        ng-options="i as i.label for i in $ctrl.timeOptions | objectToOrderedArray:'minutes'" ng-change="$ctrl.updateSearchParams()"
                                         class="SelectField"></select>
 
 
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-primary btn-sm" ng-model="index.graphType.selected" ng-change="index.updateSearchParams()"
+                                    <button type="button" class="btn btn-primary btn-sm" ng-model="$ctrl.graphType.selected" ng-change="$ctrl.updateSearchParams()"
                                             uib-btn-radio="'requests_graphs'" data-uib-tooltip="Requests per second">
                                         <span class="fa fa-line-chart"></span>
                                     </button>
-                                    <button type="button" class="btn btn-primary btn-sm" ng-model="index.graphType.selected" ng-change="index.updateSearchParams()"
+                                    <button type="button" class="btn btn-primary btn-sm" ng-model="$ctrl.graphType.selected" ng-change="$ctrl.updateSearchParams()"
                                             uib-btn-radio="'response_graphs'" data-uib-tooltip="Average response time">
                                         <span class="fa fa-random"></span>
                                     </button>
-                                    <button type="button" class="btn btn-primary btn-sm" ng-model="index.graphType.selected" ng-change="index.updateSearchParams()"
+                                    <button type="button" class="btn btn-primary btn-sm" ng-model="$ctrl.graphType.selected" ng-change="$ctrl.updateSearchParams()"
                                             uib-btn-radio="'metrics_graphs'" data-uib-tooltip="Time spent per request">
                                         <span class="fa fa-bar-chart-o"></span>
                                     </button>
-                                    <button type="button" class="btn btn-primary btn-sm" ng-model="index.graphType.selected" ng-change="index.updateSearchParams()"
+                                    <button type="button" class="btn btn-primary btn-sm" ng-model="$ctrl.graphType.selected" ng-change="$ctrl.updateSearchParams()"
                                             uib-btn-radio="'report_graphs'" data-uib-tooltip="Errors">
                                         <span class="fa fa-exclamation-triangle"></span>
                                     </button>
-                                    <button type="button" class="btn btn-primary btn-sm" ng-model="index.graphType.selected" ng-change="index.updateSearchParams()"
+                                    <button type="button" class="btn btn-primary btn-sm" ng-model="$ctrl.graphType.selected" ng-change="$ctrl.updateSearchParams()"
                                             uib-btn-radio="'slow_report_graphs'" data-uib-tooltip="Slow reports">
                                         <span class="fa fa-clock-o"></span>
                                     </button>
@@ -59,52 +57,52 @@
                             </form>
                             <div class="clearfix"></div>
 
-                            <p ng-if="index.loading.series != false" class="text-center">
+                            <p ng-if="$ctrl.loading.series != false" class="text-center">
                                 <span class="fa fa-cog fa-spin fa-5x loader"></span>
                             </p>
 
-                            <div ng-if="index.loading.series == false">
-                            <div ng-if="index.graphType.selected == 'requests_graphs'">
-                                <c3chart data-domid="reponse_chart" data-data="index.requestsChartData" data-config="index.requestsChartConfig" update="true">
+                            <div ng-if="$ctrl.loading.series == false">
+                            <div ng-if="$ctrl.graphType.selected == 'requests_graphs'">
+                                <c3chart data-domid="reponse_chart" data-data="$ctrl.requestsChartData" data-config="$ctrl.requestsChartConfig" update="true">
                                 </c3chart>
                             </div>
 
-                            <div ng-if="index.graphType.selected == 'response_graphs'">
-                                <c3chart data-domid="reponse_chart" data-data="index.responseChartData" data-config="index.responseChartConfig" update="true">
+                            <div ng-if="$ctrl.graphType.selected == 'response_graphs'">
+                                <c3chart data-domid="reponse_chart" data-data="$ctrl.responseChartData" data-config="$ctrl.responseChartConfig" update="true">
                                 </c3chart>
                             </div>
 
-                            <div ng-if="index.graphType.selected == 'metrics_graphs'">
-                                <c3chart data-domid="metrics_chart" data-data="index.metricsChartData" data-config="index.metricsChartConfig" update="true">
+                            <div ng-if="$ctrl.graphType.selected == 'metrics_graphs'">
+                                <c3chart data-domid="metrics_chart" data-data="$ctrl.metricsChartData" data-config="$ctrl.metricsChartConfig" update="true">
                                 </c3chart>
                             </div>
-                            <div ng-if="index.graphType.selected == 'report_graphs'">
-                                <c3chart data-domid="reports_chart" data-data="index.reportChartData" data-config="index.reportChartConfig" update="true">
-                                </c3chart>
-                            </div>
-
-                            <div ng-if="index.graphType.selected == 'slow_report_graphs'">
-                                <c3chart data-domid="slow_reports_chart" data-data="index.reportSlowChartData" data-config="index.reportSlowChartConfig" update="true">
+                            <div ng-if="$ctrl.graphType.selected == 'report_graphs'">
+                                <c3chart data-domid="reports_chart" data-data="$ctrl.reportChartData" data-config="$ctrl.reportChartConfig" update="true">
                                 </c3chart>
                             </div>
 
-                            <p ng-if="index.graphType.selected == 'requests_graphs'" class="text-center">
+                            <div ng-if="$ctrl.graphType.selected == 'slow_report_graphs'">
+                                <c3chart data-domid="slow_reports_chart" data-data="$ctrl.reportSlowChartData" data-config="$ctrl.reportSlowChartConfig" update="true">
+                                </c3chart>
+                            </div>
+
+                            <p ng-if="$ctrl.graphType.selected == 'requests_graphs'" class="text-center">
                                 <small>Average requests per second from all servers</small>
                             </p>
 
-                            <p ng-if="index.graphType.selected == 'response_graphs'" class="text-center">
+                            <p ng-if="$ctrl.graphType.selected == 'response_graphs'" class="text-center">
                                 <small>Average response time from all servers</small>
                             </p>
 
-                            <p ng-if="index.graphType.selected == 'metrics_graphs'" class="text-center">
+                            <p ng-if="$ctrl.graphType.selected == 'metrics_graphs'" class="text-center">
                                 <small>Aggregated average time spent per request - broken to layers</small>
                             </p>
 
-                            <p ng-if="index.graphType.selected == 'report_graphs'" class="text-center">
+                            <p ng-if="$ctrl.graphType.selected == 'report_graphs'" class="text-center">
                                 <small>Aggregated reports sent by your application</small>
                             </p>
 
-                            <p ng-if="index.graphType.selected == 'slow_report_graphs'" class="text-center">
+                            <p ng-if="$ctrl.graphType.selected == 'slow_report_graphs'" class="text-center">
                                 <small>Aggregated slow reports sent by your application</small>
                             </p>
                             </div>
@@ -117,40 +115,40 @@
 
                     <div id="server-container">
 
-                        <div ng-if="index.loading.apdex==false" class="text-center m-b-1">
+                        <div ng-if="$ctrl.loading.apdex==false" class="text-center m-b-1">
 
-                            <a data-ui-sref="report.list({resource:index.resource, start_date:index.startDateFilter})" class="combined-stat text-center" id="error-rate">
+                            <a data-ui-sref="report.list({resource:$ctrl.resource, start_date:$ctrl.startDateFilter})" class="combined-stat text-center" id="error-rate">
                                 <small>Exceptions</small>
                                 <br/>
-                                <strong>{{ index.exceptions|numberToThousands}}</strong>
+                                <strong>{{ $ctrl.exceptions|numberToThousands}}</strong>
                                 <span class="fa fa-chevron-right"></span>
                             </a><!--
 
-                    --><a data-ui-sref="report.list_slow({resource:index.resource, min_duration:4, start_date:index.startDateFilter})" class="combined-stat text-center" id="frustrating-requests" data-uib-tooltip="Requests over 4s">
+                    --><a data-ui-sref="report.list_slow({resource:$ctrl.resource, min_duration:4, start_date:$ctrl.startDateFilter})" class="combined-stat text-center" id="frustrating-requests" data-uib-tooltip="Requests over 4s">
                             <small>Frustrating req.</small>
                             <br/>
-                            <strong>{{index.frustratingRequests|numberToThousands}}</strong>
+                            <strong>{{$ctrl.frustratingRequests|numberToThousands}}</strong>
                             <span class="fa fa-chevron-right"></span>
                         </a><!--
 
-                     --><a data-ui-sref="report.list_slow({resource:index.resource, min_duration:1, max_duration:4, start_date:index.startDateFilter})" class="combined-stat text-center" id="tolerated-requests"
+                     --><a data-ui-sref="report.list_slow({resource:$ctrl.resource, min_duration:1, max_duration:4, start_date:$ctrl.startDateFilter})" class="combined-stat text-center" id="tolerated-requests"
                            data-uib-tooltip="Requests under 4s">
                             <small>Tolerated req.</small>
                             <br/>
-                            <strong>{{index.toleratedRequests|numberToThousands}}</strong>
+                            <strong>{{$ctrl.toleratedRequests|numberToThousands}}</strong>
                             <span class="fa fa-chevron-right"></span>
                         </a><!--
                         
                         --><a class="combined-stat text-center" id="satisfying-requests" data-uib-tooltip="Requests under 1s">
                             <small>Satisfying req.</small>
                             <br/>
-                            <strong>{{index.satisfyingRequests|numberToThousands}}</strong>
+                            <strong>{{$ctrl.satisfyingRequests|numberToThousands}}</strong>
                         </a><!--
 
-                    --><a data-ui-sref="uptime({resource:index.resource})" class="combined-stat text-center" id="uptime-stats" data-uib-tooltip="Uptime">
+                    --><a data-ui-sref="uptime({resource:$ctrl.resource})" class="combined-stat text-center" id="uptime-stats" data-uib-tooltip="Uptime">
                             <small>Uptime</small>
                             <br/>
-                            <strong>{{index.uptimeStats}}%</strong>
+                            <strong>{{$ctrl.uptimeStats}}%</strong>
                             <span class="fa fa-chevron-right"></span>
                         </a>
 
@@ -172,11 +170,11 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr ng-if="index.loading.apdex!=false" class="text-center">
+                                <tr ng-if="$ctrl.loading.apdex!=false" class="text-center">
                                     <td colspan="5"><span class="fa fa-cog fa-spin fa-5x loader"></span></td>
                                 </tr>
-                                <tr ng-repeat="server in index.apdexStats" class="{{ server | apdexValue }}"
-                                    ng-if="index.loading.apdex==false">
+                                <tr ng-repeat="server in $ctrl.apdexStats" class="{{ server | apdexValue }}"
+                                    ng-if="$ctrl.loading.apdex==false">
                                     <td><span class="fa fa-hdd-o"></span></td>
                                     <td>
                                         <small><strong>{{ server.name }}</strong></small>
@@ -209,10 +207,10 @@
                         <div class="panel-heading position-relative">
                             <h3 class="panel-title"><span class="fa fa-exclamation-triangle"></span> Newest errors (real-time)
                             </h3>
-                            <a tooltip-append-to-body="true" data-uib-tooltip="Play/Pause stream" class="btn btn-primary btn-sm pause_stream" ng-model="index.stream.paused" uib-btn-checkbox>
+                            <a tooltip-append-to-body="true" data-uib-tooltip="Play/Pause stream" class="btn btn-primary btn-sm pause_stream" ng-model="$ctrl.stream.paused" uib-btn-checkbox>
                                 <span class="fa {{stream.paused ? 'fa-play' : 'fa-pause'}}"></span>
                             </a>
-                            <a tooltip-append-to-body="true" data-uib-tooltip="Limit reports to current application" class="btn btn-primary btn-sm limit_stream" ng-model="index.stream.filtered" uib-btn-checkbox>
+                            <a tooltip-append-to-body="true" data-uib-tooltip="Limit reports to current application" class="btn btn-primary btn-sm limit_stream" ng-model="$ctrl.stream.filtered" uib-btn-checkbox>
                                 <span class="fa fa-lock"></span>
                             </a>
 
@@ -220,9 +218,9 @@
                         </div>
                         <div class="panel-body">
 
-                            <p ng-if="index.stream.reports.length === 0">No new reports</p>
+                            <p ng-if="$ctrl.stream.reports.length === 0">No new reports</p>
 
-                            <div small-report-list reports="index.stream.reports" applications="index.applications"></div>
+                            <div small-report-list reports="$ctrl.stream.reports" applications="$ctrl.applications"></div>
                         </div>
                     </div>
                 </div>
@@ -231,15 +229,15 @@
 
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <h3 class="panel-title"><span class="fa fa-sort-amount-desc"></span> Request breakdown over {{ index.timeSpan.label }}</h3>
+                            <h3 class="panel-title"><span class="fa fa-sort-amount-desc"></span> Request breakdown over {{ $ctrl.timeSpan.label }}</h3>
                         </div>
                         <div class="panel-body" id="view-breakdown-container">
-                            <p ng-if="index.loading.requestsBreakdown!=false" class="text-center">
+                            <p ng-if="$ctrl.loading.requestsBreakdown!=false" class="text-center">
                                 <span class="fa fa-cog fa-spin fa-5x loader"></span>
                             </p>
 
                             <div class="report-list">
-                                <div ng-if="index.loading.requestsBreakdown==false" ng-repeat="view in index.requestsBreakdown">
+                                <div ng-if="$ctrl.loading.requestsBreakdown==false" ng-repeat="view in $ctrl.requestsBreakdown">
                                     <div class="view-info">
                                         <div class="view-name">
                                             <div class="bar" style="width: {{view.percentage}}%">
@@ -281,19 +279,19 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h3 class="panel-title">
-                                <span class="fa fa-exclamation-triangle"></span> Report groups trending over {{ index.timeSpan.label }}
+                                <span class="fa fa-exclamation-triangle"></span> Report groups trending over {{ $ctrl.timeSpan.label }}
                             </h3>
                         </div>
                         <div class="panel-body">
-                            <p ng-if="index.loading.reports != false" class="text-center">
+                            <p ng-if="$ctrl.loading.reports != false" class="text-center">
                                 <span class="fa fa-cog fa-spin fa-5x loader"></span>
                             </p>
 
-                            <p ng-if="index.trendingReports.length == 0 && index.loading.reports == false">
+                            <p ng-if="$ctrl.trendingReports.length == 0 && $ctrl.loading.reports == false">
                                 No reports found
                             </p>
 
-                            <div small-report-group-list groups="index.trendingReports" applications="index.applications" ng-if="index.loading.reports==false"></div>
+                            <div small-report-group-list groups="$ctrl.trendingReports" applications="$ctrl.applications" ng-if="$ctrl.loading.reports==false"></div>
                         </div>
                     </div>
 
@@ -305,18 +303,18 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h3 class="panel-title">
-                                Most common slow calls over {{ index.timeSpan.label }}
+                                Most common slow calls over {{ $ctrl.timeSpan.label }}
                             </h3>
                         </div>
                         <div class="panel-body">
 
-                            <div ng-if="index.loading.slowCalls!=false" class="text-center">
+                            <div ng-if="$ctrl.loading.slowCalls!=false" class="text-center">
                                 <span class="fa fa-cog fa-spin fa-5x loader"></span>
                             </div>
 
-                            <table id="slow-statements" ng-if="index.loading.slowCalls==false">
+                            <table id="slow-statements" ng-if="$ctrl.loading.slowCalls==false">
                                 <tbody>
-                                <tr ng-repeat="call in index.slowCalls">
+                                <tr ng-repeat="call in $ctrl.slowCalls">
                                     <td class="occurences">
                                         <span class="occurences" data-uib-tooltip="Occurences">{{call.occurences|numberToThousands}}</span>
                                     </td>

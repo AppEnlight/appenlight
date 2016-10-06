@@ -2678,7 +2678,8 @@ angular.module('appenlight.controllers', [
 angular.module('appenlight.components', [
     'appenlight.components.channelstream',
     'appenlight.components.appenlightApp',
-    'appenlight.components.appenlightHeader'
+    'appenlight.components.appenlightHeader',
+    'appenlight.components.indexDashboardView'
 ]);
 angular.module('appenlight.directives', [
     'appenlight.directives.c3chart',
@@ -2946,6 +2947,356 @@ function kickstartAE(initialUserData) {
     "                        </ul>\n" +
     "                </div><!-- /.navbar-collapse -->\n" +
     "            </div><!-- /.container-fluid -->\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/index-dashboard/index-dashboard.html',
+    "<style type=\"text/css\">\n" +
+    "    #metrics_chart .c3-line {\n" +
+    "        stroke-width: 0px;\n" +
+    "    }\n" +
+    "\n" +
+    "    #metrics_chart .c3-area {\n" +
+    "        stroke-width: 0;\n" +
+    "        opacity: 0.75;\n" +
+    "    }\n" +
+    "</style>\n" +
+    "\n" +
+    "<div class=\"row\">\n" +
+    "    <div class=\"col-sm-12 dashboard\" id=\"content\">\n" +
+    "        <div ng-if=\"!$ctrl.stateHolder.AeUser.applications.length\">\n" +
+    "\n" +
+    "            <div ng-include=\"'templates/quickstart.html'\"></div>\n" +
+    "\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <div ng-if=\"$ctrl.stateHolder.AeUser.applications.length\">\n" +
+    "\n" +
+    "            <div class=\"row\">\n" +
+    "                <div class=\"col-sm-6\">\n" +
+    "                    <div class=\"panel panel-default\">\n" +
+    "                        <div class=\"panel-body\">\n" +
+    "                            <form class=\"graph-type form-inline\">\n" +
+    "                                <select ng-model=\"$ctrl.resource\" ng-options=\"r.resource_id as r.resource_name for r in $ctrl.stateHolder.AeUser.applications\" ng-change=\"$ctrl.updateSearchParams()\"\n" +
+    "                                        class=\"SelectField form-control input-sm slim-input\"></select>\n" +
+    "\n" +
+    "                                <select class=\"SelectField form-control input-sm slim-input\" ng-model=\"$ctrl.timeSpan\"\n" +
+    "                                        ng-options=\"i as i.label for i in $ctrl.timeOptions | objectToOrderedArray:'minutes'\" ng-change=\"$ctrl.updateSearchParams()\"\n" +
+    "                                        class=\"SelectField\"></select>\n" +
+    "\n" +
+    "\n" +
+    "                                <div class=\"btn-group\">\n" +
+    "                                    <button type=\"button\" class=\"btn btn-primary btn-sm\" ng-model=\"$ctrl.graphType.selected\" ng-change=\"$ctrl.updateSearchParams()\"\n" +
+    "                                            uib-btn-radio=\"'requests_graphs'\" data-uib-tooltip=\"Requests per second\">\n" +
+    "                                        <span class=\"fa fa-line-chart\"></span>\n" +
+    "                                    </button>\n" +
+    "                                    <button type=\"button\" class=\"btn btn-primary btn-sm\" ng-model=\"$ctrl.graphType.selected\" ng-change=\"$ctrl.updateSearchParams()\"\n" +
+    "                                            uib-btn-radio=\"'response_graphs'\" data-uib-tooltip=\"Average response time\">\n" +
+    "                                        <span class=\"fa fa-random\"></span>\n" +
+    "                                    </button>\n" +
+    "                                    <button type=\"button\" class=\"btn btn-primary btn-sm\" ng-model=\"$ctrl.graphType.selected\" ng-change=\"$ctrl.updateSearchParams()\"\n" +
+    "                                            uib-btn-radio=\"'metrics_graphs'\" data-uib-tooltip=\"Time spent per request\">\n" +
+    "                                        <span class=\"fa fa-bar-chart-o\"></span>\n" +
+    "                                    </button>\n" +
+    "                                    <button type=\"button\" class=\"btn btn-primary btn-sm\" ng-model=\"$ctrl.graphType.selected\" ng-change=\"$ctrl.updateSearchParams()\"\n" +
+    "                                            uib-btn-radio=\"'report_graphs'\" data-uib-tooltip=\"Errors\">\n" +
+    "                                        <span class=\"fa fa-exclamation-triangle\"></span>\n" +
+    "                                    </button>\n" +
+    "                                    <button type=\"button\" class=\"btn btn-primary btn-sm\" ng-model=\"$ctrl.graphType.selected\" ng-change=\"$ctrl.updateSearchParams()\"\n" +
+    "                                            uib-btn-radio=\"'slow_report_graphs'\" data-uib-tooltip=\"Slow reports\">\n" +
+    "                                        <span class=\"fa fa-clock-o\"></span>\n" +
+    "                                    </button>\n" +
+    "                                </div>\n" +
+    "                            </form>\n" +
+    "                            <div class=\"clearfix\"></div>\n" +
+    "\n" +
+    "                            <p ng-if=\"$ctrl.loading.series != false\" class=\"text-center\">\n" +
+    "                                <span class=\"fa fa-cog fa-spin fa-5x loader\"></span>\n" +
+    "                            </p>\n" +
+    "\n" +
+    "                            <div ng-if=\"$ctrl.loading.series == false\">\n" +
+    "                            <div ng-if=\"$ctrl.graphType.selected == 'requests_graphs'\">\n" +
+    "                                <c3chart data-domid=\"reponse_chart\" data-data=\"$ctrl.requestsChartData\" data-config=\"$ctrl.requestsChartConfig\" update=\"true\">\n" +
+    "                                </c3chart>\n" +
+    "                            </div>\n" +
+    "\n" +
+    "                            <div ng-if=\"$ctrl.graphType.selected == 'response_graphs'\">\n" +
+    "                                <c3chart data-domid=\"reponse_chart\" data-data=\"$ctrl.responseChartData\" data-config=\"$ctrl.responseChartConfig\" update=\"true\">\n" +
+    "                                </c3chart>\n" +
+    "                            </div>\n" +
+    "\n" +
+    "                            <div ng-if=\"$ctrl.graphType.selected == 'metrics_graphs'\">\n" +
+    "                                <c3chart data-domid=\"metrics_chart\" data-data=\"$ctrl.metricsChartData\" data-config=\"$ctrl.metricsChartConfig\" update=\"true\">\n" +
+    "                                </c3chart>\n" +
+    "                            </div>\n" +
+    "                            <div ng-if=\"$ctrl.graphType.selected == 'report_graphs'\">\n" +
+    "                                <c3chart data-domid=\"reports_chart\" data-data=\"$ctrl.reportChartData\" data-config=\"$ctrl.reportChartConfig\" update=\"true\">\n" +
+    "                                </c3chart>\n" +
+    "                            </div>\n" +
+    "\n" +
+    "                            <div ng-if=\"$ctrl.graphType.selected == 'slow_report_graphs'\">\n" +
+    "                                <c3chart data-domid=\"slow_reports_chart\" data-data=\"$ctrl.reportSlowChartData\" data-config=\"$ctrl.reportSlowChartConfig\" update=\"true\">\n" +
+    "                                </c3chart>\n" +
+    "                            </div>\n" +
+    "\n" +
+    "                            <p ng-if=\"$ctrl.graphType.selected == 'requests_graphs'\" class=\"text-center\">\n" +
+    "                                <small>Average requests per second from all servers</small>\n" +
+    "                            </p>\n" +
+    "\n" +
+    "                            <p ng-if=\"$ctrl.graphType.selected == 'response_graphs'\" class=\"text-center\">\n" +
+    "                                <small>Average response time from all servers</small>\n" +
+    "                            </p>\n" +
+    "\n" +
+    "                            <p ng-if=\"$ctrl.graphType.selected == 'metrics_graphs'\" class=\"text-center\">\n" +
+    "                                <small>Aggregated average time spent per request - broken to layers</small>\n" +
+    "                            </p>\n" +
+    "\n" +
+    "                            <p ng-if=\"$ctrl.graphType.selected == 'report_graphs'\" class=\"text-center\">\n" +
+    "                                <small>Aggregated reports sent by your application</small>\n" +
+    "                            </p>\n" +
+    "\n" +
+    "                            <p ng-if=\"$ctrl.graphType.selected == 'slow_report_graphs'\" class=\"text-center\">\n" +
+    "                                <small>Aggregated slow reports sent by your application</small>\n" +
+    "                            </p>\n" +
+    "                            </div>\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "\n" +
+    "\n" +
+    "                <div class=\"col-sm-6\">\n" +
+    "\n" +
+    "                    <div id=\"server-container\">\n" +
+    "\n" +
+    "                        <div ng-if=\"$ctrl.loading.apdex==false\" class=\"text-center m-b-1\">\n" +
+    "\n" +
+    "                            <a data-ui-sref=\"report.list({resource:$ctrl.resource, start_date:$ctrl.startDateFilter})\" class=\"combined-stat text-center\" id=\"error-rate\">\n" +
+    "                                <small>Exceptions</small>\n" +
+    "                                <br/>\n" +
+    "                                <strong>{{ $ctrl.exceptions|numberToThousands}}</strong>\n" +
+    "                                <span class=\"fa fa-chevron-right\"></span>\n" +
+    "                            </a><!--\n" +
+    "\n" +
+    "                    --><a data-ui-sref=\"report.list_slow({resource:$ctrl.resource, min_duration:4, start_date:$ctrl.startDateFilter})\" class=\"combined-stat text-center\" id=\"frustrating-requests\" data-uib-tooltip=\"Requests over 4s\">\n" +
+    "                            <small>Frustrating req.</small>\n" +
+    "                            <br/>\n" +
+    "                            <strong>{{$ctrl.frustratingRequests|numberToThousands}}</strong>\n" +
+    "                            <span class=\"fa fa-chevron-right\"></span>\n" +
+    "                        </a><!--\n" +
+    "\n" +
+    "                     --><a data-ui-sref=\"report.list_slow({resource:$ctrl.resource, min_duration:1, max_duration:4, start_date:$ctrl.startDateFilter})\" class=\"combined-stat text-center\" id=\"tolerated-requests\"\n" +
+    "                           data-uib-tooltip=\"Requests under 4s\">\n" +
+    "                            <small>Tolerated req.</small>\n" +
+    "                            <br/>\n" +
+    "                            <strong>{{$ctrl.toleratedRequests|numberToThousands}}</strong>\n" +
+    "                            <span class=\"fa fa-chevron-right\"></span>\n" +
+    "                        </a><!--\n" +
+    "                        \n" +
+    "                        --><a class=\"combined-stat text-center\" id=\"satisfying-requests\" data-uib-tooltip=\"Requests under 1s\">\n" +
+    "                            <small>Satisfying req.</small>\n" +
+    "                            <br/>\n" +
+    "                            <strong>{{$ctrl.satisfyingRequests|numberToThousands}}</strong>\n" +
+    "                        </a><!--\n" +
+    "\n" +
+    "                    --><a data-ui-sref=\"uptime({resource:$ctrl.resource})\" class=\"combined-stat text-center\" id=\"uptime-stats\" data-uib-tooltip=\"Uptime\">\n" +
+    "                            <small>Uptime</small>\n" +
+    "                            <br/>\n" +
+    "                            <strong>{{$ctrl.uptimeStats}}%</strong>\n" +
+    "                            <span class=\"fa fa-chevron-right\"></span>\n" +
+    "                        </a>\n" +
+    "\n" +
+    "                            <div class=\"clearfix\"></div>\n" +
+    "                        </div>\n" +
+    "\n" +
+    "                        <div id=\"apdex-rate\" class=\"m-b-1 panel panel-default\">\n" +
+    "                            <table class=\"servers table table-striped\">\n" +
+    "                                <thead>\n" +
+    "                                <tr>\n" +
+    "                                    <th></th>\n" +
+    "                                    <th>Server</th>\n" +
+    "                                    <th>Apdex\n" +
+    "                                <span class=\"fa fa-question-circle\"\n" +
+    "                                      data-uib-tooltip=\"Application Performance Index - measures viewer satisfaction based on response times and error rates\"></span>\n" +
+    "                                    </th>\n" +
+    "                                    <th>rpm</th>\n" +
+    "                                    <th>avg. response</th>\n" +
+    "                                </tr>\n" +
+    "                                </thead>\n" +
+    "                                <tbody>\n" +
+    "                                <tr ng-if=\"$ctrl.loading.apdex!=false\" class=\"text-center\">\n" +
+    "                                    <td colspan=\"5\"><span class=\"fa fa-cog fa-spin fa-5x loader\"></span></td>\n" +
+    "                                </tr>\n" +
+    "                                <tr ng-repeat=\"server in $ctrl.apdexStats\" class=\"{{ server | apdexValue }}\"\n" +
+    "                                    ng-if=\"$ctrl.loading.apdex==false\">\n" +
+    "                                    <td><span class=\"fa fa-hdd-o\"></span></td>\n" +
+    "                                    <td>\n" +
+    "                                        <small><strong>{{ server.name }}</strong></small>\n" +
+    "                                    </td>\n" +
+    "                                    <td class=\"apdex\">\n" +
+    "                                        <small><strong>{{ server.apdex }} %</strong></small>\n" +
+    "                                    </td>\n" +
+    "                                    <td>\n" +
+    "                                        <small><strong>{{ server.rpm }}rpm</strong></small>\n" +
+    "                                    </td>\n" +
+    "                                    <td>\n" +
+    "                                        <small><strong>{{ server.avg_response_time }}s</strong></small>\n" +
+    "                                    </td>\n" +
+    "                                </tr>\n" +
+    "                                </tbody>\n" +
+    "                            </table>\n" +
+    "\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "\n" +
+    "                </div>\n" +
+    "\n" +
+    "\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"row\">\n" +
+    "                <div class=\"col-sm-6\">\n" +
+    "\n" +
+    "                    <div class=\"panel panel-default\">\n" +
+    "                        <div class=\"panel-heading position-relative\">\n" +
+    "                            <h3 class=\"panel-title\"><span class=\"fa fa-exclamation-triangle\"></span> Newest errors (real-time)\n" +
+    "                            </h3>\n" +
+    "                            <a tooltip-append-to-body=\"true\" data-uib-tooltip=\"Play/Pause stream\" class=\"btn btn-primary btn-sm pause_stream\" ng-model=\"$ctrl.stream.paused\" uib-btn-checkbox>\n" +
+    "                                <span class=\"fa {{stream.paused ? 'fa-play' : 'fa-pause'}}\"></span>\n" +
+    "                            </a>\n" +
+    "                            <a tooltip-append-to-body=\"true\" data-uib-tooltip=\"Limit reports to current application\" class=\"btn btn-primary btn-sm limit_stream\" ng-model=\"$ctrl.stream.filtered\" uib-btn-checkbox>\n" +
+    "                                <span class=\"fa fa-lock\"></span>\n" +
+    "                            </a>\n" +
+    "\n" +
+    "\n" +
+    "                        </div>\n" +
+    "                        <div class=\"panel-body\">\n" +
+    "\n" +
+    "                            <p ng-if=\"$ctrl.stream.reports.length === 0\">No new reports</p>\n" +
+    "\n" +
+    "                            <div small-report-list reports=\"$ctrl.stream.reports\" applications=\"$ctrl.applications\"></div>\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"col-sm-6\">\n" +
+    "\n" +
+    "                    <div class=\"panel panel-default\">\n" +
+    "                        <div class=\"panel-heading\">\n" +
+    "                            <h3 class=\"panel-title\"><span class=\"fa fa-sort-amount-desc\"></span> Request breakdown over {{ $ctrl.timeSpan.label }}</h3>\n" +
+    "                        </div>\n" +
+    "                        <div class=\"panel-body\" id=\"view-breakdown-container\">\n" +
+    "                            <p ng-if=\"$ctrl.loading.requestsBreakdown!=false\" class=\"text-center\">\n" +
+    "                                <span class=\"fa fa-cog fa-spin fa-5x loader\"></span>\n" +
+    "                            </p>\n" +
+    "\n" +
+    "                            <div class=\"report-list\">\n" +
+    "                                <div ng-if=\"$ctrl.loading.requestsBreakdown==false\" ng-repeat=\"view in $ctrl.requestsBreakdown\">\n" +
+    "                                    <div class=\"view-info\">\n" +
+    "                                        <div class=\"view-name\">\n" +
+    "                                            <div class=\"bar\" style=\"width: {{view.percentage}}%\">\n" +
+    "                                            </div>\n" +
+    "                                        </div>\n" +
+    "                                        <strong ng-if=\"view.latest_details.length\">\n" +
+    "                                            <a data-ui-sref=\"report.list_slow({view_name:view.view_name})\">{{view.view_name}}</a></strong>\n" +
+    "                                        <strong ng-if=\"!view.latest_details.length\">{{view.view_name}}</strong>\n" +
+    "\n" +
+    "                                        <div class=\"stats\">\n" +
+    "                                            <small>\n" +
+    "                                                avg. response <strong>{{view.avg_response}}s</strong> in\n" +
+    "                            <span class=\"requests\"\n" +
+    "                                  data-uib-tooltip=\"Requests\"><strong>{{view.requests|numberToThousands}}</strong> requests</span>\n" +
+    "\n" +
+    "                        <span ng-if=\"view.latest_details\">\n" +
+    "                        &nbsp;&nbsp; Latest reports:\n" +
+    "                            <a ng-repeat=\"d in view.latest_details\" target=\"_blank\" ui-sref=\"report.view_detail({groupId:d.group_id, reportId:d.report_id})\"> <strong>{{$index+1}}</strong></a>\n" +
+    "                        </span>\n" +
+    "                                            </small>\n" +
+    "                                        </div>\n" +
+    "\n" +
+    "                                    </div>\n" +
+    "\n" +
+    "                                </div>\n" +
+    "                            </div>\n" +
+    "\n" +
+    "\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "\n" +
+    "                </div>\n" +
+    "\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"row\">\n" +
+    "                <div class=\"col-sm-6\">\n" +
+    "\n" +
+    "                    <div class=\"panel panel-default\">\n" +
+    "                        <div class=\"panel-heading\">\n" +
+    "                            <h3 class=\"panel-title\">\n" +
+    "                                <span class=\"fa fa-exclamation-triangle\"></span> Report groups trending over {{ $ctrl.timeSpan.label }}\n" +
+    "                            </h3>\n" +
+    "                        </div>\n" +
+    "                        <div class=\"panel-body\">\n" +
+    "                            <p ng-if=\"$ctrl.loading.reports != false\" class=\"text-center\">\n" +
+    "                                <span class=\"fa fa-cog fa-spin fa-5x loader\"></span>\n" +
+    "                            </p>\n" +
+    "\n" +
+    "                            <p ng-if=\"$ctrl.trendingReports.length == 0 && $ctrl.loading.reports == false\">\n" +
+    "                                No reports found\n" +
+    "                            </p>\n" +
+    "\n" +
+    "                            <div small-report-group-list groups=\"$ctrl.trendingReports\" applications=\"$ctrl.applications\" ng-if=\"$ctrl.loading.reports==false\"></div>\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"col-sm-6\">\n" +
+    "\n" +
+    "\n" +
+    "                    <div class=\"panel panel-default\">\n" +
+    "                        <div class=\"panel-heading\">\n" +
+    "                            <h3 class=\"panel-title\">\n" +
+    "                                Most common slow calls over {{ $ctrl.timeSpan.label }}\n" +
+    "                            </h3>\n" +
+    "                        </div>\n" +
+    "                        <div class=\"panel-body\">\n" +
+    "\n" +
+    "                            <div ng-if=\"$ctrl.loading.slowCalls!=false\" class=\"text-center\">\n" +
+    "                                <span class=\"fa fa-cog fa-spin fa-5x loader\"></span>\n" +
+    "                            </div>\n" +
+    "\n" +
+    "                            <table id=\"slow-statements\" ng-if=\"$ctrl.loading.slowCalls==false\">\n" +
+    "                                <tbody>\n" +
+    "                                <tr ng-repeat=\"call in $ctrl.slowCalls\">\n" +
+    "                                    <td class=\"occurences\">\n" +
+    "                                        <span class=\"occurences\" data-uib-tooltip=\"Occurences\">{{call.occurences|numberToThousands}}</span>\n" +
+    "                                    </td>\n" +
+    "                                    <td class=\"ellipsis\">\n" +
+    "                                        <small title=\"{{call.statement}}\" class=\"statement\">{{call.statement}}</small>\n" +
+    "                                        <br/>\n" +
+    "                                        <span class=\"type\">{{call.statement_type}}</span>\n" +
+    "                                        <span class=\"subtype\">{{call.statement_subtype}}</span>\n" +
+    "                                        <span class=\"duration\" data-uib-tooltip=\"Average duration\">{{call.total_duration/call.occurences|round:2}}s</span>\n" +
+    "                        <span class=\"report-list\">\n" +
+    "                        Latest reports:\n" +
+    "                        <a ng-repeat=\"d in call.latest_details\" target=\"_blank\" ui-sref=\"report.view_detail({groupId:d.group_id, reportId:d.report_id})\"> <strong>{{$index+1}}</strong> </a>\n" +
+    "                        </span>\n" +
+    "                                    </td>\n" +
+    "                                </tr>\n" +
+    "                                </tbody>\n" +
+    "                            </table>\n" +
+    "\n" +
+    "\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "\n" +
+    "\n" +
+    "                </div>\n" +
+    "\n" +
+    "            </div>\n" +
     "        </div>\n" +
     "    </div>\n" +
     "</div>\n"
@@ -5232,358 +5583,6 @@ function kickstartAE(initialUserData) {
   );
 
 
-  $templateCache.put('templates/dashboard.html',
-    "<style type=\"text/css\">\n" +
-    "    #metrics_chart .c3-line {\n" +
-    "        stroke-width: 0px;\n" +
-    "    }\n" +
-    "\n" +
-    "    #metrics_chart .c3-area {\n" +
-    "        stroke-width: 0;\n" +
-    "        opacity: 0.75;\n" +
-    "    }\n" +
-    "\n" +
-    "\n" +
-    "</style>\n" +
-    "\n" +
-    "<div class=\"row\">\n" +
-    "    <div class=\"col-sm-12 dashboard\" id=\"content\">\n" +
-    "        <div ng-if=\"!index.stateHolder.AeUser.applications.length\">\n" +
-    "\n" +
-    "            <div ng-include=\"'templates/quickstart.html'\"></div>\n" +
-    "\n" +
-    "        </div>\n" +
-    "\n" +
-    "        <div ng-if=\"index.stateHolder.AeUser.applications.length\">\n" +
-    "\n" +
-    "            <div class=\"row\">\n" +
-    "                <div class=\"col-sm-6\">\n" +
-    "                    <div class=\"panel panel-default\">\n" +
-    "                        <div class=\"panel-body\">\n" +
-    "                            <form class=\"graph-type form-inline\">\n" +
-    "                                <select ng-model=\"index.resource\" ng-options=\"r.resource_id as r.resource_name for r in index.stateHolder.AeUser.applications\" ng-change=\"index.updateSearchParams()\"\n" +
-    "                                        class=\"SelectField form-control input-sm slim-input\"></select>\n" +
-    "\n" +
-    "                                <select class=\"SelectField form-control input-sm slim-input\" ng-model=\"index.timeSpan\"\n" +
-    "                                        ng-options=\"i as i.label for i in index.timeOptions | objectToOrderedArray:'minutes'\" ng-change=\"index.updateSearchParams()\"\n" +
-    "                                        class=\"SelectField\"></select>\n" +
-    "\n" +
-    "\n" +
-    "                                <div class=\"btn-group\">\n" +
-    "                                    <button type=\"button\" class=\"btn btn-primary btn-sm\" ng-model=\"index.graphType.selected\" ng-change=\"index.updateSearchParams()\"\n" +
-    "                                            uib-btn-radio=\"'requests_graphs'\" data-uib-tooltip=\"Requests per second\">\n" +
-    "                                        <span class=\"fa fa-line-chart\"></span>\n" +
-    "                                    </button>\n" +
-    "                                    <button type=\"button\" class=\"btn btn-primary btn-sm\" ng-model=\"index.graphType.selected\" ng-change=\"index.updateSearchParams()\"\n" +
-    "                                            uib-btn-radio=\"'response_graphs'\" data-uib-tooltip=\"Average response time\">\n" +
-    "                                        <span class=\"fa fa-random\"></span>\n" +
-    "                                    </button>\n" +
-    "                                    <button type=\"button\" class=\"btn btn-primary btn-sm\" ng-model=\"index.graphType.selected\" ng-change=\"index.updateSearchParams()\"\n" +
-    "                                            uib-btn-radio=\"'metrics_graphs'\" data-uib-tooltip=\"Time spent per request\">\n" +
-    "                                        <span class=\"fa fa-bar-chart-o\"></span>\n" +
-    "                                    </button>\n" +
-    "                                    <button type=\"button\" class=\"btn btn-primary btn-sm\" ng-model=\"index.graphType.selected\" ng-change=\"index.updateSearchParams()\"\n" +
-    "                                            uib-btn-radio=\"'report_graphs'\" data-uib-tooltip=\"Errors\">\n" +
-    "                                        <span class=\"fa fa-exclamation-triangle\"></span>\n" +
-    "                                    </button>\n" +
-    "                                    <button type=\"button\" class=\"btn btn-primary btn-sm\" ng-model=\"index.graphType.selected\" ng-change=\"index.updateSearchParams()\"\n" +
-    "                                            uib-btn-radio=\"'slow_report_graphs'\" data-uib-tooltip=\"Slow reports\">\n" +
-    "                                        <span class=\"fa fa-clock-o\"></span>\n" +
-    "                                    </button>\n" +
-    "                                </div>\n" +
-    "                            </form>\n" +
-    "                            <div class=\"clearfix\"></div>\n" +
-    "\n" +
-    "                            <p ng-if=\"index.loading.series != false\" class=\"text-center\">\n" +
-    "                                <span class=\"fa fa-cog fa-spin fa-5x loader\"></span>\n" +
-    "                            </p>\n" +
-    "\n" +
-    "                            <div ng-if=\"index.loading.series == false\">\n" +
-    "                            <div ng-if=\"index.graphType.selected == 'requests_graphs'\">\n" +
-    "                                <c3chart data-domid=\"reponse_chart\" data-data=\"index.requestsChartData\" data-config=\"index.requestsChartConfig\" update=\"true\">\n" +
-    "                                </c3chart>\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                            <div ng-if=\"index.graphType.selected == 'response_graphs'\">\n" +
-    "                                <c3chart data-domid=\"reponse_chart\" data-data=\"index.responseChartData\" data-config=\"index.responseChartConfig\" update=\"true\">\n" +
-    "                                </c3chart>\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                            <div ng-if=\"index.graphType.selected == 'metrics_graphs'\">\n" +
-    "                                <c3chart data-domid=\"metrics_chart\" data-data=\"index.metricsChartData\" data-config=\"index.metricsChartConfig\" update=\"true\">\n" +
-    "                                </c3chart>\n" +
-    "                            </div>\n" +
-    "                            <div ng-if=\"index.graphType.selected == 'report_graphs'\">\n" +
-    "                                <c3chart data-domid=\"reports_chart\" data-data=\"index.reportChartData\" data-config=\"index.reportChartConfig\" update=\"true\">\n" +
-    "                                </c3chart>\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                            <div ng-if=\"index.graphType.selected == 'slow_report_graphs'\">\n" +
-    "                                <c3chart data-domid=\"slow_reports_chart\" data-data=\"index.reportSlowChartData\" data-config=\"index.reportSlowChartConfig\" update=\"true\">\n" +
-    "                                </c3chart>\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                            <p ng-if=\"index.graphType.selected == 'requests_graphs'\" class=\"text-center\">\n" +
-    "                                <small>Average requests per second from all servers</small>\n" +
-    "                            </p>\n" +
-    "\n" +
-    "                            <p ng-if=\"index.graphType.selected == 'response_graphs'\" class=\"text-center\">\n" +
-    "                                <small>Average response time from all servers</small>\n" +
-    "                            </p>\n" +
-    "\n" +
-    "                            <p ng-if=\"index.graphType.selected == 'metrics_graphs'\" class=\"text-center\">\n" +
-    "                                <small>Aggregated average time spent per request - broken to layers</small>\n" +
-    "                            </p>\n" +
-    "\n" +
-    "                            <p ng-if=\"index.graphType.selected == 'report_graphs'\" class=\"text-center\">\n" +
-    "                                <small>Aggregated reports sent by your application</small>\n" +
-    "                            </p>\n" +
-    "\n" +
-    "                            <p ng-if=\"index.graphType.selected == 'slow_report_graphs'\" class=\"text-center\">\n" +
-    "                                <small>Aggregated slow reports sent by your application</small>\n" +
-    "                            </p>\n" +
-    "                            </div>\n" +
-    "                        </div>\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "\n" +
-    "\n" +
-    "                <div class=\"col-sm-6\">\n" +
-    "\n" +
-    "                    <div id=\"server-container\">\n" +
-    "\n" +
-    "                        <div ng-if=\"index.loading.apdex==false\" class=\"text-center m-b-1\">\n" +
-    "\n" +
-    "                            <a data-ui-sref=\"report.list({resource:index.resource, start_date:index.startDateFilter})\" class=\"combined-stat text-center\" id=\"error-rate\">\n" +
-    "                                <small>Exceptions</small>\n" +
-    "                                <br/>\n" +
-    "                                <strong>{{ index.exceptions|numberToThousands}}</strong>\n" +
-    "                                <span class=\"fa fa-chevron-right\"></span>\n" +
-    "                            </a><!--\n" +
-    "\n" +
-    "                    --><a data-ui-sref=\"report.list_slow({resource:index.resource, min_duration:4, start_date:index.startDateFilter})\" class=\"combined-stat text-center\" id=\"frustrating-requests\" data-uib-tooltip=\"Requests over 4s\">\n" +
-    "                            <small>Frustrating req.</small>\n" +
-    "                            <br/>\n" +
-    "                            <strong>{{index.frustratingRequests|numberToThousands}}</strong>\n" +
-    "                            <span class=\"fa fa-chevron-right\"></span>\n" +
-    "                        </a><!--\n" +
-    "\n" +
-    "                     --><a data-ui-sref=\"report.list_slow({resource:index.resource, min_duration:1, max_duration:4, start_date:index.startDateFilter})\" class=\"combined-stat text-center\" id=\"tolerated-requests\"\n" +
-    "                           data-uib-tooltip=\"Requests under 4s\">\n" +
-    "                            <small>Tolerated req.</small>\n" +
-    "                            <br/>\n" +
-    "                            <strong>{{index.toleratedRequests|numberToThousands}}</strong>\n" +
-    "                            <span class=\"fa fa-chevron-right\"></span>\n" +
-    "                        </a><!--\n" +
-    "                        \n" +
-    "                        --><a class=\"combined-stat text-center\" id=\"satisfying-requests\" data-uib-tooltip=\"Requests under 1s\">\n" +
-    "                            <small>Satisfying req.</small>\n" +
-    "                            <br/>\n" +
-    "                            <strong>{{index.satisfyingRequests|numberToThousands}}</strong>\n" +
-    "                        </a><!--\n" +
-    "\n" +
-    "                    --><a data-ui-sref=\"uptime({resource:index.resource})\" class=\"combined-stat text-center\" id=\"uptime-stats\" data-uib-tooltip=\"Uptime\">\n" +
-    "                            <small>Uptime</small>\n" +
-    "                            <br/>\n" +
-    "                            <strong>{{index.uptimeStats}}%</strong>\n" +
-    "                            <span class=\"fa fa-chevron-right\"></span>\n" +
-    "                        </a>\n" +
-    "\n" +
-    "                            <div class=\"clearfix\"></div>\n" +
-    "                        </div>\n" +
-    "\n" +
-    "                        <div id=\"apdex-rate\" class=\"m-b-1 panel panel-default\">\n" +
-    "                            <table class=\"servers table table-striped\">\n" +
-    "                                <thead>\n" +
-    "                                <tr>\n" +
-    "                                    <th></th>\n" +
-    "                                    <th>Server</th>\n" +
-    "                                    <th>Apdex\n" +
-    "                                <span class=\"fa fa-question-circle\"\n" +
-    "                                      data-uib-tooltip=\"Application Performance Index - measures viewer satisfaction based on response times and error rates\"></span>\n" +
-    "                                    </th>\n" +
-    "                                    <th>rpm</th>\n" +
-    "                                    <th>avg. response</th>\n" +
-    "                                </tr>\n" +
-    "                                </thead>\n" +
-    "                                <tbody>\n" +
-    "                                <tr ng-if=\"index.loading.apdex!=false\" class=\"text-center\">\n" +
-    "                                    <td colspan=\"5\"><span class=\"fa fa-cog fa-spin fa-5x loader\"></span></td>\n" +
-    "                                </tr>\n" +
-    "                                <tr ng-repeat=\"server in index.apdexStats\" class=\"{{ server | apdexValue }}\"\n" +
-    "                                    ng-if=\"index.loading.apdex==false\">\n" +
-    "                                    <td><span class=\"fa fa-hdd-o\"></span></td>\n" +
-    "                                    <td>\n" +
-    "                                        <small><strong>{{ server.name }}</strong></small>\n" +
-    "                                    </td>\n" +
-    "                                    <td class=\"apdex\">\n" +
-    "                                        <small><strong>{{ server.apdex }} %</strong></small>\n" +
-    "                                    </td>\n" +
-    "                                    <td>\n" +
-    "                                        <small><strong>{{ server.rpm }}rpm</strong></small>\n" +
-    "                                    </td>\n" +
-    "                                    <td>\n" +
-    "                                        <small><strong>{{ server.avg_response_time }}s</strong></small>\n" +
-    "                                    </td>\n" +
-    "                                </tr>\n" +
-    "                                </tbody>\n" +
-    "                            </table>\n" +
-    "\n" +
-    "                        </div>\n" +
-    "                    </div>\n" +
-    "\n" +
-    "                </div>\n" +
-    "\n" +
-    "\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"row\">\n" +
-    "                <div class=\"col-sm-6\">\n" +
-    "\n" +
-    "                    <div class=\"panel panel-default\">\n" +
-    "                        <div class=\"panel-heading position-relative\">\n" +
-    "                            <h3 class=\"panel-title\"><span class=\"fa fa-exclamation-triangle\"></span> Newest errors (real-time)\n" +
-    "                            </h3>\n" +
-    "                            <a tooltip-append-to-body=\"true\" data-uib-tooltip=\"Play/Pause stream\" class=\"btn btn-primary btn-sm pause_stream\" ng-model=\"index.stream.paused\" uib-btn-checkbox>\n" +
-    "                                <span class=\"fa {{stream.paused ? 'fa-play' : 'fa-pause'}}\"></span>\n" +
-    "                            </a>\n" +
-    "                            <a tooltip-append-to-body=\"true\" data-uib-tooltip=\"Limit reports to current application\" class=\"btn btn-primary btn-sm limit_stream\" ng-model=\"index.stream.filtered\" uib-btn-checkbox>\n" +
-    "                                <span class=\"fa fa-lock\"></span>\n" +
-    "                            </a>\n" +
-    "\n" +
-    "\n" +
-    "                        </div>\n" +
-    "                        <div class=\"panel-body\">\n" +
-    "\n" +
-    "                            <p ng-if=\"index.stream.reports.length === 0\">No new reports</p>\n" +
-    "\n" +
-    "                            <div small-report-list reports=\"index.stream.reports\" applications=\"index.applications\"></div>\n" +
-    "                        </div>\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "\n" +
-    "                <div class=\"col-sm-6\">\n" +
-    "\n" +
-    "                    <div class=\"panel panel-default\">\n" +
-    "                        <div class=\"panel-heading\">\n" +
-    "                            <h3 class=\"panel-title\"><span class=\"fa fa-sort-amount-desc\"></span> Request breakdown over {{ index.timeSpan.label }}</h3>\n" +
-    "                        </div>\n" +
-    "                        <div class=\"panel-body\" id=\"view-breakdown-container\">\n" +
-    "                            <p ng-if=\"index.loading.requestsBreakdown!=false\" class=\"text-center\">\n" +
-    "                                <span class=\"fa fa-cog fa-spin fa-5x loader\"></span>\n" +
-    "                            </p>\n" +
-    "\n" +
-    "                            <div class=\"report-list\">\n" +
-    "                                <div ng-if=\"index.loading.requestsBreakdown==false\" ng-repeat=\"view in index.requestsBreakdown\">\n" +
-    "                                    <div class=\"view-info\">\n" +
-    "                                        <div class=\"view-name\">\n" +
-    "                                            <div class=\"bar\" style=\"width: {{view.percentage}}%\">\n" +
-    "                                            </div>\n" +
-    "                                        </div>\n" +
-    "                                        <strong ng-if=\"view.latest_details.length\">\n" +
-    "                                            <a data-ui-sref=\"report.list_slow({view_name:view.view_name})\">{{view.view_name}}</a></strong>\n" +
-    "                                        <strong ng-if=\"!view.latest_details.length\">{{view.view_name}}</strong>\n" +
-    "\n" +
-    "                                        <div class=\"stats\">\n" +
-    "                                            <small>\n" +
-    "                                                avg. response <strong>{{view.avg_response}}s</strong> in\n" +
-    "                            <span class=\"requests\"\n" +
-    "                                  data-uib-tooltip=\"Requests\"><strong>{{view.requests|numberToThousands}}</strong> requests</span>\n" +
-    "\n" +
-    "                        <span ng-if=\"view.latest_details\">\n" +
-    "                        &nbsp;&nbsp; Latest reports:\n" +
-    "                            <a ng-repeat=\"d in view.latest_details\" target=\"_blank\" ui-sref=\"report.view_detail({groupId:d.group_id, reportId:d.report_id})\"> <strong>{{$index+1}}</strong></a>\n" +
-    "                        </span>\n" +
-    "                                            </small>\n" +
-    "                                        </div>\n" +
-    "\n" +
-    "                                    </div>\n" +
-    "\n" +
-    "                                </div>\n" +
-    "                            </div>\n" +
-    "\n" +
-    "\n" +
-    "                        </div>\n" +
-    "                    </div>\n" +
-    "\n" +
-    "                </div>\n" +
-    "\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"row\">\n" +
-    "                <div class=\"col-sm-6\">\n" +
-    "\n" +
-    "                    <div class=\"panel panel-default\">\n" +
-    "                        <div class=\"panel-heading\">\n" +
-    "                            <h3 class=\"panel-title\">\n" +
-    "                                <span class=\"fa fa-exclamation-triangle\"></span> Report groups trending over {{ index.timeSpan.label }}\n" +
-    "                            </h3>\n" +
-    "                        </div>\n" +
-    "                        <div class=\"panel-body\">\n" +
-    "                            <p ng-if=\"index.loading.reports != false\" class=\"text-center\">\n" +
-    "                                <span class=\"fa fa-cog fa-spin fa-5x loader\"></span>\n" +
-    "                            </p>\n" +
-    "\n" +
-    "                            <p ng-if=\"index.trendingReports.length == 0 && index.loading.reports == false\">\n" +
-    "                                No reports found\n" +
-    "                            </p>\n" +
-    "\n" +
-    "                            <div small-report-group-list groups=\"index.trendingReports\" applications=\"index.applications\" ng-if=\"index.loading.reports==false\"></div>\n" +
-    "                        </div>\n" +
-    "                    </div>\n" +
-    "\n" +
-    "                </div>\n" +
-    "\n" +
-    "                <div class=\"col-sm-6\">\n" +
-    "\n" +
-    "\n" +
-    "                    <div class=\"panel panel-default\">\n" +
-    "                        <div class=\"panel-heading\">\n" +
-    "                            <h3 class=\"panel-title\">\n" +
-    "                                Most common slow calls over {{ index.timeSpan.label }}\n" +
-    "                            </h3>\n" +
-    "                        </div>\n" +
-    "                        <div class=\"panel-body\">\n" +
-    "\n" +
-    "                            <div ng-if=\"index.loading.slowCalls!=false\" class=\"text-center\">\n" +
-    "                                <span class=\"fa fa-cog fa-spin fa-5x loader\"></span>\n" +
-    "                            </div>\n" +
-    "\n" +
-    "                            <table id=\"slow-statements\" ng-if=\"index.loading.slowCalls==false\">\n" +
-    "                                <tbody>\n" +
-    "                                <tr ng-repeat=\"call in index.slowCalls\">\n" +
-    "                                    <td class=\"occurences\">\n" +
-    "                                        <span class=\"occurences\" data-uib-tooltip=\"Occurences\">{{call.occurences|numberToThousands}}</span>\n" +
-    "                                    </td>\n" +
-    "                                    <td class=\"ellipsis\">\n" +
-    "                                        <small title=\"{{call.statement}}\" class=\"statement\">{{call.statement}}</small>\n" +
-    "                                        <br/>\n" +
-    "                                        <span class=\"type\">{{call.statement_type}}</span>\n" +
-    "                                        <span class=\"subtype\">{{call.statement_subtype}}</span>\n" +
-    "                                        <span class=\"duration\" data-uib-tooltip=\"Average duration\">{{call.total_duration/call.occurences|round:2}}s</span>\n" +
-    "                        <span class=\"report-list\">\n" +
-    "                        Latest reports:\n" +
-    "                        <a ng-repeat=\"d in call.latest_details\" target=\"_blank\" ui-sref=\"report.view_detail({groupId:d.group_id, reportId:d.report_id})\"> <strong>{{$index+1}}</strong> </a>\n" +
-    "                        </span>\n" +
-    "                                    </td>\n" +
-    "                                </tr>\n" +
-    "                                </tbody>\n" +
-    "                            </table>\n" +
-    "\n" +
-    "\n" +
-    "                        </div>\n" +
-    "                    </div>\n" +
-    "\n" +
-    "\n" +
-    "                </div>\n" +
-    "\n" +
-    "            </div>\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
   $templateCache.put('templates/directives/search_type_ahead.html',
     "<a>\n" +
     "    <span class=\"tag\" ng-show=\"match.model.tag\">{{match.model.tag}}</span>\n" +
@@ -7329,6 +7328,674 @@ function ChannelstreamController($rootScope, stateHolder, userSelfPropertyResour
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
+angular.module('appenlight.components.indexDashboardView', [])
+    .component('indexDashboardView', {
+        templateUrl: 'components/views/index-dashboard/index-dashboard.html',
+        controller: IndexDashboardController
+    });
+
+IndexDashboardController.$inject = ['$rootScope', '$scope', '$location','$cookies', '$interval', 'stateHolder', 'applicationsPropertyResource', 'AeConfig'];
+
+function IndexDashboardController($rootScope, $scope, $location, $cookies, $interval, stateHolder, applicationsPropertyResource, AeConfig) {
+    var vm = this;
+    stateHolder.section = 'dashboard';
+    vm.timeOptions = {};
+    var allowed = ['1h', '4h', '12h', '24h', '1w', '2w', '1M'];
+    _.each(allowed, function (key) {
+        if (allowed.indexOf(key) !== -1) {
+            vm.timeOptions[key] = AeConfig.timeOptions[key];
+        }
+    });
+    vm.stateHolder = stateHolder;
+    vm.urls = AeConfig.urls;
+    vm.applications = stateHolder.AeUser.applications_map;
+    vm.show_dashboard = false;
+    vm.resource = null;
+    vm.graphType = {selected: null};
+    vm.timeSpan = vm.timeOptions['1h'];
+    vm.trendingReports = [];
+    vm.exceptions = 0;
+    vm.satisfyingRequests = 0;
+    vm.toleratedRequests = 0;
+    vm.frustratingRequests = 0;
+    vm.uptimeStats = 0;
+    vm.apdexStats = [];
+    vm.seriesRequestsData = [];
+    vm.seriesMetricsData = [];
+    vm.seriesSlowData = [];
+    vm.slowCalls = [];
+    vm.slowURIS = [];
+
+    vm.reportChartConfig = {
+        data: {
+            json: [],
+            xFormat: '%Y-%m-%dT%H:%M:%S'
+        },
+        color: {
+            pattern: ['#6baed6', '#e6550d', '#74c476', '#fdd0a2', '#8c564b']
+        },
+        axis: {
+            x: {
+                type: 'timeseries',
+                tick: {
+                    culling: {
+                        max: 6 // the number of tick texts will be adjusted to less than this value
+                    },
+                    format: '%Y-%m-%d %H:%M'
+                }
+            },
+            y: {
+                tick: {
+                    count: 5,
+                    format: d3.format('.2s')
+                }
+            }
+        },
+        subchart: {
+            show: true,
+            size: {
+                height: 20
+            }
+        },
+        size: {
+            height: 250
+        },
+        zoom: {
+            rescale: true
+        },
+        grid: {
+            x: {
+                show: true
+            },
+            y: {
+                show: true
+            }
+        },
+        tooltip: {
+            format: {
+                title: function (d) {
+                    return '' + d;
+                },
+                value: function (v) {
+                    return v
+                }
+            }
+        }
+    };
+    vm.reportChartData = {};
+
+    vm.reportSlowChartConfig = {
+        data: {
+            json: [],
+            xFormat: '%Y-%m-%dT%H:%M:%S'
+        },
+        color: {
+            pattern: ['#6baed6', '#e6550d', '#74c476', '#fdd0a2', '#8c564b']
+        },
+        axis: {
+            x: {
+                type: 'timeseries',
+                tick: {
+                    culling: {
+                        max: 6 // the number of tick texts will be adjusted to less than this value
+                    },
+                    format: '%Y-%m-%d %H:%M'
+                }
+            },
+            y: {
+                tick: {
+                    count: 5,
+                    format: d3.format('.2s')
+                }
+            }
+        },
+        subchart: {
+            show: true,
+            size: {
+                height: 20
+            }
+        },
+        size: {
+            height: 250
+        },
+        zoom: {
+            rescale: true
+        },
+        grid: {
+            x: {
+                show: true
+            },
+            y: {
+                show: true
+            }
+        },
+        tooltip: {
+            format: {
+                title: function (d) {
+                    return '' + d;
+                },
+                value: function (v) {
+                    return v
+                }
+            }
+        }
+    };
+    vm.reportSlowChartData = {};
+
+    vm.metricsChartConfig = {
+        data: {
+            json: [],
+            xFormat: '%Y-%m-%dT%H:%M:%S',
+            keys: {
+                x: 'x',
+                value: ["main", "sql", "nosql", "tmpl", "remote", "custom"]
+            },
+            names: {
+                main: 'View/Application logic',
+                sql: 'Relational database queries',
+                nosql: 'NoSql datastore calls',
+                tmpl: 'Template rendering',
+                custom: 'Custom timed calls',
+                remote: 'Requests to remote resources'
+            },
+            type: 'area',
+            groups: [["main", "sql", "nosql", "remote", "custom", "tmpl"]],
+            order: null
+        },
+        color: {
+            pattern: ['#6baed6', '#c7e9c0', '#fd8d3c', '#d6616b', '#ffcc00', '#c6dbef']
+        },
+        axis: {
+            x: {
+                type: 'timeseries',
+                tick: {
+                    culling: {
+                        max: 6 // the number of tick texts will be adjusted to less than this value
+                    },
+                    format: '%Y-%m-%d %H:%M'
+                }
+            },
+            y: {
+                tick: {
+                    count: 5,
+                    format: d3.format('.2f')
+                }
+            }
+        },
+        point: {
+            show: false
+        },
+        subchart: {
+            show: true,
+            size: {
+                height: 20
+            }
+        },
+        size: {
+            height: 350
+        },
+        zoom: {
+            rescale: true
+        },
+        grid: {
+            x: {
+                show: true
+            },
+            y: {
+                show: true
+            }
+        },
+        tooltip: {
+            format: {
+                title: function (d) {
+                    return '' + d;
+                },
+                value: function (v) {
+                    return v
+                }
+            }
+        }
+    };
+    vm.metricsChartData = {};
+
+    vm.responseChartConfig = {
+        data: {
+            json: [],
+            xFormat: '%Y-%m-%dT%H:%M:%S'
+        },
+        color: {
+            pattern: ['#d6616b', '#6baed6', '#fd8d3c']
+        },
+        axis: {
+            x: {
+                type: 'timeseries',
+                tick: {
+                    culling: {
+                        max: 6 // the number of tick texts will be adjusted to less than this value
+                    },
+                    format: '%Y-%m-%d %H:%M'
+                }
+            },
+            y: {
+                tick: {
+                    count: 5,
+                    format: d3.format('.2f')
+                }
+            }
+        },
+        point: {
+            show: false
+        },
+        subchart: {
+            show: true,
+            size: {
+                height: 20
+            }
+        },
+        size: {
+            height: 350
+        },
+        zoom: {
+            rescale: true
+        },
+        grid: {
+            x: {
+                show: true
+            },
+            y: {
+                show: true
+            }
+        },
+        tooltip: {
+            format: {
+                title: function (d) {
+                    return '' + d;
+                },
+                value: function (v) {
+                    return v
+                }
+            }
+        }
+    };
+    vm.responseChartData = {};
+
+    vm.requestsChartConfig = {
+        data: {
+            json: [],
+            xFormat: '%Y-%m-%dT%H:%M:%S'
+        },
+        color: {
+            pattern: ['#d6616b', '#6baed6', '#fd8d3c']
+        },
+        axis: {
+            x: {
+                type: 'timeseries',
+                tick: {
+                    culling: {
+                        max: 6 // the number of tick texts will be adjusted to less than this value
+                    },
+                    format: '%Y-%m-%d %H:%M'
+                }
+            },
+            y: {
+                tick: {
+                    count: 5,
+                    format: d3.format('.2f')
+                }
+            }
+        },
+        point: {
+            show: false
+        },
+        subchart: {
+            show: true,
+            size: {
+                height: 20
+            }
+        },
+        size: {
+            height: 350
+        },
+        zoom: {
+            rescale: true
+        },
+        grid: {
+            x: {
+                show: true
+            },
+            y: {
+                show: true
+            }
+        },
+        tooltip: {
+            format: {
+                title: function (d) {
+                    return '' + d;
+                },
+                value: function (v) {
+                    return v
+                }
+            }
+        }
+    };
+    vm.requestsChartData = {};
+
+    vm.loading = {
+        'apdex': true,
+        'reports': true,
+        'graphs': true,
+        'slowCalls': true,
+        'slowURIS': true,
+        'requestsBreakdown': true,
+        'series': true
+    };
+    vm.stream = {paused: false, filtered: false, messages: [], reports: []};
+
+    $rootScope.$on('channelstream-message.front_dashboard.new_topic', function(event, message){
+        var ws_report = message.message.report;
+        if (ws_report.http_status != 500) {
+            return
+        }
+        if (vm.stream.paused == true) {
+            return
+        }
+        if (vm.stream.filtered && ws_report.resource_id != vm.resource) {
+            return
+        }
+        var should_insert = true;
+        _.each(vm.stream.reports, function (report) {
+            if (report.report_id == ws_report.report_id) {
+                report.occurences = ws_report.occurences;
+                should_insert = false;
+            }
+        });
+        if (should_insert) {
+            if (vm.stream.reports.length > 7) {
+                vm.stream.reports.pop();
+            }
+            vm.stream.reports.unshift(ws_report);
+        }
+    });
+
+    vm.determineStartState = function () {
+        if (stateHolder.AeUser.applications.length) {
+            vm.resource = Number($location.search().resource);
+
+            if (!vm.resource){
+                var cookieResource = $cookies.getObject('resource');
+                
+
+                if (cookieResource) {
+                    vm.resource = cookieResource;
+                }
+                else{
+                    vm.resource = stateHolder.AeUser.applications[0].resource_id;
+                }
+            }
+        }
+
+        var timespan = $location.search().timespan;
+
+        if(_.has(vm.timeOptions, timespan)){
+            vm.timeSpan = vm.timeOptions[timespan];
+        }
+        else{
+            vm.timeSpan = vm.timeOptions['1h'];
+        }
+
+        var graphType = $location.search().graphtype;
+        if(!graphType){
+            vm.graphType = {selected: 'metrics_graphs'};
+        }
+        else{
+            vm.graphType = {selected: graphType};
+        }
+        vm.updateSearchParams();
+    };
+
+    vm.updateSearchParams = function () {
+        $location.search('resource', vm.resource);
+        $location.search('timespan', vm.timeSpan.key);
+        $location.search('graphtype', vm.graphType.selected);
+        stateHolder.resource = vm.resource;
+
+        if (vm.resource){
+            $cookies.putObject('resource', vm.resource,
+                {expires:new Date(3000, 1, 1)});
+        }
+        vm.refreshData();
+    };
+
+    vm.refreshData = function () {
+        vm.fetchApdexStats();
+        vm.fetchTrendingReports();
+        vm.fetchMetrics();
+        vm.fetchRequestsBreakdown();
+        vm.fetchSlowCalls();
+    };
+
+    vm.changedTimeSpan = function(){
+        vm.startDateFilter = timeSpanToStartDate(vm.timeSpan.key);
+        vm.refreshData();
+    };
+
+    vm.intervalId = $interval(function () {
+        if (_.contains(['30m', "1h"], vm.timeSpan.key)) {
+            // don't do anything if window is unfocused
+            if(document.hidden === true){
+                return ;
+            }
+            vm.refreshData();
+        }
+    }, 60000);
+
+    vm.fetchApdexStats = function () {
+        vm.loading.apdex = true;
+        vm.apdexStats = applicationsPropertyResource.query({
+                'key': 'apdex_stats',
+                'resourceId': vm.resource,
+                "start_date": timeSpanToStartDate(vm.timeSpan.key)
+            },
+            function (data) {
+                vm.loading.apdex = false;
+
+                vm.exceptions = _.reduce(data, function (memo, row) {
+                    return memo + row.errors;
+                }, 0);
+                vm.satisfyingRequests = _.reduce(data, function (memo, row) {
+                    return memo + row.satisfying_requests;
+                }, 0);
+                vm.toleratedRequests = _.reduce(data, function (memo, row) {
+                    return memo + row.tolerated_requests;
+                }, 0);
+                vm.frustratingRequests = _.reduce(data, function (memo, row) {
+                    return memo + row.frustrating_requests;
+                }, 0);
+                if (data.length) {
+                    vm.uptimeStats = data[0].uptime;
+                }
+
+            },
+            function () {
+                vm.loading.apdex = false;
+            }
+        );
+    }
+
+    vm.fetchMetrics = function () {
+        vm.loading.series = true;
+        applicationsPropertyResource.query({
+            'resourceId': vm.resource,
+            'key': vm.graphType.selected,
+            "start_date": timeSpanToStartDate(vm.timeSpan.key)
+        }, function (data) {
+            if (vm.graphType.selected == 'metrics_graphs') {
+                vm.metricsChartData = {
+                    json: data,
+                    xFormat: '%Y-%m-%dT%H:%M:%S',
+                    keys: {
+                        x: 'x',
+                        value: ["main", "sql", "nosql", "tmpl", "remote", "custom"]
+                    },
+                    names: {
+                        main: 'View/Application logic',
+                        sql: 'Relational database queries',
+                        nosql: 'NoSql datastore calls',
+                        tmpl: 'Template rendering',
+                        custom: 'Custom timed calls',
+                        remote: 'Requests to remote resources'
+                    },
+                    type: 'area',
+                    groups: [["main", "sql", "nosql", "remote", "custom", "tmpl"]],
+                    order: null
+                };
+            }
+            else if (vm.graphType.selected == 'report_graphs') {
+                vm.reportChartData = {
+                    json: data,
+                    xFormat: '%Y-%m-%dT%H:%M:%S',
+                    keys: {
+                        x: 'x',
+                        value: ["not_found", "report"]
+                    },
+                    names: {
+                        report: 'Errors',
+                        not_found: '404\'s requests'
+                    },
+                    type: 'bar'
+                };
+            }
+            else if (vm.graphType.selected == 'slow_report_graphs') {
+                vm.reportSlowChartData = {
+                    json: data,
+                    xFormat: '%Y-%m-%dT%H:%M:%S',
+                    keys: {
+                        x: 'x',
+                        value: ["slow_report"]
+                    },
+                    names: {
+                        slow_report: 'Slow reports'
+                    },
+                    type: 'bar'
+                };
+            }
+            else if (vm.graphType.selected == 'response_graphs') {
+                vm.responseChartData = {
+                    json: data,
+                    xFormat: '%Y-%m-%dT%H:%M:%S',
+                    keys: {
+                        x: 'x',
+                        value: ["today", "days_ago_2", "days_ago_7"]
+                    },
+                    names: {
+                        today: 'Today',
+                        "days_ago_2": '2 days ago',
+                        "days_ago_7": '7 days ago'
+                    }
+                };
+            }
+            else if (vm.graphType.selected == 'requests_graphs') {
+                vm.requestsChartData = {
+                    json: data,
+                    xFormat: '%Y-%m-%dT%H:%M:%S',
+                    keys: {
+                        x: 'x',
+                        value: ["requests"]
+                    },
+                    names: {
+                        requests: 'Requests/s'
+                    }
+                };
+            }
+            vm.loading.series = false;
+        }, function(){
+            vm.loading.series = false;
+        });
+    }
+
+    vm.fetchSlowCalls = function () {
+        vm.loading.slowCalls = true;
+        applicationsPropertyResource.query({
+            'resourceId': vm.resource,
+            "start_date": timeSpanToStartDate(vm.timeSpan.key),
+            'key': 'slow_calls'
+        }, function (data) {
+            vm.slowCalls = data;
+            vm.loading.slowCalls = false;
+        }, function () {
+            vm.loading.slowCalls = false;
+        });
+    }
+
+    vm.fetchRequestsBreakdown = function () {
+        vm.loading.requestsBreakdown = true;
+        applicationsPropertyResource.query({
+            'resourceId': vm.resource,
+            "start_date": timeSpanToStartDate(vm.timeSpan.key),
+            'key': 'requests_breakdown'
+        }, function (data) {
+            vm.requestsBreakdown = data;
+            vm.loading.requestsBreakdown = false;
+        }, function () {
+            vm.loading.requestsBreakdown = false;
+        });
+    }
+
+    vm.fetchTrendingReports = function () {
+
+        if (vm.graphType.selected == 'slow_report_graphs') {
+            var report_type = 'slow';
+        }
+        else {
+            var report_type = 'error';
+        }
+
+        vm.loading.reports = true;
+        vm.trendingReports = applicationsPropertyResource.query({
+                'key': 'trending_reports',
+                'resourceId': vm.resource,
+                "start_date": timeSpanToStartDate(vm.timeSpan.key),
+                "report_type": report_type
+            },
+            function () {
+                vm.loading.reports = false;
+            },
+            function () {
+                vm.loading.reports = false;
+            }
+        );
+    };
+
+    $scope.$on('$destroy',function(){
+        $interval.cancel(vm.intervalId);
+    });
+
+    if (stateHolder.AeUser.applications.length){
+        vm.show_dashboard = true;
+        vm.determineStartState();
+        vm.refreshData();
+    }
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
 var aeconfig = angular.module('appenlight.config', []);
 aeconfig.factory('AeConfig', function () {
     var obj = {};
@@ -8411,671 +9078,6 @@ function EventsController(eventsNoIdResource, eventsResource) {
         });
     }
 
-}
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers')
-    .controller('IndexDashboardController', IndexDashboardController);
-
-IndexDashboardController.$inject = ['$rootScope', '$scope', '$location','$cookies', '$interval', 'stateHolder', 'applicationsPropertyResource', 'AeConfig'];
-
-function IndexDashboardController($rootScope, $scope, $location, $cookies, $interval, stateHolder, applicationsPropertyResource, AeConfig) {
-    var vm = this;
-    stateHolder.section = 'dashboard';
-    vm.timeOptions = {};
-    var allowed = ['1h', '4h', '12h', '24h', '1w', '2w', '1M'];
-    _.each(allowed, function (key) {
-        if (allowed.indexOf(key) !== -1) {
-            vm.timeOptions[key] = AeConfig.timeOptions[key];
-        }
-    });
-    vm.stateHolder = stateHolder;
-    vm.urls = AeConfig.urls;
-    vm.applications = stateHolder.AeUser.applications_map;
-    vm.show_dashboard = false;
-    vm.resource = null;
-    vm.graphType = {selected: null};
-    vm.timeSpan = vm.timeOptions['1h'];
-    vm.trendingReports = [];
-    vm.exceptions = 0;
-    vm.satisfyingRequests = 0;
-    vm.toleratedRequests = 0;
-    vm.frustratingRequests = 0;
-    vm.uptimeStats = 0;
-    vm.apdexStats = [];
-    vm.seriesRequestsData = [];
-    vm.seriesMetricsData = [];
-    vm.seriesSlowData = [];
-    vm.slowCalls = [];
-    vm.slowURIS = [];
-
-    vm.reportChartConfig = {
-        data: {
-            json: [],
-            xFormat: '%Y-%m-%dT%H:%M:%S'
-        },
-        color: {
-            pattern: ['#6baed6', '#e6550d', '#74c476', '#fdd0a2', '#8c564b']
-        },
-        axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    culling: {
-                        max: 6 // the number of tick texts will be adjusted to less than this value
-                    },
-                    format: '%Y-%m-%d %H:%M'
-                }
-            },
-            y: {
-                tick: {
-                    count: 5,
-                    format: d3.format('.2s')
-                }
-            }
-        },
-        subchart: {
-            show: true,
-            size: {
-                height: 20
-            }
-        },
-        size: {
-            height: 250
-        },
-        zoom: {
-            rescale: true
-        },
-        grid: {
-            x: {
-                show: true
-            },
-            y: {
-                show: true
-            }
-        },
-        tooltip: {
-            format: {
-                title: function (d) {
-                    return '' + d;
-                },
-                value: function (v) {
-                    return v
-                }
-            }
-        }
-    };
-    vm.reportChartData = {};
-
-    vm.reportSlowChartConfig = {
-        data: {
-            json: [],
-            xFormat: '%Y-%m-%dT%H:%M:%S'
-        },
-        color: {
-            pattern: ['#6baed6', '#e6550d', '#74c476', '#fdd0a2', '#8c564b']
-        },
-        axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    culling: {
-                        max: 6 // the number of tick texts will be adjusted to less than this value
-                    },
-                    format: '%Y-%m-%d %H:%M'
-                }
-            },
-            y: {
-                tick: {
-                    count: 5,
-                    format: d3.format('.2s')
-                }
-            }
-        },
-        subchart: {
-            show: true,
-            size: {
-                height: 20
-            }
-        },
-        size: {
-            height: 250
-        },
-        zoom: {
-            rescale: true
-        },
-        grid: {
-            x: {
-                show: true
-            },
-            y: {
-                show: true
-            }
-        },
-        tooltip: {
-            format: {
-                title: function (d) {
-                    return '' + d;
-                },
-                value: function (v) {
-                    return v
-                }
-            }
-        }
-    };
-    vm.reportSlowChartData = {};
-
-    vm.metricsChartConfig = {
-        data: {
-            json: [],
-            xFormat: '%Y-%m-%dT%H:%M:%S',
-            keys: {
-                x: 'x',
-                value: ["main", "sql", "nosql", "tmpl", "remote", "custom"]
-            },
-            names: {
-                main: 'View/Application logic',
-                sql: 'Relational database queries',
-                nosql: 'NoSql datastore calls',
-                tmpl: 'Template rendering',
-                custom: 'Custom timed calls',
-                remote: 'Requests to remote resources'
-            },
-            type: 'area',
-            groups: [["main", "sql", "nosql", "remote", "custom", "tmpl"]],
-            order: null
-        },
-        color: {
-            pattern: ['#6baed6', '#c7e9c0', '#fd8d3c', '#d6616b', '#ffcc00', '#c6dbef']
-        },
-        axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    culling: {
-                        max: 6 // the number of tick texts will be adjusted to less than this value
-                    },
-                    format: '%Y-%m-%d %H:%M'
-                }
-            },
-            y: {
-                tick: {
-                    count: 5,
-                    format: d3.format('.2f')
-                }
-            }
-        },
-        point: {
-            show: false
-        },
-        subchart: {
-            show: true,
-            size: {
-                height: 20
-            }
-        },
-        size: {
-            height: 350
-        },
-        zoom: {
-            rescale: true
-        },
-        grid: {
-            x: {
-                show: true
-            },
-            y: {
-                show: true
-            }
-        },
-        tooltip: {
-            format: {
-                title: function (d) {
-                    return '' + d;
-                },
-                value: function (v) {
-                    return v
-                }
-            }
-        }
-    };
-    vm.metricsChartData = {};
-
-    vm.responseChartConfig = {
-        data: {
-            json: [],
-            xFormat: '%Y-%m-%dT%H:%M:%S'
-        },
-        color: {
-            pattern: ['#d6616b', '#6baed6', '#fd8d3c']
-        },
-        axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    culling: {
-                        max: 6 // the number of tick texts will be adjusted to less than this value
-                    },
-                    format: '%Y-%m-%d %H:%M'
-                }
-            },
-            y: {
-                tick: {
-                    count: 5,
-                    format: d3.format('.2f')
-                }
-            }
-        },
-        point: {
-            show: false
-        },
-        subchart: {
-            show: true,
-            size: {
-                height: 20
-            }
-        },
-        size: {
-            height: 350
-        },
-        zoom: {
-            rescale: true
-        },
-        grid: {
-            x: {
-                show: true
-            },
-            y: {
-                show: true
-            }
-        },
-        tooltip: {
-            format: {
-                title: function (d) {
-                    return '' + d;
-                },
-                value: function (v) {
-                    return v
-                }
-            }
-        }
-    };
-    vm.responseChartData = {};
-
-    vm.requestsChartConfig = {
-        data: {
-            json: [],
-            xFormat: '%Y-%m-%dT%H:%M:%S'
-        },
-        color: {
-            pattern: ['#d6616b', '#6baed6', '#fd8d3c']
-        },
-        axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    culling: {
-                        max: 6 // the number of tick texts will be adjusted to less than this value
-                    },
-                    format: '%Y-%m-%d %H:%M'
-                }
-            },
-            y: {
-                tick: {
-                    count: 5,
-                    format: d3.format('.2f')
-                }
-            }
-        },
-        point: {
-            show: false
-        },
-        subchart: {
-            show: true,
-            size: {
-                height: 20
-            }
-        },
-        size: {
-            height: 350
-        },
-        zoom: {
-            rescale: true
-        },
-        grid: {
-            x: {
-                show: true
-            },
-            y: {
-                show: true
-            }
-        },
-        tooltip: {
-            format: {
-                title: function (d) {
-                    return '' + d;
-                },
-                value: function (v) {
-                    return v
-                }
-            }
-        }
-    };
-    vm.requestsChartData = {};
-
-    vm.loading = {
-        'apdex': true,
-        'reports': true,
-        'graphs': true,
-        'slowCalls': true,
-        'slowURIS': true,
-        'requestsBreakdown': true,
-        'series': true
-    };
-    vm.stream = {paused: false, filtered: false, messages: [], reports: []};
-
-    $rootScope.$on('channelstream-message.front_dashboard.new_topic', function(event, message){
-        var ws_report = message.message.report;
-        if (ws_report.http_status != 500) {
-            return
-        }
-        if (vm.stream.paused == true) {
-            return
-        }
-        if (vm.stream.filtered && ws_report.resource_id != vm.resource) {
-            return
-        }
-        var should_insert = true;
-        _.each(vm.stream.reports, function (report) {
-            if (report.report_id == ws_report.report_id) {
-                report.occurences = ws_report.occurences;
-                should_insert = false;
-            }
-        });
-        if (should_insert) {
-            if (vm.stream.reports.length > 7) {
-                vm.stream.reports.pop();
-            }
-            vm.stream.reports.unshift(ws_report);
-        }
-    });
-
-    vm.determineStartState = function () {
-        if (stateHolder.AeUser.applications.length) {
-            vm.resource = Number($location.search().resource);
-
-            if (!vm.resource){
-                var cookieResource = $cookies.getObject('resource');
-                
-
-                if (cookieResource) {
-                    vm.resource = cookieResource;
-                }
-                else{
-                    vm.resource = stateHolder.AeUser.applications[0].resource_id;
-                }
-            }
-        }
-
-        var timespan = $location.search().timespan;
-
-        if(_.has(vm.timeOptions, timespan)){
-            vm.timeSpan = vm.timeOptions[timespan];
-        }
-        else{
-            vm.timeSpan = vm.timeOptions['1h'];
-        }
-
-        var graphType = $location.search().graphtype;
-        if(!graphType){
-            vm.graphType = {selected: 'metrics_graphs'};
-        }
-        else{
-            vm.graphType = {selected: graphType};
-        }
-        vm.updateSearchParams();
-    };
-
-    vm.updateSearchParams = function () {
-        $location.search('resource', vm.resource);
-        $location.search('timespan', vm.timeSpan.key);
-        $location.search('graphtype', vm.graphType.selected);
-        stateHolder.resource = vm.resource;
-
-        if (vm.resource){
-            $cookies.putObject('resource', vm.resource,
-                {expires:new Date(3000, 1, 1)});
-        }
-        vm.refreshData();
-    };
-
-    vm.refreshData = function () {
-        vm.fetchApdexStats();
-        vm.fetchTrendingReports();
-        vm.fetchMetrics();
-        vm.fetchRequestsBreakdown();
-        vm.fetchSlowCalls();
-    };
-
-    vm.changedTimeSpan = function(){
-        vm.startDateFilter = timeSpanToStartDate(vm.timeSpan.key);
-        vm.refreshData();
-    };
-
-    vm.intervalId = $interval(function () {
-        if (_.contains(['30m', "1h"], vm.timeSpan.key)) {
-            // don't do anything if window is unfocused
-            if(document.hidden === true){
-                return ;
-            }
-            vm.refreshData();
-        }
-    }, 60000);
-
-    vm.fetchApdexStats = function () {
-        vm.loading.apdex = true;
-        vm.apdexStats = applicationsPropertyResource.query({
-                'key': 'apdex_stats',
-                'resourceId': vm.resource,
-                "start_date": timeSpanToStartDate(vm.timeSpan.key)
-            },
-            function (data) {
-                vm.loading.apdex = false;
-
-                vm.exceptions = _.reduce(data, function (memo, row) {
-                    return memo + row.errors;
-                }, 0);
-                vm.satisfyingRequests = _.reduce(data, function (memo, row) {
-                    return memo + row.satisfying_requests;
-                }, 0);
-                vm.toleratedRequests = _.reduce(data, function (memo, row) {
-                    return memo + row.tolerated_requests;
-                }, 0);
-                vm.frustratingRequests = _.reduce(data, function (memo, row) {
-                    return memo + row.frustrating_requests;
-                }, 0);
-                if (data.length) {
-                    vm.uptimeStats = data[0].uptime;
-                }
-
-            },
-            function () {
-                vm.loading.apdex = false;
-            }
-        );
-    }
-
-    vm.fetchMetrics = function () {
-        vm.loading.series = true;
-        applicationsPropertyResource.query({
-            'resourceId': vm.resource,
-            'key': vm.graphType.selected,
-            "start_date": timeSpanToStartDate(vm.timeSpan.key)
-        }, function (data) {
-            if (vm.graphType.selected == 'metrics_graphs') {
-                vm.metricsChartData = {
-                    json: data,
-                    xFormat: '%Y-%m-%dT%H:%M:%S',
-                    keys: {
-                        x: 'x',
-                        value: ["main", "sql", "nosql", "tmpl", "remote", "custom"]
-                    },
-                    names: {
-                        main: 'View/Application logic',
-                        sql: 'Relational database queries',
-                        nosql: 'NoSql datastore calls',
-                        tmpl: 'Template rendering',
-                        custom: 'Custom timed calls',
-                        remote: 'Requests to remote resources'
-                    },
-                    type: 'area',
-                    groups: [["main", "sql", "nosql", "remote", "custom", "tmpl"]],
-                    order: null
-                };
-            }
-            else if (vm.graphType.selected == 'report_graphs') {
-                vm.reportChartData = {
-                    json: data,
-                    xFormat: '%Y-%m-%dT%H:%M:%S',
-                    keys: {
-                        x: 'x',
-                        value: ["not_found", "report"]
-                    },
-                    names: {
-                        report: 'Errors',
-                        not_found: '404\'s requests'
-                    },
-                    type: 'bar'
-                };
-            }
-            else if (vm.graphType.selected == 'slow_report_graphs') {
-                vm.reportSlowChartData = {
-                    json: data,
-                    xFormat: '%Y-%m-%dT%H:%M:%S',
-                    keys: {
-                        x: 'x',
-                        value: ["slow_report"]
-                    },
-                    names: {
-                        slow_report: 'Slow reports'
-                    },
-                    type: 'bar'
-                };
-            }
-            else if (vm.graphType.selected == 'response_graphs') {
-                vm.responseChartData = {
-                    json: data,
-                    xFormat: '%Y-%m-%dT%H:%M:%S',
-                    keys: {
-                        x: 'x',
-                        value: ["today", "days_ago_2", "days_ago_7"]
-                    },
-                    names: {
-                        today: 'Today',
-                        "days_ago_2": '2 days ago',
-                        "days_ago_7": '7 days ago'
-                    }
-                };
-            }
-            else if (vm.graphType.selected == 'requests_graphs') {
-                vm.requestsChartData = {
-                    json: data,
-                    xFormat: '%Y-%m-%dT%H:%M:%S',
-                    keys: {
-                        x: 'x',
-                        value: ["requests"]
-                    },
-                    names: {
-                        requests: 'Requests/s'
-                    }
-                };
-            }
-            vm.loading.series = false;
-        }, function(){
-            vm.loading.series = false;
-        });
-    }
-
-    vm.fetchSlowCalls = function () {
-        vm.loading.slowCalls = true;
-        applicationsPropertyResource.query({
-            'resourceId': vm.resource,
-            "start_date": timeSpanToStartDate(vm.timeSpan.key),
-            'key': 'slow_calls'
-        }, function (data) {
-            vm.slowCalls = data;
-            vm.loading.slowCalls = false;
-        }, function () {
-            vm.loading.slowCalls = false;
-        });
-    }
-
-    vm.fetchRequestsBreakdown = function () {
-        vm.loading.requestsBreakdown = true;
-        applicationsPropertyResource.query({
-            'resourceId': vm.resource,
-            "start_date": timeSpanToStartDate(vm.timeSpan.key),
-            'key': 'requests_breakdown'
-        }, function (data) {
-            vm.requestsBreakdown = data;
-            vm.loading.requestsBreakdown = false;
-        }, function () {
-            vm.loading.requestsBreakdown = false;
-        });
-    }
-
-    vm.fetchTrendingReports = function () {
-
-        if (vm.graphType.selected == 'slow_report_graphs') {
-            var report_type = 'slow';
-        }
-        else {
-            var report_type = 'error';
-        }
-
-        vm.loading.reports = true;
-        vm.trendingReports = applicationsPropertyResource.query({
-                'key': 'trending_reports',
-                'resourceId': vm.resource,
-                "start_date": timeSpanToStartDate(vm.timeSpan.key),
-                "report_type": report_type
-            },
-            function () {
-                vm.loading.reports = false;
-            },
-            function () {
-                vm.loading.reports = false;
-            }
-        );
-    };
-
-    $scope.$on('$destroy',function(){
-        $interval.cancel(vm.intervalId);
-    });
-
-    if (stateHolder.AeUser.applications.length){
-        vm.show_dashboard = true;
-        vm.determineStartState();
-        vm.refreshData();
-    }
 }
 
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
@@ -12361,8 +12363,7 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
 
     $stateProvider.state('front_dashboard', {
         url: '/ui',
-        templateUrl: 'templates/dashboard.html',
-        controller: 'IndexDashboardController as index'
+        component: 'indexDashboardView'
     });
     
     $stateProvider.state('report', {
