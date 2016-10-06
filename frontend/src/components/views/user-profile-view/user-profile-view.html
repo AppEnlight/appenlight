@@ -1,0 +1,92 @@
+<ui-view></ui-view><ng-include src="'templates/loader.html'" ng-if="$ctrl.loading.profile"></ng-include>
+
+<div ng-show="!$ctrl.loading.profile">
+    <div class="panel panel-default">
+        <div class="panel-heading" ng-include="'templates/user/breadcrumbs.html'"></div>
+        <div class="panel-body">
+            <form name="$ctrl.profileForm" class="form-horizontal" ng-submit="$ctrl.updateProfile()">
+                <div class="form-group" id="row-email">
+                    <data-form-errors errors="$ctrl.profileForm.ae_validation.email"></data-form-errors>
+                    <label for="email" id="label-email" class="control-label col-sm-4 col-lg-3">
+                        Email Address
+                        <span class="required">*</span>
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input class="form-control" id="email" name="email" type="text" ng-model="$ctrl.user.email">
+                    </div>
+                </div>
+
+                <div class="form-group" id="row-first_name">
+                    <data-form-errors errors="$ctrl.profileForm.ae_validation.first_name"></data-form-errors>
+                    <label for="first_name" id="label-first_name" class="control-label col-sm-4 col-lg-3">
+                        First Name
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input class="form-control" id="first_name" name="first_name" type="text" ng-model="$ctrl.user.first_name">
+                    </div>
+                </div>
+                <div class="form-group" id="row-last_name">
+                    <data-form-errors errors="$ctrl.profileForm.ae_validation.last_name"></data-form-errors>
+                    <label for="last_name" id="label-last_name" class="control-label col-sm-4 col-lg-3">
+                        Last Name
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input class="form-control" id="last_name" name="last_name" type="text" ng-model="$ctrl.user.last_name">
+                    </div>
+                </div>
+                <div class="form-group" id="row-company_name">
+                    <data-form-errors errors="$ctrl.profileForm.ae_validation.company_name"></data-form-errors>
+                    <label for="company_name" id="label-company_name" class="control-label col-sm-4 col-lg-3">
+                        Company Name
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input class="form-control" id="company_name" name="company_name" type="text" ng-model="$ctrl.user.company_name">
+                    </div>
+                </div>
+                <div class="form-group" id="row-company_address">
+                    <data-form-errors errors="$ctrl.profileForm.ae_validation.company_address"></data-form-errors>
+                    <label for="company_address" id="label-company_address" class="control-label col-sm-4 col-lg-3">
+                        Company Address
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <textarea class="form-control" id="company_address" name="company_address" ng-model="$ctrl.user.company_address"></textarea>
+                    </div>
+                </div>
+                <div class="form-group" id="row-zip_code">
+                    <data-form-errors errors="$ctrl.profileForm.ae_validation.zip_code"></data-form-errors>
+                    <label for="zip_code" id="label-zip_code" class="control-label col-sm-4 col-lg-3">
+                        ZIP code
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input class="form-control" id="zip_code" name="zip_code" type="text" ng-model="$ctrl.user.zip_code">
+                    </div>
+                </div>
+                <div class="form-group" id="row-city">
+                    <data-form-errors errors="$ctrl.profileForm.ae_validation.city"></data-form-errors>
+                    <label for="city" id="label-city" class="control-label col-sm-4 col-lg-3">
+                        City
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input class="form-control" id="city" name="city" type="text" ng-model="$ctrl.user.city">
+                    </div>
+                </div>
+                <div class="form-group" id="row-notifications">
+                    <data-form-errors errors="$ctrl.profileForm.ae_validation.notifications"></data-form-errors>
+                    <label for="notifications" id="label-notifications" class="control-label col-sm-4 col-lg-3">
+                        Account notifications
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input checked class="form-control" id="notifications" name="notifications" type="checkbox" ng-model="$ctrl.user.notifications">
+                    </div>
+                </div>
+                <div class="form-group" id="row-submit">
+                    <label for="submit" id="label-submit" class="control-label col-sm-4 col-lg-3">
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        <input class="form-control btn btn-primary" id="submit" name="submit" type="submit" value="Update Account">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

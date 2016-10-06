@@ -17,33 +17,14 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers')
-    .controller('UserProfileController', UserProfileController)
-
-UserProfileController.$inject = ['userSelfResource'];
-
-function UserProfileController(userSelfResource) {
-    console.debug('UserProfileController');
-    var vm = this;
-    vm.loading = {profile: true};
-
-    vm.user = userSelfResource.get(null, function (data) {
-        vm.loading.profile = false;
-        console.log('loaded profile');
+angular.module('appenlight.components.settingsView', [])
+    .component('settingsView', {
+        templateUrl: 'components/views/settings-view/settings-view.html',
+        controller: SettingsViewController
     });
 
-    vm.updateProfile = function () {
-        vm.loading.profile = true;
+SettingsViewController.$inject = [];
 
-        console.log('updateProfile');
-        vm.user.$update(null, function () {
-            vm.loading.profile = false;
-            setServerValidation(vm.profileForm);
-        }, function (response) {
-            if (response.status == 422) {
-                setServerValidation(vm.profileForm, response.data);
-            }
-            vm.loading.profile = false;
-        });
-    }
+function SettingsViewController() {
+    console.info('SettingsViewController');
 }

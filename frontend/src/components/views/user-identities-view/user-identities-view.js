@@ -17,14 +17,18 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers')
-    .controller('UserIdentitiesController', UserIdentitiesController)
+angular.module('appenlight.components.userIdentitiesView', [])
+    .component('userIdentitiesView', {
+        templateUrl: 'components/views/user-identities-view/user-identities-view.html',
+        controller: UserIdentitiesController
+    });
 
-UserIdentitiesController.$inject = ['userSelfPropertyResource'];
+UserIdentitiesController.$inject = ['userSelfPropertyResource', 'AeConfig'];
 
-function UserIdentitiesController(userSelfPropertyResource) {
+function UserIdentitiesController(userSelfPropertyResource, AeConfig) {
     console.debug('UserIdentitiesController');
     var vm = this;
+    vm.AeConfig = AeConfig;
     vm.loading = {identities: true};
 
     vm.identities = userSelfPropertyResource.query(

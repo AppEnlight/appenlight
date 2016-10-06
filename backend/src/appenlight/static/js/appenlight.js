@@ -2681,6 +2681,10 @@ angular.module('appenlight.components', [
     'appenlight.components.appenlightHeader',
     'appenlight.components.indexDashboardView',
     'appenlight.components.logsBrowserView',
+    'appenlight.components.eventBrowserView',
+    'appenlight.components.userProfileView',
+    'appenlight.components.userIdentitiesView',
+    'appenlight.components.settingsView'
 ]);
 angular.module('appenlight.directives', [
     'appenlight.directives.c3chart',
@@ -2843,6 +2847,17 @@ function kickstartAE(initialUserData) {
   $templateCache.put('components/appenlight-app/appenlight-app.html',
     "<channelstream config=\"AeConfig\"></channelstream>\n" +
     "<appenlight-header></appenlight-header>\n" +
+    "<div class=\"container\" data-ng-if=\"flash.length\">\n" +
+    "    <div class=\"row\" style=\"margin-bottom: 10px\">\n" +
+    "        <div class=\"col-xs-12\">\n" +
+    "            <uib-alert data-ng-repeat=\"message in flash\"\n" +
+    "                       type=\"{{ message.type }}\"\n" +
+    "                       close=\"closeAlert($index)\" class=\"animate-repeat\">\n" +
+    "                {{ message.msg }}</uib-alert>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "</div>\n" +
+    "\n" +
     "<div id=\"outer-content\">\n" +
     "    <div ui-view class=\"container\"></div>\n" +
     "</div>\n"
@@ -2949,6 +2964,53 @@ function kickstartAE(initialUserData) {
     "                </div><!-- /.navbar-collapse -->\n" +
     "            </div><!-- /.container-fluid -->\n" +
     "        </div>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/event-browser/event-browser.html',
+    "<div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-body\">\n" +
+    "\n" +
+    "        <h1>Event history</h1>\n" +
+    "\n" +
+    "        <table class=\"table table-striped event-table\">\n" +
+    "            <tr ng-repeat=\"event in $ctrl.events track by event.id\">\n" +
+    "                <td class=\"text-center icons\">\n" +
+    "                    <span ng-if=\"event.event_type === 1\" class=\"fa fa-exclamation-triangle fa-2x\" style=\"color:orangered\"></span>\n" +
+    "                    <span ng-if=\"event.event_type === 3\" class=\"fa fa-clock-o fa-2x\" style=\"color:darkorange\"></span>\n" +
+    "                    <span ng-if=\"event.event_type === 7\" class=\"fa fa-question-circle fa-2x\" style=\"color:dimgrey\"></span>\n" +
+    "                    <span ng-if=\"event.event_type === 9\" class=\"fa fa-line-chart fa-2x\" style=\"color:green\"></span>\n" +
+    "                </td>\n" +
+    "                <td>\n" +
+    "                    <p>For <strong>{{ event.resource_name }}</strong></p>\n" +
+    "\n" +
+    "                    <p>{{ event.text }}</p>\n" +
+    "                    <small class=\"date\" data-uib-tooltip=\"{{event.start_date}}\"> created:\n" +
+    "                        <iso-to-relative-time time=\"{{event.start_date}}\"/>\n" +
+    "                    </small>\n" +
+    "                    <small class=\"date\" ng-show=\"event.end_date\" data-uib-tooltip=\"{{event.end_date}}\"> | closed:\n" +
+    "                        <iso-to-relative-time time=\"{{event.end_date}}\"/>\n" +
+    "                    </small>\n" +
+    "                </td>\n" +
+    "                <td class=\"options\">\n" +
+    "\n" +
+    "                    <span class=\"dropdown pull-right\" ng-if=\"event.status === 1\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
+    "                      <a class=\"dropdown-toggle btn btn-danger\" data-uib-dropdown-toggle>\n" +
+    "                          <span class=\"fa fa-exclamation-circle\"></span>\n" +
+    "                      </a>\n" +
+    "                      <ul class=\"dropdown-menu\">\n" +
+    "                          <li>\n" +
+    "                              <a ng-click=\"$ctrl.closeEvent(event)\">Close event</a>\n" +
+    "                              <a>Do nothing</a>\n" +
+    "                          </li>\n" +
+    "                      </ul>\n" +
+    "                    </span>\n" +
+    "\n" +
+    "                </td>\n" +
+    "            </tr>\n" +
+    "        </table>\n" +
     "    </div>\n" +
     "</div>\n"
   );
@@ -3400,6 +3462,191 @@ function kickstartAE(initialUserData) {
     "                        class=\"pagination pagination-sm\" boundary-links=\"true\" direction-links=\"false\"></uib-pagination>\n" +
     "    </div>\n" +
     "\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/settings-view/settings-view.html',
+    "<div class=\"row\">\n" +
+    "    <div class=\"col-sm-3\" id=\"menu\">\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "            <div class=\"panel-heading\">Applications</div>\n" +
+    "            <ul class=\"list-group\">\n" +
+    "                <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"applications.list\"><span class=\"fa fa-cog\"></span> List applications</a></li>\n" +
+    "                <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"applications.update({resourceId:'new'})\"><span class=\"fa fa-plus-circle\"></span> Create application</a></li>\n" +
+    "                <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"applications.purge_logs\"><span class=\"fa fa-trash-o\"></span> Purge logs</a></li>\n" +
+    "            </ul>\n" +
+    "        </div>\n" +
+    "\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "            <div class=\"panel-heading\">Settings</div>\n" +
+    "            <ul class=\"list-group\">\n" +
+    "                <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.profile.edit\"><span class=\"fa fa-user\"></span> Profile details</a></li>\n" +
+    "                <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.profile.password\"><span class=\"fa fa-lock\"></span> Change Password</a></li>\n" +
+    "                <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.profile.identities\"><span class=\"fa fa-link\"></span> External Identities</a></li>\n" +
+    "                <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.profile.auth_tokens\"><span class=\"fa fa-unlock\"></span> Auth Tokens</a></li>\n" +
+    "            </ul>\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "            <div class=\"panel-heading\">Notifications</div>\n" +
+    "            <ul class=\"list-group\">\n" +
+    "                <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.alert_channels.list\"><span class=\"fa fa-bullhorn\"></span> Alert channels</a></li>\n" +
+    "                <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.alert_channels.email\"><span class=\"fa fa-envelope\"></span> Add email channel</a></li>\n" +
+    "            </ul>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <div class=\"col-sm-9\" ui-view></div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/user-identities-view/user-identities-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.loading.identities\"></ng-include>\n" +
+    "\n" +
+    "<div ng-show=\"!$ctrl.loading.identities\">\n" +
+    "\n" +
+    "    <div class=\"panel panel-default\">\n" +
+    "        <div class=\"panel-heading\" ng-include=\"'templates/user/breadcrumbs.html'\"></div>\n" +
+    "        <div class=\"panel-body\">\n" +
+    "\n" +
+    "            <div class=\"col-sm-6\">\n" +
+    "                <p ng-show=\"$ctrl.identities.length === 0\">No external providers linked yet</p>\n" +
+    "                <ul class=\"list-group\">\n" +
+    "                    <li ng-repeat=\"provider in $ctrl.identities\" class=\"animate-repeat list-group-item\">\n" +
+    "                        <div class=\"pull-right\">\n" +
+    "                            <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
+    "                                <a class=\"btn btn-danger btn-xs\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
+    "                              <ul class=\"dropdown-menu\">\n" +
+    "                                  <li><a>No</a></li>\n" +
+    "                                  <li><a ng-click=\"$ctrl.removeProvider(provider)\">Yes</a></li>\n" +
+    "                              </ul>\n" +
+    "                            </span>\n" +
+    "                        </div>\n" +
+    "                        <em>@{{ provider.provider }}</em>: <strong>{{ provider.id }}</strong>\n" +
+    "                    </li>\n" +
+    "                </ul>\n" +
+    "            </div>\n" +
+    "            <div class=\"col-sm-6\">\n" +
+    "                <ul class=\"list-group\">\n" +
+    "                    <li class=\"list-group-item\">\n" +
+    "                        <a href=\"{{$ctrl.AeConfig.urls.social_auth.google}}\" target=\"_self\">\n" +
+    "                            <span class=\"fa fa-google-plus-square fa-2x\"></span> Connect with Google</a>\n" +
+    "                    </li>\n" +
+    "                    <li class=\"list-group-item\">\n" +
+    "                        <a href=\"{{$ctrl.AeConfig.urls.social_auth.twitter}}\" target=\"_self\">\n" +
+    "                            <span class=\"fa fa-twitter fa-2x\"></span> Connect with Twitter</a>\n" +
+    "                    </li>\n" +
+    "                    <li class=\"list-group-item\">\n" +
+    "                        <a href=\"{{$ctrl.AeConfig.urls.social_auth.bitbucket}}\" target=\"_self\">\n" +
+    "                            <span class=\"fa fa-bitbucket fa-2x\"></span> Connect with Bitbucket</a>\n" +
+    "                    </li>\n" +
+    "                    <li class=\"list-group-item\">\n" +
+    "                        <a href=\"{{$ctrl.AeConfig.urls.social_auth.github}}\" target=\"_self\">\n" +
+    "                            <span class=\"fa fa-github fa-2x\"></span> Connect with Github including private repo access</a>\n" +
+    "                    </li>\n" +
+    "                </ul>\n" +
+    "            </div>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/user-profile-view/user-profile-view.html',
+    "<ui-view></ui-view><ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.loading.profile\"></ng-include>\n" +
+    "\n" +
+    "<div ng-show=\"!$ctrl.loading.profile\">\n" +
+    "    <div class=\"panel panel-default\">\n" +
+    "        <div class=\"panel-heading\" ng-include=\"'templates/user/breadcrumbs.html'\"></div>\n" +
+    "        <div class=\"panel-body\">\n" +
+    "            <form name=\"$ctrl.profileForm\" class=\"form-horizontal\" ng-submit=\"$ctrl.updateProfile()\">\n" +
+    "                <div class=\"form-group\" id=\"row-email\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.profileForm.ae_validation.email\"></data-form-errors>\n" +
+    "                    <label for=\"email\" id=\"label-email\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        Email Address\n" +
+    "                        <span class=\"required\">*</span>\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control\" id=\"email\" name=\"email\" type=\"text\" ng-model=\"$ctrl.user.email\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\" id=\"row-first_name\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.profileForm.ae_validation.first_name\"></data-form-errors>\n" +
+    "                    <label for=\"first_name\" id=\"label-first_name\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        First Name\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control\" id=\"first_name\" name=\"first_name\" type=\"text\" ng-model=\"$ctrl.user.first_name\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "                <div class=\"form-group\" id=\"row-last_name\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.profileForm.ae_validation.last_name\"></data-form-errors>\n" +
+    "                    <label for=\"last_name\" id=\"label-last_name\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        Last Name\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control\" id=\"last_name\" name=\"last_name\" type=\"text\" ng-model=\"$ctrl.user.last_name\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "                <div class=\"form-group\" id=\"row-company_name\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.profileForm.ae_validation.company_name\"></data-form-errors>\n" +
+    "                    <label for=\"company_name\" id=\"label-company_name\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        Company Name\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control\" id=\"company_name\" name=\"company_name\" type=\"text\" ng-model=\"$ctrl.user.company_name\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "                <div class=\"form-group\" id=\"row-company_address\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.profileForm.ae_validation.company_address\"></data-form-errors>\n" +
+    "                    <label for=\"company_address\" id=\"label-company_address\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        Company Address\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <textarea class=\"form-control\" id=\"company_address\" name=\"company_address\" ng-model=\"$ctrl.user.company_address\"></textarea>\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "                <div class=\"form-group\" id=\"row-zip_code\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.profileForm.ae_validation.zip_code\"></data-form-errors>\n" +
+    "                    <label for=\"zip_code\" id=\"label-zip_code\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        ZIP code\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control\" id=\"zip_code\" name=\"zip_code\" type=\"text\" ng-model=\"$ctrl.user.zip_code\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "                <div class=\"form-group\" id=\"row-city\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.profileForm.ae_validation.city\"></data-form-errors>\n" +
+    "                    <label for=\"city\" id=\"label-city\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        City\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control\" id=\"city\" name=\"city\" type=\"text\" ng-model=\"$ctrl.user.city\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "                <div class=\"form-group\" id=\"row-notifications\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.profileForm.ae_validation.notifications\"></data-form-errors>\n" +
+    "                    <label for=\"notifications\" id=\"label-notifications\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        Account notifications\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input checked class=\"form-control\" id=\"notifications\" name=\"notifications\" type=\"checkbox\" ng-model=\"$ctrl.user.notifications\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "                <div class=\"form-group\" id=\"row-submit\">\n" +
+    "                    <label for=\"submit\" id=\"label-submit\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control btn btn-primary\" id=\"submit\" name=\"submit\" type=\"submit\" value=\"Update Account\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "            </form>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
     "</div>\n"
   );
 
@@ -5703,53 +5950,6 @@ function kickstartAE(initialUserData) {
   );
 
 
-  $templateCache.put('templates/events.html',
-    "<div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-body\">\n" +
-    "\n" +
-    "        <h1>Event history</h1>\n" +
-    "\n" +
-    "        <table class=\"table table-striped event-table\">\n" +
-    "            <tr ng-repeat=\"event in events.events track by event.id\">\n" +
-    "                <td class=\"text-center icons\">\n" +
-    "                    <span ng-if=\"event.event_type === 1\" class=\"fa fa-exclamation-triangle fa-2x\" style=\"color:orangered\"></span>\n" +
-    "                    <span ng-if=\"event.event_type === 3\" class=\"fa fa-clock-o fa-2x\" style=\"color:darkorange\"></span>\n" +
-    "                    <span ng-if=\"event.event_type === 7\" class=\"fa fa-question-circle fa-2x\" style=\"color:dimgrey\"></span>\n" +
-    "                    <span ng-if=\"event.event_type === 9\" class=\"fa fa-line-chart fa-2x\" style=\"color:green\"></span>\n" +
-    "                </td>\n" +
-    "                <td>\n" +
-    "                    <p>For <strong>{{ event.resource_name }}</strong></p>\n" +
-    "\n" +
-    "                    <p>{{ event.text }}</p>\n" +
-    "                    <small class=\"date\" data-uib-tooltip=\"{{event.start_date}}\"> created:\n" +
-    "                        <iso-to-relative-time time=\"{{event.start_date}}\"/>\n" +
-    "                    </small>\n" +
-    "                    <small class=\"date\" ng-show=\"event.end_date\" data-uib-tooltip=\"{{event.end_date}}\"> | closed:\n" +
-    "                        <iso-to-relative-time time=\"{{event.end_date}}\"/>\n" +
-    "                    </small>\n" +
-    "                </td>\n" +
-    "                <td class=\"options\">\n" +
-    "\n" +
-    "                    <span class=\"dropdown pull-right\" ng-if=\"event.status === 1\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
-    "                      <a class=\"dropdown-toggle btn btn-danger\" data-uib-dropdown-toggle>\n" +
-    "                          <span class=\"fa fa-exclamation-circle\"></span>\n" +
-    "                      </a>\n" +
-    "                      <ul class=\"dropdown-menu\">\n" +
-    "                          <li>\n" +
-    "                              <a ng-click=\"events.closeEvent(event)\">Close event</a>\n" +
-    "                              <a>Do nothing</a>\n" +
-    "                          </li>\n" +
-    "                      </ul>\n" +
-    "                    </span>\n" +
-    "\n" +
-    "                </td>\n" +
-    "            </tr>\n" +
-    "        </table>\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
   $templateCache.put('templates/integrations/bitbucket.html',
     "      <div class=\"modal-header\">\n" +
     "        <h3 class=\"m-t-0\">Add issue to Bitbucket</h3>\n" +
@@ -6868,196 +7068,6 @@ function kickstartAE(initialUserData) {
   );
 
 
-  $templateCache.put('templates/user/menu.html',
-    "<div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-heading\">Applications</div>\n" +
-    "    <ul class=\"list-group\">\n" +
-    "        <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"applications.list\"><span class=\"fa fa-cog\"></span> List applications</a></li>\n" +
-    "        <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"applications.update({resourceId:'new'})\"><span class=\"fa fa-plus-circle\"></span> Create application</a></li>\n" +
-    "        <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"applications.purge_logs\"><span class=\"fa fa-trash-o\"></span> Purge logs</a></li>\n" +
-    "    </ul>\n" +
-    "</div>\n" +
-    "\n" +
-    "\n" +
-    "<div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-heading\">Settings</div>\n" +
-    "    <ul class=\"list-group\">\n" +
-    "        <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.profile.edit\"><span class=\"fa fa-user\"></span> Profile details</a></li>\n" +
-    "        <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.profile.password\"><span class=\"fa fa-lock\"></span> Change Password</a></li>\n" +
-    "        <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.profile.identities\"><span class=\"fa fa-link\"></span> External Identities</a></li>\n" +
-    "        <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.profile.auth_tokens\"><span class=\"fa fa-unlock\"></span> Auth Tokens</a></li>\n" +
-    "    </ul>\n" +
-    "</div>\n" +
-    "\n" +
-    "<div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-heading\">Notifications</div>\n" +
-    "    <ul class=\"list-group\">\n" +
-    "        <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.alert_channels.list\"><span class=\"fa fa-bullhorn\"></span> Alert channels</a></li>\n" +
-    "        <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.alert_channels.email\"><span class=\"fa fa-envelope\"></span> Add email channel</a></li>\n" +
-    "    </ul>\n" +
-    "</div>"
-  );
-
-
-  $templateCache.put('templates/user/parent_view.html',
-    "<div class=\"row\">\n" +
-    "    <div class=\"col-sm-3\" id=\"menu\">\n" +
-    "        <div ng-include=\"'templates/user/menu.html'\"></div>\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <div class=\"col-sm-9\" ui-view></div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/user/profile_edit.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"profile.loading.profile\"></ng-include>\n" +
-    "\n" +
-    "<div ng-show=\"!profile.loading.profile\">\n" +
-    "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-heading\" ng-include=\"'templates/user/breadcrumbs.html'\"></div>\n" +
-    "        <div class=\"panel-body\">\n" +
-    "            <form name=\"profile.profileForm\" class=\"form-horizontal\" ng-submit=\"profile.updateProfile()\">\n" +
-    "                <div class=\"form-group\" id=\"row-email\">\n" +
-    "                    <data-form-errors errors=\"profile.profileForm.ae_validation.email\"></data-form-errors>\n" +
-    "                    <label for=\"email\" id=\"label-email\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        Email Address\n" +
-    "                        <span class=\"required\">*</span>\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control\" id=\"email\" name=\"email\" type=\"text\" ng-model=\"profile.user.email\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "\n" +
-    "                <div class=\"form-group\" id=\"row-first_name\">\n" +
-    "                    <data-form-errors errors=\"profile.profileForm.ae_validation.first_name\"></data-form-errors>\n" +
-    "                    <label for=\"first_name\" id=\"label-first_name\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        First Name\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control\" id=\"first_name\" name=\"first_name\" type=\"text\" ng-model=\"profile.user.first_name\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "                <div class=\"form-group\" id=\"row-last_name\">\n" +
-    "                    <data-form-errors errors=\"profile.profileForm.ae_validation.last_name\"></data-form-errors>\n" +
-    "                    <label for=\"last_name\" id=\"label-last_name\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        Last Name\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control\" id=\"last_name\" name=\"last_name\" type=\"text\" ng-model=\"profile.user.last_name\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "                <div class=\"form-group\" id=\"row-company_name\">\n" +
-    "                    <data-form-errors errors=\"profile.profileForm.ae_validation.company_name\"></data-form-errors>\n" +
-    "                    <label for=\"company_name\" id=\"label-company_name\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        Company Name\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control\" id=\"company_name\" name=\"company_name\" type=\"text\" ng-model=\"profile.user.company_name\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "                <div class=\"form-group\" id=\"row-company_address\">\n" +
-    "                    <data-form-errors errors=\"profile.profileForm.ae_validation.company_address\"></data-form-errors>\n" +
-    "                    <label for=\"company_address\" id=\"label-company_address\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        Company Address\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <textarea class=\"form-control\" id=\"company_address\" name=\"company_address\" ng-model=\"profile.user.company_address\"></textarea>\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "                <div class=\"form-group\" id=\"row-zip_code\">\n" +
-    "                    <data-form-errors errors=\"profile.profileForm.ae_validation.zip_code\"></data-form-errors>\n" +
-    "                    <label for=\"zip_code\" id=\"label-zip_code\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        ZIP code\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control\" id=\"zip_code\" name=\"zip_code\" type=\"text\" ng-model=\"profile.user.zip_code\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "                <div class=\"form-group\" id=\"row-city\">\n" +
-    "                    <data-form-errors errors=\"profile.profileForm.ae_validation.city\"></data-form-errors>\n" +
-    "                    <label for=\"city\" id=\"label-city\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        City\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control\" id=\"city\" name=\"city\" type=\"text\" ng-model=\"profile.user.city\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "                <div class=\"form-group\" id=\"row-notifications\">\n" +
-    "                    <data-form-errors errors=\"profile.profileForm.ae_validation.notifications\"></data-form-errors>\n" +
-    "                    <label for=\"notifications\" id=\"label-notifications\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        Account notifications\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input checked class=\"form-control\" id=\"notifications\" name=\"notifications\" type=\"checkbox\" ng-model=\"profile.user.notifications\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "                <div class=\"form-group\" id=\"row-submit\">\n" +
-    "                    <label for=\"submit\" id=\"label-submit\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control btn btn-primary\" id=\"submit\" name=\"submit\" type=\"submit\" value=\"Update Account\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "            </form>\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/user/profile_identities.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"identities.loading.identities\"></ng-include>\n" +
-    "\n" +
-    "<div ng-show=\"!identities.loading.identities\">\n" +
-    "\n" +
-    "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-heading\" ng-include=\"'templates/user/breadcrumbs.html'\"></div>\n" +
-    "        <div class=\"panel-body\">\n" +
-    "\n" +
-    "            <div class=\"col-sm-6\">\n" +
-    "                <p ng-show=\"identities.identities.length === 0\">No external providers linked yet</p>\n" +
-    "                <ul class=\"list-group\">\n" +
-    "                    <li ng-repeat=\"provider in identities.identities\" class=\"animate-repeat list-group-item\">\n" +
-    "                        <div class=\"pull-right\">\n" +
-    "                            <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
-    "                                <a class=\"btn btn-danger btn-xs\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
-    "                              <ul class=\"dropdown-menu\">\n" +
-    "                                  <li><a>No</a></li>\n" +
-    "                                  <li><a ng-click=\"identities.removeProvider(provider)\">Yes</a></li>\n" +
-    "                              </ul>\n" +
-    "                            </span>\n" +
-    "                        </div>\n" +
-    "                        <em>@{{ provider.provider }}</em>: <strong>{{ provider.id }}</strong>\n" +
-    "                    </li>\n" +
-    "                </ul>\n" +
-    "            </div>\n" +
-    "            <div class=\"col-sm-6\">\n" +
-    "                <ul class=\"list-group\">\n" +
-    "                    <li class=\"list-group-item\">\n" +
-    "                        <a href=\"{{AeConfig.urls.social_auth.google}}\" target=\"_self\">\n" +
-    "                            <span class=\"fa fa-google-plus-square fa-2x\"></span> Connect with Google</a>\n" +
-    "                    </li>\n" +
-    "                    <li class=\"list-group-item\">\n" +
-    "                        <a href=\"{{AeConfig.urls.social_auth.twitter}}\" target=\"_self\">\n" +
-    "                            <span class=\"fa fa-twitter fa-2x\"></span> Connect with Twitter</a>\n" +
-    "                    </li>\n" +
-    "                    <li class=\"list-group-item\">\n" +
-    "                        <a href=\"{{AeConfig.urls.social_auth.bitbucket}}\" target=\"_self\">\n" +
-    "                            <span class=\"fa fa-bitbucket fa-2x\"></span> Connect with Bitbucket</a>\n" +
-    "                    </li>\n" +
-    "                    <li class=\"list-group-item\">\n" +
-    "                        <a href=\"{{AeConfig.urls.social_auth.github}}\" target=\"_self\">\n" +
-    "                            <span class=\"fa fa-github fa-2x\"></span> Connect with Github including private repo access</a>\n" +
-    "                    </li>\n" +
-    "                </ul>\n" +
-    "            </div>\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
   $templateCache.put('templates/user/profile_password.html',
     "<ng-include src=\"'templates/loader.html'\" ng-if=\"password.loading.password\"></ng-include>\n" +
     "\n" +
@@ -7109,11 +7119,6 @@ function kickstartAE(initialUserData) {
     "        </div>\n" +
     "    </div>\n" +
     "</div>\n"
-  );
-
-
-  $templateCache.put('templates/user/profile.html',
-    "<ui-view></ui-view>"
   );
 
 }]);
@@ -7308,6 +7313,55 @@ function ChannelstreamController($rootScope, stateHolder, userSelfPropertyResour
             
         };
     }.bind(this));
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.eventBrowserView', [])
+    .component('eventBrowserView', {
+        templateUrl: 'components/views/event-browser/event-browser.html',
+        controller: EventBrowserController
+    });
+
+EventBrowserController.$inject = ['eventsNoIdResource', 'eventsResource'];
+
+function EventBrowserController(eventsNoIdResource, eventsResource) {
+    console.info('EventBrowserController');
+    var vm = this;
+
+    vm.loading = {events: true};
+
+    vm.events = eventsNoIdResource.query(
+        {key: 'events'},
+        function (data) {
+            vm.loading.events = false;
+        });
+
+
+    vm.closeEvent = function (event) {
+        
+        eventsResource.update({eventId: event.id}, {status: 0}, function (data) {
+            event.status = 0;
+        });
+    }
+
 }
 
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
@@ -8275,6 +8329,149 @@ function LogsBrowserController($location, stateHolder, typeAheadTagHelper, logsN
     };
     console.info('page load');
     vm.refresh();
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.settingsView', [])
+    .component('settingsView', {
+        templateUrl: 'components/views/settings-view/settings-view.html',
+        controller: SettingsViewController
+    });
+
+SettingsViewController.$inject = [];
+
+function SettingsViewController() {
+    console.info('SettingsViewController');
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.userIdentitiesView', [])
+    .component('userIdentitiesView', {
+        templateUrl: 'components/views/user-identities-view/user-identities-view.html',
+        controller: UserIdentitiesController
+    });
+
+UserIdentitiesController.$inject = ['userSelfPropertyResource', 'AeConfig'];
+
+function UserIdentitiesController(userSelfPropertyResource, AeConfig) {
+    
+    var vm = this;
+    vm.AeConfig = AeConfig;
+    vm.loading = {identities: true};
+
+    vm.identities = userSelfPropertyResource.query(
+        {key: 'external_identities'},
+        function (data) {
+            vm.loading.identities = false;
+            
+        });
+
+    vm.removeProvider = function (provider) {
+        
+        userSelfPropertyResource.delete(
+            {
+                key: 'external_identities',
+                provider: provider.provider,
+                id: provider.id
+            },
+            function (status) {
+                if (status){
+                    vm.identities = _.filter(vm.identities, function (item) {
+                        return item != provider
+                    });
+                }
+
+            });
+    }
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.userProfileView', [])
+    .component('userProfileView', {
+        templateUrl: 'components/views/user-profile-view/user-profile-view.html',
+        controller: UserProfileViewController
+    });
+
+UserProfileViewController.$inject = ['userSelfResource'];
+
+function UserProfileViewController(userSelfResource) {
+    
+    var vm = this;
+    vm.loading = {profile: true};
+
+    vm.user = userSelfResource.get(null, function (data) {
+        vm.loading.profile = false;
+        
+    });
+
+    vm.updateProfile = function () {
+        vm.loading.profile = true;
+
+        
+        vm.user.$update(null, function () {
+            vm.loading.profile = false;
+            setServerValidation(vm.profileForm);
+        }, function (response) {
+            if (response.status == 422) {
+                setServerValidation(vm.profileForm, response.data);
+            }
+            vm.loading.profile = false;
+        });
+    }
 }
 
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
@@ -9354,79 +9551,6 @@ function ApplicationsPurgeLogsController(applicationsResource, sectionViewResour
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers').controller('EventsController', EventsController);
-
-EventsController.$inject = ['eventsNoIdResource', 'eventsResource'];
-
-function EventsController(eventsNoIdResource, eventsResource) {
-    console.info('EventsController');
-    var vm = this;
-
-    vm.loading = {events: true};
-
-    vm.events = eventsNoIdResource.query(
-        {key: 'events'},
-        function (data) {
-            vm.loading.events = false;
-        });
-
-
-    vm.closeEvent = function (event) {
-        
-        eventsResource.update({eventId: event.id}, {status: 0}, function (data) {
-            event.status = 0;
-        });
-    }
-
-}
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers').controller('IndexCtrl', IndexCtrl);
-
-IndexCtrl.$inject = [IndexCtrl];
-
-function IndexCtrl() {
-    var vm = this;
-    vm.selected_section = 'errors';
-}
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
 angular.module('appenlight.controllers')
     .controller('BitbucketIntegrationCtrl', BitbucketIntegrationCtrl)
 
@@ -9694,38 +9818,6 @@ function JiraIntegrationCtrl($uibModalInstance, $state, report, integrationName,
         $uibModalInstance.dismiss('cancel');
     };
     vm.fetchInfo();
-}
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers')
-    .controller('RegisterController', RegisterController);
-
-RegisterController.$inject = ['$scope', '$location'];
-
-function RegisterController() {
-    var vm = this;
-    vm.selected_form = 'sign-up';
-    if (window.location.search.indexOf('sign_in') != -1 || window.location.search.indexOf('came_from') != -1) {
-        vm.selected_form = 'sign-in';
-    }
 }
 
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
@@ -11044,61 +11136,6 @@ function UserAuthTokensController($filter, userSelfPropertyResource, AeConfig) {
 // # https://rhodecode.com/licenses/
 
 angular.module('appenlight.controllers')
-    .controller('UserIdentitiesController', UserIdentitiesController)
-
-UserIdentitiesController.$inject = ['userSelfPropertyResource'];
-
-function UserIdentitiesController(userSelfPropertyResource) {
-    
-    var vm = this;
-    vm.loading = {identities: true};
-
-    vm.identities = userSelfPropertyResource.query(
-        {key: 'external_identities'},
-        function (data) {
-            vm.loading.identities = false;
-            
-        });
-
-    vm.removeProvider = function (provider) {
-        
-        userSelfPropertyResource.delete(
-            {
-                key: 'external_identities',
-                provider: provider.provider,
-                id: provider.id
-            },
-            function (status) {
-                if (status){
-                    vm.identities = _.filter(vm.identities, function (item) {
-                        return item != provider
-                    });
-                }
-
-            });
-    }
-}
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers')
     .controller('UserPasswordController', UserPasswordController)
 
 UserPasswordController.$inject = ['userSelfPropertyResource'];
@@ -11123,56 +11160,6 @@ function UserPasswordController(userSelfPropertyResource) {
                 
             }
             vm.loading.password = false;
-        });
-    }
-}
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers')
-    .controller('UserProfileController', UserProfileController)
-
-UserProfileController.$inject = ['userSelfResource'];
-
-function UserProfileController(userSelfResource) {
-    
-    var vm = this;
-    vm.loading = {profile: true};
-
-    vm.user = userSelfResource.get(null, function (data) {
-        vm.loading.profile = false;
-        
-    });
-
-    vm.updateProfile = function () {
-        vm.loading.profile = true;
-
-        
-        vm.user.$update(null, function () {
-            vm.loading.profile = false;
-            setServerValidation(vm.profileForm);
-        }, function (response) {
-            if (response.status == 422) {
-                setServerValidation(vm.profileForm, response.data);
-            }
-            vm.loading.profile = false;
         });
     }
 }
@@ -12372,8 +12359,7 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
     });
     $stateProvider.state('events', {
         url: '/ui/events',
-        templateUrl: 'templates/events.html',
-        controller: 'EventsController as events'
+        component: 'eventBrowserView'
     });
     $stateProvider.state('admin', {
         url: '/ui/admin',
@@ -12452,25 +12438,23 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
     });
 
     $stateProvider.state('admin.configs.list', {
-        url: '',
+        url: '/list',
         templateUrl: 'templates/admin/configs/edit.html',
         controller: 'ConfigsListController as configs'
     });
 
     $stateProvider.state('user', {
         url: '/ui/user',
-        templateUrl: 'templates/user/parent_view.html'
+        component: 'settingsView'
     });
 
     $stateProvider.state('user.profile', {
         abstract: true,
-        url: '/profile',
-        templateUrl: 'templates/user/profile.html'
+        template: '<ui-view></ui-view>'
     });
     $stateProvider.state('user.profile.edit', {
-        url: '',
-        templateUrl: 'templates/user/profile_edit.html',
-        controller: 'UserProfileController as profile'
+        url: '/profile',
+        component: 'userProfileView'
     });
 
 
@@ -12482,8 +12466,7 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
 
     $stateProvider.state('user.profile.identities', {
         url: '/identities',
-        templateUrl: 'templates/user/profile_identities.html',
-        controller: 'UserIdentitiesController as identities'
+        component: 'userIdentitiesView'
     });
 
     $stateProvider.state('user.profile.auth_tokens', {
@@ -12499,7 +12482,7 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
     });
 
     $stateProvider.state('user.alert_channels.list', {
-        url: '',
+        url: '/list',
         templateUrl: 'templates/user/alert_channels_list.html',
         controller: 'AlertChannelsController as channels'
     });
@@ -12517,7 +12500,7 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
     });
 
     $stateProvider.state('applications.list', {
-        url: '',
+        url: '/list',
         templateUrl: 'templates/applications/list.html',
         controller: 'ApplicationsListController as applications'
     });
