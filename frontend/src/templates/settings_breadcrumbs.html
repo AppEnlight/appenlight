@@ -1,3 +1,11 @@
+<ol class="breadcrumb" ng-show="$ctrl.$state.includes('applications')">
+    <li>Applications</li>
+    <li ng-show="$ctrl.$state.includes('applications.list')" ng-class="{bold:$ctrl.$state.is('applications.list')}">Owned applications</li>
+    <li ng-show="$ctrl.$state.includes('applications.update')" ng-class="{bold:$ctrl.$state.is('applications.update')}">Modify application</li>
+    <li ng-show="$ctrl.$state.includes('applications.integrations')" ng-class="{bold:$ctrl.$state.includes('applications.integrations')}">Integrations</li>
+    <li ng-show="$ctrl.$state.includes('applications.purge_logs')" ng-class="{bold:$ctrl.$state.includes('applications.purge_logs')}">Log Purging</li>
+</ol>
+
 <ol class="breadcrumb" ng-show="$ctrl.$state.includes('user.profile')">
     <li>Settings</li>
     <li ng-show="$ctrl.$state.includes('user.profile.edit')" ng-class="{bold:$ctrl.$state.is('user.profile.edit')}">User Profile</li>

@@ -52,6 +52,18 @@ angular.module('appenlight.components', [
     'appenlight.components.userAuthTokensView',
     'appenlight.components.userAlertChannelsListView',
     'appenlight.components.userAlertChannelsEmailNewView',
+    'appenlight.components.applicationsListView',
+    'appenlight.components.applicationsPurgeLogsView',
+    'appenlight.components.applicationsUpdateView',
+    'appenlight.components.integrationsListView',
+    'appenlight.components.bitbucketIntegrationConfigView',
+    'appenlight.components.campfireIntegrationConfigView',
+    'appenlight.components.flowdockIntegrationConfigView',
+    'appenlight.components.githubIntegrationConfigView',
+    'appenlight.components.hipchatIntegrationConfigView',
+    'appenlight.components.jiraIntegrationConfigView',
+    'appenlight.components.slackIntegrationConfigView',
+    'appenlight.components.webhooksIntegrationConfigView',
     'appenlight.components.settingsView'
 ]);
 angular.module('appenlight.directives', [

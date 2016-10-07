@@ -17,14 +17,18 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers')
-    .controller('ApplicationsPurgeLogsController', ApplicationsPurgeLogsController)
+angular.module('appenlight.components.applicationsPurgeLogsView', [])
+    .component('applicationsPurgeLogsView', {
+        templateUrl: 'components/views/applications-purge-logs-view/applications-purge-logs-view.html',
+        controller: applicationsPurgeLogsViewController
+    });
 
-ApplicationsPurgeLogsController.$inject = ['applicationsResource', 'sectionViewResource', 'logsNoIdResource'];
+applicationsPurgeLogsViewController.$inject = ['$state' ,'applicationsResource', 'sectionViewResource', 'logsNoIdResource'];
 
-function ApplicationsPurgeLogsController(applicationsResource, sectionViewResource, logsNoIdResource) {
-    console.debug('ApplicationsPurgeLogsController');
+function applicationsPurgeLogsViewController($state, applicationsResource, sectionViewResource, logsNoIdResource) {
+    console.debug('applicationsPurgeLogsViewController');
     var vm = this;
+    vm.$state = $state;
     vm.loading = {applications: true};
 
     vm.namespace = null;

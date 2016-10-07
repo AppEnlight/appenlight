@@ -17,15 +17,19 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers')
-    .controller('ApplicationsUpdateController', ApplicationsUpdateController)
+angular.module('appenlight.components.applicationsUpdateView', [])
+    .component('applicationsUpdateView', {
+        templateUrl: 'components/views/applications-update-view/applications-update-view.html',
+        controller: applicationsUpdateViewController
+    });
 
-ApplicationsUpdateController.$inject = ['$state', 'applicationsNoIdResource', 'applicationsResource', 'applicationsPropertyResource', 'stateHolder'];
+applicationsUpdateViewController.$inject = ['$state', 'applicationsNoIdResource', 'applicationsResource', 'applicationsPropertyResource', 'stateHolder'];
 
-function ApplicationsUpdateController($state, applicationsNoIdResource, applicationsResource, applicationsPropertyResource, stateHolder) {
+function applicationsUpdateViewController($state, applicationsNoIdResource, applicationsResource, applicationsPropertyResource, stateHolder) {
     'use strict';
-    console.debug('ApplicationsUpdateController');
+    console.debug('applicationsUpdateView');
     var vm = this;
+    vm.$state = $state;
     vm.loading = {application: false};
 
     vm.groupingOptions = [
@@ -33,14 +37,9 @@ function ApplicationsUpdateController($state, applicationsNoIdResource, applicat
         ['url_traceback', 'Traceback + location'],
         ['traceback_server', 'Traceback + Server'],
     ];
-
     var resourceId = $state.params.resourceId;
-
-
     var options = {};
-
     vm.momentJs = moment;
-    
     vm.formTransferModel = {password:''};
 
     // set initial data

@@ -1,12 +1,12 @@
-<ng-include src="'templates/loader.html'" ng-if="integrations.loading.application && $state.is('applications.integrations')"></ng-include>
+<ng-include src="'templates/loader.html'" ng-if="$ctrl.loading.application && $state.is('applications.integrations')"></ng-include>
 
 <ui-view>
-    <div class="panel panel-default" ng-show="!integrations.loading.application">
-        <div class="panel-heading" ng-include="'templates/applications/breadcrumbs.html'"></div>
+    <div class="panel panel-default" ng-show="!$ctrl.loading.application">
+        <div class="panel-heading" ng-include="'templates/settings_breadcrumbs.html'"></div>
         <div class="panel-body">
 
             <a class="btn btn-default integration"
-               data-ui-sref="applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'bitbucket'})">
+               data-ui-sref="applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'bitbucket'})">
                 <span class="fa fa-fw fa-bitbucket fa-3x pull-left"></span>
                 <strong>Bitbucket</strong>
 
@@ -14,7 +14,7 @@
             </a>
 
             <a class="btn btn-default integration"
-               data-ui-sref="applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'campfire'})">
+               data-ui-sref="applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'campfire'})">
                 <span class="fa fa-fw fa-comment fa-3x pull-left"></span>
                 <strong>Campfire</strong>
 
@@ -22,7 +22,7 @@
             </a>
 
             <a class="btn btn-default integration"
-               data-ui-sref="applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'flowdock'})">
+               data-ui-sref="applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'flowdock'})">
                 <span class="fa fa-fw fa-envelope fa-3x pull-left"></span>
                 <strong>Flowdock</strong>
 
@@ -31,7 +31,7 @@
             </a>
 
             <a class="btn btn-default integration"
-               data-ui-sref="applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'github'})">
+               data-ui-sref="applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'github'})">
                 <span class="fa fa-fw fa-github fa-3x pull-left"></span>
                 <strong>Github</strong>
 
@@ -39,7 +39,7 @@
             </a>
 
             <a class="btn btn-default integration"
-               data-ui-sref="applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'hipchat'})">
+               data-ui-sref="applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'hipchat'})">
                 <span class="fa fa-fw fa-comment fa-3x pull-left"></span>
                 <strong>HipChat</strong>
 
@@ -47,7 +47,7 @@
             </a>
 
             <a class="btn btn-default integration"
-               data-ui-sref="applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'jira'})">
+               data-ui-sref="applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'jira'})">
                 <span class="fa fa-fw fa-ticket fa-3x pull-left"></span>
                 <strong>Jira</strong>
 
@@ -55,7 +55,7 @@
             </a>
 
             <a class="btn btn-default integration"
-               data-ui-sref="applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'slack'})">
+               data-ui-sref="applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'slack'})">
                 <span class="fa fa-fw fa-comment fa-3x pull-left"></span>
                 <strong>Slack</strong>
 
@@ -63,7 +63,7 @@
             </a>
 
             <a class="btn btn-default integration"
-               data-ui-sref="applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'webhooks'})">
+               data-ui-sref="applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'webhooks'})">
                 <span class="fa fa-fw fa-cloud-upload fa-3x pull-left"></span>
                 <strong>Webhooks</strong>
 

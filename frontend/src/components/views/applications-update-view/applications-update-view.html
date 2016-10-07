@@ -1,12 +1,12 @@
-<ng-include src="'templates/loader.html'" ng-if="application.loading.application"></ng-include>
+<ng-include src="'templates/loader.html'" ng-if="$ctrl.loading.application"></ng-include>
 
-<div ng-show="!application.loading.application">
+<div ng-show="!$ctrl.loading.application">
 
     <div class="panel panel-default">
-        <div class="panel-heading" ng-include="'templates/applications/breadcrumbs.html'"></div>
+        <div class="panel-heading" ng-include="'templates/settings_breadcrumbs.html'"></div>
         <div class="panel-body">
 
-            <div class="row" ng-show="application.resource.resource_id">
+            <div class="row" ng-show="$ctrl.resource.resource_id">
                 <div class="col-sm-6">
 
                     <uib-tabset>
@@ -17,11 +17,11 @@
 
                             <p><strong>PRIVATE API KEY:</strong></p>
                             <p>
-                            <div class="well well-sm">{{ application.resource.api_key }}</div>
+                            <div class="well well-sm">{{ $ctrl.resource.api_key }}</div>
                             </p>
                             <p><strong>PUBLIC API KEY</strong> (for javascript clients):</p>
                             <p>
-                            <div class="well well-sm">{{ application.resource.public_key }}</div>
+                            <div class="well well-sm">{{ $ctrl.resource.public_key }}</div>
                             </p>
                             <p><small>Your key will be used to identify to which application your data
                                 belongs to please keep them private at all times.</small></p>
@@ -34,11 +34,11 @@
                             </uib-tab-heading>
                             <p>Are you sure you want to regenerate API KEY for this application?</p>
                             <p>All client application keys will need to be updated.</p>
-                            <form ng-submit="application.regenerateAPIKeys()" name="application.regenerateAPIKeysForm" class="form-inline">
-                                <data-form-errors errors="application.regenerateAPIKeysForm.ae_validation.password"></data-form-errors>
+                            <form ng-submit="$ctrl.regenerateAPIKeys()" name="$ctrl.regenerateAPIKeysForm" class="form-inline">
+                                <data-form-errors errors="$ctrl.regenerateAPIKeysForm.ae_validation.password"></data-form-errors>
                                 <div class="form-group">
                                 <input type="password" name="confirm"
-                                       placeholder="Enter your password to proceed" class="form-control" ng-model="application.regenerateAPIKeysPassword">
+                                       placeholder="Enter your password to proceed" class="form-control" ng-model="$ctrl.regenerateAPIKeysPassword">
                                 <input type="submit" class="btn btn-danger" value="Confirm">
                                 </div>
                             </form>
@@ -64,75 +64,75 @@
                 </div>
             </div>
 
-            <hr ng-show="application.resource.resource_id">
+            <hr ng-show="$ctrl.resource.resource_id">
 
-            <form method="post" class="form-horizontal" name="application.BasicForm" ng-submit="application.updateBasicForm()" novalidate>
+            <form method="post" class="form-horizontal" name="$ctrl.BasicForm" ng-submit="$ctrl.updateBasicForm()" novalidate>
                     <div class="form-group">
-                        <data-form-errors errors="application.BasicForm.ae_validation.resource_name"></data-form-errors>
+                        <data-form-errors errors="$ctrl.BasicForm.ae_validation.resource_name"></data-form-errors>
                         <label class="control-label col-sm-4 col-lg-3">
                             Application name
                             <span class="required">*</span>
                         </label>
 
                         <div class=" col-sm-8 col-lg-9 ">
-                            <input class="form-control"  name="resource_name" placeholder="Application Name" type="text" ng-model="application.resource.resource_name">
+                            <input class="form-control"  name="resource_name" placeholder="Application Name" type="text" ng-model="$ctrl.resource.resource_name">
                         </div>
 
 
                     </div>
 
                     <div class="form-group">
-                        <data-form-errors errors="application.BasicForm.ae_validation.domains"></data-form-errors>
+                        <data-form-errors errors="$ctrl.BasicForm.ae_validation.domains"></data-form-errors>
                         <label class="control-label col-sm-4 col-lg-3">
                             Domain names for CORS headers
                         </label>
                         <div class=" col-sm-8 col-lg-9 ">
-                            <textarea class="form-control"  name="domains"  ng-model="application.resource.domains"></textarea>
+                            <textarea class="form-control"  name="domains"  ng-model="$ctrl.resource.domains"></textarea>
                             <p class="description">Required for Javascript error tracking (one line one domain, skip http:// part)</p>
                         </div>
 
 
                     </div>
-                    <div class="form-group" ng-show="application.resource.resource_id">
-                        <data-form-errors errors="application.BasicForm.ae_validation.default_grouping"></data-form-errors>
+                    <div class="form-group" ng-show="$ctrl.resource.resource_id">
+                        <data-form-errors errors="$ctrl.BasicForm.ae_validation.default_grouping"></data-form-errors>
                         <label class="control-label col-sm-4 col-lg-3">
                             Default grouping for errors
                         </label>
                         <div class=" col-sm-8 col-lg-9 ">
-                            <select class="form-control"  name="default_grouping" ng-model="application.resource.default_grouping" ng-options="i[0] as i[1] for i in application.groupingOptions"></select>
+                            <select class="form-control"  name="default_grouping" ng-model="$ctrl.resource.default_grouping" ng-options="i[0] as i[1] for i in $ctrl.groupingOptions"></select>
                         </div>
 
                     </div>
-                    <div class="form-group" ng-show="application.resource.resource_id">
-                        <data-form-errors errors="application.BasicForm.ae_validation.error_report_threshold"></data-form-errors>
+                    <div class="form-group" ng-show="$ctrl.resource.resource_id">
+                        <data-form-errors errors="$ctrl.BasicForm.ae_validation.error_report_threshold"></data-form-errors>
                         <label class="control-label col-sm-4 col-lg-3">
                             Alert on error reports
                             <span class="required">*</span>
                         </label>
                         <div class=" col-sm-8 col-lg-9 ">
-                            <input class="form-control"  name="error_report_threshold" type="text" ng-model="application.resource.error_report_threshold">
+                            <input class="form-control"  name="error_report_threshold" type="text" ng-model="$ctrl.resource.error_report_threshold">
                             <p class="description">Application requires to send at least this amount of error reports per minute to open alert</p>
                         </div>
                     </div>
-                    <div class="form-group" ng-show="application.resource.resource_id">
-                        <data-form-errors errors="application.BasicForm.ae_validation.slow_report_threshold"></data-form-errors>
+                    <div class="form-group" ng-show="$ctrl.resource.resource_id">
+                        <data-form-errors errors="$ctrl.BasicForm.ae_validation.slow_report_threshold"></data-form-errors>
                         <label class="control-label col-sm-4 col-lg-3">
                             Alert on slow reports
                             <span class="required">*</span>
                         </label>
 
                         <div class=" col-sm-8 col-lg-9 ">
-                            <input class="form-control"  name="slow_report_threshold" type="text" ng-model="application.resource.slow_report_threshold">
+                            <input class="form-control"  name="slow_report_threshold" type="text" ng-model="$ctrl.resource.slow_report_threshold">
                             <p class="description">Application requires to send at least this amount of slow reports per minute to open alert</p>
                         </div>
                     </div>
-                    <div class="form-group" ng-show="application.resource.resource_id">
-                        <data-form-errors errors="application.BasicForm.ae_validation.allow_permanent_storage"></data-form-errors>
+                    <div class="form-group" ng-show="$ctrl.resource.resource_id">
+                        <data-form-errors errors="$ctrl.BasicForm.ae_validation.allow_permanent_storage"></data-form-errors>
                         <label class="control-label col-sm-4 col-lg-3">
                             Permanent logs
                         </label>
                         <div class=" col-sm-8 col-lg-9">
-                            <input class="form-control"  name="allow_permanent_storage" type="checkbox"  ng-model="application.resource.allow_permanent_storage">
+                            <input class="form-control"  name="allow_permanent_storage" type="checkbox"  ng-model="$ctrl.resource.allow_permanent_storage">
                             <p class="description">Allow permanent storage of logs in separate DB partitions (only administrator can enable this feature)</p>
                         </div>
                     </div>
@@ -142,34 +142,34 @@
                         </label>
 
                         <div class=" col-sm-8 col-lg-9 ">
-                            <input class="form-control btn btn-primary"  name="submit" type="submit" value="{{application.resource.resource_id? 'Update' : 'Create'}} Application">
+                            <input class="form-control btn btn-primary"  name="submit" type="submit" value="{{$ctrl.resource.resource_id? 'Update' : 'Create'}} Application">
                         </div>
                     </div>
             </form>
         </div>
     </div>
 
-    <div class="panel panel-default" ng-show="application.resource.resource_id">
+    <div class="panel panel-default" ng-show="$ctrl.resource.resource_id">
         <div class="panel-heading">
             <h3 class="panel-title">Plugins</h3>
         </div>
         <div class="panel-body">
 
-        <plugin-config resource="application.resource"
+        <plugin-config resource="$ctrl.resource"
                        section="'application.update'"
-                       ng-if="application.resource.resource_id">
+                       ng-if="$ctrl.resource.resource_id">
         </plugin-config>
 
         </div>
     </div>
 
-    <div class="panel panel-default m-t-1" ng-show="application.resource.resource_id">
+    <div class="panel panel-default m-t-1" ng-show="$ctrl.resource.resource_id">
         <div class="panel-heading">
             <h3 class="panel-title">API Testing</h3>
         </div>
         <div class="panel-body">
             <p>Please be sure to add at least one <a data-ui-sref="user.alert_channels.email"><strong>email alert channel</strong></a> for your account.</p>
-            <p>This will enable AppEnlight to send you notification emails about errors inside your application.</p>
+            <p>This will enable AppEnlight to send you notification emails about errors inside your $ctrl.</p>
             <p><strong>After this is done you can use this CURL commands to test APIs:</strong></p>
             <p>(Please note that the data like execution times is semi randomly generated)</p>
             <uib-tabset>
@@ -180,7 +180,7 @@
 
                     <div class="codehilite">
                     <pre class="m-a-0">
-curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/logs?protocol_version=0.5\&ampapi_key={{application.resource.api_key}} -d '
+curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/logs?protocol_version=0.5\&ampapi_key={{$ctrl.resource.api_key}} -d '
     [
       {
       "log_level": "WARNING",
@@ -190,7 +190,7 @@ curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/logs?pr
       "permanent": false,
       "primary_key": "random_key",
       "server": "some.server.hostname",
-      "date": "{{application.momentJs.utc().milliseconds(0).toISOString()}}",
+      "date": "{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}",
       "tags": [["tag1","value"], ["tag2", 5]]
       },
       {
@@ -200,7 +200,7 @@ curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/logs?pr
       "request_id": "SOME_UUID",
       "permanent": false,
       "server": "some.server.hostname",
-      "date": "{{application.momentJs.utc().milliseconds(0).toISOString()}}"
+      "date": "{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}"
       }
     ]'
                     </pre>
@@ -215,7 +215,7 @@ curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/logs?pr
 
                     <div class="codehilite">
                     <pre class="m-a-0">
-curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/reports?protocol_version=0.5\&ampapi_key={{application.resource.api_key}} -d '
+curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/reports?protocol_version=0.5\&ampapi_key={{$ctrl.resource.api_key}} -d '
     [{
     "client": "your-client-name-python",
     "language": "python",
@@ -229,8 +229,8 @@ curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/reports
     "username": "USER",
     "url": "HTTP://SOMEURL",
     "ip": "127.0.0.1",
-    "start_time": "{{application.momentJs.utc().milliseconds(0).toISOString()}}",
-    "end_time": "{{application.momentJs.utc().milliseconds(0).add(2, 'seconds').toISOString()}}",
+    "start_time": "{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}",
+    "end_time": "{{$ctrl.momentJs.utc().milliseconds(0).add(2, 'seconds').toISOString()}}",
     "user_agent": "BROWSER_AGENT",
     "extra": [["message","CUSTOM MESSAGE"], ["custom_value", "some payload"]],
     "request_id": "SOME_UUID",
@@ -239,8 +239,8 @@ curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/reports
              "POST": {"FOO":"BAZ","XXX":"YYY"}
              },
     "slow_calls":[{
-                   "start": "{{application.momentJs.utc().milliseconds(0).toISOString()}}",
-                   "end": "{{application.momentJs.utc().milliseconds(0).add(1, 'seconds').toISOString()}}",
+                   "start": "{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}",
+                   "end": "{{$ctrl.momentJs.utc().milliseconds(0).add(1, 'seconds').toISOString()}}",
                    "type": "sql",
                    "subtype": "postgresql",
                    "parameters": ["QPARAM1","QPARAM2","QPARAMX"],
@@ -289,10 +289,10 @@ curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/reports
 
                 <div class="codehilite">
                     <pre class="m-a-0">
-curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/general_metrics?protocol_version=0.5\&ampapi_key={{application.resource.api_key}} -d '
+curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/general_metrics?protocol_version=0.5\&ampapi_key={{$ctrl.resource.api_key}} -d '
         [{
         "namespace": "some.monitor",
-        "timestamp": "{{application.momentJs.utc().milliseconds(0).toISOString()}}",
+        "timestamp": "{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}",
         "server_name": "server.name",
         "tags": [["value1", 15.7], ["value2", 26]]}]'
                     </pre>
@@ -308,9 +308,9 @@ curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/general
 
                     <div class="codehilite">
                     <pre class="m-a-0">
-curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/request_stats?protocol_version=0.5\&ampapi_key={{application.resource.api_key}} -d '
+curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/request_stats?protocol_version=0.5\&ampapi_key={{$ctrl.resource.api_key}} -d '
         [{"server": "some.server.hostname",
-          "timestamp": "{{application.momentJs.utc().milliseconds(0).toISOString()}}",
+          "timestamp": "{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}",
           "metrics": [["dir/module:func",
                {"custom": 0.0,
                 "custom_calls": 0,
@@ -348,10 +348,10 @@ curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/request
         </div>
     </div>
 
-    <permissions-form resource="application.resource" current-permissions="application.resource.current_permissions"
-                      possible-permissions="application.resource.possible_permissions" ng-if="application.resource.resource_id"></permissions-form>
+    <permissions-form resource="$ctrl.resource" current-permissions="$ctrl.resource.current_permissions"
+                      possible-permissions="$ctrl.resource.possible_permissions" ng-if="$ctrl.resource.resource_id"></permissions-form>
 
-    <div class="panel panel-info" ng-show="application.resource.resource_id">
+    <div class="panel panel-info" ng-show="$ctrl.resource.resource_id">
         <div class="panel-heading">
             <h3 class="panel-title">Postprocessing</h3>
         </div>
@@ -359,38 +359,38 @@ curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/request
             <p>This section allows you influence the rating of report groups - if rule is matched once its not executed anymore</p>
 
             <p>
-                <a class="btn btn-info" ng-click="application.addRule()"><span class="fa fa-plus-circle"></span> Add rule</a>
+                <a class="btn btn-info" ng-click="$ctrl.addRule()"><span class="fa fa-plus-circle"></span> Add rule</a>
             </p>
 
-            <post-process-action action="action" resource="application.resource" ng-repeat="action in application.resource.postprocessing_rules"></post-process-action>
+            <post-process-action action="action" resource="$ctrl.resource" ng-repeat="action in $ctrl.resource.postprocessing_rules"></post-process-action>
         </div>
     </div>
 
-    <div class="panel panel-danger" ng-show="application.resource.resource_id">
+    <div class="panel panel-danger" ng-show="$ctrl.resource.resource_id">
         <div class="panel-heading">
             <h3 class="panel-title">Administration</h3>
         </div>
         <div class="panel-body">
             <h2>Transfer ownership</h2>
             <p>Please note that by transfering ownership you WILL lose access to the application data and new owner needs to give you access permission</p>
-            <div class="confirmation_form" ng-submit="application.transferApplication()">
-                <form class="form-horizontal" name="application.formTransfer">
+            <div class="confirmation_form" ng-submit="$ctrl.transferApplication()">
+                <form class="form-horizontal" name="$ctrl.formTransfer">
                     <div class="form-group">
-                        <data-form-errors errors="application.formTransfer.ae_validation.password"></data-form-errors>
+                        <data-form-errors errors="$ctrl.formTransfer.ae_validation.password"></data-form-errors>
                         <label class="control-label col-sm-4 col-lg-3">
                             Password
                         </label>
                         <div class="col-sm-8 col-lg-9">
-                            <input class="form-control"  name="password" type="password" ng-model="application.formTransferModel.password">
+                            <input class="form-control"  name="password" type="password" ng-model="$ctrl.formTransferModel.password">
                         </div>
                     </div>
                     <div class="form-group">
-                        <data-form-errors errors="application.formTransfer.ae_validation.user_name"></data-form-errors>
+                        <data-form-errors errors="$ctrl.formTransfer.ae_validation.user_name"></data-form-errors>
                         <label class="control-label col-sm-4 col-lg-3">
                             New owners username
                         </label>
                         <div class="col-sm-8 col-lg-9">
-                            <input class="form-control"  name="user_name" type="text" ng-model="application.formTransferModel.user_name">
+                            <input class="form-control"  name="user_name" type="text" ng-model="$ctrl.formTransferModel.user_name">
                         </div>
                     </div>
                     <div class="form-group">
@@ -412,14 +412,14 @@ curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/request
             <p><strong>This operation will wipe out all data from database - there is no undo.</strong></p>
 
             <div class="confirmation_form">
-                <form class="form-horizontal" name="application.formDelete" ng-submit="application.deleteApplication()">
+                <form class="form-horizontal" name="$ctrl.formDelete" ng-submit="$ctrl.deleteApplication()">
                     <div class="form-group">
-                        <data-form-errors errors="application.formDelete.ae_validation.password"></data-form-errors>
+                        <data-form-errors errors="$ctrl.formDelete.ae_validation.password"></data-form-errors>
                         <label class="control-label col-sm-4 col-lg-3">
                             Password
                         </label>
                         <div class="col-sm-8 col-lg-9">
-                            <input class="form-control" name="password" type="password" ng-model="application.formDeleteModel.password">
+                            <input class="form-control" name="password" type="password" ng-model="$ctrl.formDeleteModel.password">
                         </div>
                     </div>
                     <div class="form-group">

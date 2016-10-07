@@ -1,14 +1,14 @@
-<ng-include src="'templates/loader.html'" ng-if="applications.loading.applications"></ng-include>
+<ng-include src="'templates/loader.html'" ng-if="$ctrl.loading.applications"></ng-include>
 
-<div class="panel panel-default" ng-show="!applications.loading.applications">
-    <div class="panel-heading" ng-include="'templates/applications/breadcrumbs.html'"></div>
-    <div class="panel-body" ng-if="applications.applications.length === 0 ">
+<div class="panel panel-default" ng-show="!$ctrl.loading.applications">
+    <div class="panel-heading" ng-include="'templates/settings_breadcrumbs.html'"></div>
+    <div class="panel-body" ng-if="$ctrl.applications.length === 0 ">
 
         <p>You have to create a new application first.</p>
 
     </div>
 
-    <table class="table table-striped" ng-if="applications.applications.length > 0">
+    <table class="table table-striped" ng-if="$ctrl.applications.length > 0">
         <thead>
         <tr>
             <th class="resource_name">Resource Name</th>
@@ -17,7 +17,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr class="r{{$index+1}}" ng-repeat="application in applications.applications">
+        <tr class="r{{$index+1}}" ng-repeat="application in $ctrl.applications">
             <td>{{application.resource_name}}</td>
             <td>{{application.domains}}</td>
             <td class="options">

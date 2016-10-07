@@ -17,17 +17,20 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers')
-    .controller('IntegrationsListController', IntegrationsListController)
+angular.module('appenlight.components.applicationsListView', [])
+    .component('applicationsListView', {
+        templateUrl: 'components/views/applications-list-view/applications-list-view.html',
+        controller: ApplicationsListViewController
+    });
 
-IntegrationsListController.$inject = ['$state', 'applicationsResource'];
+ApplicationsListViewController.$inject = ['$state', 'applicationsResource'];
 
-function IntegrationsListController($state, applicationsResource) {
-    console.debug('IntegrationsListController');
+function ApplicationsListViewController($state, applicationsResource) {
+    console.debug('ApplicationsListController');
     var vm = this;
-    vm.loading = {application: true};
-    vm.resource = applicationsResource.get({resourceId: $state.params.resourceId}, function (data) {
-        vm.loading.application = false;
-        $state.current.data.resource = vm.resource;
+    vm.$state = $state;
+    vm.loading = {applications: true};
+    vm.applications = applicationsResource.query(null, function(){
+        vm.loading.applications = false;
     });
 }

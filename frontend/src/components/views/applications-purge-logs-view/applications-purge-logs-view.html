@@ -1,17 +1,17 @@
-<ng-include src="'templates/loader.html'" ng-if="applications_purge.loading.applications"></ng-include>
+<ng-include src="'templates/loader.html'" ng-if="$ctrl.loading.applications"></ng-include>
 
-<div ng-show="!applications_purge.loading.applications">
+<div ng-show="!$ctrl.loading.applications">
     <div class="panel panel-default">
-        <div class="panel-heading" ng-include="'templates/applications/breadcrumbs.html'"></div>
+        <div class="panel-heading" ng-include="'templates/settings_breadcrumbs.html'"></div>
         <div class="panel-body">
 
-            <form method="post" class="form-horizontal" name="applications_purge.form" ng-submit="applications_purge.purgeLogs()">
+            <form method="post" class="form-horizontal" name="$ctrl.form" ng-submit="$ctrl.purgeLogs()">
                 <div class="form-group">
                     <label class="control-label col-sm-3 col-lg-2">Application:</label>
 
                     <div class="col-sm-9 col-lg-10 form-inline">
-                        <select ng-model="applications_purge.selectedResource" ng-change="applications_purge.getCommonKeys()"
-                                ng-options="r.resource_id as r.resource_name for r in applications_purge.applications" class="form-control"></select>
+                        <select ng-model="$ctrl.selectedResource" ng-change="$ctrl.getCommonKeys()"
+                                ng-options="r.resource_id as r.resource_name for r in $ctrl.applications" class="form-control"></select>
                     </div>
                 </div>
 
@@ -19,8 +19,8 @@
                     <label class="control-label col-sm-3 col-lg-2">Namespace:</label>
 
                     <div class="col-sm-9 col-lg-10">
-                        <input type="text" name="namespace" ng-model="applications_purge.namespace"
-                               placeholder="Namespace to filter on" uib-typeahead="ns for ns in applications_purge.commonNamespaces"
+                        <input type="text" name="namespace" ng-model="$ctrl.namespace"
+                               placeholder="Namespace to filter on" uib-typeahead="ns for ns in $ctrl.commonNamespaces"
                                class="form-control">
                     </div>
                 </div>

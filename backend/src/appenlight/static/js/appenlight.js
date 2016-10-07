@@ -2547,7 +2547,7 @@ function decodeEncodedJSON (input){
         delete doc;
         return val;
     }catch(exc){
-        console.error('decodeEncodedJSON:' + exc + ' input:' + input);
+        
         delete doc;
     }
 }
@@ -2600,16 +2600,16 @@ function timeSpanToStartDate(timeSpan){
 /* Sets server validation messages on form using angular machinery +
 * custom key holding actual error messages */
 function setServerValidation(form, errors){
-    console.log('form', form);
+    
     if (typeof form.ae_validation === 'undefined'){
         form.ae_validation = {};
-        console.log('create ae_validation key');
+        
     }
     for (var key in form.ae_validation){
         form.ae_validation[key] = [];
-        console.log('clear key:', key);
+        
     }
-    console.log('errors:',errors);
+    
 
     for (var key in form){
         if (key[0] !== '$' && key !== 'ae_validation'){
@@ -2688,6 +2688,18 @@ angular.module('appenlight.components', [
     'appenlight.components.userAuthTokensView',
     'appenlight.components.userAlertChannelsListView',
     'appenlight.components.userAlertChannelsEmailNewView',
+    'appenlight.components.applicationsListView',
+    'appenlight.components.applicationsPurgeLogsView',
+    'appenlight.components.applicationsUpdateView',
+    'appenlight.components.integrationsListView',
+    'appenlight.components.bitbucketIntegrationConfigView',
+    'appenlight.components.campfireIntegrationConfigView',
+    'appenlight.components.flowdockIntegrationConfigView',
+    'appenlight.components.githubIntegrationConfigView',
+    'appenlight.components.hipchatIntegrationConfigView',
+    'appenlight.components.jiraIntegrationConfigView',
+    'appenlight.components.slackIntegrationConfigView',
+    'appenlight.components.webhooksIntegrationConfigView',
     'appenlight.components.settingsView'
 ]);
 angular.module('appenlight.directives', [
@@ -2720,7 +2732,7 @@ var pluginsToLoad = _.map(decodeEncodedJSON(window.AE.plugins),
     function(item){
         return item.config.angular_module
     });
-console.log(pluginsToLoad);
+
 angular.module('appenlight.plugins', pluginsToLoad);
 
 var app = angular.module('appenlight', [
@@ -2816,7 +2828,7 @@ function kickstartAE(initialUserData) {
                     AeConfig.urls.otherRoutes.lostPassword,
                     AeConfig.urls.otherRoutes.lostPasswordGenerate
                 ];
-                console.log('$transitions.onBefore', path, $transition$.to().name, $state);
+                
                 _.each(openViews, function (url) {
                     var url = '/' + url.split('/').slice(3).join('/');
                     if (url === path) {
@@ -2825,7 +2837,7 @@ function kickstartAE(initialUserData) {
                 });
                 if (stateHolder.AeUser.id === null && !isGuestState && !isOpenView) {
                     if (window.location.toString().indexOf(AeConfig.urls.otherRoutes.register) === -1) {
-                        console.log('redirect to register');
+                        
                         var newLocation = AeConfig.urls.otherRoutes.register + '?came_from=' + encodeURIComponent(window.location);
                         // fix infinite digest here
                         $rootScope.$on('$locationChangeStart',
@@ -2967,6 +2979,606 @@ function kickstartAE(initialUserData) {
     "                        </ul>\n" +
     "                </div><!-- /.navbar-collapse -->\n" +
     "            </div><!-- /.container-fluid -->\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/applications-integrations-view/applications-integrations-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.loading.application && $state.is('applications.integrations')\"></ng-include>\n" +
+    "\n" +
+    "<ui-view>\n" +
+    "    <div class=\"panel panel-default\" ng-show=\"!$ctrl.loading.application\">\n" +
+    "        <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
+    "        <div class=\"panel-body\">\n" +
+    "\n" +
+    "            <a class=\"btn btn-default integration\"\n" +
+    "               data-ui-sref=\"applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'bitbucket'})\">\n" +
+    "                <span class=\"fa fa-fw fa-bitbucket fa-3x pull-left\"></span>\n" +
+    "                <strong>Bitbucket</strong>\n" +
+    "\n" +
+    "                <p>Send issues and reports to Bitbucket</p>\n" +
+    "            </a>\n" +
+    "\n" +
+    "            <a class=\"btn btn-default integration\"\n" +
+    "               data-ui-sref=\"applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'campfire'})\">\n" +
+    "                <span class=\"fa fa-fw fa-comment fa-3x pull-left\"></span>\n" +
+    "                <strong>Campfire</strong>\n" +
+    "\n" +
+    "                <p>Receive reports and alerts in your Campfire rooms</p>\n" +
+    "            </a>\n" +
+    "\n" +
+    "            <a class=\"btn btn-default integration\"\n" +
+    "               data-ui-sref=\"applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'flowdock'})\">\n" +
+    "                <span class=\"fa fa-fw fa-envelope fa-3x pull-left\"></span>\n" +
+    "                <strong>Flowdock</strong>\n" +
+    "\n" +
+    "                <p>Receive reports and alerts on your Flowdock team\n" +
+    "                    inbox</p>\n" +
+    "            </a>\n" +
+    "\n" +
+    "            <a class=\"btn btn-default integration\"\n" +
+    "               data-ui-sref=\"applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'github'})\">\n" +
+    "                <span class=\"fa fa-fw fa-github fa-3x pull-left\"></span>\n" +
+    "                <strong>Github</strong>\n" +
+    "\n" +
+    "                <p>Send issues and reports to Github</p>\n" +
+    "            </a>\n" +
+    "\n" +
+    "            <a class=\"btn btn-default integration\"\n" +
+    "               data-ui-sref=\"applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'hipchat'})\">\n" +
+    "                <span class=\"fa fa-fw fa-comment fa-3x pull-left\"></span>\n" +
+    "                <strong>HipChat</strong>\n" +
+    "\n" +
+    "                <p>Receive reports and alerts in your Hipchat chanels</p>\n" +
+    "            </a>\n" +
+    "\n" +
+    "            <a class=\"btn btn-default integration\"\n" +
+    "               data-ui-sref=\"applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'jira'})\">\n" +
+    "                <span class=\"fa fa-fw fa-ticket fa-3x pull-left\"></span>\n" +
+    "                <strong>Jira</strong>\n" +
+    "\n" +
+    "                <p>Send issues and reports to Jira</p>\n" +
+    "            </a>\n" +
+    "\n" +
+    "            <a class=\"btn btn-default integration\"\n" +
+    "               data-ui-sref=\"applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'slack'})\">\n" +
+    "                <span class=\"fa fa-fw fa-comment fa-3x pull-left\"></span>\n" +
+    "                <strong>Slack</strong>\n" +
+    "\n" +
+    "                <p>Receive reports and alerts in your Slack chanels</p>\n" +
+    "            </a>\n" +
+    "\n" +
+    "            <a class=\"btn btn-default integration\"\n" +
+    "               data-ui-sref=\"applications.integrations.edit({resourceId:$ctrl.resource.resource_id, integration:'webhooks'})\">\n" +
+    "                <span class=\"fa fa-fw fa-cloud-upload fa-3x pull-left\"></span>\n" +
+    "                <strong>Webhooks</strong>\n" +
+    "\n" +
+    "                <p>Notify third party API's of your reports and alerts</p>\n" +
+    "            </a>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "</ui-view>\n"
+  );
+
+
+  $templateCache.put('components/views/applications-list-view/applications-list-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.loading.applications\"></ng-include>\n" +
+    "\n" +
+    "<div class=\"panel panel-default\" ng-show=\"!$ctrl.loading.applications\">\n" +
+    "    <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
+    "    <div class=\"panel-body\" ng-if=\"$ctrl.applications.length === 0 \">\n" +
+    "\n" +
+    "        <p>You have to create a new application first.</p>\n" +
+    "\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <table class=\"table table-striped\" ng-if=\"$ctrl.applications.length > 0\">\n" +
+    "        <thead>\n" +
+    "        <tr>\n" +
+    "            <th class=\"resource_name\">Resource Name</th>\n" +
+    "            <th class=\"domains\">Domains</th>\n" +
+    "            <th class=\"options\">Options</th>\n" +
+    "        </tr>\n" +
+    "        </thead>\n" +
+    "        <tbody>\n" +
+    "        <tr class=\"r{{$index+1}}\" ng-repeat=\"application in $ctrl.applications\">\n" +
+    "            <td>{{application.resource_name}}</td>\n" +
+    "            <td>{{application.domains}}</td>\n" +
+    "            <td class=\"options\">\n" +
+    "                <a class=\"btn btn-default\" data-ui-sref=\"applications.update({resourceId:application.resource_id})\" data-toggle=\"tooltip\" title=\"Update application\"><span class=\"fa fa-cog\"></span> Update</a>\n" +
+    "                <a class=\"btn btn-default\" data-ui-sref=\"applications.integrations({resourceId:application.resource_id})\" data-toggle=\"tooltip\" title=\"Manage Integrations\"><span class=\"fa fa-wrench\"></span> Integrations</a>\n" +
+    "            </td>\n" +
+    "        </tr>\n" +
+    "        </tbody>\n" +
+    "    </table>\n" +
+    "\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/applications-purge-logs-view/applications-purge-logs-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.loading.applications\"></ng-include>\n" +
+    "\n" +
+    "<div ng-show=\"!$ctrl.loading.applications\">\n" +
+    "    <div class=\"panel panel-default\">\n" +
+    "        <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
+    "        <div class=\"panel-body\">\n" +
+    "\n" +
+    "            <form method=\"post\" class=\"form-horizontal\" name=\"$ctrl.form\" ng-submit=\"$ctrl.purgeLogs()\">\n" +
+    "                <div class=\"form-group\">\n" +
+    "                    <label class=\"control-label col-sm-3 col-lg-2\">Application:</label>\n" +
+    "\n" +
+    "                    <div class=\"col-sm-9 col-lg-10 form-inline\">\n" +
+    "                        <select ng-model=\"$ctrl.selectedResource\" ng-change=\"$ctrl.getCommonKeys()\"\n" +
+    "                                ng-options=\"r.resource_id as r.resource_name for r in $ctrl.applications\" class=\"form-control\"></select>\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                    <label class=\"control-label col-sm-3 col-lg-2\">Namespace:</label>\n" +
+    "\n" +
+    "                    <div class=\"col-sm-9 col-lg-10\">\n" +
+    "                        <input type=\"text\" name=\"namespace\" ng-model=\"$ctrl.namespace\"\n" +
+    "                               placeholder=\"Namespace to filter on\" uib-typeahead=\"ns for ns in $ctrl.commonNamespaces\"\n" +
+    "                               class=\"form-control\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                    <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
+    "\n" +
+    "                    <div class=\"col-sm-8 col-lg-9 \">\n" +
+    "                        <input class=\"form-control btn btn-primary\" name=\"submit\" type=\"submit\" value=\"Purge logs meeting the criteria\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "\n" +
+    "            </form>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/applications-update-view/applications-update-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.loading.application\"></ng-include>\n" +
+    "\n" +
+    "<div ng-show=\"!$ctrl.loading.application\">\n" +
+    "\n" +
+    "    <div class=\"panel panel-default\">\n" +
+    "        <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
+    "        <div class=\"panel-body\">\n" +
+    "\n" +
+    "            <div class=\"row\" ng-show=\"$ctrl.resource.resource_id\">\n" +
+    "                <div class=\"col-sm-6\">\n" +
+    "\n" +
+    "                    <uib-tabset>\n" +
+    "                        <uib-tab>\n" +
+    "                            <uib-tab-heading>\n" +
+    "                                API keys\n" +
+    "                            </uib-tab-heading>\n" +
+    "\n" +
+    "                            <p><strong>PRIVATE API KEY:</strong></p>\n" +
+    "                            <p>\n" +
+    "                            <div class=\"well well-sm\">{{ $ctrl.resource.api_key }}</div>\n" +
+    "                            </p>\n" +
+    "                            <p><strong>PUBLIC API KEY</strong> (for javascript clients):</p>\n" +
+    "                            <p>\n" +
+    "                            <div class=\"well well-sm\">{{ $ctrl.resource.public_key }}</div>\n" +
+    "                            </p>\n" +
+    "                            <p><small>Your key will be used to identify to which application your data\n" +
+    "                                belongs to please keep them private at all times.</small></p>\n" +
+    "\n" +
+    "                        </uib-tab>\n" +
+    "\n" +
+    "                        <uib-tab>\n" +
+    "                            <uib-tab-heading>\n" +
+    "                                <span class=\"btn btn-danger btn-xs\"><span class=\"fa fa-exclamation-triangle\"></span></span> Regenerate API keys\n" +
+    "                            </uib-tab-heading>\n" +
+    "                            <p>Are you sure you want to regenerate API KEY for this application?</p>\n" +
+    "                            <p>All client application keys will need to be updated.</p>\n" +
+    "                            <form ng-submit=\"$ctrl.regenerateAPIKeys()\" name=\"$ctrl.regenerateAPIKeysForm\" class=\"form-inline\">\n" +
+    "                                <data-form-errors errors=\"$ctrl.regenerateAPIKeysForm.ae_validation.password\"></data-form-errors>\n" +
+    "                                <div class=\"form-group\">\n" +
+    "                                <input type=\"password\" name=\"confirm\"\n" +
+    "                                       placeholder=\"Enter your password to proceed\" class=\"form-control\" ng-model=\"$ctrl.regenerateAPIKeysPassword\">\n" +
+    "                                <input type=\"submit\" class=\"btn btn-danger\" value=\"Confirm\">\n" +
+    "                                </div>\n" +
+    "                            </form>\n" +
+    "                        </uib-tab>\n" +
+    "                    </uib-tabset>\n" +
+    "                </div>\n" +
+    "                <div class=\"col-sm-6 text-center\">\n" +
+    "                    <h2 class=\"m-t-0\">How to connect your application?</h2>\n" +
+    "                    <p>Visit our <a href=\"{{AeConfig.urls.docs}}\"><strong>developer documentation</strong></a> for step-by-step integration instructions.</p>\n" +
+    "                    <div class=\"clearfix\"></div>\n" +
+    "                    <p class=\"text-center\">\n" +
+    "                        <a href=\"{{AeConfig.urls.docs}}\"><img src=\"/static/appenlight/images/logos/django_small.png\" alt=\"Django Logo\">\n" +
+    "                            <img src=\"/static/appenlight/images/logos/pyramid_small.png\" alt=\"Pyramid Logo\">\n" +
+    "                            <img src=\"/static/appenlight/images/logos/flask_small.png\" alt=\"Flask Logo\"></a>\n" +
+    "\n" +
+    "                        <a href=\"{{AeConfig.urls.docs}}\"><img src=\"/static/appenlight/images/logos/js_small.png\" alt=\"Javascript Logo\">\n" +
+    "                            <img src=\"/static/appenlight/images/logos/nodejs.png\" alt=\"Node.js\"></a>\n" +
+    "                        <img src=\"/static/appenlight/images/logos/ruby_small.png\" alt=\"Ruby Logo\">\n" +
+    "                        <img src=\"/static/appenlight/images/logos/php_small.png\" alt=\"PHP Logo\">\n" +
+    "                        </a>\n" +
+    "\n" +
+    "                    </p>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <hr ng-show=\"$ctrl.resource.resource_id\">\n" +
+    "\n" +
+    "            <form method=\"post\" class=\"form-horizontal\" name=\"$ctrl.BasicForm\" ng-submit=\"$ctrl.updateBasicForm()\" novalidate>\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                        <data-form-errors errors=\"$ctrl.BasicForm.ae_validation.resource_name\"></data-form-errors>\n" +
+    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                            Application name\n" +
+    "                            <span class=\"required\">*</span>\n" +
+    "                        </label>\n" +
+    "\n" +
+    "                        <div class=\" col-sm-8 col-lg-9 \">\n" +
+    "                            <input class=\"form-control\"  name=\"resource_name\" placeholder=\"Application Name\" type=\"text\" ng-model=\"$ctrl.resource.resource_name\">\n" +
+    "                        </div>\n" +
+    "\n" +
+    "\n" +
+    "                    </div>\n" +
+    "\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                        <data-form-errors errors=\"$ctrl.BasicForm.ae_validation.domains\"></data-form-errors>\n" +
+    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                            Domain names for CORS headers\n" +
+    "                        </label>\n" +
+    "                        <div class=\" col-sm-8 col-lg-9 \">\n" +
+    "                            <textarea class=\"form-control\"  name=\"domains\"  ng-model=\"$ctrl.resource.domains\"></textarea>\n" +
+    "                            <p class=\"description\">Required for Javascript error tracking (one line one domain, skip http:// part)</p>\n" +
+    "                        </div>\n" +
+    "\n" +
+    "\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\" ng-show=\"$ctrl.resource.resource_id\">\n" +
+    "                        <data-form-errors errors=\"$ctrl.BasicForm.ae_validation.default_grouping\"></data-form-errors>\n" +
+    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                            Default grouping for errors\n" +
+    "                        </label>\n" +
+    "                        <div class=\" col-sm-8 col-lg-9 \">\n" +
+    "                            <select class=\"form-control\"  name=\"default_grouping\" ng-model=\"$ctrl.resource.default_grouping\" ng-options=\"i[0] as i[1] for i in $ctrl.groupingOptions\"></select>\n" +
+    "                        </div>\n" +
+    "\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\" ng-show=\"$ctrl.resource.resource_id\">\n" +
+    "                        <data-form-errors errors=\"$ctrl.BasicForm.ae_validation.error_report_threshold\"></data-form-errors>\n" +
+    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                            Alert on error reports\n" +
+    "                            <span class=\"required\">*</span>\n" +
+    "                        </label>\n" +
+    "                        <div class=\" col-sm-8 col-lg-9 \">\n" +
+    "                            <input class=\"form-control\"  name=\"error_report_threshold\" type=\"text\" ng-model=\"$ctrl.resource.error_report_threshold\">\n" +
+    "                            <p class=\"description\">Application requires to send at least this amount of error reports per minute to open alert</p>\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\" ng-show=\"$ctrl.resource.resource_id\">\n" +
+    "                        <data-form-errors errors=\"$ctrl.BasicForm.ae_validation.slow_report_threshold\"></data-form-errors>\n" +
+    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                            Alert on slow reports\n" +
+    "                            <span class=\"required\">*</span>\n" +
+    "                        </label>\n" +
+    "\n" +
+    "                        <div class=\" col-sm-8 col-lg-9 \">\n" +
+    "                            <input class=\"form-control\"  name=\"slow_report_threshold\" type=\"text\" ng-model=\"$ctrl.resource.slow_report_threshold\">\n" +
+    "                            <p class=\"description\">Application requires to send at least this amount of slow reports per minute to open alert</p>\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\" ng-show=\"$ctrl.resource.resource_id\">\n" +
+    "                        <data-form-errors errors=\"$ctrl.BasicForm.ae_validation.allow_permanent_storage\"></data-form-errors>\n" +
+    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                            Permanent logs\n" +
+    "                        </label>\n" +
+    "                        <div class=\" col-sm-8 col-lg-9\">\n" +
+    "                            <input class=\"form-control\"  name=\"allow_permanent_storage\" type=\"checkbox\"  ng-model=\"$ctrl.resource.allow_permanent_storage\">\n" +
+    "                            <p class=\"description\">Allow permanent storage of logs in separate DB partitions (only administrator can enable this feature)</p>\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "\n" +
+    "                        </label>\n" +
+    "\n" +
+    "                        <div class=\" col-sm-8 col-lg-9 \">\n" +
+    "                            <input class=\"form-control btn btn-primary\"  name=\"submit\" type=\"submit\" value=\"{{$ctrl.resource.resource_id? 'Update' : 'Create'}} Application\">\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "            </form>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <div class=\"panel panel-default\" ng-show=\"$ctrl.resource.resource_id\">\n" +
+    "        <div class=\"panel-heading\">\n" +
+    "            <h3 class=\"panel-title\">Plugins</h3>\n" +
+    "        </div>\n" +
+    "        <div class=\"panel-body\">\n" +
+    "\n" +
+    "        <plugin-config resource=\"$ctrl.resource\"\n" +
+    "                       section=\"'application.update'\"\n" +
+    "                       ng-if=\"$ctrl.resource.resource_id\">\n" +
+    "        </plugin-config>\n" +
+    "\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <div class=\"panel panel-default m-t-1\" ng-show=\"$ctrl.resource.resource_id\">\n" +
+    "        <div class=\"panel-heading\">\n" +
+    "            <h3 class=\"panel-title\">API Testing</h3>\n" +
+    "        </div>\n" +
+    "        <div class=\"panel-body\">\n" +
+    "            <p>Please be sure to add at least one <a data-ui-sref=\"user.alert_channels.email\"><strong>email alert channel</strong></a> for your account.</p>\n" +
+    "            <p>This will enable AppEnlight to send you notification emails about errors inside your $ctrl.</p>\n" +
+    "            <p><strong>After this is done you can use this CURL commands to test APIs:</strong></p>\n" +
+    "            <p>(Please note that the data like execution times is semi randomly generated)</p>\n" +
+    "            <uib-tabset>\n" +
+    "                <uib-tab>\n" +
+    "                    <uib-tab-heading>\n" +
+    "                        Log API\n" +
+    "                    </uib-tab-heading>\n" +
+    "\n" +
+    "                    <div class=\"codehilite\">\n" +
+    "                    <pre class=\"m-a-0\">\n" +
+    "curl -H \"Content-Type: application/json\" -k {{AeConfig.urls.baseUrl}}api/logs?protocol_version=0.5\\&ampapi_key={{$ctrl.resource.api_key}} -d '\n" +
+    "    [\n" +
+    "      {\n" +
+    "      \"log_level\": \"WARNING\",\n" +
+    "      \"message\": \"OMG ValueError happened\",\n" +
+    "      \"namespace\": \"some.namespace.indicator\",\n" +
+    "      \"request_id\": \"SOME_UUID\",\n" +
+    "      \"permanent\": false,\n" +
+    "      \"primary_key\": \"random_key\",\n" +
+    "      \"server\": \"some.server.hostname\",\n" +
+    "      \"date\": \"{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}\",\n" +
+    "      \"tags\": [[\"tag1\",\"value\"], [\"tag2\", 5]]\n" +
+    "      },\n" +
+    "      {\n" +
+    "      \"log_level\": \"ERROR\",\n" +
+    "      \"message\": \"OMG ValueError happened2\",\n" +
+    "      \"namespace\": \"some.namespace.indicator\",\n" +
+    "      \"request_id\": \"SOME_UUID\",\n" +
+    "      \"permanent\": false,\n" +
+    "      \"server\": \"some.server.hostname\",\n" +
+    "      \"date\": \"{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}\"\n" +
+    "      }\n" +
+    "    ]'\n" +
+    "                    </pre>\n" +
+    "                    </div>\n" +
+    "\n" +
+    "                </uib-tab>\n" +
+    "\n" +
+    "                <uib-tab>\n" +
+    "                    <uib-tab-heading>\n" +
+    "                        Report API\n" +
+    "                    </uib-tab-heading>\n" +
+    "\n" +
+    "                    <div class=\"codehilite\">\n" +
+    "                    <pre class=\"m-a-0\">\n" +
+    "curl -H \"Content-Type: application/json\" -k {{AeConfig.urls.baseUrl}}api/reports?protocol_version=0.5\\&ampapi_key={{$ctrl.resource.api_key}} -d '\n" +
+    "    [{\n" +
+    "    \"client\": \"your-client-name-python\",\n" +
+    "    \"language\": \"python\",\n" +
+    "    \"view_name\": \"views/foo:bar\",\n" +
+    "    \"server\": \"SERVERNAME/INSTANCENAME\",\n" +
+    "    \"priority\": 5,\n" +
+    "    \"error\": \"OMG ValueError happened\",\n" +
+    "    \"occurences\":1,\n" +
+    "    \"http_status\": 500,\n" +
+    "    \"tags\": [[\"tag1\",\"value\"], [\"tag2\", 5]],\n" +
+    "    \"username\": \"USER\",\n" +
+    "    \"url\": \"HTTP://SOMEURL\",\n" +
+    "    \"ip\": \"127.0.0.1\",\n" +
+    "    \"start_time\": \"{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}\",\n" +
+    "    \"end_time\": \"{{$ctrl.momentJs.utc().milliseconds(0).add(2, 'seconds').toISOString()}}\",\n" +
+    "    \"user_agent\": \"BROWSER_AGENT\",\n" +
+    "    \"extra\": [[\"message\",\"CUSTOM MESSAGE\"], [\"custom_value\", \"some payload\"]],\n" +
+    "    \"request_id\": \"SOME_UUID\",\n" +
+    "    \"request\": {\"REQUEST_METHOD\": \"GET\",\n" +
+    "             \"PATH_INFO\": \"/FOO/BAR\",\n" +
+    "             \"POST\": {\"FOO\":\"BAZ\",\"XXX\":\"YYY\"}\n" +
+    "             },\n" +
+    "    \"slow_calls\":[{\n" +
+    "                   \"start\": \"{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}\",\n" +
+    "                   \"end\": \"{{$ctrl.momentJs.utc().milliseconds(0).add(1, 'seconds').toISOString()}}\",\n" +
+    "                   \"type\": \"sql\",\n" +
+    "                   \"subtype\": \"postgresql\",\n" +
+    "                   \"parameters\": [\"QPARAM1\",\"QPARAM2\",\"QPARAMX\"],\n" +
+    "                   \"statement\": \"QUERY\"\n" +
+    "                   }],\n" +
+    "    \"request_stats\": {\n" +
+    "                    \"main\": 2.50779,\n" +
+    "                    \"nosql\": 0.01008,\n" +
+    "                    \"nosql_calls\": 17.0,\n" +
+    "                    \"remote\": 0.0,\n" +
+    "                    \"remote_calls\": 0.0,\n" +
+    "                    \"sql\": 1,\n" +
+    "                    \"sql_calls\": 1.0,\n" +
+    "                    \"tmpl\": 0.0,\n" +
+    "                    \"tmpl_calls\": 0.0,\n" +
+    "                    \"custom\": 0.0,\n" +
+    "                    \"custom_calls\": 0.0\n" +
+    "                },\n" +
+    "    \"traceback\": [\n" +
+    "                {\"cline\": \"return foo_bar_baz(1,2,3)\",\n" +
+    "                \"file\": \"somedir/somefile.py\",\n" +
+    "                \"fn\": \"somefunction\",\n" +
+    "                \"line\": 454,\n" +
+    "                \"vars\": [[\"a_list\",\n" +
+    "                         [\"1\",2,\"4\",\"5\",6]],\n" +
+    "                         [\"b\", {\"1\": \"2\", \"ccc\": \"ddd\", \"1\": \"a\"}],\n" +
+    "                         [\"obj\", \"object object at 0x7f0030853dc0\"]]\n" +
+    "                        },\n" +
+    "                        {\"cline\": \"OMG ValueError happened\",\n" +
+    "                        \"file\": \"\",\n" +
+    "                        \"fn\": \"\",\n" +
+    "                        \"line\": \"\",\n" +
+    "                        \"vars\": []}\n" +
+    "                        ]\n" +
+    "                        }]'\n" +
+    "                    </pre>\n" +
+    "                    </div>\n" +
+    "\n" +
+    "                </uib-tab>\n" +
+    "\n" +
+    "                <uib-tab>\n" +
+    "\n" +
+    "                <uib-tab-heading>\n" +
+    "                    Metrics API\n" +
+    "                </uib-tab-heading>\n" +
+    "\n" +
+    "                <div class=\"codehilite\">\n" +
+    "                    <pre class=\"m-a-0\">\n" +
+    "curl -H \"Content-Type: application/json\" -k {{AeConfig.urls.baseUrl}}api/general_metrics?protocol_version=0.5\\&ampapi_key={{$ctrl.resource.api_key}} -d '\n" +
+    "        [{\n" +
+    "        \"namespace\": \"some.monitor\",\n" +
+    "        \"timestamp\": \"{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}\",\n" +
+    "        \"server_name\": \"server.name\",\n" +
+    "        \"tags\": [[\"value1\", 15.7], [\"value2\", 26]]}]'\n" +
+    "                    </pre>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                </uib-tab>\n" +
+    "\n" +
+    "                <uib-tab>\n" +
+    "\n" +
+    "                    <uib-tab-heading>\n" +
+    "                        Request Stats API\n" +
+    "                    </uib-tab-heading>\n" +
+    "\n" +
+    "                    <div class=\"codehilite\">\n" +
+    "                    <pre class=\"m-a-0\">\n" +
+    "curl -H \"Content-Type: application/json\" -k {{AeConfig.urls.baseUrl}}api/request_stats?protocol_version=0.5\\&ampapi_key={{$ctrl.resource.api_key}} -d '\n" +
+    "        [{\"server\": \"some.server.hostname\",\n" +
+    "          \"timestamp\": \"{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}\",\n" +
+    "          \"metrics\": [[\"dir/module:func\",\n" +
+    "               {\"custom\": 0.0,\n" +
+    "                \"custom_calls\": 0,\n" +
+    "                \"main\": 0.01664,\n" +
+    "                \"nosql\": 0.00061,\n" +
+    "                \"nosql_calls\": 23,\n" +
+    "                \"remote\": 0.0,\n" +
+    "                \"remote_calls\": 0,\n" +
+    "                \"requests\": 1,\n" +
+    "                \"sql\": 0.00105,\n" +
+    "                \"sql_calls\": 2,\n" +
+    "                \"tmpl\": 0.0,\n" +
+    "                \"tmpl_calls\": 0}],\n" +
+    "              [\"SomeView.function\",\n" +
+    "               {\"custom\": 0.0,\n" +
+    "                \"custom_calls\": 0,\n" +
+    "                \"main\": 0.647261,\n" +
+    "                \"nosql\": 0.306554,\n" +
+    "                \"nosql_calls\": 140,\n" +
+    "                \"remote\": 0.0,\n" +
+    "                \"remote_calls\": 0,\n" +
+    "                \"requests\": 28,\n" +
+    "                \"sql\": 0.0,\n" +
+    "                \"sql_calls\": 0,\n" +
+    "                \"tmpl\": 0.0,\n" +
+    "                \"tmpl_calls\": 0}]]\n" +
+    "                }]'\n" +
+    "                    </pre>\n" +
+    "                    </div>\n" +
+    "\n" +
+    "                </uib-tab>\n" +
+    "\n" +
+    "            </uib-tabset>\n" +
+    "\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <permissions-form resource=\"$ctrl.resource\" current-permissions=\"$ctrl.resource.current_permissions\"\n" +
+    "                      possible-permissions=\"$ctrl.resource.possible_permissions\" ng-if=\"$ctrl.resource.resource_id\"></permissions-form>\n" +
+    "\n" +
+    "    <div class=\"panel panel-info\" ng-show=\"$ctrl.resource.resource_id\">\n" +
+    "        <div class=\"panel-heading\">\n" +
+    "            <h3 class=\"panel-title\">Postprocessing</h3>\n" +
+    "        </div>\n" +
+    "        <div class=\"panel-body\">\n" +
+    "            <p>This section allows you influence the rating of report groups - if rule is matched once its not executed anymore</p>\n" +
+    "\n" +
+    "            <p>\n" +
+    "                <a class=\"btn btn-info\" ng-click=\"$ctrl.addRule()\"><span class=\"fa fa-plus-circle\"></span> Add rule</a>\n" +
+    "            </p>\n" +
+    "\n" +
+    "            <post-process-action action=\"action\" resource=\"$ctrl.resource\" ng-repeat=\"action in $ctrl.resource.postprocessing_rules\"></post-process-action>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <div class=\"panel panel-danger\" ng-show=\"$ctrl.resource.resource_id\">\n" +
+    "        <div class=\"panel-heading\">\n" +
+    "            <h3 class=\"panel-title\">Administration</h3>\n" +
+    "        </div>\n" +
+    "        <div class=\"panel-body\">\n" +
+    "            <h2>Transfer ownership</h2>\n" +
+    "            <p>Please note that by transfering ownership you WILL lose access to the application data and new owner needs to give you access permission</p>\n" +
+    "            <div class=\"confirmation_form\" ng-submit=\"$ctrl.transferApplication()\">\n" +
+    "                <form class=\"form-horizontal\" name=\"$ctrl.formTransfer\">\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                        <data-form-errors errors=\"$ctrl.formTransfer.ae_validation.password\"></data-form-errors>\n" +
+    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                            Password\n" +
+    "                        </label>\n" +
+    "                        <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                            <input class=\"form-control\"  name=\"password\" type=\"password\" ng-model=\"$ctrl.formTransferModel.password\">\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                        <data-form-errors errors=\"$ctrl.formTransfer.ae_validation.user_name\"></data-form-errors>\n" +
+    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                            New owners username\n" +
+    "                        </label>\n" +
+    "                        <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                            <input class=\"form-control\"  name=\"user_name\" type=\"text\" ng-model=\"$ctrl.formTransferModel.user_name\">\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        </label>\n" +
+    "                        <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                            <button class=\"btn btn-danger\">\n" +
+    "                                <span class=\"fa fa-user-plus\"></span>\n" +
+    "                                Transfer ownership of application\n" +
+    "                            </button>\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "                </form>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <hr/>\n" +
+    "\n" +
+    "            <h2>Remove application</h2>\n" +
+    "            <p><strong>This operation will wipe out all data from database - there is no undo.</strong></p>\n" +
+    "\n" +
+    "            <div class=\"confirmation_form\">\n" +
+    "                <form class=\"form-horizontal\" name=\"$ctrl.formDelete\" ng-submit=\"$ctrl.deleteApplication()\">\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                        <data-form-errors errors=\"$ctrl.formDelete.ae_validation.password\"></data-form-errors>\n" +
+    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                            Password\n" +
+    "                        </label>\n" +
+    "                        <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                            <input class=\"form-control\" name=\"password\" type=\"password\" ng-model=\"$ctrl.formDeleteModel.password\">\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "                    <div class=\"form-group\">\n" +
+    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "\n" +
+    "                        </label>\n" +
+    "                        <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                            <button class=\"btn btn-danger\">\n" +
+    "                                <span class=\"fa fa-trash-o\"></span>\n" +
+    "                                Delete my application\n" +
+    "                            </button>\n" +
+    "                        </div>\n" +
+    "                    </div>\n" +
+    "                </form>\n" +
+    "            </div>\n" +
     "        </div>\n" +
     "    </div>\n" +
     "</div>\n"
@@ -3370,6 +3982,533 @@ function kickstartAE(initialUserData) {
   );
 
 
+  $templateCache.put('components/views/integrations/bitbucket-integration-config-view/bitbucket-integration-config-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application || $ctrl.loading.integration\"></ng-include>\n" +
+    "\n" +
+    "<div class=\"panel panel-default\" ng-show=\"!integrations.loading.application && !$ctrl.loading.integration\">\n" +
+    "    <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "\n" +
+    "        <h1>Bitbucket Integration</h1>\n" +
+    "\n" +
+    "        <form name=\"$ctrl.integrationForm\" ng-submit=\"$ctrl.configureIntegration()\" class=\"form-horizontal\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\">Repository</label>\n" +
+    "\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.user_name\"></data-form-errors>\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.repo_name\"></data-form-errors>\n" +
+    "\n" +
+    "                    <div class=\"input-group\">\n" +
+    "                        <div class=\"input-group-addon\">https://bitbucket.org/</div>\n" +
+    "                        <input class=\"form-control\" ng-model=\"$ctrl.config.user_name\" placeholder=\"user\" type=\"text\">\n" +
+    "                        <div class=\"input-group-addon\">/</div>\n" +
+    "                        <input class=\"form-control\" ng-model=\"$ctrl.config.repo_name\" placeholder=\"repo_name\" type=\"text\">\n" +
+    "                    </div>\n" +
+    "\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "            <div class=\"form-group\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
+    "\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <input type=\"submit\" class=\"btn btn-primary\" value=\"Use this repo\">\n" +
+    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
+    "                            <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
+    "                          <ul class=\"dropdown-menu\">\n" +
+    "                              <li><a>No</a></li>\n" +
+    "                              <li><a ng-click=\"$ctrl.removeIntegration()\">Yes</a></li>\n" +
+    "                          </ul>\n" +
+    "                        </span>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "        </form>\n" +
+    "\n" +
+    "        <p class=\"m-t-1\">Remember you first need to\n" +
+    "            <strong>\n" +
+    "                <a data-ui-sref=\"user.profile.identities\">authorize your user account</a></strong>\n" +
+    "            with Bitbucket before we can send issues on your behalf.</p>\n" +
+    "\n" +
+    "        <p>Every user will have to authorize AppEnlight to access Bitbucket to be able to post issues.</p>\n" +
+    "\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/integrations/campfire-integration-config-view/campfire-integration-config-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application || $ctrl.loading.integration\"></ng-include>\n" +
+    "\n" +
+    "<div class=\"panel panel-default\" ng-show=\"!integrations.loading.application && !$ctrl.loading.integration\">\n" +
+    "    <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "        <h1>Campfire Integration</h1>\n" +
+    "\n" +
+    "        <form name=\"$ctrl.integrationForm\" ng-submit=\"$ctrl.configureIntegration()\" class=\"form-horizontal\">\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\">Account name</label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.user_name\"></data-form-errors>\n" +
+    "\n" +
+    "                    <div class=\"input-group\">\n" +
+    "                        <div class=\"input-group-addon\">http://</div>\n" +
+    "                        <input class=\"form-control\" ng-model=\"$ctrl.config.account\" placeholder=\"account\">\n" +
+    "                        <div class=\"input-group-addon\">.campfirenow.com</div>\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\">API Token</label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.api_token\"></data-form-errors>\n" +
+    "                    <input class=\"form-control\" ng-model=\"$ctrl.config.api_token\" placeholder=\"Your API token\">\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\">Room ID list</label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.rooms\"></data-form-errors>\n" +
+    "                    <input class=\"form-control\" ng-model=\"$ctrl.config.rooms\" placeholder=\"Room ID list\">\n" +
+    "                    <p>\n" +
+    "                        <small>Room ID list separated by comma</small>\n" +
+    "                    </p>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "            <div class=\"form-group\">\n" +
+    "                <input type=\"submit\" class=\"btn btn-primary\" value=\"Connect to Campfire\">\n" +
+    "\n" +
+    "                    <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
+    "                        <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
+    "                      <ul class=\"dropdown-menu\">\n" +
+    "                          <li><a>No</a></li>\n" +
+    "                          <li><a ng-click=\"$ctrl.removeIntegration()\">Yes</a></li>\n" +
+    "                      </ul>\n" +
+    "                    </span>\n" +
+    "\n" +
+    "                <div class=\"btn-group\" uib-dropdown>\n" +
+    "                    <button id=\"single-button\" type=\"button\" class=\"btn btn-info\" uib-dropdown-toggle>\n" +
+    "                        Test integration <span class=\"caret\"></span>\n" +
+    "                    </button>\n" +
+    "                    <ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"single-button\">\n" +
+    "                        <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('report_notification')\">Test report notification</a></li>\n" +
+    "                        <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('error_alert')\">Test error alert</a></li>\n" +
+    "                        <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('uptime_alert')\">Test uptime alert</a></li>\n" +
+    "                        <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('chart_alert')\">Test chart alert</a></li>\n" +
+    "                        <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('daily_digest')\">Test daily digest</a></li>\n" +
+    "                    </ul>\n" +
+    "                </div>\n" +
+    "\n" +
+    "            </div>\n" +
+    "\n" +
+    "        </form>\n" +
+    "\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/integrations/flowdock-integration-config-view/flowdock-integration-config-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application || $ctrl.loading.integration\"></ng-include>\n" +
+    "\n" +
+    "<div class=\"panel panel-default\" ng-show=\"!integrations.loading.application && !$ctrl.loading.integration\">\n" +
+    "    <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "\n" +
+    "        <h1>Flowdock Integration</h1>\n" +
+    "\n" +
+    "        <form name=\"$ctrl.integrationForm\" ng-submit=\"$ctrl.configureIntegration()\" class=\"form-horizontal\">\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\">API Token</label>\n" +
+    "\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.api_token\"></data-form-errors>\n" +
+    "                    <input class=\"form-control\" ng-model=\"$ctrl.config.api_token\" placeholder=\"Your API token\" type=\"text\">\n" +
+    "                </div>\n" +
+    "\n" +
+    "\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
+    "\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "\n" +
+    "                    <input type=\"submit\" class=\"btn btn-primary\" value=\"Connect to Flowdock\">\n" +
+    "\n" +
+    "                    <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
+    "                        <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
+    "                      <ul class=\"dropdown-menu\">\n" +
+    "                          <li><a>No</a></li>\n" +
+    "                          <li><a ng-click=\"$ctrl.removeIntegration()\">Yes</a></li>\n" +
+    "                      </ul>\n" +
+    "                    </span>\n" +
+    "                    <div class=\"btn-group\" uib-dropdown>\n" +
+    "                        <button id=\"single-button\" type=\"button\" class=\"btn btn-info\" uib-dropdown-toggle>\n" +
+    "                            Test integration <span class=\"caret\"></span>\n" +
+    "                        </button>\n" +
+    "                        <ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"single-button\">\n" +
+    "                            <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('report_notification')\">Test report notification</a></li>\n" +
+    "                            <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('error_alert')\">Test error alert</a></li>\n" +
+    "                            <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('uptime_alert')\">Test uptime alert</a></li>\n" +
+    "                            <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('chart_alert')\">Test chart alert</a></li>\n" +
+    "                            <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('daily_digest')\">Test daily digest</a></li>\n" +
+    "                        </ul>\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "\n" +
+    "\n" +
+    "        </form>\n" +
+    "\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/integrations/github-integration-config-view/github-integration-config-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.loading.application || $ctrl.loading.integration\"></ng-include>\n" +
+    "\n" +
+    "<div class=\"panel panel-default\" ng-show=\"!$ctrl.loading.application && !$ctrl.loading.integration\">\n" +
+    "    <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "\n" +
+    "        <h1>Github Integration</h1>\n" +
+    "\n" +
+    "        <form name=\"$ctrl.integrationForm\" ng-submit=\"$ctrl.configureIntegration()\" class=\"form-horizontal\">\n" +
+    "\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\">Repository</label>\n" +
+    "\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.user_name\"></data-form-errors>\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.repo_name\"></data-form-errors>\n" +
+    "\n" +
+    "                    <div class=\"input-group\">\n" +
+    "                        <div class=\"input-group-addon\">https://api.github.com/</div>\n" +
+    "                        <input class=\"form-control\" ng-model=\"$ctrl.config.user_name\" placeholder=\"user\" type=\"text\">\n" +
+    "                        <div class=\"input-group-addon\">/</div>\n" +
+    "                        <input class=\"form-control\" ng-model=\"$ctrl.config.repo_name\" placeholder=\"repo_name\" type=\"text\">\n" +
+    "                    </div>\n" +
+    "\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
+    "\n" +
+    "                <input type=\"submit\" class=\"btn btn-primary\" value=\"Use this repo\">\n" +
+    "\n" +
+    "                    <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
+    "                        <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
+    "                      <ul class=\"dropdown-menu\">\n" +
+    "                          <li><a>No</a></li>\n" +
+    "                          <li><a ng-click=\"$ctrl.removeIntegration()\">Yes</a></li>\n" +
+    "                      </ul>\n" +
+    "                    </span>\n" +
+    "\n" +
+    "            </div>\n" +
+    "        </form>\n" +
+    "\n" +
+    "        <p class=\"m-t-1\">Remember you first need to\n" +
+    "            <strong>\n" +
+    "                <a data-ui-sref=\"user.profile.identities\">authorize your user account</a></strong>\n" +
+    "            with Github before we can send issues on your behalf.</p>\n" +
+    "\n" +
+    "        <p>Every user will have to authorize AppEnlight to access Github to be able to post issues.</p>\n" +
+    "\n" +
+    "        <div class=\"panel panel-warning\">\n" +
+    "            <div class=\"panel-heading\">Private repository access</div>\n" +
+    "            <div class=\"panel-body\">\n" +
+    "                <p>If you need access to private repositories <a data-ui-sref=\"user.profile.identities\">profile page</a> allows you to require token including private repository permissions.</p>\n" +
+    "\n" +
+    "                <p>Registration page OAuth does NOT give you token with private repository access permissions.</p>\n" +
+    "            </div>\n" +
+    "        </div>\n" +
+    "\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/integrations/hipchat-integration-config-view/hipchat-integration-config-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application || $ctrl.loading.integration\"></ng-include>\n" +
+    "\n" +
+    "<div class=\"panel panel-default\" ng-show=\"!integrations.loading.application && !$ctrl.loading.integration\">\n" +
+    "    <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "\n" +
+    "        <h1>Hipchat Integration</h1>\n" +
+    "\n" +
+    "        <form name=\"$ctrl.integrationForm\" ng-submit=\"$ctrl.configureIntegration()\" class=\"form-horizontal\">\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\">API Token</label>\n" +
+    "\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.api_token\"></data-form-errors>\n" +
+    "                    <input class=\"form-control\" ng-model=\"$ctrl.config.api_token\" placeholder=\"Your API token\" type=\"text\">\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\">Room ID list</label>\n" +
+    "\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.rooms\"></data-form-errors>\n" +
+    "                    <input class=\"form-control\" ng-model=\"$ctrl.config.rooms\" placeholder=\"Room ID list\" type=\"text\">\n" +
+    "\n" +
+    "                    <p>\n" +
+    "                        <small>Room ID list separated by comma</small>\n" +
+    "                    </p>\n" +
+    "                </div>\n" +
+    "\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <input type=\"submit\" class=\"btn btn-primary\" value=\"Connect to Hipchat\">\n" +
+    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
+    "                            <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
+    "                          <ul class=\"dropdown-menu\">\n" +
+    "                              <li><a>No</a></li>\n" +
+    "                              <li><a ng-click=\"$ctrl.removeIntegration()\">Yes</a></li>\n" +
+    "                          </ul>\n" +
+    "                        </span>\n" +
+    "\n" +
+    "                    <div class=\"btn-group\" uib-dropdown>\n" +
+    "                        <button id=\"single-button\" type=\"button\" class=\"btn btn-info\" uib-dropdown-toggle>\n" +
+    "                            Test integration <span class=\"caret\"></span>\n" +
+    "                        </button>\n" +
+    "                        <ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"single-button\">\n" +
+    "                            <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('report_notification')\">Test report notification</a></li>\n" +
+    "                            <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('error_alert')\">Test error alert</a></li>\n" +
+    "                            <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('uptime_alert')\">Test uptime alert</a></li>\n" +
+    "                            <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('chart_alert')\">Test chart alert</a></li>\n" +
+    "                            <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('daily_digest')\">Test daily digest</a></li>\n" +
+    "                        </ul>\n" +
+    "                    </div>\n" +
+    "\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "\n" +
+    "        </form>\n" +
+    "\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/integrations/jira-integration-config-view/jira-integration-config-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application || $ctrl.loading.integration\"></ng-include>\n" +
+    "\n" +
+    "<div class=\"panel panel-default\" ng-show=\"!integrations.loading.application && !$ctrl.loading.integration\">\n" +
+    "    <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "\n" +
+    "        <h1>Jira Integration</h1>\n" +
+    "\n" +
+    "        <form name=\"$ctrl.integrationForm\" ng-submit=\"$ctrl.configureIntegration()\" class=\"form-horizontal\">\n" +
+    "\n" +
+    "            <div class=\"form-group\" id=\"row-host_name\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\">\n" +
+    "                    Server URL <span class=\"required\">*</span>\n" +
+    "                </label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.host_name\"></data-form-errors>\n" +
+    "                    <input class=\"form-control\" id=\"host_name\" name=\"host_name\" type=\"text\" ng-model=\"$ctrl.config.host_name\">\n" +
+    "\n" +
+    "                    <p>\n" +
+    "                        <small>https://servername.atlassian.net</small>\n" +
+    "                    </p>\n" +
+    "\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "            <div class=\"form-group\" id=\"row-user_name\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\">\n" +
+    "                    Username <span class=\"required\">*</span>\n" +
+    "                </label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.user_name\"></data-form-errors>\n" +
+    "                    <input class=\"form-control\" id=\"user_name\" name=\"user_name\" type=\"text\" ng-model=\"$ctrl.config.user_name\">\n" +
+    "\n" +
+    "                    <p>\n" +
+    "                        <small>user@email.com</small>\n" +
+    "                    </p>\n" +
+    "\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "            <div class=\"form-group\" id=\"row-password\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\">\n" +
+    "                    Password <span class=\"required\">*</span>\n" +
+    "                </label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.password\"></data-form-errors>\n" +
+    "                    <input class=\"form-control\" id=\"password\" name=\"password\" type=\"password\" ng-model=\"$ctrl.config.password\">\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "            <div class=\"form-group\" id=\"row-project\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\">\n" +
+    "                    Project key <span class=\"required\">*</span>\n" +
+    "                </label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.project\"></data-form-errors>\n" +
+    "                    <input class=\"form-control\" id=\"project\" name=\"project\" type=\"text\" ng-model=\"$ctrl.config.project\">\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "            <div class=\"form-group\" id=\"row-submit\">\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <input class=\"form-control btn btn-primary\" id=\"submit\" name=\"submit\" type=\"submit\" value=\"Setup Jira\">\n" +
+    "\n" +
+    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
+    "                            <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
+    "                          <ul class=\"dropdown-menu\">\n" +
+    "                              <li><a>No</a></li>\n" +
+    "                              <li><a ng-click=\"$ctrl.removeIntegration()\">Yes</a></li>\n" +
+    "                          </ul>\n" +
+    "                        </span>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "\n" +
+    "        </form>\n" +
+    "\n" +
+    "\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/integrations/slack-integration-config-view/slack-integration-config-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application || $ctrl.loading.integration\"></ng-include>\n" +
+    "\n" +
+    "<div class=\"panel panel-default\" ng-show=\"!integrations.loading.application && !$ctrl.loading.integration\">\n" +
+    "    <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "\n" +
+    "        <h1>Slack Integration</h1>\n" +
+    "\n" +
+    "        <form name=\"$ctrl.integrationForm\" ng-submit=\"$ctrl.configureIntegration()\" class=\"form-horizontal\">\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\">\n" +
+    "                    API Token <span class=\"required\">*</span>\n" +
+    "                </label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.webhook_url\"></data-form-errors>\n" +
+    "                    <input class=\"form-control\" ng-model=\"$ctrl.config.webhook_url\" placeholder=\"Webhook URL\" type=\"webhook_url\">\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <input type=\"submit\" class=\"btn btn-primary\"\n" +
+    "                           value=\"Connect to Slack\">\n" +
+    "\n" +
+    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
+    "                            <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
+    "                          <ul class=\"dropdown-menu\">\n" +
+    "                              <li><a>No</a></li>\n" +
+    "                              <li><a ng-click=\"$ctrl.removeIntegration()\">Yes</a></li>\n" +
+    "                          </ul>\n" +
+    "                        </span>\n" +
+    "\n" +
+    "                    <div class=\"btn-group\" uib-dropdown>\n" +
+    "                        <button type=\"button\" class=\"btn btn-info\" uib-dropdown-toggle>\n" +
+    "                            Test integration <span class=\"caret\"></span>\n" +
+    "                        </button>\n" +
+    "                        <ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"single-button\">\n" +
+    "                            <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('report_notification')\">Test report notification</a></li>\n" +
+    "                            <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('error_alert')\">Test error alert</a></li>\n" +
+    "                            <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('uptime_alert')\">Test uptime alert</a></li>\n" +
+    "                            <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('chart_alert')\">Test chart alert</a></li>\n" +
+    "                            <li role=\"menuitem\"><a ng-click=\"$ctrl.testIntegration('daily_digest')\">Test daily digest</a></li>\n" +
+    "                        </ul>\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "        </form>\n" +
+    "\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/integrations/webhooks-integration-config-view/webhooks-integration-config-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application || $ctrl.loading.integration\"></ng-include>\n" +
+    "\n" +
+    "<div class=\"panel panel-default\" ng-show=\"!integrations.loading.application && !$ctrl.loading.integration\">\n" +
+    "    <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "\n" +
+    "        <h1>Webhooks Integration</h1>\n" +
+    "\n" +
+    "        <form name=\"$ctrl.integrationForm\" ng-submit=\"$ctrl.configureIntegration()\" class=\"form-horizontal\">\n" +
+    "            <div class=\"form-group\" id=\"row-reports_webhook\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\">\n" +
+    "                    Reports webhook <span class=\"required\">*</span>\n" +
+    "                </label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.reports_webhook\"></data-form-errors>\n" +
+    "                    <input class=\"form-control\" id=\"reports_webhook\" name=\"reports_webhook\" type=\"text\" ng-model=\"$ctrl.config.reports_webhook\">\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "            <div class=\"form-group\" id=\"row-alerts_webhook\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\">\n" +
+    "                    Alerts webhook <span class=\"required\">*</span>\n" +
+    "                </label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.integrationForm.ae_validation.alerts_webhook\"></data-form-errors>\n" +
+    "                    <input class=\"form-control StringField None\" id=\"alerts_webhook\" name=\"alerts_webhook\" type=\"text\" ng-model=\"$ctrl.config.alerts_webhook\">\n" +
+    "                </div>\n" +
+    "\n" +
+    "\n" +
+    "            </div>\n" +
+    "            <div class=\"form-group\" id=\"row-submit\">\n" +
+    "\n" +
+    "                <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <input class=\"form-control btn btn-primary\" id=\"submit\" name=\"submit\" type=\"submit\" value=\"Setup webhooks\">\n" +
+    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
+    "                            <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
+    "                          <ul class=\"dropdown-menu\">\n" +
+    "                              <li><a>No</a></li>\n" +
+    "                              <li><a ng-click=\"$ctrl.removeIntegration()\">Yes</a></li>\n" +
+    "                          </ul>\n" +
+    "                        </span>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "        </form>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
   $templateCache.put('components/views/logs-browser/logs-browser.html',
     "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.isLoading.logs\"></ng-include>\n" +
     "\n" +
@@ -3513,7 +4652,7 @@ function kickstartAE(initialUserData) {
     "<div ng-show=\"!$ctrl.loading.email\">\n" +
     "\n" +
     "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-heading\" ng-include=\"'templates/user/breadcrumbs.html'\"></div>\n" +
+    "        <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
     "        <div class=\"panel-body\">\n" +
     "            <p>Adding email alert channel - after you authorize your email in the system we can send alerts directly to this mailbox.</p>\n" +
     "            <form class=\"form-horizontal\" name=\"$ctrl.channelForm\" ng-submit=\"$ctrl.createChannel()\">\n" +
@@ -3547,7 +4686,7 @@ function kickstartAE(initialUserData) {
     "<div ng-if=\"!$ctrl.loading.channels && !$ctrl.loading.applications && !$ctrl.loading.actions\">\n" +
     "\n" +
     "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-heading\" ng-include=\"'templates/user/breadcrumbs.html'\"></div>\n" +
+    "        <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
     "        <div class=\"panel-body\">\n" +
     "            <h1>Report alert rules</h1>\n" +
     "            <p>\n" +
@@ -3614,7 +4753,7 @@ function kickstartAE(initialUserData) {
     "<div ng-show=\"!$ctrl.loading.tokens\">\n" +
     "\n" +
     "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-heading\" ng-include=\"'templates/user/breadcrumbs.html'\"></div>\n" +
+    "        <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
     "\n" +
     "        <div class=\"panel-body\">\n" +
     "\n" +
@@ -3701,7 +4840,7 @@ function kickstartAE(initialUserData) {
     "<div ng-show=\"!$ctrl.loading.identities\">\n" +
     "\n" +
     "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-heading\" ng-include=\"'templates/user/breadcrumbs.html'\"></div>\n" +
+    "        <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
     "        <div class=\"panel-body\">\n" +
     "\n" +
     "            <div class=\"col-sm-6\">\n" +
@@ -3753,7 +4892,7 @@ function kickstartAE(initialUserData) {
     "<div ng-show=\"!$ctrl.loading.password\">\n" +
     "\n" +
     "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-heading\" ng-include=\"'templates/user/breadcrumbs.html'\"></div>\n" +
+    "        <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
     "        <div class=\"panel-body\">\n" +
     "\n" +
     "            <form class=\"form-horizontal\" name=\"$ctrl.passwordForm\" ng-submit=\"$ctrl.updatePassword()\">\n" +
@@ -3806,7 +4945,7 @@ function kickstartAE(initialUserData) {
     "\n" +
     "<div ng-show=\"!$ctrl.loading.profile\">\n" +
     "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-heading\" ng-include=\"'templates/user/breadcrumbs.html'\"></div>\n" +
+    "        <div class=\"panel-heading\" ng-include=\"'templates/settings_breadcrumbs.html'\"></div>\n" +
     "        <div class=\"panel-body\">\n" +
     "            <form name=\"$ctrl.profileForm\" class=\"form-horizontal\" ng-submit=\"$ctrl.updateProfile()\">\n" +
     "                <div class=\"form-group\" id=\"row-email\">\n" +
@@ -5027,1156 +6166,6 @@ function kickstartAE(initialUserData) {
   );
 
 
-  $templateCache.put('templates/applications/applications_purge_logs.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"applications_purge.loading.applications\"></ng-include>\n" +
-    "\n" +
-    "<div ng-show=\"!applications_purge.loading.applications\">\n" +
-    "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-heading\" ng-include=\"'templates/applications/breadcrumbs.html'\"></div>\n" +
-    "        <div class=\"panel-body\">\n" +
-    "\n" +
-    "            <form method=\"post\" class=\"form-horizontal\" name=\"applications_purge.form\" ng-submit=\"applications_purge.purgeLogs()\">\n" +
-    "                <div class=\"form-group\">\n" +
-    "                    <label class=\"control-label col-sm-3 col-lg-2\">Application:</label>\n" +
-    "\n" +
-    "                    <div class=\"col-sm-9 col-lg-10 form-inline\">\n" +
-    "                        <select ng-model=\"applications_purge.selectedResource\" ng-change=\"applications_purge.getCommonKeys()\"\n" +
-    "                                ng-options=\"r.resource_id as r.resource_name for r in applications_purge.applications\" class=\"form-control\"></select>\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "\n" +
-    "                <div class=\"form-group\">\n" +
-    "                    <label class=\"control-label col-sm-3 col-lg-2\">Namespace:</label>\n" +
-    "\n" +
-    "                    <div class=\"col-sm-9 col-lg-10\">\n" +
-    "                        <input type=\"text\" name=\"namespace\" ng-model=\"applications_purge.namespace\"\n" +
-    "                               placeholder=\"Namespace to filter on\" uib-typeahead=\"ns for ns in applications_purge.commonNamespaces\"\n" +
-    "                               class=\"form-control\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "\n" +
-    "                <div class=\"form-group\">\n" +
-    "                    <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
-    "\n" +
-    "                    <div class=\"col-sm-8 col-lg-9 \">\n" +
-    "                        <input class=\"form-control btn btn-primary\" name=\"submit\" type=\"submit\" value=\"Purge logs meeting the criteria\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "\n" +
-    "            </form>\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/applications/applications_update.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"application.loading.application\"></ng-include>\n" +
-    "\n" +
-    "<div ng-show=\"!application.loading.application\">\n" +
-    "\n" +
-    "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-heading\" ng-include=\"'templates/applications/breadcrumbs.html'\"></div>\n" +
-    "        <div class=\"panel-body\">\n" +
-    "\n" +
-    "            <div class=\"row\" ng-show=\"application.resource.resource_id\">\n" +
-    "                <div class=\"col-sm-6\">\n" +
-    "\n" +
-    "                    <uib-tabset>\n" +
-    "                        <uib-tab>\n" +
-    "                            <uib-tab-heading>\n" +
-    "                                API keys\n" +
-    "                            </uib-tab-heading>\n" +
-    "\n" +
-    "                            <p><strong>PRIVATE API KEY:</strong></p>\n" +
-    "                            <p>\n" +
-    "                            <div class=\"well well-sm\">{{ application.resource.api_key }}</div>\n" +
-    "                            </p>\n" +
-    "                            <p><strong>PUBLIC API KEY</strong> (for javascript clients):</p>\n" +
-    "                            <p>\n" +
-    "                            <div class=\"well well-sm\">{{ application.resource.public_key }}</div>\n" +
-    "                            </p>\n" +
-    "                            <p><small>Your key will be used to identify to which application your data\n" +
-    "                                belongs to please keep them private at all times.</small></p>\n" +
-    "\n" +
-    "                        </uib-tab>\n" +
-    "\n" +
-    "                        <uib-tab>\n" +
-    "                            <uib-tab-heading>\n" +
-    "                                <span class=\"btn btn-danger btn-xs\"><span class=\"fa fa-exclamation-triangle\"></span></span> Regenerate API keys\n" +
-    "                            </uib-tab-heading>\n" +
-    "                            <p>Are you sure you want to regenerate API KEY for this application?</p>\n" +
-    "                            <p>All client application keys will need to be updated.</p>\n" +
-    "                            <form ng-submit=\"application.regenerateAPIKeys()\" name=\"application.regenerateAPIKeysForm\" class=\"form-inline\">\n" +
-    "                                <data-form-errors errors=\"application.regenerateAPIKeysForm.ae_validation.password\"></data-form-errors>\n" +
-    "                                <div class=\"form-group\">\n" +
-    "                                <input type=\"password\" name=\"confirm\"\n" +
-    "                                       placeholder=\"Enter your password to proceed\" class=\"form-control\" ng-model=\"application.regenerateAPIKeysPassword\">\n" +
-    "                                <input type=\"submit\" class=\"btn btn-danger\" value=\"Confirm\">\n" +
-    "                                </div>\n" +
-    "                            </form>\n" +
-    "                        </uib-tab>\n" +
-    "                    </uib-tabset>\n" +
-    "                </div>\n" +
-    "                <div class=\"col-sm-6 text-center\">\n" +
-    "                    <h2 class=\"m-t-0\">How to connect your application?</h2>\n" +
-    "                    <p>Visit our <a href=\"{{AeConfig.urls.docs}}\"><strong>developer documentation</strong></a> for step-by-step integration instructions.</p>\n" +
-    "                    <div class=\"clearfix\"></div>\n" +
-    "                    <p class=\"text-center\">\n" +
-    "                        <a href=\"{{AeConfig.urls.docs}}\"><img src=\"/static/appenlight/images/logos/django_small.png\" alt=\"Django Logo\">\n" +
-    "                            <img src=\"/static/appenlight/images/logos/pyramid_small.png\" alt=\"Pyramid Logo\">\n" +
-    "                            <img src=\"/static/appenlight/images/logos/flask_small.png\" alt=\"Flask Logo\"></a>\n" +
-    "\n" +
-    "                        <a href=\"{{AeConfig.urls.docs}}\"><img src=\"/static/appenlight/images/logos/js_small.png\" alt=\"Javascript Logo\">\n" +
-    "                            <img src=\"/static/appenlight/images/logos/nodejs.png\" alt=\"Node.js\"></a>\n" +
-    "                        <img src=\"/static/appenlight/images/logos/ruby_small.png\" alt=\"Ruby Logo\">\n" +
-    "                        <img src=\"/static/appenlight/images/logos/php_small.png\" alt=\"PHP Logo\">\n" +
-    "                        </a>\n" +
-    "\n" +
-    "                    </p>\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <hr ng-show=\"application.resource.resource_id\">\n" +
-    "\n" +
-    "            <form method=\"post\" class=\"form-horizontal\" name=\"application.BasicForm\" ng-submit=\"application.updateBasicForm()\" novalidate>\n" +
-    "                    <div class=\"form-group\">\n" +
-    "                        <data-form-errors errors=\"application.BasicForm.ae_validation.resource_name\"></data-form-errors>\n" +
-    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                            Application name\n" +
-    "                            <span class=\"required\">*</span>\n" +
-    "                        </label>\n" +
-    "\n" +
-    "                        <div class=\" col-sm-8 col-lg-9 \">\n" +
-    "                            <input class=\"form-control\"  name=\"resource_name\" placeholder=\"Application Name\" type=\"text\" ng-model=\"application.resource.resource_name\">\n" +
-    "                        </div>\n" +
-    "\n" +
-    "\n" +
-    "                    </div>\n" +
-    "\n" +
-    "                    <div class=\"form-group\">\n" +
-    "                        <data-form-errors errors=\"application.BasicForm.ae_validation.domains\"></data-form-errors>\n" +
-    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                            Domain names for CORS headers\n" +
-    "                        </label>\n" +
-    "                        <div class=\" col-sm-8 col-lg-9 \">\n" +
-    "                            <textarea class=\"form-control\"  name=\"domains\"  ng-model=\"application.resource.domains\"></textarea>\n" +
-    "                            <p class=\"description\">Required for Javascript error tracking (one line one domain, skip http:// part)</p>\n" +
-    "                        </div>\n" +
-    "\n" +
-    "\n" +
-    "                    </div>\n" +
-    "                    <div class=\"form-group\" ng-show=\"application.resource.resource_id\">\n" +
-    "                        <data-form-errors errors=\"application.BasicForm.ae_validation.default_grouping\"></data-form-errors>\n" +
-    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                            Default grouping for errors\n" +
-    "                        </label>\n" +
-    "                        <div class=\" col-sm-8 col-lg-9 \">\n" +
-    "                            <select class=\"form-control\"  name=\"default_grouping\" ng-model=\"application.resource.default_grouping\" ng-options=\"i[0] as i[1] for i in application.groupingOptions\"></select>\n" +
-    "                        </div>\n" +
-    "\n" +
-    "                    </div>\n" +
-    "                    <div class=\"form-group\" ng-show=\"application.resource.resource_id\">\n" +
-    "                        <data-form-errors errors=\"application.BasicForm.ae_validation.error_report_threshold\"></data-form-errors>\n" +
-    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                            Alert on error reports\n" +
-    "                            <span class=\"required\">*</span>\n" +
-    "                        </label>\n" +
-    "                        <div class=\" col-sm-8 col-lg-9 \">\n" +
-    "                            <input class=\"form-control\"  name=\"error_report_threshold\" type=\"text\" ng-model=\"application.resource.error_report_threshold\">\n" +
-    "                            <p class=\"description\">Application requires to send at least this amount of error reports per minute to open alert</p>\n" +
-    "                        </div>\n" +
-    "                    </div>\n" +
-    "                    <div class=\"form-group\" ng-show=\"application.resource.resource_id\">\n" +
-    "                        <data-form-errors errors=\"application.BasicForm.ae_validation.slow_report_threshold\"></data-form-errors>\n" +
-    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                            Alert on slow reports\n" +
-    "                            <span class=\"required\">*</span>\n" +
-    "                        </label>\n" +
-    "\n" +
-    "                        <div class=\" col-sm-8 col-lg-9 \">\n" +
-    "                            <input class=\"form-control\"  name=\"slow_report_threshold\" type=\"text\" ng-model=\"application.resource.slow_report_threshold\">\n" +
-    "                            <p class=\"description\">Application requires to send at least this amount of slow reports per minute to open alert</p>\n" +
-    "                        </div>\n" +
-    "                    </div>\n" +
-    "                    <div class=\"form-group\" ng-show=\"application.resource.resource_id\">\n" +
-    "                        <data-form-errors errors=\"application.BasicForm.ae_validation.allow_permanent_storage\"></data-form-errors>\n" +
-    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                            Permanent logs\n" +
-    "                        </label>\n" +
-    "                        <div class=\" col-sm-8 col-lg-9\">\n" +
-    "                            <input class=\"form-control\"  name=\"allow_permanent_storage\" type=\"checkbox\"  ng-model=\"application.resource.allow_permanent_storage\">\n" +
-    "                            <p class=\"description\">Allow permanent storage of logs in separate DB partitions (only administrator can enable this feature)</p>\n" +
-    "                        </div>\n" +
-    "                    </div>\n" +
-    "                    <div class=\"form-group\">\n" +
-    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "\n" +
-    "                        </label>\n" +
-    "\n" +
-    "                        <div class=\" col-sm-8 col-lg-9 \">\n" +
-    "                            <input class=\"form-control btn btn-primary\"  name=\"submit\" type=\"submit\" value=\"{{application.resource.resource_id? 'Update' : 'Create'}} Application\">\n" +
-    "                        </div>\n" +
-    "                    </div>\n" +
-    "            </form>\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <div class=\"panel panel-default\" ng-show=\"application.resource.resource_id\">\n" +
-    "        <div class=\"panel-heading\">\n" +
-    "            <h3 class=\"panel-title\">Plugins</h3>\n" +
-    "        </div>\n" +
-    "        <div class=\"panel-body\">\n" +
-    "\n" +
-    "        <plugin-config resource=\"application.resource\"\n" +
-    "                       section=\"'application.update'\"\n" +
-    "                       ng-if=\"application.resource.resource_id\">\n" +
-    "        </plugin-config>\n" +
-    "\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <div class=\"panel panel-default m-t-1\" ng-show=\"application.resource.resource_id\">\n" +
-    "        <div class=\"panel-heading\">\n" +
-    "            <h3 class=\"panel-title\">API Testing</h3>\n" +
-    "        </div>\n" +
-    "        <div class=\"panel-body\">\n" +
-    "            <p>Please be sure to add at least one <a data-ui-sref=\"user.alert_channels.email\"><strong>email alert channel</strong></a> for your account.</p>\n" +
-    "            <p>This will enable AppEnlight to send you notification emails about errors inside your application.</p>\n" +
-    "            <p><strong>After this is done you can use this CURL commands to test APIs:</strong></p>\n" +
-    "            <p>(Please note that the data like execution times is semi randomly generated)</p>\n" +
-    "            <uib-tabset>\n" +
-    "                <uib-tab>\n" +
-    "                    <uib-tab-heading>\n" +
-    "                        Log API\n" +
-    "                    </uib-tab-heading>\n" +
-    "\n" +
-    "                    <div class=\"codehilite\">\n" +
-    "                    <pre class=\"m-a-0\">\n" +
-    "curl -H \"Content-Type: application/json\" -k {{AeConfig.urls.baseUrl}}api/logs?protocol_version=0.5\\&ampapi_key={{application.resource.api_key}} -d '\n" +
-    "    [\n" +
-    "      {\n" +
-    "      \"log_level\": \"WARNING\",\n" +
-    "      \"message\": \"OMG ValueError happened\",\n" +
-    "      \"namespace\": \"some.namespace.indicator\",\n" +
-    "      \"request_id\": \"SOME_UUID\",\n" +
-    "      \"permanent\": false,\n" +
-    "      \"primary_key\": \"random_key\",\n" +
-    "      \"server\": \"some.server.hostname\",\n" +
-    "      \"date\": \"{{application.momentJs.utc().milliseconds(0).toISOString()}}\",\n" +
-    "      \"tags\": [[\"tag1\",\"value\"], [\"tag2\", 5]]\n" +
-    "      },\n" +
-    "      {\n" +
-    "      \"log_level\": \"ERROR\",\n" +
-    "      \"message\": \"OMG ValueError happened2\",\n" +
-    "      \"namespace\": \"some.namespace.indicator\",\n" +
-    "      \"request_id\": \"SOME_UUID\",\n" +
-    "      \"permanent\": false,\n" +
-    "      \"server\": \"some.server.hostname\",\n" +
-    "      \"date\": \"{{application.momentJs.utc().milliseconds(0).toISOString()}}\"\n" +
-    "      }\n" +
-    "    ]'\n" +
-    "                    </pre>\n" +
-    "                    </div>\n" +
-    "\n" +
-    "                </uib-tab>\n" +
-    "\n" +
-    "                <uib-tab>\n" +
-    "                    <uib-tab-heading>\n" +
-    "                        Report API\n" +
-    "                    </uib-tab-heading>\n" +
-    "\n" +
-    "                    <div class=\"codehilite\">\n" +
-    "                    <pre class=\"m-a-0\">\n" +
-    "curl -H \"Content-Type: application/json\" -k {{AeConfig.urls.baseUrl}}api/reports?protocol_version=0.5\\&ampapi_key={{application.resource.api_key}} -d '\n" +
-    "    [{\n" +
-    "    \"client\": \"your-client-name-python\",\n" +
-    "    \"language\": \"python\",\n" +
-    "    \"view_name\": \"views/foo:bar\",\n" +
-    "    \"server\": \"SERVERNAME/INSTANCENAME\",\n" +
-    "    \"priority\": 5,\n" +
-    "    \"error\": \"OMG ValueError happened\",\n" +
-    "    \"occurences\":1,\n" +
-    "    \"http_status\": 500,\n" +
-    "    \"tags\": [[\"tag1\",\"value\"], [\"tag2\", 5]],\n" +
-    "    \"username\": \"USER\",\n" +
-    "    \"url\": \"HTTP://SOMEURL\",\n" +
-    "    \"ip\": \"127.0.0.1\",\n" +
-    "    \"start_time\": \"{{application.momentJs.utc().milliseconds(0).toISOString()}}\",\n" +
-    "    \"end_time\": \"{{application.momentJs.utc().milliseconds(0).add(2, 'seconds').toISOString()}}\",\n" +
-    "    \"user_agent\": \"BROWSER_AGENT\",\n" +
-    "    \"extra\": [[\"message\",\"CUSTOM MESSAGE\"], [\"custom_value\", \"some payload\"]],\n" +
-    "    \"request_id\": \"SOME_UUID\",\n" +
-    "    \"request\": {\"REQUEST_METHOD\": \"GET\",\n" +
-    "             \"PATH_INFO\": \"/FOO/BAR\",\n" +
-    "             \"POST\": {\"FOO\":\"BAZ\",\"XXX\":\"YYY\"}\n" +
-    "             },\n" +
-    "    \"slow_calls\":[{\n" +
-    "                   \"start\": \"{{application.momentJs.utc().milliseconds(0).toISOString()}}\",\n" +
-    "                   \"end\": \"{{application.momentJs.utc().milliseconds(0).add(1, 'seconds').toISOString()}}\",\n" +
-    "                   \"type\": \"sql\",\n" +
-    "                   \"subtype\": \"postgresql\",\n" +
-    "                   \"parameters\": [\"QPARAM1\",\"QPARAM2\",\"QPARAMX\"],\n" +
-    "                   \"statement\": \"QUERY\"\n" +
-    "                   }],\n" +
-    "    \"request_stats\": {\n" +
-    "                    \"main\": 2.50779,\n" +
-    "                    \"nosql\": 0.01008,\n" +
-    "                    \"nosql_calls\": 17.0,\n" +
-    "                    \"remote\": 0.0,\n" +
-    "                    \"remote_calls\": 0.0,\n" +
-    "                    \"sql\": 1,\n" +
-    "                    \"sql_calls\": 1.0,\n" +
-    "                    \"tmpl\": 0.0,\n" +
-    "                    \"tmpl_calls\": 0.0,\n" +
-    "                    \"custom\": 0.0,\n" +
-    "                    \"custom_calls\": 0.0\n" +
-    "                },\n" +
-    "    \"traceback\": [\n" +
-    "                {\"cline\": \"return foo_bar_baz(1,2,3)\",\n" +
-    "                \"file\": \"somedir/somefile.py\",\n" +
-    "                \"fn\": \"somefunction\",\n" +
-    "                \"line\": 454,\n" +
-    "                \"vars\": [[\"a_list\",\n" +
-    "                         [\"1\",2,\"4\",\"5\",6]],\n" +
-    "                         [\"b\", {\"1\": \"2\", \"ccc\": \"ddd\", \"1\": \"a\"}],\n" +
-    "                         [\"obj\", \"object object at 0x7f0030853dc0\"]]\n" +
-    "                        },\n" +
-    "                        {\"cline\": \"OMG ValueError happened\",\n" +
-    "                        \"file\": \"\",\n" +
-    "                        \"fn\": \"\",\n" +
-    "                        \"line\": \"\",\n" +
-    "                        \"vars\": []}\n" +
-    "                        ]\n" +
-    "                        }]'\n" +
-    "                    </pre>\n" +
-    "                    </div>\n" +
-    "\n" +
-    "                </uib-tab>\n" +
-    "\n" +
-    "                <uib-tab>\n" +
-    "\n" +
-    "                <uib-tab-heading>\n" +
-    "                    Metrics API\n" +
-    "                </uib-tab-heading>\n" +
-    "\n" +
-    "                <div class=\"codehilite\">\n" +
-    "                    <pre class=\"m-a-0\">\n" +
-    "curl -H \"Content-Type: application/json\" -k {{AeConfig.urls.baseUrl}}api/general_metrics?protocol_version=0.5\\&ampapi_key={{application.resource.api_key}} -d '\n" +
-    "        [{\n" +
-    "        \"namespace\": \"some.monitor\",\n" +
-    "        \"timestamp\": \"{{application.momentJs.utc().milliseconds(0).toISOString()}}\",\n" +
-    "        \"server_name\": \"server.name\",\n" +
-    "        \"tags\": [[\"value1\", 15.7], [\"value2\", 26]]}]'\n" +
-    "                    </pre>\n" +
-    "                </div>\n" +
-    "\n" +
-    "                </uib-tab>\n" +
-    "\n" +
-    "                <uib-tab>\n" +
-    "\n" +
-    "                    <uib-tab-heading>\n" +
-    "                        Request Stats API\n" +
-    "                    </uib-tab-heading>\n" +
-    "\n" +
-    "                    <div class=\"codehilite\">\n" +
-    "                    <pre class=\"m-a-0\">\n" +
-    "curl -H \"Content-Type: application/json\" -k {{AeConfig.urls.baseUrl}}api/request_stats?protocol_version=0.5\\&ampapi_key={{application.resource.api_key}} -d '\n" +
-    "        [{\"server\": \"some.server.hostname\",\n" +
-    "          \"timestamp\": \"{{application.momentJs.utc().milliseconds(0).toISOString()}}\",\n" +
-    "          \"metrics\": [[\"dir/module:func\",\n" +
-    "               {\"custom\": 0.0,\n" +
-    "                \"custom_calls\": 0,\n" +
-    "                \"main\": 0.01664,\n" +
-    "                \"nosql\": 0.00061,\n" +
-    "                \"nosql_calls\": 23,\n" +
-    "                \"remote\": 0.0,\n" +
-    "                \"remote_calls\": 0,\n" +
-    "                \"requests\": 1,\n" +
-    "                \"sql\": 0.00105,\n" +
-    "                \"sql_calls\": 2,\n" +
-    "                \"tmpl\": 0.0,\n" +
-    "                \"tmpl_calls\": 0}],\n" +
-    "              [\"SomeView.function\",\n" +
-    "               {\"custom\": 0.0,\n" +
-    "                \"custom_calls\": 0,\n" +
-    "                \"main\": 0.647261,\n" +
-    "                \"nosql\": 0.306554,\n" +
-    "                \"nosql_calls\": 140,\n" +
-    "                \"remote\": 0.0,\n" +
-    "                \"remote_calls\": 0,\n" +
-    "                \"requests\": 28,\n" +
-    "                \"sql\": 0.0,\n" +
-    "                \"sql_calls\": 0,\n" +
-    "                \"tmpl\": 0.0,\n" +
-    "                \"tmpl_calls\": 0}]]\n" +
-    "                }]'\n" +
-    "                    </pre>\n" +
-    "                    </div>\n" +
-    "\n" +
-    "                </uib-tab>\n" +
-    "\n" +
-    "            </uib-tabset>\n" +
-    "\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <permissions-form resource=\"application.resource\" current-permissions=\"application.resource.current_permissions\"\n" +
-    "                      possible-permissions=\"application.resource.possible_permissions\" ng-if=\"application.resource.resource_id\"></permissions-form>\n" +
-    "\n" +
-    "    <div class=\"panel panel-info\" ng-show=\"application.resource.resource_id\">\n" +
-    "        <div class=\"panel-heading\">\n" +
-    "            <h3 class=\"panel-title\">Postprocessing</h3>\n" +
-    "        </div>\n" +
-    "        <div class=\"panel-body\">\n" +
-    "            <p>This section allows you influence the rating of report groups - if rule is matched once its not executed anymore</p>\n" +
-    "\n" +
-    "            <p>\n" +
-    "                <a class=\"btn btn-info\" ng-click=\"application.addRule()\"><span class=\"fa fa-plus-circle\"></span> Add rule</a>\n" +
-    "            </p>\n" +
-    "\n" +
-    "            <post-process-action action=\"action\" resource=\"application.resource\" ng-repeat=\"action in application.resource.postprocessing_rules\"></post-process-action>\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <div class=\"panel panel-danger\" ng-show=\"application.resource.resource_id\">\n" +
-    "        <div class=\"panel-heading\">\n" +
-    "            <h3 class=\"panel-title\">Administration</h3>\n" +
-    "        </div>\n" +
-    "        <div class=\"panel-body\">\n" +
-    "            <h2>Transfer ownership</h2>\n" +
-    "            <p>Please note that by transfering ownership you WILL lose access to the application data and new owner needs to give you access permission</p>\n" +
-    "            <div class=\"confirmation_form\" ng-submit=\"application.transferApplication()\">\n" +
-    "                <form class=\"form-horizontal\" name=\"application.formTransfer\">\n" +
-    "                    <div class=\"form-group\">\n" +
-    "                        <data-form-errors errors=\"application.formTransfer.ae_validation.password\"></data-form-errors>\n" +
-    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                            Password\n" +
-    "                        </label>\n" +
-    "                        <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                            <input class=\"form-control\"  name=\"password\" type=\"password\" ng-model=\"application.formTransferModel.password\">\n" +
-    "                        </div>\n" +
-    "                    </div>\n" +
-    "                    <div class=\"form-group\">\n" +
-    "                        <data-form-errors errors=\"application.formTransfer.ae_validation.user_name\"></data-form-errors>\n" +
-    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                            New owners username\n" +
-    "                        </label>\n" +
-    "                        <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                            <input class=\"form-control\"  name=\"user_name\" type=\"text\" ng-model=\"application.formTransferModel.user_name\">\n" +
-    "                        </div>\n" +
-    "                    </div>\n" +
-    "                    <div class=\"form-group\">\n" +
-    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        </label>\n" +
-    "                        <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                            <button class=\"btn btn-danger\">\n" +
-    "                                <span class=\"fa fa-user-plus\"></span>\n" +
-    "                                Transfer ownership of application\n" +
-    "                            </button>\n" +
-    "                        </div>\n" +
-    "                    </div>\n" +
-    "                </form>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <hr/>\n" +
-    "\n" +
-    "            <h2>Remove application</h2>\n" +
-    "            <p><strong>This operation will wipe out all data from database - there is no undo.</strong></p>\n" +
-    "\n" +
-    "            <div class=\"confirmation_form\">\n" +
-    "                <form class=\"form-horizontal\" name=\"application.formDelete\" ng-submit=\"application.deleteApplication()\">\n" +
-    "                    <div class=\"form-group\">\n" +
-    "                        <data-form-errors errors=\"application.formDelete.ae_validation.password\"></data-form-errors>\n" +
-    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                            Password\n" +
-    "                        </label>\n" +
-    "                        <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                            <input class=\"form-control\" name=\"password\" type=\"password\" ng-model=\"application.formDeleteModel.password\">\n" +
-    "                        </div>\n" +
-    "                    </div>\n" +
-    "                    <div class=\"form-group\">\n" +
-    "                        <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "\n" +
-    "                        </label>\n" +
-    "                        <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                            <button class=\"btn btn-danger\">\n" +
-    "                                <span class=\"fa fa-trash-o\"></span>\n" +
-    "                                Delete my application\n" +
-    "                            </button>\n" +
-    "                        </div>\n" +
-    "                    </div>\n" +
-    "                </form>\n" +
-    "            </div>\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/applications/breadcrumbs.html',
-    "<ol class=\"breadcrumb\" ng-show=\"$state.includes('applications')\">\n" +
-    "    <li>Applications</li>\n" +
-    "    <li ng-show=\"$state.includes('applications.list')\" ng-class=\"{bold:$state.is('applications.list')}\">Owned applications</li>\n" +
-    "    <li ng-show=\"$state.includes('applications.update')\" ng-class=\"{bold:$state.is('applications.update')}\">Modify application</li>\n" +
-    "    <li ng-show=\"$state.includes('applications.integrations')\" ng-class=\"{bold:$state.includes('applications.integrations')}\">Integrations</li>\n" +
-    "    <li ng-show=\"$state.includes('applications.purge_logs')\" ng-class=\"{bold:$state.includes('applications.purge_logs')}\">Log Purging</li>\n" +
-    "</ol>\n"
-  );
-
-
-  $templateCache.put('templates/applications/integrations.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application && $state.is('applications.integrations')\"></ng-include>\n" +
-    "\n" +
-    "<ui-view>\n" +
-    "    <div class=\"panel panel-default\" ng-show=\"!integrations.loading.application\">\n" +
-    "        <div class=\"panel-heading\" ng-include=\"'templates/applications/breadcrumbs.html'\"></div>\n" +
-    "        <div class=\"panel-body\">\n" +
-    "\n" +
-    "            <a class=\"btn btn-default integration\"\n" +
-    "               data-ui-sref=\"applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'bitbucket'})\">\n" +
-    "                <span class=\"fa fa-fw fa-bitbucket fa-3x pull-left\"></span>\n" +
-    "                <strong>Bitbucket</strong>\n" +
-    "\n" +
-    "                <p>Send issues and reports to Bitbucket</p>\n" +
-    "            </a>\n" +
-    "\n" +
-    "            <a class=\"btn btn-default integration\"\n" +
-    "               data-ui-sref=\"applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'campfire'})\">\n" +
-    "                <span class=\"fa fa-fw fa-comment fa-3x pull-left\"></span>\n" +
-    "                <strong>Campfire</strong>\n" +
-    "\n" +
-    "                <p>Receive reports and alerts in your Campfire rooms</p>\n" +
-    "            </a>\n" +
-    "\n" +
-    "            <a class=\"btn btn-default integration\"\n" +
-    "               data-ui-sref=\"applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'flowdock'})\">\n" +
-    "                <span class=\"fa fa-fw fa-envelope fa-3x pull-left\"></span>\n" +
-    "                <strong>Flowdock</strong>\n" +
-    "\n" +
-    "                <p>Receive reports and alerts on your Flowdock team\n" +
-    "                    inbox</p>\n" +
-    "            </a>\n" +
-    "\n" +
-    "            <a class=\"btn btn-default integration\"\n" +
-    "               data-ui-sref=\"applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'github'})\">\n" +
-    "                <span class=\"fa fa-fw fa-github fa-3x pull-left\"></span>\n" +
-    "                <strong>Github</strong>\n" +
-    "\n" +
-    "                <p>Send issues and reports to Github</p>\n" +
-    "            </a>\n" +
-    "\n" +
-    "            <a class=\"btn btn-default integration\"\n" +
-    "               data-ui-sref=\"applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'hipchat'})\">\n" +
-    "                <span class=\"fa fa-fw fa-comment fa-3x pull-left\"></span>\n" +
-    "                <strong>HipChat</strong>\n" +
-    "\n" +
-    "                <p>Receive reports and alerts in your Hipchat chanels</p>\n" +
-    "            </a>\n" +
-    "\n" +
-    "            <a class=\"btn btn-default integration\"\n" +
-    "               data-ui-sref=\"applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'jira'})\">\n" +
-    "                <span class=\"fa fa-fw fa-ticket fa-3x pull-left\"></span>\n" +
-    "                <strong>Jira</strong>\n" +
-    "\n" +
-    "                <p>Send issues and reports to Jira</p>\n" +
-    "            </a>\n" +
-    "\n" +
-    "            <a class=\"btn btn-default integration\"\n" +
-    "               data-ui-sref=\"applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'slack'})\">\n" +
-    "                <span class=\"fa fa-fw fa-comment fa-3x pull-left\"></span>\n" +
-    "                <strong>Slack</strong>\n" +
-    "\n" +
-    "                <p>Receive reports and alerts in your Slack chanels</p>\n" +
-    "            </a>\n" +
-    "\n" +
-    "            <a class=\"btn btn-default integration\"\n" +
-    "               data-ui-sref=\"applications.integrations.edit({resourceId:integrations.resource.resource_id, integration:'webhooks'})\">\n" +
-    "                <span class=\"fa fa-fw fa-cloud-upload fa-3x pull-left\"></span>\n" +
-    "                <strong>Webhooks</strong>\n" +
-    "\n" +
-    "                <p>Notify third party API's of your reports and alerts</p>\n" +
-    "            </a>\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "</ui-view>\n"
-  );
-
-
-  $templateCache.put('templates/applications/integrations/bitbucket.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application || integration.loading.integration\"></ng-include>\n" +
-    "\n" +
-    "<div class=\"panel panel-default\" ng-show=\"!integrations.loading.application && !integration.loading.integration\">\n" +
-    "    <div class=\"panel-heading\" ng-include=\"'templates/applications/breadcrumbs.html'\"></div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "\n" +
-    "        <h1>Bitbucket Integration</h1>\n" +
-    "\n" +
-    "        <form name=\"integration.integrationForm\" ng-submit=\"integration.configureIntegration()\" class=\"form-horizontal\">\n" +
-    "            <div class=\"form-group\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\">Repository</label>\n" +
-    "\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.user_name\"></data-form-errors>\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.repo_name\"></data-form-errors>\n" +
-    "\n" +
-    "                    <div class=\"input-group\">\n" +
-    "                        <div class=\"input-group-addon\">https://bitbucket.org/</div>\n" +
-    "                        <input class=\"form-control\" ng-model=\"integration.config.user_name\" placeholder=\"user\" type=\"text\">\n" +
-    "                        <div class=\"input-group-addon\">/</div>\n" +
-    "                        <input class=\"form-control\" ng-model=\"integration.config.repo_name\" placeholder=\"repo_name\" type=\"text\">\n" +
-    "                    </div>\n" +
-    "\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "            <div class=\"form-group\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
-    "\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <input type=\"submit\" class=\"btn btn-primary\" value=\"Use this repo\">\n" +
-    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
-    "                            <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
-    "                          <ul class=\"dropdown-menu\">\n" +
-    "                              <li><a>No</a></li>\n" +
-    "                              <li><a ng-click=\"integration.removeIntegration()\">Yes</a></li>\n" +
-    "                          </ul>\n" +
-    "                        </span>\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "        </form>\n" +
-    "\n" +
-    "        <p class=\"m-t-1\">Remember you first need to\n" +
-    "            <strong>\n" +
-    "                <a data-ui-sref=\"user.profile.identities\">authorize your user account</a></strong>\n" +
-    "            with Bitbucket before we can send issues on your behalf.</p>\n" +
-    "\n" +
-    "        <p>Every user will have to authorize AppEnlight to access Bitbucket to be able to post issues.</p>\n" +
-    "\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/applications/integrations/campfire.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application || integration.loading.integration\"></ng-include>\n" +
-    "\n" +
-    "<div class=\"panel panel-default\" ng-show=\"!integrations.loading.application && !integration.loading.integration\">\n" +
-    "    <div class=\"panel-heading\" ng-include=\"'templates/applications/breadcrumbs.html'\"></div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "        <h1>Campfire Integration</h1>\n" +
-    "\n" +
-    "        <form name=\"integration.integrationForm\" ng-submit=\"integration.configureIntegration()\" class=\"form-horizontal\">\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\">Account name</label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.user_name\"></data-form-errors>\n" +
-    "\n" +
-    "                    <div class=\"input-group\">\n" +
-    "                        <div class=\"input-group-addon\">http://</div>\n" +
-    "                        <input class=\"form-control\" ng-model=\"integration.config.account\" placeholder=\"account\">\n" +
-    "                        <div class=\"input-group-addon\">.campfirenow.com</div>\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\">API Token</label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.api_token\"></data-form-errors>\n" +
-    "                    <input class=\"form-control\" ng-model=\"integration.config.api_token\" placeholder=\"Your API token\">\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\">Room ID list</label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.rooms\"></data-form-errors>\n" +
-    "                    <input class=\"form-control\" ng-model=\"integration.config.rooms\" placeholder=\"Room ID list\">\n" +
-    "                    <p>\n" +
-    "                        <small>Room ID list separated by comma</small>\n" +
-    "                    </p>\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "            <div class=\"form-group\">\n" +
-    "                <input type=\"submit\" class=\"btn btn-primary\" value=\"Connect to Campfire\">\n" +
-    "\n" +
-    "                    <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
-    "                        <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
-    "                      <ul class=\"dropdown-menu\">\n" +
-    "                          <li><a>No</a></li>\n" +
-    "                          <li><a ng-click=\"integration.removeIntegration()\">Yes</a></li>\n" +
-    "                      </ul>\n" +
-    "                    </span>\n" +
-    "\n" +
-    "                <div class=\"btn-group\" uib-dropdown>\n" +
-    "                    <button id=\"single-button\" type=\"button\" class=\"btn btn-info\" uib-dropdown-toggle>\n" +
-    "                        Test integration <span class=\"caret\"></span>\n" +
-    "                    </button>\n" +
-    "                    <ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"single-button\">\n" +
-    "                        <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('report_notification')\">Test report notification</a></li>\n" +
-    "                        <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('error_alert')\">Test error alert</a></li>\n" +
-    "                        <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('uptime_alert')\">Test uptime alert</a></li>\n" +
-    "                        <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('chart_alert')\">Test chart alert</a></li>\n" +
-    "                        <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('daily_digest')\">Test daily digest</a></li>\n" +
-    "                    </ul>\n" +
-    "                </div>\n" +
-    "\n" +
-    "            </div>\n" +
-    "\n" +
-    "        </form>\n" +
-    "\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/applications/integrations/flowdock.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application || integration.loading.integration\"></ng-include>\n" +
-    "\n" +
-    "<div class=\"panel panel-default\" ng-show=\"!integrations.loading.application && !integration.loading.integration\">\n" +
-    "    <div class=\"panel-heading\" ng-include=\"'templates/applications/breadcrumbs.html'\"></div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "\n" +
-    "        <h1>Flowdock Integration</h1>\n" +
-    "\n" +
-    "        <form name=\"integration.integrationForm\" ng-submit=\"integration.configureIntegration()\" class=\"form-horizontal\">\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\">API Token</label>\n" +
-    "\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.api_token\"></data-form-errors>\n" +
-    "                    <input class=\"form-control\" ng-model=\"integration.config.api_token\" placeholder=\"Your API token\" type=\"text\">\n" +
-    "                </div>\n" +
-    "\n" +
-    "\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
-    "\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "\n" +
-    "                    <input type=\"submit\" class=\"btn btn-primary\" value=\"Connect to Flowdock\">\n" +
-    "\n" +
-    "                    <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
-    "                        <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
-    "                      <ul class=\"dropdown-menu\">\n" +
-    "                          <li><a>No</a></li>\n" +
-    "                          <li><a ng-click=\"integration.removeIntegration()\">Yes</a></li>\n" +
-    "                      </ul>\n" +
-    "                    </span>\n" +
-    "                    <div class=\"btn-group\" uib-dropdown>\n" +
-    "                        <button id=\"single-button\" type=\"button\" class=\"btn btn-info\" uib-dropdown-toggle>\n" +
-    "                            Test integration <span class=\"caret\"></span>\n" +
-    "                        </button>\n" +
-    "                        <ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"single-button\">\n" +
-    "                            <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('report_notification')\">Test report notification</a></li>\n" +
-    "                            <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('error_alert')\">Test error alert</a></li>\n" +
-    "                            <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('uptime_alert')\">Test uptime alert</a></li>\n" +
-    "                            <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('chart_alert')\">Test chart alert</a></li>\n" +
-    "                            <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('daily_digest')\">Test daily digest</a></li>\n" +
-    "                        </ul>\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "\n" +
-    "\n" +
-    "        </form>\n" +
-    "\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/applications/integrations/github.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application || integration.loading.integration\"></ng-include>\n" +
-    "\n" +
-    "<div class=\"panel panel-default\" ng-show=\"!integrations.loading.application && !integration.loading.integration\">\n" +
-    "    <div class=\"panel-heading\" ng-include=\"'templates/applications/breadcrumbs.html'\"></div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "\n" +
-    "        <h1>Github Integration</h1>\n" +
-    "\n" +
-    "        <form name=\"integration.integrationForm\" ng-submit=\"integration.configureIntegration()\" class=\"form-horizontal\">\n" +
-    "\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\">Repository</label>\n" +
-    "\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.user_name\"></data-form-errors>\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.repo_name\"></data-form-errors>\n" +
-    "\n" +
-    "                    <div class=\"input-group\">\n" +
-    "                        <div class=\"input-group-addon\">https://api.github.com/</div>\n" +
-    "                        <input class=\"form-control\" ng-model=\"integration.config.user_name\" placeholder=\"user\" type=\"text\">\n" +
-    "                        <div class=\"input-group-addon\">/</div>\n" +
-    "                        <input class=\"form-control\" ng-model=\"integration.config.repo_name\" placeholder=\"repo_name\" type=\"text\">\n" +
-    "                    </div>\n" +
-    "\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
-    "\n" +
-    "                <input type=\"submit\" class=\"btn btn-primary\" value=\"Use this repo\">\n" +
-    "\n" +
-    "                    <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
-    "                        <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
-    "                      <ul class=\"dropdown-menu\">\n" +
-    "                          <li><a>No</a></li>\n" +
-    "                          <li><a ng-click=\"integration.removeIntegration()\">Yes</a></li>\n" +
-    "                      </ul>\n" +
-    "                    </span>\n" +
-    "\n" +
-    "            </div>\n" +
-    "        </form>\n" +
-    "\n" +
-    "        <p class=\"m-t-1\">Remember you first need to\n" +
-    "            <strong>\n" +
-    "                <a data-ui-sref=\"user.profile.identities\">authorize your user account</a></strong>\n" +
-    "            with Github before we can send issues on your behalf.</p>\n" +
-    "\n" +
-    "        <p>Every user will have to authorize AppEnlight to access Github to be able to post issues.</p>\n" +
-    "\n" +
-    "        <div class=\"panel panel-warning\">\n" +
-    "            <div class=\"panel-heading\">Private repository access</div>\n" +
-    "            <div class=\"panel-body\">\n" +
-    "                <p>If you need access to private repositories <a data-ui-sref=\"user.profile.identities\">profile page</a> allows you to require token including private repository permissions.</p>\n" +
-    "\n" +
-    "                <p>Registration page OAuth does NOT give you token with private repository access permissions.</p>\n" +
-    "            </div>\n" +
-    "        </div>\n" +
-    "\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/applications/integrations/hipchat.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application || integration.loading.integration\"></ng-include>\n" +
-    "\n" +
-    "<div class=\"panel panel-default\" ng-show=\"!integrations.loading.application && !integration.loading.integration\">\n" +
-    "    <div class=\"panel-heading\" ng-include=\"'templates/applications/breadcrumbs.html'\"></div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "\n" +
-    "        <h1>Hipchat Integration</h1>\n" +
-    "\n" +
-    "        <form name=\"integration.integrationForm\" ng-submit=\"integration.configureIntegration()\" class=\"form-horizontal\">\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\">API Token</label>\n" +
-    "\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.api_token\"></data-form-errors>\n" +
-    "                    <input class=\"form-control\" ng-model=\"integration.config.api_token\" placeholder=\"Your API token\" type=\"text\">\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\">Room ID list</label>\n" +
-    "\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.rooms\"></data-form-errors>\n" +
-    "                    <input class=\"form-control\" ng-model=\"integration.config.rooms\" placeholder=\"Room ID list\" type=\"text\">\n" +
-    "\n" +
-    "                    <p>\n" +
-    "                        <small>Room ID list separated by comma</small>\n" +
-    "                    </p>\n" +
-    "                </div>\n" +
-    "\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <input type=\"submit\" class=\"btn btn-primary\" value=\"Connect to Hipchat\">\n" +
-    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
-    "                            <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
-    "                          <ul class=\"dropdown-menu\">\n" +
-    "                              <li><a>No</a></li>\n" +
-    "                              <li><a ng-click=\"integration.removeIntegration()\">Yes</a></li>\n" +
-    "                          </ul>\n" +
-    "                        </span>\n" +
-    "\n" +
-    "                    <div class=\"btn-group\" uib-dropdown>\n" +
-    "                        <button id=\"single-button\" type=\"button\" class=\"btn btn-info\" uib-dropdown-toggle>\n" +
-    "                            Test integration <span class=\"caret\"></span>\n" +
-    "                        </button>\n" +
-    "                        <ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"single-button\">\n" +
-    "                            <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('report_notification')\">Test report notification</a></li>\n" +
-    "                            <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('error_alert')\">Test error alert</a></li>\n" +
-    "                            <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('uptime_alert')\">Test uptime alert</a></li>\n" +
-    "                            <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('chart_alert')\">Test chart alert</a></li>\n" +
-    "                            <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('daily_digest')\">Test daily digest</a></li>\n" +
-    "                        </ul>\n" +
-    "                    </div>\n" +
-    "\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "\n" +
-    "        </form>\n" +
-    "\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/applications/integrations/jira.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application || integration.loading.integration\"></ng-include>\n" +
-    "\n" +
-    "<div class=\"panel panel-default\" ng-show=\"!integrations.loading.application && !integration.loading.integration\">\n" +
-    "    <div class=\"panel-heading\" ng-include=\"'templates/applications/breadcrumbs.html'\"></div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "\n" +
-    "        <h1>Jira Integration</h1>\n" +
-    "\n" +
-    "        <form name=\"integration.integrationForm\" ng-submit=\"integration.configureIntegration()\" class=\"form-horizontal\">\n" +
-    "\n" +
-    "            <div class=\"form-group\" id=\"row-host_name\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\">\n" +
-    "                    Server URL <span class=\"required\">*</span>\n" +
-    "                </label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.host_name\"></data-form-errors>\n" +
-    "                    <input class=\"form-control\" id=\"host_name\" name=\"host_name\" type=\"text\" ng-model=\"integration.config.host_name\">\n" +
-    "\n" +
-    "                    <p>\n" +
-    "                        <small>https://servername.atlassian.net</small>\n" +
-    "                    </p>\n" +
-    "\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "            <div class=\"form-group\" id=\"row-user_name\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\">\n" +
-    "                    Username <span class=\"required\">*</span>\n" +
-    "                </label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.user_name\"></data-form-errors>\n" +
-    "                    <input class=\"form-control\" id=\"user_name\" name=\"user_name\" type=\"text\" ng-model=\"integration.config.user_name\">\n" +
-    "\n" +
-    "                    <p>\n" +
-    "                        <small>user@email.com</small>\n" +
-    "                    </p>\n" +
-    "\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "            <div class=\"form-group\" id=\"row-password\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\">\n" +
-    "                    Password <span class=\"required\">*</span>\n" +
-    "                </label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.password\"></data-form-errors>\n" +
-    "                    <input class=\"form-control\" id=\"password\" name=\"password\" type=\"password\" ng-model=\"integration.config.password\">\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "            <div class=\"form-group\" id=\"row-project\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\">\n" +
-    "                    Project key <span class=\"required\">*</span>\n" +
-    "                </label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.project\"></data-form-errors>\n" +
-    "                    <input class=\"form-control\" id=\"project\" name=\"project\" type=\"text\" ng-model=\"integration.config.project\">\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "            <div class=\"form-group\" id=\"row-submit\">\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <input class=\"form-control btn btn-primary\" id=\"submit\" name=\"submit\" type=\"submit\" value=\"Setup Jira\">\n" +
-    "\n" +
-    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
-    "                            <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
-    "                          <ul class=\"dropdown-menu\">\n" +
-    "                              <li><a>No</a></li>\n" +
-    "                              <li><a ng-click=\"integration.removeIntegration()\">Yes</a></li>\n" +
-    "                          </ul>\n" +
-    "                        </span>\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "\n" +
-    "        </form>\n" +
-    "\n" +
-    "\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/applications/integrations/slack.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application || integration.loading.integration\"></ng-include>\n" +
-    "\n" +
-    "<div class=\"panel panel-default\" ng-show=\"!integrations.loading.application && !integration.loading.integration\">\n" +
-    "    <div class=\"panel-heading\" ng-include=\"'templates/applications/breadcrumbs.html'\"></div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "\n" +
-    "        <h1>Slack Integration</h1>\n" +
-    "\n" +
-    "        <form name=\"integration.integrationForm\" ng-submit=\"integration.configureIntegration()\" class=\"form-horizontal\">\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\">\n" +
-    "                    API Token <span class=\"required\">*</span>\n" +
-    "                </label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.webhook_url\"></data-form-errors>\n" +
-    "                    <input class=\"form-control\" ng-model=\"integration.config.webhook_url\" placeholder=\"Webhook URL\" type=\"webhook_url\">\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <input type=\"submit\" class=\"btn btn-primary\"\n" +
-    "                           value=\"Connect to Slack\">\n" +
-    "\n" +
-    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
-    "                            <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
-    "                          <ul class=\"dropdown-menu\">\n" +
-    "                              <li><a>No</a></li>\n" +
-    "                              <li><a ng-click=\"integration.removeIntegration()\">Yes</a></li>\n" +
-    "                          </ul>\n" +
-    "                        </span>\n" +
-    "\n" +
-    "                    <div class=\"btn-group\" uib-dropdown>\n" +
-    "                        <button type=\"button\" class=\"btn btn-info\" uib-dropdown-toggle>\n" +
-    "                            Test integration <span class=\"caret\"></span>\n" +
-    "                        </button>\n" +
-    "                        <ul class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"single-button\">\n" +
-    "                            <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('report_notification')\">Test report notification</a></li>\n" +
-    "                            <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('error_alert')\">Test error alert</a></li>\n" +
-    "                            <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('uptime_alert')\">Test uptime alert</a></li>\n" +
-    "                            <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('chart_alert')\">Test chart alert</a></li>\n" +
-    "                            <li role=\"menuitem\"><a ng-click=\"integration.testIntegration('daily_digest')\">Test daily digest</a></li>\n" +
-    "                        </ul>\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "        </form>\n" +
-    "\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/applications/integrations/webhooks.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"integrations.loading.application || integration.loading.integration\"></ng-include>\n" +
-    "\n" +
-    "<div class=\"panel panel-default\" ng-show=\"!integrations.loading.application && !integration.loading.integration\">\n" +
-    "    <div class=\"panel-heading\" ng-include=\"'templates/applications/breadcrumbs.html'\"></div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "\n" +
-    "        <h1>Webhooks Integration</h1>\n" +
-    "\n" +
-    "        <form name=\"integration.integrationForm\" ng-submit=\"integration.configureIntegration()\" class=\"form-horizontal\">\n" +
-    "            <div class=\"form-group\" id=\"row-reports_webhook\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\">\n" +
-    "                    Reports webhook <span class=\"required\">*</span>\n" +
-    "                </label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.reports_webhook\"></data-form-errors>\n" +
-    "                    <input class=\"form-control\" id=\"reports_webhook\" name=\"reports_webhook\" type=\"text\" ng-model=\"integration.config.reports_webhook\">\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "            <div class=\"form-group\" id=\"row-alerts_webhook\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\">\n" +
-    "                    Alerts webhook <span class=\"required\">*</span>\n" +
-    "                </label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <data-form-errors errors=\"integration.integrationForm.ae_validation.alerts_webhook\"></data-form-errors>\n" +
-    "                    <input class=\"form-control StringField None\" id=\"alerts_webhook\" name=\"alerts_webhook\" type=\"text\" ng-model=\"integration.config.alerts_webhook\">\n" +
-    "                </div>\n" +
-    "\n" +
-    "\n" +
-    "            </div>\n" +
-    "            <div class=\"form-group\" id=\"row-submit\">\n" +
-    "\n" +
-    "                <label class=\"control-label col-sm-3 col-lg-2\"></label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <input class=\"form-control btn btn-primary\" id=\"submit\" name=\"submit\" type=\"submit\" value=\"Setup webhooks\">\n" +
-    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
-    "                            <a class=\"btn btn-danger\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span> Remove Integration</a>\n" +
-    "                          <ul class=\"dropdown-menu\">\n" +
-    "                              <li><a>No</a></li>\n" +
-    "                              <li><a ng-click=\"integration.removeIntegration()\">Yes</a></li>\n" +
-    "                          </ul>\n" +
-    "                        </span>\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "        </form>\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/applications/list.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"applications.loading.applications\"></ng-include>\n" +
-    "\n" +
-    "<div class=\"panel panel-default\" ng-show=\"!applications.loading.applications\">\n" +
-    "    <div class=\"panel-heading\" ng-include=\"'templates/applications/breadcrumbs.html'\"></div>\n" +
-    "    <div class=\"panel-body\" ng-if=\"applications.applications.length === 0 \">\n" +
-    "\n" +
-    "        <p>You have to create a new application first.</p>\n" +
-    "\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <table class=\"table table-striped\" ng-if=\"applications.applications.length > 0\">\n" +
-    "        <thead>\n" +
-    "        <tr>\n" +
-    "            <th class=\"resource_name\">Resource Name</th>\n" +
-    "            <th class=\"domains\">Domains</th>\n" +
-    "            <th class=\"options\">Options</th>\n" +
-    "        </tr>\n" +
-    "        </thead>\n" +
-    "        <tbody>\n" +
-    "        <tr class=\"r{{$index+1}}\" ng-repeat=\"application in applications.applications\">\n" +
-    "            <td>{{application.resource_name}}</td>\n" +
-    "            <td>{{application.domains}}</td>\n" +
-    "            <td class=\"options\">\n" +
-    "                <a class=\"btn btn-default\" data-ui-sref=\"applications.update({resourceId:application.resource_id})\" data-toggle=\"tooltip\" title=\"Update application\"><span class=\"fa fa-cog\"></span> Update</a>\n" +
-    "                <a class=\"btn btn-default\" data-ui-sref=\"applications.integrations({resourceId:application.resource_id})\" data-toggle=\"tooltip\" title=\"Manage Integrations\"><span class=\"fa fa-wrench\"></span> Integrations</a>\n" +
-    "            </td>\n" +
-    "        </tr>\n" +
-    "        </tbody>\n" +
-    "    </table>\n" +
-    "\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/applications/parent_view.html',
-    "<div class=\"row application-management\">\n" +
-    "    <div class=\"col-sm-3\" id=\"menu\">\n" +
-    "        <div ng-include=\"'templates/user/menu.html'\"></div>\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <div class=\"col-sm-9\" ui-view></div>\n" +
-    "\n" +
-    "</div>\n"
-  );
-
-
   $templateCache.put('templates/directives/search_type_ahead.html',
     "<a>\n" +
     "    <span class=\"tag\" ng-show=\"match.model.tag\">{{match.model.tag}}</span>\n" +
@@ -7100,7 +7089,15 @@ function kickstartAE(initialUserData) {
   );
 
 
-  $templateCache.put('templates/user/breadcrumbs.html',
+  $templateCache.put('templates/settings_breadcrumbs.html',
+    "<ol class=\"breadcrumb\" ng-show=\"$ctrl.$state.includes('applications')\">\n" +
+    "    <li>Applications</li>\n" +
+    "    <li ng-show=\"$ctrl.$state.includes('applications.list')\" ng-class=\"{bold:$ctrl.$state.is('applications.list')}\">Owned applications</li>\n" +
+    "    <li ng-show=\"$ctrl.$state.includes('applications.update')\" ng-class=\"{bold:$ctrl.$state.is('applications.update')}\">Modify application</li>\n" +
+    "    <li ng-show=\"$ctrl.$state.includes('applications.integrations')\" ng-class=\"{bold:$ctrl.$state.includes('applications.integrations')}\">Integrations</li>\n" +
+    "    <li ng-show=\"$ctrl.$state.includes('applications.purge_logs')\" ng-class=\"{bold:$ctrl.$state.includes('applications.purge_logs')}\">Log Purging</li>\n" +
+    "</ol>\n" +
+    "\n" +
     "<ol class=\"breadcrumb\" ng-show=\"$ctrl.$state.includes('user.profile')\">\n" +
     "    <li>Settings</li>\n" +
     "    <li ng-show=\"$ctrl.$state.includes('user.profile.edit')\" ng-class=\"{bold:$ctrl.$state.is('user.profile.edit')}\">User Profile</li>\n" +
@@ -7145,7 +7142,7 @@ angular.module('appenlight.components.appenlightApp', [])
 AppEnlightAppController.$inject = ['$scope','$state', 'stateHolder', 'AeConfig'];
 
 function AppEnlightAppController($scope, $state, stateHolder, AeConfig){
-    console.log('app start');
+    
     // to keep bw compatibility
     $scope.$state = $state;
     $scope.stateHolder = stateHolder;
@@ -7241,7 +7238,7 @@ function AppEnlightHeaderController($state, stateHolder, AeConfig){
             $state.go('uptime', {resource:event.resource_id, start_date:event.start_date});
         }
         else{
-            console.log('other');
+            
         }
     }
 }
@@ -7282,13 +7279,13 @@ function ChannelstreamController($rootScope, stateHolder, userSelfPropertyResour
     userSelfPropertyResource.get({key: 'websocket'}, function (data) {
         stateHolder.websocket = new ReconnectingWebSocket(this.config.ws_url + '/ws?conn_id=' + data.conn_id);
         stateHolder.websocket.onopen = function (event) {
-            console.log('open');
+            
         };
         stateHolder.websocket.onmessage = function (event) {
             var data = JSON.parse(event.data);
             $rootScope.$apply(function (scope) {
                 _.each(data, function (message) {
-                    console.log('channelstream-message', message);
+                    
                     if(typeof message.message.topic !== 'undefined'){
                         $rootScope.$emit(
                             'channelstream-message.'+message.message.topic, message);
@@ -7300,13 +7297,322 @@ function ChannelstreamController($rootScope, stateHolder, userSelfPropertyResour
             });
         };
         stateHolder.websocket.onclose = function (event) {
-            console.log('closed');
+            
         };
 
         stateHolder.websocket.onerror = function (event) {
-            console.log('error');
+            
         };
     }.bind(this));
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.integrationsListView', [])
+    .component('integrationsListView', {
+        templateUrl: 'components/views/applications-integrations-view/applications-integrations-view.html',
+        controller: IntegrationsListViewController
+    });
+
+IntegrationsListViewController.$inject = ['$state', 'applicationsResource'];
+
+function IntegrationsListViewController($state, applicationsResource) {
+    
+    var vm = this;
+    vm.loading = {application: true};
+    vm.resource = applicationsResource.get({resourceId: $state.params.resourceId}, function (data) {
+        vm.loading.application = false;
+        $state.current.data.resource = vm.resource;
+    });
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.applicationsListView', [])
+    .component('applicationsListView', {
+        templateUrl: 'components/views/applications-list-view/applications-list-view.html',
+        controller: ApplicationsListViewController
+    });
+
+ApplicationsListViewController.$inject = ['$state', 'applicationsResource'];
+
+function ApplicationsListViewController($state, applicationsResource) {
+    
+    var vm = this;
+    vm.$state = $state;
+    vm.loading = {applications: true};
+    vm.applications = applicationsResource.query(null, function(){
+        vm.loading.applications = false;
+    });
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.applicationsPurgeLogsView', [])
+    .component('applicationsPurgeLogsView', {
+        templateUrl: 'components/views/applications-purge-logs-view/applications-purge-logs-view.html',
+        controller: applicationsPurgeLogsViewController
+    });
+
+applicationsPurgeLogsViewController.$inject = ['$state' ,'applicationsResource', 'sectionViewResource', 'logsNoIdResource'];
+
+function applicationsPurgeLogsViewController($state, applicationsResource, sectionViewResource, logsNoIdResource) {
+    
+    var vm = this;
+    vm.$state = $state;
+    vm.loading = {applications: true};
+
+    vm.namespace = null;
+    vm.selectedResource = null;
+    vm.commonNamespaces = [];
+
+    vm.applications = applicationsResource.query({'type':'update_reports'}, function () {
+        vm.loading.applications = false;
+        vm.selectedResource = vm.applications[0].resource_id;
+        vm.getCommonKeys();
+    });
+
+    /**
+     * Fetches most commonly used tags in logs
+     */
+    vm.getCommonKeys = function () {
+        sectionViewResource.get({
+            section: 'logs_section',
+            view: 'common_tags',
+            resource: vm.selectedResource
+        }, function (data) {
+            vm.commonNamespaces = data['namespaces']
+        });
+    };
+
+    vm.purgeLogs = function () {
+        vm.loading.applications = true;
+        logsNoIdResource.delete({resource:vm.selectedResource,
+            namespace: vm.namespace}, function(){
+            vm.loading.applications = false;
+        });
+    }
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.applicationsUpdateView', [])
+    .component('applicationsUpdateView', {
+        templateUrl: 'components/views/applications-update-view/applications-update-view.html',
+        controller: applicationsUpdateViewController
+    });
+
+applicationsUpdateViewController.$inject = ['$state', 'applicationsNoIdResource', 'applicationsResource', 'applicationsPropertyResource', 'stateHolder'];
+
+function applicationsUpdateViewController($state, applicationsNoIdResource, applicationsResource, applicationsPropertyResource, stateHolder) {
+    'use strict';
+    
+    var vm = this;
+    vm.$state = $state;
+    vm.loading = {application: false};
+
+    vm.groupingOptions = [
+        ['url_type', 'Error Type + location'],
+        ['url_traceback', 'Traceback + location'],
+        ['traceback_server', 'Traceback + Server'],
+    ];
+    var resourceId = $state.params.resourceId;
+    var options = {};
+    vm.momentJs = moment;
+    vm.formTransferModel = {password:''};
+
+    // set initial data
+
+    if (resourceId === 'new') {
+        vm.resource = {
+            resource_id: null,
+            slow_report_threshold: 10,
+            error_report_threshold: 10,
+            allow_permanent_storage: true,
+            default_grouping: vm.groupingOptions[1][0]
+        };
+    }
+    else {
+        vm.loading.application = true;
+        vm.resource = applicationsResource.get({
+            'resourceId': resourceId
+        }, function (data) {
+            vm.loading.application = false;
+        });
+    }
+
+
+    vm.updateBasicForm = function () {
+        vm.loading.application = true;
+        if (vm.resource.resource_id === null) {
+            applicationsNoIdResource.save(null, vm.resource, function (data) {
+                stateHolder.AeUser.addApplication(data);
+                $state.go('applications.update', {resourceId: data.resource_id});
+                setServerValidation(vm.BasicForm);
+            }, function (response) {
+                if (response.status == 422) {
+                    setServerValidation(vm.BasicForm, response.data);
+                }
+                vm.loading.application = false;
+                
+            });
+        }
+        else {
+            applicationsResource.update({resourceId: vm.resource.resource_id},
+                vm.resource, function (data) {
+                    vm.resource = data;
+                    vm.loading.application = false;
+                    setServerValidation(vm.BasicForm);
+                }, function (response) {
+                    if (response.status == 422) {
+                        setServerValidation(vm.BasicForm, response.data);
+                    }
+                    vm.loading.application = false;
+                });
+        }
+    };
+
+    vm.addRule = function () {
+        
+        applicationsPropertyResource.save({
+                resourceId: vm.resource.resource_id,
+                key: 'postprocessing_rules'
+            }, null,
+            function (data) {
+                vm.resource.postprocessing_rules.push(data);
+            }
+        );
+    };
+
+    vm.regenerateAPIKeys = function(){
+        vm.loading.application = true;
+        applicationsPropertyResource.save({
+                resourceId: vm.resource.resource_id,
+                key: 'api_key'
+            }, {password: vm.regenerateAPIKeysPassword},
+            function (data) {
+                vm.resource = data;
+                vm.loading.application = false;
+                vm.regenerateAPIKeysPassword = '';
+                setServerValidation(vm.regenerateAPIKeysForm);
+            },
+            function (response) {
+                if (response.status == 422) {
+                    setServerValidation(vm.regenerateAPIKeysForm, response.data);
+                    
+                }
+                vm.loading.application = false;
+            }
+        )
+    };
+
+    vm.deleteApplication = function(){
+        vm.loading.application = true;
+        applicationsPropertyResource.update({
+                resourceId: vm.resource.resource_id,
+                key: 'delete_resource'
+            }, vm.formDeleteModel,
+            function (data) {
+                stateHolder.AeUser.removeApplicationById(vm.resource.resource_id);
+                $state.go('applications.list');
+            },
+            function (response) {
+                if (response.status == 422) {
+                    setServerValidation(vm.formDelete, response.data);
+                    
+                }
+                vm.loading.application = false;
+            }
+        );
+    };
+
+    vm.transferApplication = function(){
+        vm.loading.application = true;
+        applicationsPropertyResource.update({
+                resourceId: vm.resource.resource_id,
+                key: 'owner'
+            }, vm.formTransferModel,
+            function (data) {
+                $state.go('applications.list');
+            },
+            function (response) {
+                if (response.status == 422) {
+                    setServerValidation(vm.formTransfer, response.data);
+                    
+                }
+                vm.loading.application = false;
+            }
+        )
+    }
+
 }
 
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
@@ -7350,7 +7656,7 @@ function EventBrowserController(eventsNoIdResource, eventsResource) {
 
 
     vm.closeEvent = function (event) {
-        console.log('closeEvent');
+        
         eventsResource.update({eventId: event.id}, {status: 0}, function (data) {
             event.status = 0;
         });
@@ -7772,7 +8078,7 @@ function IndexDashboardController($rootScope, $scope, $location, $cookies, $inte
 
             if (!vm.resource){
                 var cookieResource = $cookies.getObject('resource');
-                console.log('cookieResource', cookieResource);
+                
 
                 if (cookieResource) {
                     vm.resource = cookieResource;
@@ -8044,6 +8350,141 @@ function IndexDashboardController($rootScope, $scope, $location, $cookies, $inte
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
+
+ApplicationsIntegrationsEditViewController.$inject = ['$state', 'integrationResource'];
+
+function ApplicationsIntegrationsEditViewController($state, integrationResource) {
+    
+    var vm = this;
+    vm.$state = $state;
+    vm.loading = {integration: true};
+    vm.config = integrationResource.get(
+        {
+            integration: $state.params.integration,
+            action: 'setup',
+            resourceId: $state.params.resourceId
+        }, function (data) {
+            vm.loading.integration = false;
+        });
+
+    vm.configureIntegration = function () {
+        console.info('configureIntegration');
+        vm.loading.integration = true;
+        integrationResource.save(
+            {
+                integration: $state.params.integration,
+                action: 'setup',
+                resourceId: $state.params.resourceId
+            }, vm.config, function (data) {
+                vm.loading.integration = false;
+                setServerValidation(vm.integrationForm);
+            }, function (response) {
+                if (response.status == 422) {
+                    setServerValidation(vm.integrationForm, response.data);
+                }
+                vm.loading.integration = false;
+            });
+    };
+
+    vm.removeIntegration = function () {
+        console.info('removeIntegration');
+        integrationResource.remove({
+                integration: $state.params.integration,
+                resourceId: $state.params.resourceId,
+                action: 'delete'
+            },
+            function () {
+                $state.go('applications.integrations',
+                    {resourceId: $state.params.resourceId});
+            }
+        );
+    }
+
+    vm.testIntegration = function (to_test) {
+        console.info('testIntegration', to_test);
+        vm.loading.integration = true;
+        integrationResource.save(
+            {
+                integration: $state.params.integration,
+                action: 'test_' + to_test,
+                resourceId: $state.params.resourceId
+            }, vm.config, function (data) {
+                vm.loading.integration = false;
+            }, function (response) {
+                vm.loading.integration = false;
+            });
+    }
+
+    
+}
+
+;angular.module('appenlight.components.bitbucketIntegrationConfigView', [])
+    .component('bitbucketIntegrationConfigView', {
+        templateUrl: 'components/views/integrations/bitbucket-integration-config-view/bitbucket-integration-config-view.html',
+        controller: ApplicationsIntegrationsEditViewController
+    });
+
+;angular.module('appenlight.components.campfireIntegrationConfigView', [])
+    .component('campfireIntegrationConfigView', {
+        templateUrl: 'components/views/integrations/campfire-integration-config-view/campfire-integration-config-view.html',
+        controller: ApplicationsIntegrationsEditViewController
+    });
+
+;angular.module('appenlight.components.flowdockIntegrationConfigView', [])
+    .component('flowdockIntegrationConfigView', {
+        templateUrl: 'components/views/integrations/flowdock-integration-config-view/flowdock-integration-config-view.html',
+        controller: ApplicationsIntegrationsEditViewController
+    });
+
+;angular.module('appenlight.components.githubIntegrationConfigView', [])
+    .component('githubIntegrationConfigView', {
+        templateUrl: 'components/views/integrations/github-integration-config-view/github-integration-config-view.html',
+        controller: ApplicationsIntegrationsEditViewController
+    });
+
+;angular.module('appenlight.components.hipchatIntegrationConfigView', [])
+    .component('hipchatIntegrationConfigView', {
+        templateUrl: 'components/views/integrations/hipchat-integration-config-view/hipchat-integration-config-view.html',
+        controller: ApplicationsIntegrationsEditViewController
+    });
+
+;angular.module('appenlight.components.jiraIntegrationConfigView', [])
+    .component('jiraIntegrationConfigView', {
+        templateUrl: 'components/views/integrations/jira-integration-config-view/jira-integration-config-view.html',
+        controller: ApplicationsIntegrationsEditViewController
+    });
+
+;angular.module('appenlight.components.slackIntegrationConfigView', [])
+    .component('slackIntegrationConfigView', {
+        templateUrl: 'components/views/integrations/slack-integration-config-view/slack-integration-config-view.html',
+        controller: ApplicationsIntegrationsEditViewController
+    });
+
+;angular.module('appenlight.components.webhooksIntegrationConfigView', [])
+    .component('webhooksIntegrationConfigView', {
+        templateUrl: 'components/views/integrations/webhooks-integration-config-view/webhooks-integration-config-view.html',
+        controller: ApplicationsIntegrationsEditViewController
+    });
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
 angular.module('appenlight.components.logsBrowserView', [])
     .component('logsBrowserView', {
         templateUrl: 'components/views/logs-browser/logs-browser.html',
@@ -8289,7 +8730,7 @@ function LogsBrowserController($location, stateHolder, typeAheadTagHelper, logsN
         searchParams['view'] = 'fetch_series';
         vm.isLoading.series = true;
         sectionViewResource.query(searchParams, function (data) {
-            console.log('show node here');
+            
             vm.logEventsChartData = {
                 json: data,
                 xFormat: '%Y-%m-%dT%H:%M:%S',
@@ -8384,7 +8825,7 @@ angular.module('appenlight.components.userAlertChannelsEmailNewView', [])
 AlertChannelsEmailController.$inject = ['$state','userSelfPropertyResource'];
 
 function AlertChannelsEmailController($state, userSelfPropertyResource) {
-    console.debug('AlertChannelsEmailController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {email: false};
@@ -8392,7 +8833,7 @@ function AlertChannelsEmailController($state, userSelfPropertyResource) {
 
     vm.createChannel = function () {
         vm.loading.email = true;
-        console.log('createChannel');
+        
         userSelfPropertyResource.save({key: 'alert_channels'}, vm.form, function () {
             //vm.loading.email = false;
             //setServerValidation(vm.channelForm);
@@ -8435,7 +8876,7 @@ angular.module('appenlight.components.userAlertChannelsListView', [])
 userAlertChannelsListViewController.$inject = ['$state','userSelfPropertyResource', 'applicationsNoIdResource'];
 
 function userAlertChannelsListViewController($state, userSelfPropertyResource, applicationsNoIdResource) {
-    console.debug('AlertChannelsController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {channels: true, applications: true, actions:true};
@@ -8502,12 +8943,12 @@ function userAlertChannelsListViewController($state, userSelfPropertyResource, a
     };
 
     vm.addAction = function (channel) {
-        console.log('test');
+        
         userSelfPropertyResource.save({key: 'alert_channels_rules'}, {}, function (data) {
             vm.alertActions.push(data);
         }, function (response) {
             if (response.status == 422) {
-                console.log('scope', response);
+                
             }
         });
     };
@@ -8528,7 +8969,7 @@ function userAlertChannelsListViewController($state, userSelfPropertyResource, a
     };
 
     vm.removeChannel = function (channel) {
-        console.log(channel);
+        
         userSelfPropertyResource.delete({
             key: 'alert_channels',
             channel_name: channel.channel_name,
@@ -8571,7 +9012,7 @@ angular.module('appenlight.components.userAuthTokensView', [])
 userAuthTokensViewController.$inject = ['$state', 'userSelfPropertyResource', 'AeConfig'];
 
 function userAuthTokensViewController($state, userSelfPropertyResource, AeConfig) {
-    console.debug('userAuthTokensViewController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {tokens: true};
@@ -8642,7 +9083,7 @@ angular.module('appenlight.components.userIdentitiesView', [])
 UserIdentitiesController.$inject = ['$state', 'userSelfPropertyResource', 'AeConfig'];
 
 function UserIdentitiesController($state, userSelfPropertyResource, AeConfig) {
-    console.debug('UserIdentitiesController');
+    
     var vm = this;
     vm.$state = $state;
     vm.AeConfig = AeConfig;
@@ -8652,11 +9093,11 @@ function UserIdentitiesController($state, userSelfPropertyResource, AeConfig) {
         {key: 'external_identities'},
         function (data) {
             vm.loading.identities = false;
-            console.log(vm.identities);
+            
         });
 
     vm.removeProvider = function (provider) {
-        console.log('provider', provider);
+        
         userSelfPropertyResource.delete(
             {
                 key: 'external_identities',
@@ -8702,7 +9143,7 @@ angular.module('appenlight.components.userPasswordView', [])
 UserPasswordViewController.$inject = ['$state', 'userSelfPropertyResource'];
 
 function UserPasswordViewController($state, userSelfPropertyResource) {
-    console.debug('UserPasswordViewController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {password: false};
@@ -8710,16 +9151,16 @@ function UserPasswordViewController($state, userSelfPropertyResource) {
 
     vm.updatePassword = function () {
         vm.loading.password = true;
-        console.log('updatePassword');
+        
         userSelfPropertyResource.update({key: 'password'}, vm.form, function () {
             vm.loading.password = false;
             vm.form = {};
             setServerValidation(vm.passwordForm);
         }, function (response) {
             if (response.status == 422) {
-                console.log('vm', vm);
+                
                 setServerValidation(vm.passwordForm, response.data);
-                console.log(response.data);
+                
             }
             vm.loading.password = false;
         });
@@ -8754,20 +9195,20 @@ angular.module('appenlight.components.userProfileView', [])
 UserProfileViewController.$inject = ['$state', 'userSelfResource'];
 
 function UserProfileViewController($state, userSelfResource) {
-    console.debug('UserProfileViewController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {profile: true};
 
     vm.user = userSelfResource.get(null, function (data) {
         vm.loading.profile = false;
-        console.log('loaded profile');
+        
     });
 
     vm.updateProfile = function () {
         vm.loading.profile = true;
 
-        console.log('updateProfile');
+        
         vm.user.$update(null, function () {
             vm.loading.profile = false;
             setServerValidation(vm.profileForm);
@@ -8840,7 +9281,7 @@ angular.module('appenlight.controllers').controller('AdminApplicationsListContro
 AdminApplicationsListController.$inject = ['applicationsResource'];
 
 function AdminApplicationsListController(applicationsResource) {
-    console.debug('AdminApplicationsListController');
+    
     var vm = this;
     vm.loading = {applications: true};
 
@@ -8934,7 +9375,7 @@ angular.module('appenlight.controllers').controller('AdminGroupsCreateController
 AdminGroupsCreateController.$inject = ['$state', 'groupsResource', 'groupsPropertyResource', 'sectionViewResource', 'AeConfig'];
 
 function AdminGroupsCreateController($state, groupsResource, groupsPropertyResource, sectionViewResource, AeConfig) {
-    console.debug('AdminGroupsCreateController');
+    
     var vm = this;
     vm.loading = {
         group: false,
@@ -8964,7 +9405,7 @@ function AdminGroupsCreateController($state, groupsResource, groupsPropertyResou
                     }
                 };
                 _.each(data, function (item) {
-                    console.log(item);
+                    
                     var section = tmpObj[item.type][item.resource_type];
                     if (typeof section[item.resource_id] == 'undefined') {
                         section[item.resource_id] = {
@@ -8975,7 +9416,6 @@ function AdminGroupsCreateController($state, groupsResource, groupsPropertyResou
                     section[item.resource_id].permissions.push(item.perm_name);
 
                 });
-                console.log(tmpObj)
                 vm.resourcePermissions = tmpObj;
             });
 
@@ -9040,7 +9480,7 @@ function AdminGroupsCreateController($state, groupsResource, groupsPropertyResou
     }
 
     vm.searchUsers = function (searchPhrase) {
-        console.log(searchPhrase);
+        
         return sectionViewResource.query({
             section: 'users_section',
             view: 'search_users',
@@ -9077,7 +9517,7 @@ angular.module('appenlight.controllers').controller('AdminGroupsController', Adm
 AdminGroupsController.$inject = ['groupsResource'];
 
 function AdminGroupsController(groupsResource) {
-    console.debug('AdminGroupsController');
+    
     var vm = this;
     vm.loading = {groups: true};
 
@@ -9089,13 +9529,13 @@ function AdminGroupsController(groupsResource) {
             }
             return memo;
         }, 0);
-        console.log(vm.groups);
+        
     });
 
 
     vm.removeGroup = function (group) {
         groupsResource.remove({groupId: group.id}, function (data, responseHeaders) {
-            console.log('x',data, responseHeaders());
+            
             if (data) {
                 var index = vm.groups.indexOf(group);
                 if (index !== -1) {
@@ -9166,7 +9606,7 @@ function AdminPartitionsController(sectionViewResource) {
         else {
             var val = false;
         }
-        console.log('scope', scope);
+        
         _.each(vm[scope], function (item) {
             _.each(item[1].pg, function (index) {
                 index.checked = val;
@@ -9218,7 +9658,7 @@ function AdminPartitionsController(sectionViewResource) {
                 }
             });
         });
-        console.log(es_indices, pg_indices);
+        
 
         vm.loading = {partitions: true};
         sectionViewResource.save({section:'admin_section',
@@ -9301,7 +9741,7 @@ angular.module('appenlight.controllers').controller('AdminUsersCreateController'
 AdminUsersCreateController.$inject = ['$state', 'usersResource', 'usersPropertyResource', 'sectionViewResource', 'AeConfig'];
 
 function AdminUsersCreateController($state, usersResource, usersPropertyResource, sectionViewResource, AeConfig) {
-    console.debug('AdminUsersCreateController');
+    
     var vm = this;
     vm.loading = {user: false};
 
@@ -9331,7 +9771,7 @@ function AdminUsersCreateController($state, usersResource, usersPropertyResource
                     }
                 };
                 _.each(data, function (item) {
-                    console.log(item);
+                    
                     var section = tmpObj[item.type][item.resource_type];
                     if (typeof section[item.resource_id] == 'undefined'){
                         section[item.resource_id] = {
@@ -9342,7 +9782,6 @@ function AdminUsersCreateController($state, usersResource, usersPropertyResource
                     section[item.resource_id].permissions.push(item.perm_name);
 
                 });
-                console.log(tmpObj)
                 vm.resourcePermissions = tmpObj;
             });
 
@@ -9363,7 +9802,7 @@ function AdminUsersCreateController($state, usersResource, usersPropertyResource
 
     vm.createUser = function () {
         vm.loading.user = true;
-        console.log('updateProfile');
+        
         if (userId) {
             usersResource.update({userId: vm.user.id}, vm.user, function (data) {
                 setServerValidation(vm.profileForm);
@@ -9385,7 +9824,7 @@ function AdminUsersCreateController($state, usersResource, usersPropertyResource
             vm.gen_pass += charset.charAt(Math.floor(Math.random() * n));
         }
         vm.user.user_password = '' + vm.gen_pass;
-        console.log('x', vm.gen_pass);
+        
     }
 
     vm.reloginUser = function () {
@@ -9423,7 +9862,7 @@ angular.module('appenlight.controllers').controller('AdminUsersController', Admi
 AdminUsersController.$inject = ['usersResource'];
 
 function AdminUsersController(usersResource) {
-    console.debug('AdminUsersController');
+    
     var vm = this;
     vm.loading = {users: true};
 
@@ -9435,13 +9874,13 @@ function AdminUsersController(usersResource) {
             }
             return memo;
         }, 0);
-        console.log(vm.users);
+        
     });
 
 
     vm.removeUser = function (user) {
         usersResource.remove({userId: user.id}, function (data, responseHeaders) {
-            console.log('x',data, responseHeaders());
+            
             if (data) {
                 var index = vm.users.indexOf(user);
                 if (index !== -1) {
@@ -9452,393 +9891,6 @@ function AdminUsersController(usersResource) {
         });
     }
 };
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers')
-    .controller('ApplicationsUpdateController', ApplicationsUpdateController)
-
-ApplicationsUpdateController.$inject = ['$state', 'applicationsNoIdResource', 'applicationsResource', 'applicationsPropertyResource', 'stateHolder'];
-
-function ApplicationsUpdateController($state, applicationsNoIdResource, applicationsResource, applicationsPropertyResource, stateHolder) {
-    'use strict';
-    console.debug('ApplicationsUpdateController');
-    var vm = this;
-    vm.loading = {application: false};
-
-    vm.groupingOptions = [
-        ['url_type', 'Error Type + location'],
-        ['url_traceback', 'Traceback + location'],
-        ['traceback_server', 'Traceback + Server'],
-    ];
-
-    var resourceId = $state.params.resourceId;
-
-
-    var options = {};
-
-    vm.momentJs = moment;
-    
-    vm.formTransferModel = {password:''};
-
-    // set initial data
-
-    if (resourceId === 'new') {
-        vm.resource = {
-            resource_id: null,
-            slow_report_threshold: 10,
-            error_report_threshold: 10,
-            allow_permanent_storage: true,
-            default_grouping: vm.groupingOptions[1][0]
-        };
-    }
-    else {
-        vm.loading.application = true;
-        vm.resource = applicationsResource.get({
-            'resourceId': resourceId
-        }, function (data) {
-            vm.loading.application = false;
-        });
-    }
-
-
-    vm.updateBasicForm = function () {
-        vm.loading.application = true;
-        if (vm.resource.resource_id === null) {
-            applicationsNoIdResource.save(null, vm.resource, function (data) {
-                stateHolder.AeUser.addApplication(data);
-                $state.go('applications.update', {resourceId: data.resource_id});
-                setServerValidation(vm.BasicForm);
-            }, function (response) {
-                if (response.status == 422) {
-                    setServerValidation(vm.BasicForm, response.data);
-                }
-                vm.loading.application = false;
-                console.log(vm.BasicForm);
-            });
-        }
-        else {
-            applicationsResource.update({resourceId: vm.resource.resource_id},
-                vm.resource, function (data) {
-                    vm.resource = data;
-                    vm.loading.application = false;
-                    setServerValidation(vm.BasicForm);
-                }, function (response) {
-                    if (response.status == 422) {
-                        setServerValidation(vm.BasicForm, response.data);
-                    }
-                    vm.loading.application = false;
-                });
-        }
-    };
-
-    vm.addRule = function () {
-        console.log('addrule');
-        applicationsPropertyResource.save({
-                resourceId: vm.resource.resource_id,
-                key: 'postprocessing_rules'
-            }, null,
-            function (data) {
-                vm.resource.postprocessing_rules.push(data);
-            }
-        );
-    };
-
-    vm.regenerateAPIKeys = function(){
-        vm.loading.application = true;
-        applicationsPropertyResource.save({
-                resourceId: vm.resource.resource_id,
-                key: 'api_key'
-            }, {password: vm.regenerateAPIKeysPassword},
-            function (data) {
-                vm.resource = data;
-                vm.loading.application = false;
-                vm.regenerateAPIKeysPassword = '';
-                setServerValidation(vm.regenerateAPIKeysForm);
-            },
-            function (response) {
-                if (response.status == 422) {
-                    setServerValidation(vm.regenerateAPIKeysForm, response.data);
-                    console.log(response.data);
-                }
-                vm.loading.application = false;
-            }
-        )
-    };
-
-    vm.deleteApplication = function(){
-        vm.loading.application = true;
-        applicationsPropertyResource.update({
-                resourceId: vm.resource.resource_id,
-                key: 'delete_resource'
-            }, vm.formDeleteModel,
-            function (data) {
-                stateHolder.AeUser.removeApplicationById(vm.resource.resource_id);
-                $state.go('applications.list');
-            },
-            function (response) {
-                if (response.status == 422) {
-                    setServerValidation(vm.formDelete, response.data);
-                    console.log(response.data);
-                }
-                vm.loading.application = false;
-            }
-        );
-    };
-
-    vm.transferApplication = function(){
-        vm.loading.application = true;
-        applicationsPropertyResource.update({
-                resourceId: vm.resource.resource_id,
-                key: 'owner'
-            }, vm.formTransferModel,
-            function (data) {
-                $state.go('applications.list');
-            },
-            function (response) {
-                if (response.status == 422) {
-                    setServerValidation(vm.formTransfer, response.data);
-                    console.log(response.data);
-                }
-                vm.loading.application = false;
-            }
-        )
-    }
-
-}
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers')
-    .controller('IntegrationController', IntegrationController)
-
-IntegrationController.$inject = ['$state', 'integrationResource'];
-
-function IntegrationController($state, integrationResource) {
-    console.debug('IntegrationController');
-    var vm = this;
-    vm.loading = {integration: true};
-    vm.config = integrationResource.get(
-        {
-            integration: $state.params.integration,
-            action: 'setup',
-            resourceId: $state.params.resourceId
-        }, function (data) {
-            vm.loading.integration = false;
-        });
-
-    vm.configureIntegration = function () {
-        console.info('configureIntegration');
-        vm.loading.integration = true;
-        integrationResource.save(
-            {
-                integration: $state.params.integration,
-                action: 'setup',
-                resourceId: $state.params.resourceId
-            }, vm.config, function (data) {
-                vm.loading.integration = false;
-                setServerValidation(vm.integrationForm);
-            }, function (response) {
-                if (response.status == 422) {
-                    setServerValidation(vm.integrationForm, response.data);
-                }
-                vm.loading.integration = false;
-            });
-    };
-
-    vm.removeIntegration = function () {
-        console.info('removeIntegration');
-        integrationResource.remove({
-                integration: $state.params.integration,
-                resourceId: $state.params.resourceId,
-                action: 'delete'
-            },
-            function () {
-                $state.go('applications.integrations',
-                    {resourceId: $state.params.resourceId});
-            }
-        );
-    }
-
-    vm.testIntegration = function(to_test){
-        console.info('testIntegration', to_test);
-        vm.loading.integration = true;
-        integrationResource.save(
-            {
-                integration: $state.params.integration,
-                action: 'test_'+ to_test,
-                resourceId: $state.params.resourceId
-            }, vm.config, function (data) {
-                vm.loading.integration = false;
-            }, function (response) {
-                vm.loading.integration = false;
-            });
-    }
-
-    console.log(vm);
-}
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers')
-    .controller('IntegrationsListController', IntegrationsListController)
-
-IntegrationsListController.$inject = ['$state', 'applicationsResource'];
-
-function IntegrationsListController($state, applicationsResource) {
-    console.debug('IntegrationsListController');
-    var vm = this;
-    vm.loading = {application: true};
-    vm.resource = applicationsResource.get({resourceId: $state.params.resourceId}, function (data) {
-        vm.loading.application = false;
-        $state.current.data.resource = vm.resource;
-    });
-}
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers')
-    .controller('ApplicationsListController', ApplicationsListController)
-
-ApplicationsListController.$inject = ['applicationsResource'];
-
-function ApplicationsListController(applicationsResource) {
-    console.debug('ApplicationsListController');
-    var vm = this;
-    vm.loading = {applications: true};
-    vm.applications = applicationsResource.query(null, function(){
-        vm.loading.applications = false;
-    });
-}
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers')
-    .controller('ApplicationsPurgeLogsController', ApplicationsPurgeLogsController)
-
-ApplicationsPurgeLogsController.$inject = ['applicationsResource', 'sectionViewResource', 'logsNoIdResource'];
-
-function ApplicationsPurgeLogsController(applicationsResource, sectionViewResource, logsNoIdResource) {
-    console.debug('ApplicationsPurgeLogsController');
-    var vm = this;
-    vm.loading = {applications: true};
-
-    vm.namespace = null;
-    vm.selectedResource = null;
-    vm.commonNamespaces = [];
-
-    vm.applications = applicationsResource.query({'type':'update_reports'}, function () {
-        vm.loading.applications = false;
-        vm.selectedResource = vm.applications[0].resource_id;
-        vm.getCommonKeys();
-    });
-
-    /**
-     * Fetches most commonly used tags in logs
-     */
-    vm.getCommonKeys = function () {
-        sectionViewResource.get({
-            section: 'logs_section',
-            view: 'common_tags',
-            resource: vm.selectedResource
-        }, function (data) {
-            vm.commonNamespaces = data['namespaces']
-        });
-    };
-
-    vm.purgeLogs = function () {
-        vm.loading.applications = true;
-        logsNoIdResource.delete({resource:vm.selectedResource,
-            namespace: vm.namespace}, function(){
-            vm.loading.applications = false;
-        });
-    }
-}
 
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
 // #
@@ -10088,7 +10140,7 @@ function JiraIntegrationCtrl($uibModalInstance, $state, report, integrationName,
                 vm.form.responsible = vm.assignees[0];
                 vm.form.priority = vm.priorities[0];
             }, function (error_data) {
-                console.log('ERROR');
+                
                 if (error_data.data.error_messages) {
                     vm.error_messages = error_data.data.error_messages;
                 }
@@ -10479,7 +10531,7 @@ function ReportsListSlowController($location, $cookies, stateHolder, typeAheadTa
         vm.is_loading = true;
         slowReportsResource.query(searchParams, function (data, getResponseHeaders) {
             var headers = getResponseHeaders();
-            console.log(headers);
+            
             vm.is_loading = false;
             vm.reportsPage = _.map(data, function (item) {
                 return reportPresentation(item);
@@ -10796,7 +10848,7 @@ function ReportsListController($location, $cookies, stateHolder,
         vm.is_loading = true;
         reportsResource.query(searchParams, function (data, getResponseHeaders) {
             var headers = getResponseHeaders();
-            console.log(headers);
+            
             vm.is_loading = false;
             vm.reportsPage = _.map(data, function (item) {
                 return reportPresentation(item);
@@ -10820,7 +10872,7 @@ function ReportsListController($location, $cookies, stateHolder,
         vm.searchParams = parseSearchToTags($location.search());
         vm.page = Number(vm.searchParams.page) || 1;
         var params = parseTagsToSearch(vm.searchParams);
-        console.log(params);
+        
         vm.fetchReports(params);
     };
     // initial load
@@ -10950,7 +11002,7 @@ function ReportsViewController($window, $location, $state, $uibModal, $cookies, 
     };
 
     vm.searchTag = function (tag, value) {
-        console.log(tag, value);
+        
         if (vm.report.report_type === 3) {
             $location.url($state.href('report.list_slow'));
         }
@@ -11040,7 +11092,7 @@ function ReportsViewController($window, $location, $state, $uibModal, $cookies, 
             vm.selectedTab($cookies.selectedReportTab);
 
         }, function (response) {
-            console.log(response);
+            
             if (response.status == 403) {
                 var uid = response.headers('x-appenlight-uid');
                 if (!uid) {
@@ -11137,7 +11189,7 @@ function ReportsViewController($window, $location, $state, $uibModal, $cookies, 
     };
 
     vm.runIntegration = function (integration_name) {
-        console.log(integration_name);
+        
         if (integration_name == 'bitbucket') {
             var controller = 'BitbucketIntegrationCtrl as ctrl';
             var template_url = 'templates/integrations/bitbucket.html';
@@ -11217,7 +11269,7 @@ angular.module('appenlight.directives.c3chart', [])
                 if (!_.isEmpty($scope.data)) {
                     _.extend(config.data, angular.copy($scope.data));
                 }
-                console.log('ChartCtrl.showGraph', config);
+                
                 config.onresized = function () {
                     if (this.currentWidth < 400){
                         $scope.chart.internal.config.axis_x_tick_culling_max = 3;
@@ -11236,19 +11288,19 @@ angular.module('appenlight.directives.c3chart', [])
                 originalXTickCount = $scope.chart.internal.config.axis_x_tick_culling_max;
                 $scope.chart.internal.config.onresized.call($scope.chart.internal);
             }
-            console.log('should update', $scope.update);
+            
             if ($scope.update) {
-                console.log('reload driven');
+                
                 $scope.$watch('data', function () {
                     if (!firstLoad) {
-                        console.log('data updated', $scope.data);
+                        
                         $scope.chart.load(angular.copy($scope.data), {unload: true});
                         if (typeof $scope.data.groups != 'undefined') {
-                            console.log('add groups');
+                            
                             $scope.chart.groups($scope.data.groups);
                         }
                         if (typeof $scope.data.names != 'undefined') {
-                            console.log('add names');
+                            
                             $scope.chart.data.names($scope.data.names);
                         }
                         $scope.chart.flush();
@@ -11260,7 +11312,7 @@ angular.module('appenlight.directives.c3chart', [])
                     return
                 }
                 if (typeof $scope.config.regions != 'undefined') {
-                    console.log('update regions', $scope.config.regions);
+                    
                     $scope.chart.regions($scope.config.regions);
                 }
             });
@@ -11336,7 +11388,7 @@ directive('confirmValidate', [function () {
         link: function ($scope, elem, attrs, ngModel) {
             ngModel.$validators.confirm = function (modelValue, viewValue) {
                 var value = modelValue || viewValue;
-                console.log('validate', value.toLowerCase() == 'confirm');
+                
                 if (value.toLowerCase() == 'confirm') {
                     return true;
                 }
@@ -11513,7 +11565,7 @@ function ApplicationPermissionsController(sectionViewResource, applicationsPrope
             vm.form.selectedGroup = vm.possibleGroups[0].id;
         }
     });
-    console.log('g', vm.possibleGroups);
+    
     vm.possibleUsers = [];
     _.each(vm.resource.possible_permissions, function (perm) {
         vm.form.selectedUserPermissions[perm] = false;
@@ -11529,7 +11581,7 @@ function ApplicationPermissionsController(sectionViewResource, applicationsPrope
         group: {}
     };
     _.each(vm.currentPermissions, function (perm) {
-        console.log(perm);
+        
         if (perm.type == 'user') {
             if (typeof tmpObj[perm.type][perm.user_name] === 'undefined') {
                 tmpObj[perm.type][perm.user_name] = {
@@ -11559,10 +11611,10 @@ function ApplicationPermissionsController(sectionViewResource, applicationsPrope
         group: _.values(tmpObj.group),
     };
 
-    console.log('test', tmpObj, vm.currentPermissions);
+    
 
     vm.searchUsers = function (searchPhrase) {
-        console.log('SEARCHING');
+        
         vm.searchingUsers = true;
         return sectionViewResource.query({
             section: 'users_section',
@@ -11611,7 +11663,7 @@ function ApplicationPermissionsController(sectionViewResource, applicationsPrope
 
 
     vm.setUserPermission = function () {
-        console.log('set permissions');
+        
         var POSTObj = {
             'user_name': vm.form.autocompleteUser,
             'permissions': []
@@ -11641,8 +11693,8 @@ function ApplicationPermissionsController(sectionViewResource, applicationsPrope
     }
 
     vm.removeUserPermission = function (perm_name, curr_perm) {
-        console.log(perm_name);
-        console.log(curr_perm);
+        
+        
         var POSTObj = {
             key: 'user_permissions',
             user_name: curr_perm.self.user_name,
@@ -11659,7 +11711,7 @@ function ApplicationPermissionsController(sectionViewResource, applicationsPrope
     }
 
     vm.removeGroupPermission = function (perm_name, curr_perm) {
-        console.log('g', curr_perm);
+        
         var POSTObj = {
             key: 'group_permissions',
             group_id: curr_perm.self.group_id,
@@ -11766,7 +11818,7 @@ angular.module('appenlight.directives.postProcessAction', []).directive('postPro
     };
     function postProcessActionController(){
         var vm = this;
-        console.log(vm);
+        
         var allOps = {
             'eq': 'Equal',
             'ne': 'Not equal',
@@ -11850,7 +11902,7 @@ angular.module('appenlight.directives.postProcessAction', []).directive('postPro
 
         vm.setDirty = function() {
             vm.action.dirty = true;
-            console.log('set dirty');
+            
         };
     }
 
@@ -11946,14 +11998,14 @@ angular.module('appenlight.directives.reportAlertAction', []).directive('reportA
                 channel_pkey: vm.channelToBind.pkey,
                 action_pkey: vm.action.pkey
             };
-            console.log(post);
+            
             userSelfPropertyResource.save({key: 'alert_channels_actions_binds'}, post,
                 function (data) {
                     vm.action.channels = [];
                     vm.action.channels = data.channels;
                 }, function (response) {
                     if (response.status == 422) {
-                        console.log('scope', response);
+                        
                     }
                 });
         };
@@ -11969,7 +12021,7 @@ angular.module('appenlight.directives.reportAlertAction', []).directive('reportA
                     vm.action.channels = data.channels;
                 }, function (response) {
                     if (response.status == 422) {
-                        console.log('scope', response);
+                        
                     }
                 });
         };
@@ -12006,7 +12058,7 @@ angular.module('appenlight.directives.reportAlertAction', []).directive('reportA
 
         vm.setDirty = function() {
             vm.action.dirty = true;
-            console.log('set dirty');
+            
         };
     }
 
@@ -12105,10 +12157,10 @@ angular.module('appenlight.directives.rule', []).directive('rule', function () {
 
         vm.setDirty = function() {
             vm.rule.dirty = true;
-            console.log('set dirty');
+            
             if (vm.parentObj){
-                console.log('p', vm.parentObj);
-                console.log('set parent dirty');
+                
+                
                 vm.parentObj.dirty = true;
             }
         };
@@ -12122,13 +12174,13 @@ angular.module('appenlight.directives.rule', []).directive('rule', function () {
                 vm.rule.op = vm.ruleDefinitions.fieldOps[vm.rule.field][0];
             }
             if ((new_is_compound && !old_was_compound)) {
-                console.log('resetting config');
+                
                 delete vm.rule.value;
                 vm.rule.rules = [];
                 vm.add();
             }
             else if (!new_is_compound && old_was_compound) {
-                console.log('resetting config');
+                
                 delete vm.rule.rules;
                 vm.rule.value = '';
             }
@@ -12510,24 +12562,21 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
     $stateProvider.state('applications', {
         abstract: true,
         url: '/ui/applications',
-        templateUrl: 'templates/applications/parent_view.html'
+        component: 'settingsView'
     });
 
     $stateProvider.state('applications.list', {
         url: '/list',
-        templateUrl: 'templates/applications/list.html',
-        controller: 'ApplicationsListController as applications'
+        component: 'applicationsListView'
     });
     $stateProvider.state('applications.update', {
         url: '/{resourceId}/update',
-        templateUrl: 'templates/applications/applications_update.html',
-        controller: 'ApplicationsUpdateController as application'
+        component: 'applicationsUpdateView'
     });
 
     $stateProvider.state('applications.integrations', {
         url: '/{resourceId}/integrations',
-        templateUrl: 'templates/applications/integrations.html',
-        controller: 'IntegrationsListController as integrations',
+        component: 'integrationsListView',
         data: {
             resource: null
         }
@@ -12535,16 +12584,14 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
 
     $stateProvider.state('applications.purge_logs', {
         url: '/purge_logs',
-        templateUrl: 'templates/applications/applications_purge_logs.html',
-        controller: 'ApplicationsPurgeLogsController as applications_purge'
+        component: 'applicationsPurgeLogsView'
     });
 
     $stateProvider.state('applications.integrations.edit', {
         url: '/{integration}',
-        templateUrl: function ($stateParams) {
-            return 'templates/applications/integrations/' + $stateParams.integration + '.html'
-        },
-        controller: 'IntegrationController as integration'
+        template: function ($stateParams) {
+            return '<'+ $stateParams.integration + '-integration-config-view>'
+        }
     });
 
     $stateProvider.state('tests', {
@@ -12927,7 +12974,7 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder',
                 }
             }
         }.bind(this));
-        console.log('AeUser.hasContextPermission', permName, hasPerm);
+        
         return hasPerm;
     };
 
@@ -12941,7 +12988,7 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder',
         list: [],
         timeout: null,
         extend: function (values) {
-            console.log('pushing flash', this);
+            
             if (this.list.length > 2) {
                 this.list.splice(0, this.list.length - 2);
             }
@@ -12950,7 +12997,7 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder',
             this.removeMessages();
         },
         pop: function () {
-            console.log('popping flash');
+            
             this.list.pop();
         },
         cancelTimeout: function () {
@@ -13045,7 +13092,7 @@ angular.module('appenlight.services.typeAheadTagHelper', []).factory('typeAheadT
         return true;
     };
     typeAheadTagHelper.removeSearchTag = function (tag) {
-        console.log(typeAheadTagHelper.tags);
+        
         var indexValue = _.indexOf(typeAheadTagHelper.tags, tag);
         typeAheadTagHelper.tags.splice(indexValue, 1);
 

@@ -1,12 +1,12 @@
-<ng-include src="'templates/loader.html'" ng-if="integrations.loading.application || integration.loading.integration"></ng-include>
+<ng-include src="'templates/loader.html'" ng-if="integrations.loading.application || $ctrl.loading.integration"></ng-include>
 
-<div class="panel panel-default" ng-show="!integrations.loading.application && !integration.loading.integration">
-    <div class="panel-heading" ng-include="'templates/applications/breadcrumbs.html'"></div>
+<div class="panel panel-default" ng-show="!integrations.loading.application && !$ctrl.loading.integration">
+    <div class="panel-heading" ng-include="'templates/settings_breadcrumbs.html'"></div>
     <div class="panel-body">
 
         <h1>Jira Integration</h1>
 
-        <form name="integration.integrationForm" ng-submit="integration.configureIntegration()" class="form-horizontal">
+        <form name="$ctrl.integrationForm" ng-submit="$ctrl.configureIntegration()" class="form-horizontal">
 
             <div class="form-group" id="row-host_name">
 
@@ -14,8 +14,8 @@
                     Server URL <span class="required">*</span>
                 </label>
                 <div class="col-sm-8 col-lg-9">
-                    <data-form-errors errors="integration.integrationForm.ae_validation.host_name"></data-form-errors>
-                    <input class="form-control" id="host_name" name="host_name" type="text" ng-model="integration.config.host_name">
+                    <data-form-errors errors="$ctrl.integrationForm.ae_validation.host_name"></data-form-errors>
+                    <input class="form-control" id="host_name" name="host_name" type="text" ng-model="$ctrl.config.host_name">
 
                     <p>
                         <small>https://servername.atlassian.net</small>
@@ -30,8 +30,8 @@
                 </label>
                 <div class="col-sm-8 col-lg-9">
 
-                    <data-form-errors errors="integration.integrationForm.ae_validation.user_name"></data-form-errors>
-                    <input class="form-control" id="user_name" name="user_name" type="text" ng-model="integration.config.user_name">
+                    <data-form-errors errors="$ctrl.integrationForm.ae_validation.user_name"></data-form-errors>
+                    <input class="form-control" id="user_name" name="user_name" type="text" ng-model="$ctrl.config.user_name">
 
                     <p>
                         <small>user@email.com</small>
@@ -45,8 +45,8 @@
                     Password <span class="required">*</span>
                 </label>
                 <div class="col-sm-8 col-lg-9">
-                    <data-form-errors errors="integration.integrationForm.ae_validation.password"></data-form-errors>
-                    <input class="form-control" id="password" name="password" type="password" ng-model="integration.config.password">
+                    <data-form-errors errors="$ctrl.integrationForm.ae_validation.password"></data-form-errors>
+                    <input class="form-control" id="password" name="password" type="password" ng-model="$ctrl.config.password">
                 </div>
             </div>
             <div class="form-group" id="row-project">
@@ -55,8 +55,8 @@
                     Project key <span class="required">*</span>
                 </label>
                 <div class="col-sm-8 col-lg-9">
-                    <data-form-errors errors="integration.integrationForm.ae_validation.project"></data-form-errors>
-                    <input class="form-control" id="project" name="project" type="text" ng-model="integration.config.project">
+                    <data-form-errors errors="$ctrl.integrationForm.ae_validation.project"></data-form-errors>
+                    <input class="form-control" id="project" name="project" type="text" ng-model="$ctrl.config.project">
                 </div>
             </div>
             <div class="form-group" id="row-submit">
@@ -68,7 +68,7 @@
                             <a class="btn btn-danger" data-uib-dropdown-toggle><span class="fa fa-trash-o"></span> Remove Integration</a>
                           <ul class="dropdown-menu">
                               <li><a>No</a></li>
-                              <li><a ng-click="integration.removeIntegration()">Yes</a></li>
+                              <li><a ng-click="$ctrl.removeIntegration()">Yes</a></li>
                           </ul>
                         </span>
                 </div>

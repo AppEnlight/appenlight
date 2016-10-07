@@ -194,24 +194,21 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
     $stateProvider.state('applications', {
         abstract: true,
         url: '/ui/applications',
-        templateUrl: 'templates/applications/parent_view.html'
+        component: 'settingsView'
     });
 
     $stateProvider.state('applications.list', {
         url: '/list',
-        templateUrl: 'templates/applications/list.html',
-        controller: 'ApplicationsListController as applications'
+        component: 'applicationsListView'
     });
     $stateProvider.state('applications.update', {
         url: '/{resourceId}/update',
-        templateUrl: 'templates/applications/applications_update.html',
-        controller: 'ApplicationsUpdateController as application'
+        component: 'applicationsUpdateView'
     });
 
     $stateProvider.state('applications.integrations', {
         url: '/{resourceId}/integrations',
-        templateUrl: 'templates/applications/integrations.html',
-        controller: 'IntegrationsListController as integrations',
+        component: 'integrationsListView',
         data: {
             resource: null
         }
@@ -219,16 +216,14 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
 
     $stateProvider.state('applications.purge_logs', {
         url: '/purge_logs',
-        templateUrl: 'templates/applications/applications_purge_logs.html',
-        controller: 'ApplicationsPurgeLogsController as applications_purge'
+        component: 'applicationsPurgeLogsView'
     });
 
     $stateProvider.state('applications.integrations.edit', {
         url: '/{integration}',
-        templateUrl: function ($stateParams) {
-            return 'templates/applications/integrations/' + $stateParams.integration + '.html'
-        },
-        controller: 'IntegrationController as integration'
+        template: function ($stateParams) {
+            return '<'+ $stateParams.integration + '-integration-config-view>'
+        }
     });
 
     $stateProvider.state('tests', {

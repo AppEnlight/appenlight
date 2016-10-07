@@ -17,14 +17,13 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers')
-    .controller('IntegrationController', IntegrationController)
 
-IntegrationController.$inject = ['$state', 'integrationResource'];
+ApplicationsIntegrationsEditViewController.$inject = ['$state', 'integrationResource'];
 
-function IntegrationController($state, integrationResource) {
+function ApplicationsIntegrationsEditViewController($state, integrationResource) {
     console.debug('IntegrationController');
     var vm = this;
+    vm.$state = $state;
     vm.loading = {integration: true};
     vm.config = integrationResource.get(
         {
@@ -68,13 +67,13 @@ function IntegrationController($state, integrationResource) {
         );
     }
 
-    vm.testIntegration = function(to_test){
+    vm.testIntegration = function (to_test) {
         console.info('testIntegration', to_test);
         vm.loading.integration = true;
         integrationResource.save(
             {
                 integration: $state.params.integration,
-                action: 'test_'+ to_test,
+                action: 'test_' + to_test,
                 resourceId: $state.params.resourceId
             }, vm.config, function (data) {
                 vm.loading.integration = false;
