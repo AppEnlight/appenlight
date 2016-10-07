@@ -17,12 +17,16 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers').controller('UserAuthTokensController', UserAuthTokensController);
+angular.module('appenlight.components.userAuthTokensView', [])
+    .component('userAuthTokensView', {
+        templateUrl: 'components/views/user-auth-tokens-view/user-auth-tokens-view.html',
+        controller: userAuthTokensViewController
+    });
 
-UserAuthTokensController.$inject = ['$filter', 'userSelfPropertyResource', 'AeConfig'];
+userAuthTokensViewController.$inject = ['userSelfPropertyResource', 'AeConfig'];
 
-function UserAuthTokensController($filter, userSelfPropertyResource, AeConfig) {
-    console.debug('UserAuthTokensController');
+function userAuthTokensViewController(userSelfPropertyResource, AeConfig) {
+    console.debug('userAuthTokensViewController');
     var vm = this;
     vm.loading = {tokens: true};
 
@@ -48,11 +52,13 @@ function UserAuthTokensController($filter, userSelfPropertyResource, AeConfig) {
                     setServerValidation(vm.TokenForm, response.data);
                 }
             })
-    }
+    };
 
     vm.removeToken = function (token) {
-        userSelfPropertyResource.delete({key: 'auth_tokens',
-            token:token.token},
+        userSelfPropertyResource.delete({
+                key: 'auth_tokens',
+                token: token.token
+            },
             function () {
                 var index = vm.tokens.indexOf(token);
                 if (index !== -1) {

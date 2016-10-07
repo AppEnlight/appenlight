@@ -1,19 +1,19 @@
-<ng-include src="'templates/loader.html'" ng-if="channels.loading.channels || channels.loading.applications"></ng-include>
+<ng-include src="'templates/loader.html'" ng-if="$ctrl.loading.channels || $ctrl.loading.applications"></ng-include>
 
-<div ng-if="!channels.loading.channels && !channels.loading.applications && !channels.loading.actions">
+<div ng-if="!$ctrl.loading.channels && !$ctrl.loading.applications && !$ctrl.loading.actions">
 
     <div class="panel panel-default">
         <div class="panel-heading" ng-include="'templates/user/breadcrumbs.html'"></div>
         <div class="panel-body">
             <h1>Report alert rules</h1>
             <p>
-                <a class="btn btn-info" ng-click="channels.addAction()"><span class="fa fa-plus-circle"></span> Add top-level rule</a>
+                <a class="btn btn-info" ng-click="$ctrl.addAction()"><span class="fa fa-plus-circle"></span> Add top-level rule</a>
             </p>
 
-            <report-alert-action action="action" rule-definitions="channels.ruleDefinitions"
-                                 possible-channels="channels.alertChannels"
-                                 actions="channels.alertActions" applications="channels.applications"
-                                 ng-repeat="action in channels.alertActions | filter: {type:'report'}"></report-alert-action>
+            <report-alert-action action="action" rule-definitions="$ctrl.ruleDefinitions"
+                                 possible-channels="$ctrl.alertChannels"
+                                 actions="$ctrl.alertActions" applications="$ctrl.applications"
+                                 ng-repeat="action in $ctrl.alertActions | filter: {type:'report'}"></report-alert-action>
 
         </div>
     </div>
@@ -29,7 +29,7 @@
             <div class="alert alert-success">You can add more integrations that support different alert channels via application management panel.</div>
 
             <table class="table table-striped">
-                <tr ng-repeat="channel in channels.alertChannels" class="animate-repeat">
+                <tr ng-repeat="channel in $ctrl.alertChannels" class="animate-repeat">
                     <td><strong>{{ channel.channel_visible_value }}</strong></td>
                     <td class="text-right">
                         <span class="btn btn-default" data-uib-tooltip="Channel is {{ channel.channel_validated? '' :'NOT' }} validated" tooltip-append-to-body="true"
@@ -37,11 +37,11 @@
                             <span class="fa" ng-class="{'fa-check-circle':channel.channel_validated,  'fa-times-circle':!channel.channel_validated}"></span>
                         </span>
                         <a class="btn btn-default" data-uib-tooltip="Press to turn {{ channel.send_alerts ? 'OFF' : 'ON' }} alerting on this chanel"
-                           ng-click="channels.updateChannel(channel,'send_alerts')" ng-class="{dim:!channel.send_alerts}" tooltip-append-to-body="true">
+                           ng-click="$ctrl.updateChannel(channel,'send_alerts')" ng-class="{dim:!channel.send_alerts}" tooltip-append-to-body="true">
                             <span class="fa fa-rss"></span> Alerts
                         </a>
                         <a class="btn btn-default" data-uib-tooltip="Press to turn {{ channel.daily_digest ? 'OFF' : 'ON' }} daily digests on this channel"
-                           ng-click="channels.updateChannel(channel,'daily_digest')" ng-class="{dim:!channel.daily_digest}" tooltip-append-to-body="true">
+                           ng-click="$ctrl.updateChannel(channel,'daily_digest')" ng-class="{dim:!channel.daily_digest}" tooltip-append-to-body="true">
                             <span class="fa fa-envelope"></span> Daily digests
                         </a>
 
@@ -49,7 +49,7 @@
                             <a class="btn btn-default" data-uib-dropdown-toggle><span class="fa fa-trash-o"></span> Remove</a>
                           <ul class="dropdown-menu">
                               <li><a>No</a></li>
-                              <li><a ng-click="channels.removeChannel(channel)">Yes</a></li>
+                              <li><a ng-click="$ctrl.removeChannel(channel)">Yes</a></li>
                           </ul>
                         </span>
 

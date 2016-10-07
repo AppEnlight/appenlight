@@ -23,8 +23,9 @@ angular.module('appenlight.components.settingsView', [])
         controller: SettingsViewController
     });
 
-SettingsViewController.$inject = [];
+SettingsViewController.$inject = ['$state'];
 
-function SettingsViewController() {
+function SettingsViewController($state) {
+    this.$state = $state;
     console.info('SettingsViewController');
 }

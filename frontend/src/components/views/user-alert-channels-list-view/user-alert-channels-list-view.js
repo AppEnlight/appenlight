@@ -17,11 +17,15 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers').controller('AlertChannelsController', AlertChannelsController);
+angular.module('appenlight.components.userAlertChannelsListView', [])
+    .component('userAlertChannelsListView', {
+        templateUrl: 'components/views/user-alert-channels-list-view/user-alert-channels-list-view.html',
+        controller: userAlertChannelsListViewController
+    });
 
-AlertChannelsController.$inject = ['userSelfPropertyResource', 'applicationsNoIdResource'];
+userAlertChannelsListViewController.$inject = ['userSelfPropertyResource', 'applicationsNoIdResource'];
 
-function AlertChannelsController(userSelfPropertyResource, applicationsNoIdResource) {
+function userAlertChannelsListViewController(userSelfPropertyResource, applicationsNoIdResource) {
     console.debug('AlertChannelsController');
     var vm = this;
     vm.loading = {channels: true, applications: true, actions:true};

@@ -17,13 +17,16 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers')
-    .controller('UserPasswordController', UserPasswordController)
+angular.module('appenlight.components.userPasswordView', [])
+    .component('userPasswordView', {
+        templateUrl: 'components/views/user-password-view/user-password-view.html',
+        controller: UserPasswordViewController
+    });
 
-UserPasswordController.$inject = ['userSelfPropertyResource'];
+UserPasswordViewController.$inject = ['userSelfPropertyResource'];
 
-function UserPasswordController(userSelfPropertyResource) {
-    console.debug('UserPasswordController');
+function UserPasswordViewController(userSelfPropertyResource) {
+    console.debug('UserPasswordViewController');
     var vm = this;
     vm.loading = {password: false};
     vm.form = {};
@@ -37,7 +40,7 @@ function UserPasswordController(userSelfPropertyResource) {
             setServerValidation(vm.passwordForm);
         }, function (response) {
             if (response.status == 422) {
-                console.log('vm',vm);
+                console.log('vm', vm);
                 setServerValidation(vm.passwordForm, response.data);
                 console.log(response.data);
             }

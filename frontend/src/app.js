@@ -48,6 +48,10 @@ angular.module('appenlight.components', [
     'appenlight.components.eventBrowserView',
     'appenlight.components.userProfileView',
     'appenlight.components.userIdentitiesView',
+    'appenlight.components.userPasswordView',
+    'appenlight.components.userAuthTokensView',
+    'appenlight.components.userAlertChannelsListView',
+    'appenlight.components.userAlertChannelsEmailNewView',
     'appenlight.components.settingsView'
 ]);
 angular.module('appenlight.directives', [

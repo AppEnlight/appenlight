@@ -162,8 +162,7 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
 
     $stateProvider.state('user.profile.password', {
         url: '/password',
-        templateUrl: 'templates/user/profile_password.html',
-        controller: 'UserPasswordController as password'
+        component: 'userPasswordView'
     });
 
     $stateProvider.state('user.profile.identities', {
@@ -173,26 +172,23 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
 
     $stateProvider.state('user.profile.auth_tokens', {
         url: '/auth_tokens',
-        templateUrl: 'templates/user/auth_tokens.html',
-        controller: 'UserAuthTokensController as auth_tokens'
+        component: 'userAuthTokensView'
     });
 
     $stateProvider.state('user.alert_channels', {
         abstract: true,
         url: '/alert_channels',
-        templateUrl: 'templates/user/alert_channels.html'
+        template: '<ui-view></ui-view>'
     });
 
     $stateProvider.state('user.alert_channels.list', {
         url: '/list',
-        templateUrl: 'templates/user/alert_channels_list.html',
-        controller: 'AlertChannelsController as channels'
+        component: 'userAlertChannelsListView'
     });
 
     $stateProvider.state('user.alert_channels.email', {
         url: '/email',
-        templateUrl: 'templates/user/alert_channels_email.html',
-        controller: 'AlertChannelsEmailController as email'
+        component: 'userAlertChannelsEmailNewView'
     });
 
     $stateProvider.state('applications', {

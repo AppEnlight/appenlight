@@ -17,8 +17,11 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers')
-    .controller('AlertChannelsEmailController', AlertChannelsEmailController)
+angular.module('appenlight.components.userAlertChannelsEmailNewView', [])
+    .component('userAlertChannelsEmailNewView', {
+        templateUrl: 'components/views/user-alert-channel-email-new-view/user-alert-channel-email-new-view.html',
+        controller: AlertChannelsEmailController
+    });
 
 AlertChannelsEmailController.$inject = ['$state','userSelfPropertyResource'];
 
