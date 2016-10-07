@@ -23,11 +23,12 @@ angular.module('appenlight.components.userPasswordView', [])
         controller: UserPasswordViewController
     });
 
-UserPasswordViewController.$inject = ['userSelfPropertyResource'];
+UserPasswordViewController.$inject = ['$state', 'userSelfPropertyResource'];
 
-function UserPasswordViewController(userSelfPropertyResource) {
+function UserPasswordViewController($state, userSelfPropertyResource) {
     console.debug('UserPasswordViewController');
     var vm = this;
+    vm.$state = $state;
     vm.loading = {password: false};
     vm.form = {};
 

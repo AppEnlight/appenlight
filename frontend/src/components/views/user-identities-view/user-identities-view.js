@@ -23,11 +23,12 @@ angular.module('appenlight.components.userIdentitiesView', [])
         controller: UserIdentitiesController
     });
 
-UserIdentitiesController.$inject = ['userSelfPropertyResource', 'AeConfig'];
+UserIdentitiesController.$inject = ['$state', 'userSelfPropertyResource', 'AeConfig'];
 
-function UserIdentitiesController(userSelfPropertyResource, AeConfig) {
+function UserIdentitiesController($state, userSelfPropertyResource, AeConfig) {
     console.debug('UserIdentitiesController');
     var vm = this;
+    vm.$state = $state;
     vm.AeConfig = AeConfig;
     vm.loading = {identities: true};
 

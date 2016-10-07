@@ -23,11 +23,12 @@ angular.module('appenlight.components.userAlertChannelsListView', [])
         controller: userAlertChannelsListViewController
     });
 
-userAlertChannelsListViewController.$inject = ['userSelfPropertyResource', 'applicationsNoIdResource'];
+userAlertChannelsListViewController.$inject = ['$state','userSelfPropertyResource', 'applicationsNoIdResource'];
 
-function userAlertChannelsListViewController(userSelfPropertyResource, applicationsNoIdResource) {
+function userAlertChannelsListViewController($state, userSelfPropertyResource, applicationsNoIdResource) {
     console.debug('AlertChannelsController');
     var vm = this;
+    vm.$state = $state;
     vm.loading = {channels: true, applications: true, actions:true};
 
     vm.alertChannels = userSelfPropertyResource.query({key: 'alert_channels'},

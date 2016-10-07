@@ -23,11 +23,12 @@ angular.module('appenlight.components.userAuthTokensView', [])
         controller: userAuthTokensViewController
     });
 
-userAuthTokensViewController.$inject = ['userSelfPropertyResource', 'AeConfig'];
+userAuthTokensViewController.$inject = ['$state', 'userSelfPropertyResource', 'AeConfig'];
 
-function userAuthTokensViewController(userSelfPropertyResource, AeConfig) {
+function userAuthTokensViewController($state, userSelfPropertyResource, AeConfig) {
     console.debug('userAuthTokensViewController');
     var vm = this;
+    vm.$state = $state;
     vm.loading = {tokens: true};
 
     vm.expireOptions = AeConfig.timeOptions;

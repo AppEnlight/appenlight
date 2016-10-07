@@ -23,11 +23,12 @@ angular.module('appenlight.components.userProfileView', [])
         controller: UserProfileViewController
     });
 
-UserProfileViewController.$inject = ['userSelfResource'];
+UserProfileViewController.$inject = ['$state', 'userSelfResource'];
 
-function UserProfileViewController(userSelfResource) {
+function UserProfileViewController($state, userSelfResource) {
     console.debug('UserProfileViewController');
     var vm = this;
+    vm.$state = $state;
     vm.loading = {profile: true};
 
     vm.user = userSelfResource.get(null, function (data) {

@@ -1,11 +1,12 @@
-<ol class="breadcrumb" ng-show="$state.includes('user.profile')">
+<ol class="breadcrumb" ng-show="$ctrl.$state.includes('user.profile')">
     <li>Settings</li>
-    <li ng-show="$state.includes('user.profile.edit')" ng-class="{bold:$state.is('user.profile.edit')}">User Profile</li>
-    <li ng-show="$state.includes('user.profile.password')" ng-class="{bold:$state.is('user.profile.password')}">Password</li>
-    <li ng-show="$state.includes('user.profile.identities')" ng-class="{bold:$state.is('user.profile.identities')}">Identities</li>
+    <li ng-show="$ctrl.$state.includes('user.profile.edit')" ng-class="{bold:$ctrl.$state.is('user.profile.edit')}">User Profile</li>
+    <li ng-show="$ctrl.$state.includes('user.profile.password')" ng-class="{bold:$ctrl.$state.is('user.profile.password')}">Password</li>
+    <li ng-show="$ctrl.$state.includes('user.profile.identities')" ng-class="{bold:$ctrl.$state.is('user.profile.identities')}">Identities</li>
+    <li ng-show="$ctrl.$state.includes('user.profile.auth_tokens')" ng-class="{bold:$ctrl.$state.is('user.profile.auth_tokens')}">Auth Tokens</li>
 </ol>
-<ol class="breadcrumb" ng-show="$state.includes('user.alert_channels')">
+<ol class="breadcrumb" ng-show="$ctrl.$state.includes('user.alert_channels')">
 <li>Notifications</li>
-<li ng-show="$state.includes('user.alert_channels.list')" ng-class="{bold:$state.is('user.alert_channels.list')}">Alert Channels</li>
-<li ng-show="$state.includes('user.alert_channels.email')" ng-class="{bold:$state.is('user.alert_channels.email')}">Create email channel</li>
+<li ng-show="$ctrl.$state.includes('user.alert_channels.list')" ng-class="{bold:$ctrl.$state.is('user.alert_channels.list')}">Alert Channels</li>
+<li ng-show="$ctrl.$state.includes('user.alert_channels.email')" ng-class="{bold:$ctrl.$state.is('user.alert_channels.email')}">Create email channel</li>
 </ol>

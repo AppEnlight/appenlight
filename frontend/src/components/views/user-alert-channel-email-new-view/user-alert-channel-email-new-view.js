@@ -28,6 +28,7 @@ AlertChannelsEmailController.$inject = ['$state','userSelfPropertyResource'];
 function AlertChannelsEmailController($state, userSelfPropertyResource) {
     console.debug('AlertChannelsEmailController');
     var vm = this;
+    vm.$state = $state;
     vm.loading = {email: false};
     vm.form = {};
 
