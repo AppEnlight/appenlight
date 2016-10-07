@@ -17,12 +17,17 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers').controller('ReportsViewController', ReportsViewController);
-ReportsViewController.$inject = ['$window', '$location', '$state', '$uibModal',
+angular.module('appenlight.components.reportView', [])
+    .component('reportView', {
+        templateUrl: 'components/views/report-view/report-view.html',
+        controller: ReportViewController
+    });
+
+ReportViewController.$inject = ['$window', '$location', '$state', '$uibModal',
     '$cookies', 'reportGroupPropertyResource', 'reportGroupResource',
     'logsNoIdResource', 'stateHolder'];
 
-function ReportsViewController($window, $location, $state, $uibModal, $cookies, reportGroupPropertyResource, reportGroupResource, logsNoIdResource, stateHolder) {
+function ReportViewController($window, $location, $state, $uibModal, $cookies, reportGroupPropertyResource, reportGroupResource, logsNoIdResource, stateHolder) {
     var vm = this;
     vm.window = $window;
     vm.stateHolder = stateHolder;

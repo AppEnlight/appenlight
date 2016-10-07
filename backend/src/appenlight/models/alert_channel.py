@@ -210,7 +210,7 @@ class AlertChannel(Base, BaseModel):
         tmpl_vars["confirmed_total"] = len(reports)
 
         tmpl_vars["report_type"] = "error reports"
-        tmpl_vars["url_report_type"] = 'report'
+        tmpl_vars["url_report_type"] = 'report/list'
 
         alert_type = tmpl_vars.get('alert_type', '')
         if 'slow_report' in alert_type:

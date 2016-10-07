@@ -17,20 +17,20 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-'use strict';
+angular.module('appenlight.components.reportsBrowserView', [])
+    .component('reportsBrowserView', {
+        templateUrl: 'components/views/reports-browser-view/reports-browser-view.html',
+        controller: reportsBrowserViewController
+    });
 
-/* Controllers */
+reportsBrowserViewController.$inject = ['$location', '$cookies',
+    'stateHolder', 'typeAheadTagHelper', 'reportsResource'];
 
-angular.module('appenlight.controllers')
-    .controller('ReportsListSlowController', ReportsListSlowController);
-
-ReportsListSlowController.$inject = ['$location', '$cookies',
-    'stateHolder', 'typeAheadTagHelper', 'slowReportsResource']
-
-function ReportsListSlowController($location, $cookies, stateHolder, typeAheadTagHelper, slowReportsResource) {
+function reportsBrowserViewController($location, $cookies, stateHolder,
+                               typeAheadTagHelper, reportsResource) {
     var vm = this;
     vm.applications = stateHolder.AeUser.applications_map;
-    stateHolder.section = 'slow_reports';
+    stateHolder.section = 'reports';
     vm.today = function () {
         vm.pickerDate = new Date();
     };
@@ -40,22 +40,29 @@ function ReportsListSlowController($location, $cookies, stateHolder, typeAheadTa
     vm.itemCount = 0;
     vm.itemsPerPage = 250;
     typeAheadTagHelper.tags = [];
-    vm.searchParams = {tags: [], page: 1, type: 'slow_report'};
+    vm.searchParams = {tags: [], page: 1, type: 'report'};
     vm.is_loading = false;
     vm.filterTypeAheadOptions = [
+        {
+            type: 'error',
+            text: 'error:',
+            'description': 'Full-text search in your reports',
+            example: 'error:text-im-looking-for',
+            tag: 'Error'
+        },
         {
             type: 'view_name',
             text: 'view_name:',
             'description': 'Query reports occured in specific views',
-            tag: 'View Name',
-            example: "view_name:module.foo"
+            example: "view_name:module.foo",
+            tag: 'View Name'
         },
         {
             type: 'resource',
             text: 'resource:',
             'description': 'Restrict resultset to application',
-            tag: 'Application',
-            example: "resource:ID"
+            example: "resource:ID",
+            tag: 'Application'
         },
         {
             type: 'priority',
@@ -69,14 +76,7 @@ function ReportsListSlowController($location, $cookies, stateHolder, typeAheadTa
             text: 'min_occurences:',
             'description': 'Show reports from groups with at least X occurences',
             example: 'min_occurences:25',
-            tag: 'Min. occurences'
-        },
-        {
-            type: 'min_duration',
-            text: 'min_duration:',
-            'description': 'Show reports from groups with average duration >= Xs',
-            example: 'min_duration:4.5',
-            tag: 'Min. duration'
+            tag: 'Occurences'
         },
         {
             type: 'url_path',
@@ -93,13 +93,6 @@ function ReportsListSlowController($location, $cookies, stateHolder, typeAheadTa
             tag: 'Domain'
         },
         {
-            type: 'request_id',
-            text: 'request_id:',
-            'description': 'Show reports with specific request id',
-            example: "request_id:883143dc572e4c38aceae92af0ea5ae0",
-            tag: 'Request ID'
-        },
-        {
             type: 'report_status',
             text: 'report_status:',
             'description': 'Show reports from groups with specific status',
@@ -107,11 +100,39 @@ function ReportsListSlowController($location, $cookies, stateHolder, typeAheadTa
             tag: 'Status'
         },
         {
+            type: 'request_id',
+            text: 'request_id:',
+            'description': 'Show reports with specific request id',
+            example: "request_id:883143dc572e4c38aceae92af0ea5ae0",
+            tag: 'Request ID'
+        },
+        {
             type: 'server_name',
             text: 'server_name:',
             'description': 'Show reports tagged with this key/value pair',
             example: 'server_name:hostname',
             tag: 'Tag'
+        },
+        {
+            type: 'http_status',
+            text: 'http_status:',
+            'description': 'Show reports with specific HTTP status code',
+            example: "http_status:",
+            tag: 'HTTP Status'
+        },
+        {
+            type: 'http_status',
+            text: 'http_status:500',
+            'description': 'Show reports with specific HTTP status code',
+            example: "http_status:500",
+            tag: 'HTTP Status'
+        },
+        {
+            type: 'http_status',
+            text: 'http_status:404',
+            'description': 'Include 404 reports in your search',
+            example: "http_status:404",
+            tag: 'HTTP Status'
         },
         {
             type: 'start_date',
@@ -131,6 +152,7 @@ function ReportsListSlowController($location, $cookies, stateHolder, typeAheadTa
 
     vm.filterTypeAhead = undefined;
     vm.showDatePicker = false;
+    vm.manualOpen = false;
     vm.aheadFilter = typeAheadTagHelper.aheadFilter;
     vm.removeSearchTag = function (tag) {
         $location.search(tag.type, null);
@@ -140,12 +162,10 @@ function ReportsListSlowController($location, $cookies, stateHolder, typeAheadTa
         $location.search(tag.type, tag.value);
         vm.refresh();
     };
-    vm.manualOpen = false;
     vm.notRelativeTime = false;
     if ($cookies.notRelativeTime) {
         vm.notRelativeTime = JSON.parse($cookies.notRelativeTime);
     }
-
 
     vm.changeRelativeTime = function () {
         $cookies.notRelativeTime = JSON.stringify(vm.notRelativeTime);
@@ -179,14 +199,20 @@ function ReportsListSlowController($location, $cookies, stateHolder, typeAheadTa
         });
     });
 
+    vm.paginationChange = function(){
+        $location.search('page', vm.page);
+        vm.refresh();
+    };
+
     vm.typeAheadTag = function (event) {
         var text = vm.filterTypeAhead;
         if (_.isObject(vm.filterTypeAhead)) {
             text = vm.filterTypeAhead.text;
-        };
+        }
         if (!vm.filterTypeAhead) {
             return
         }
+
         var parsed = text.split(':');
         var tag = {'type': null, 'value': null};
         // app tags have : twice
@@ -201,6 +227,10 @@ function ReportsListSlowController($location, $cookies, stateHolder, typeAheadTa
             if (tagValue) {
                 tag.value = tagValue.join(':');
             }
+        }
+        else {
+            tag.type = 'error';
+            tag.value = parsed.join(':');
         }
 
         // set datepicker hour based on type of field
@@ -221,11 +251,6 @@ function ReportsListSlowController($location, $cookies, stateHolder, typeAheadTa
         vm.addSearchTag({type: tag.type, value: tag.value});
         // clear typeahead
         vm.filterTypeAhead = undefined;
-    };
-
-    vm.paginationChange = function(){
-        $location.search('page', vm.page);
-        vm.refresh();
     };
 
     vm.pickerDateChanged = function(){
@@ -261,7 +286,7 @@ function ReportsListSlowController($location, $cookies, stateHolder, typeAheadTa
 
     vm.fetchReports = function (searchParams) {
         vm.is_loading = true;
-        slowReportsResource.query(searchParams, function (data, getResponseHeaders) {
+        reportsResource.query(searchParams, function (data, getResponseHeaders) {
             var headers = getResponseHeaders();
             console.log(headers);
             vm.is_loading = false;
@@ -282,13 +307,14 @@ function ReportsListSlowController($location, $cookies, stateHolder, typeAheadTa
         });
         vm.refresh();
     };
+
     vm.refresh = function(){
         vm.searchParams = parseSearchToTags($location.search());
         vm.page = Number(vm.searchParams.page) || 1;
         var params = parseTagsToSearch(vm.searchParams);
+        console.log(params);
         vm.fetchReports(params);
     };
-
-    //initial load
+    // initial load
     vm.refresh();
 }

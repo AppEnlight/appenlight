@@ -34,30 +34,26 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
     $stateProvider.state('report', {
         abstract: true,
         url: '/ui/report',
-        templateUrl: 'templates/reports/parent_view.html'
+        template: '<ui-view></ui-view>'
     });
 
     $stateProvider.state('report.list', {
-        url: '?start_date&min_duration&max_duration&{view_name:any}&{server_name:any}&resource',
-        templateUrl: 'templates/reports/list.html',
-        controller: 'ReportsListController as reports_list'
+        url: '/list?start_date&min_duration&max_duration&{view_name:any}&{server_name:any}&resource',
+        component: 'reportsBrowserView'
     });
 
     $stateProvider.state('report.list_slow', {
         url: '/list_slow?start_date&min_duration&max_duration&{view_name:any}&{server_name:any}&resource',
-        templateUrl: 'templates/reports/list_slow.html',
-        controller: 'ReportsListSlowController as reports_list'
+        component: 'reportsSlowBrowserView'
     });
 
     $stateProvider.state('report.view_detail', {
         url: '/:groupId/:reportId',
-        templateUrl: 'templates/reports/view.html',
-        controller: 'ReportsViewController as report'
+        component: 'reportView'
     });
     $stateProvider.state('report.view_group', {
         url: '/:groupId',
-        templateUrl: 'templates/reports/view.html',
-        controller: 'ReportsViewController as report'
+        component: 'reportView'
     });
     $stateProvider.state('events', {
         url: '/ui/events',

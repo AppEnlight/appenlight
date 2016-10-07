@@ -1,14 +1,14 @@
-<ng-include src="'templates/loader.html'" ng-if="reports_list.is_loading"></ng-include>
+<ng-include src="'templates/loader.html'" ng-if="$ctrl.is_loading"></ng-include>
 
-<div ng-if="reports_list.is_loading === false">
+<div ng-if="$ctrl.is_loading === false">
 
     <p class="search-params">
         <strong>Search params:</strong>
-        <span ng-repeat="tag in reports_list.searchParams.tags" class="tag">
+        <span ng-repeat="tag in $ctrl.searchParams.tags" class="tag">
             <strong>{{tag.type}}</strong>
-            {{ tag.type == 'resource' ? reports_list.applications[tag.value].resource_name : tag.value }}
+            {{ tag.type == 'resource' ? $ctrl.applications[tag.value].resource_name : tag.value }}
 
-            <a ng-click="reports_list.removeSearchTag(tag)"><span class="fa fa-times"></span></a>
+            <a ng-click="$ctrl.removeSearchTag(tag)"><span class="fa fa-times"></span></a>
         </span>
     </p>
 
@@ -16,16 +16,16 @@
 
     <form class="form">
         <div class="typeahead-tags">
-            <input type="text" id="typeAhead" ng-model="reports_list.filterTypeAhead" placeholder="Start typing to filter slowness reports - filter by tags, average response time, priority or other properties."
-                   ng-keydown="reports_list.typeAheadTag($event)"
-                   uib-typeahead="tag as tag.text for tag in reports_list.filterTypeAheadOptions | filter:$viewValue:aheadFilter"
+            <input type="text" id="typeAhead" ng-model="$ctrl.filterTypeAhead" placeholder="Start typing to filter slowness reports - filter by tags, average response time, priority or other properties."
+                   ng-keydown="$ctrl.typeAheadTag($event)"
+                   uib-typeahead="tag as tag.text for tag in $ctrl.filterTypeAheadOptions | filter:$viewValue:aheadFilter"
                    typeahead-min-length="1" class="form-control"
                    typeahead-template-url="templates/directives/search_type_ahead.html">
         </div>
     </form>
 
 
-    <div class="well position-absolute increse-zindex" ng-show="reports_list.showDatePicker" ng-model="reports_list.pickerDate" ng-change="reports_list.pickerDateChanged()"
+    <div class="well position-absolute increse-zindex" ng-show="$ctrl.showDatePicker" ng-model="$ctrl.pickerDate" ng-change="$ctrl.pickerDateChanged()"
          class="animate-show">
         <uib-datepicker></uib-datepicker>
     </div>
@@ -34,31 +34,31 @@
 
 
     <div class="text-center">
-        <uib-pagination total-items="reports_list.itemCount" items-per-page="reports_list.itemsPerPage" ng-model="reports_list.page" max-size="10"
+        <uib-pagination total-items="$ctrl.itemCount" items-per-page="$ctrl.itemsPerPage" ng-model="$ctrl.page" max-size="10"
                         class="pagination pagination-sm" boundary-links="true" direction-links="false"
-                        ng-change="reports_list.paginationChange()"
-                        ng-show="!reports_list.is_loading"></uib-pagination>
+                        ng-change="$ctrl.paginationChange()"
+                        ng-show="!$ctrl.is_loading"></uib-pagination>
     </div>
 
 
     <div class="panel panel-default">
         <!-- Default panel contents -->
 
-        <table class="table table-striped report-list" ng-show="!reports_list.is_loading">
+        <table class="table table-striped report-list" ng-show="!$ctrl.is_loading">
             <caption>Slow Request Reports</caption>
             <thead>
             <tr>
                 <td class="c1 ordering occurences">#</td>
                 <td class="c2 average_duration">Avg. duration</td>
                 <td class="c3 application">Application</td>
-                <td class="c5 when">When <input type="checkbox" ng-model="reports_list.notRelativeTime"
-                                                ng-change="reports_list.changeRelativeTime()"
+                <td class="c5 when">When <input type="checkbox" ng-model="$ctrl.notRelativeTime"
+                                                ng-change="$ctrl.changeRelativeTime()"
                                                 title="Tick to see UTC time instead relative"></td>
                 <td class="c6 error_type">Location</td>
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="report in reports_list.reportsPage track by report.id">
+            <tr ng-repeat="report in $ctrl.reportsPage track by report.id">
                 <td class="c1 occurences">
                     <span class="priority-{{report.group.priority}}" data-uib-tooltip="Report priority">{{report.group.priority}}</span>
               <span class="count {{report.presentation.className}}" data-uib-tooltip="{{report.presentation.tooltip}}">
@@ -70,10 +70,10 @@
                     <div class="app_name">{{report.resource_name}}</div>
                     <span class="server">@{{report.tags.server_name}}</span></td>
                 <td class="c4 when">
-                <span ng-show="!reports_list.notRelativeTime"><span data-uib-tooltip="{{report.group.last_timestamp}}"><iso-to-relative-time
+                <span ng-show="!$ctrl.notRelativeTime"><span data-uib-tooltip="{{report.group.last_timestamp}}"><iso-to-relative-time
                         time="{{report.group.last_timestamp}}"/></span>
                 </span>
-                    <span ng-show="reports_list.notRelativeTime">{{report.group.last_timestamp.replace('T', ' ').slice(0,16)}}</span>
+                    <span ng-show="$ctrl.notRelativeTime">{{report.group.last_timestamp.replace('T', ' ').slice(0,16)}}</span>
                 </td>
                 <td class="c5 report ellipsis">
                     <a  ui-sref="report.view_detail({groupId:report.group.id, reportId:report.id})">{{ report.tags.view_name || report.url_path}} </span></a></td>
@@ -86,10 +86,10 @@
     </div>
 
     <div class="text-center">
-        <uib-pagination total-items="reports_list.itemCount" items-per-page="reports_list.itemsPerPage" ng-model="reports_list.page" max-size="10"
+        <uib-pagination total-items="$ctrl.itemCount" items-per-page="$ctrl.itemsPerPage" ng-model="$ctrl.page" max-size="10"
                         class="pagination pagination-sm" boundary-links="true" direction-links="false"
-                        ng-change="reports_list.paginationChange()"
-                        ng-show="!reports_list.is_loading"></uib-pagination>
+                        ng-change="$ctrl.paginationChange()"
+                        ng-show="!$ctrl.is_loading"></uib-pagination>
     </div>
 
 </div>
