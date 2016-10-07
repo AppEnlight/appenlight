@@ -17,28 +17,15 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers').controller('AdminSystemController', AdminSystemController);
-
-AdminSystemController.$inject = ['sectionViewResource'];
-
-function AdminSystemController(sectionViewResource) {
-    var vm = this;
-    vm.tables = [];
-    vm.loading = {system: true};
-    sectionViewResource.get({
-        section: 'admin_section',
-        view: 'system'
-    }, null, function (data) {
-        vm.DBtables = data.db_tables;
-        vm.ESIndices = data.es_indices;
-        vm.queueStats = data.queue_stats;
-        vm.systemLoad = data.system_load;
-        vm.packages = data.packages;
-        vm.processInfo = data.process_info;
-        vm.disks = data.disks;
-        vm.memory = data.memory;
-        vm.selfInfo = data.self_info;
-
-        vm.loading.system = false;
+angular.module('appenlight.components.adminView', [])
+    .component('adminView', {
+        templateUrl: 'components/views/admin-view/admin-view.html',
+        controller: AdminViewController
     });
-};
+
+AdminViewController.$inject = ['$state'];
+
+function AdminViewController($state) {
+    this.$state = $state;
+    console.info('AdminViewController');
+}

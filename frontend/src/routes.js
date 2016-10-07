@@ -61,84 +61,74 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
     });
     $stateProvider.state('admin', {
         url: '/ui/admin',
-        templateUrl: 'templates/admin/parent_view.html'
+        component: 'adminView'
     });
     $stateProvider.state('admin.user', {
         abstract: true,
         url: '/user',
-        templateUrl: 'templates/admin/users/parent_view.html'
+        template: '<ui-view></ui-view>'
     });
     $stateProvider.state('admin.user.list', {
         url: '/list',
-        templateUrl: 'templates/admin/users/users_list.html',
-        controller: 'AdminUsersController as users'
+        component: 'adminUsersListView'
     });
     $stateProvider.state('admin.user.create', {
         url: '/create',
-        templateUrl: 'templates/admin/users/users_create.html',
-        controller: 'AdminUsersCreateController as user'
+        component: 'adminUsersCreateView'
     });
     $stateProvider.state('admin.user.update', {
         url: '/{userId}/update',
-        templateUrl: 'templates/admin/users/users_create.html',
-        controller: 'AdminUsersCreateController as user'
+        component: 'adminUsersCreateView'
     });
 
 
     $stateProvider.state('admin.group', {
         abstract: true,
         url: '/group',
-        templateUrl: 'templates/admin/groups/parent_view.html'
+        template: '<ui-view></ui-view>'
     });
     $stateProvider.state('admin.group.list', {
         url: '/list',
-        templateUrl: 'templates/admin/groups/groups_list.html',
-        controller: 'AdminGroupsController as groups'
+        component: 'adminGroupsListView'
     });
     $stateProvider.state('admin.group.create', {
         url: '/create',
-        templateUrl: 'templates/admin/groups/groups_create.html',
-        controller: 'AdminGroupsCreateController as group'
+        component: 'adminGroupsCreateView'
     });
     $stateProvider.state('admin.group.update', {
         url: '/{groupId}/update',
-        templateUrl: 'templates/admin/groups/groups_create.html',
-        controller: 'AdminGroupsCreateController as group'
+        component: 'adminGroupsCreateView'
     });
 
     $stateProvider.state('admin.application', {
         abstract: true,
         url: '/application',
-        templateUrl: 'templates/admin/users/parent_view.html'
+        template: '<ui-view></ui-view>'
     });
 
     $stateProvider.state('admin.application.list', {
         url: '/list',
-        templateUrl: 'templates/admin/applications/applications_list.html',
-        controller: 'AdminApplicationsListController as applications'
+        component: 'adminApplicationsListView'
     });
 
     $stateProvider.state('admin.partitions', {
         url: '/partitions',
-        templateUrl: 'templates/admin/partitions.html',
-        controller: 'AdminPartitionsController as partitions'
+        component: 'adminPartitionsView'
     });
     $stateProvider.state('admin.system', {
         url: '/system',
-        templateUrl: 'templates/admin/system.html',
-        controller: 'AdminSystemController as system'
+        component: 'adminSystemView'
     });
 
     $stateProvider.state('admin.configs', {
         abstract: true,
         url: '/configs',
-        templateUrl: 'templates/admin/configs/parent_view.html'
+        template: '<ui-view></ui-view>'
     });
 
     $stateProvider.state('admin.configs.list', {
         url: '/list',
-        templateUrl: 'templates/admin/configs/edit.html',
-        controller: 'ConfigsListController as configs'
+        component: 'adminConfigurationView'
     });
 
     $stateProvider.state('user', {

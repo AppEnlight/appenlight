@@ -67,6 +67,15 @@ angular.module('appenlight.components', [
     'appenlight.components.jiraIntegrationConfigView',
     'appenlight.components.slackIntegrationConfigView',
     'appenlight.components.webhooksIntegrationConfigView',
+    'appenlight.components.adminView',
+    'appenlight.components.adminApplicationsListView',
+    'appenlight.components.adminUsersListView',
+    'appenlight.components.adminUsersCreateView',
+    'appenlight.components.adminGroupsListView',
+    'appenlight.components.adminGroupsCreateView',
+    'appenlight.components.adminConfigurationView',
+    'appenlight.components.adminSystemView',
+    'appenlight.components.adminPartitionsView',
     'appenlight.components.settingsView'
 ]);
 angular.module('appenlight.directives', [

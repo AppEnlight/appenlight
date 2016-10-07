@@ -17,13 +17,18 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers').controller('AdminGroupsCreateController', AdminGroupsCreateController);
+angular.module('appenlight.components.adminGroupsCreateView', [])
+    .component('adminGroupsCreateView', {
+        templateUrl: 'components/views/admin-groups-create-view/admin-groups-create-view.html',
+        controller: AdminGroupsCreateViewController
+    });
 
-AdminGroupsCreateController.$inject = ['$state', 'groupsResource', 'groupsPropertyResource', 'sectionViewResource', 'AeConfig'];
+AdminGroupsCreateViewController.$inject = ['$state', 'groupsResource', 'groupsPropertyResource', 'sectionViewResource'];
 
-function AdminGroupsCreateController($state, groupsResource, groupsPropertyResource, sectionViewResource, AeConfig) {
+function AdminGroupsCreateViewController($state, groupsResource, groupsPropertyResource, sectionViewResource) {
     console.debug('AdminGroupsCreateController');
     var vm = this;
+    vm.$state = $state;
     vm.loading = {
         group: false,
         resource_permissions: false,

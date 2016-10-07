@@ -17,13 +17,18 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers').controller('AdminUsersCreateController', AdminUsersCreateController);
+angular.module('appenlight.components.adminUsersCreateView', [])
+    .component('adminUsersCreateView', {
+        templateUrl: 'components/views/admin-users-create-view/admin-users-create-view.html',
+        controller: AdminUsersCreateViewController
+    });
 
-AdminUsersCreateController.$inject = ['$state', 'usersResource', 'usersPropertyResource', 'sectionViewResource', 'AeConfig'];
+AdminUsersCreateViewController.$inject = ['$state', 'usersResource', 'usersPropertyResource', 'sectionViewResource', 'AeConfig'];
 
-function AdminUsersCreateController($state, usersResource, usersPropertyResource, sectionViewResource, AeConfig) {
-    console.debug('AdminUsersCreateController');
+function AdminUsersCreateViewController($state, usersResource, usersPropertyResource, sectionViewResource, AeConfig) {
+    console.debug('AdminUsersCreateViewController');
     var vm = this;
+    vm.$state = $state;
     vm.loading = {user: false};
 
 

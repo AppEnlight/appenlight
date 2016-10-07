@@ -1,23 +1,23 @@
-<ng-include src="'templates/loader.html'" ng-if="partitions.loading.partitions"></ng-include>
+<ng-include src="'templates/loader.html'" ng-if="$ctrl.loading.partitions"></ng-include>
 
-<div ng-show="!partitions.loading.partitions">
+<div ng-show="!$ctrl.loading.partitions">
 
     <div class="panel panel-default">
         <div class="panel-heading">
             DELETE Daily Partitions
         </div>
 
-        <form name="partitions.dailyPartitionsForm"
-              novalidate ng-submit="partitions.partitionsDelete('dailyPartitions')"
+        <form name="$ctrl.dailyPartitionsForm"
+              novalidate ng-submit="$ctrl.partitionsDelete('dailyPartitions')"
               class="form-inline"
-              ng-class="{'has-error':partitions.dailyPartitionsForm.$invalid}">
+              ng-class="{'has-error':$ctrl.dailyPartitionsForm.$invalid}">
 
             <div class="panel-body">
 
                 <input type="text" name="confirm"
-                       placeholder="Enter CONFIRM to proceed" class="form-control input-autosize" confirm-validate required ng-model="partitions.dailyConfirm">
-                <input type="submit" class="btn btn-danger" ng-disabled="partitions.dailyPartitionsForm.$invalid">
-                <input type="checkbox" ng-model="partitions.dailyChecked" ng-change="partitions.setCheckedList('dailyPartitions')"> Check All
+                       placeholder="Enter CONFIRM to proceed" class="form-control input-autosize" confirm-validate required ng-model="$ctrl.dailyConfirm">
+                <input type="submit" class="btn btn-danger" ng-disabled="$ctrl.dailyPartitionsForm.$invalid">
+                <input type="checkbox" ng-model="$ctrl.dailyChecked" ng-change="$ctrl.setCheckedList('dailyPartitions')"> Check All
 
             </div>
 
@@ -26,7 +26,7 @@
                     <th class="c1 date">Date</th>
                     <th class="c2 indices">Indices</th>
                 </tr>
-                <tr class="r{{$index}}" ng-repeat="row in partitions.dailyPartitions">
+                <tr class="r{{$index}}" ng-repeat="row in $ctrl.dailyPartitions">
                     <td class="c1">{{row[0]}}</td>
                     <td class="c2">
                         <ul class="list-group">
@@ -49,19 +49,19 @@
             DELETE Permanent Partitions
         </div>
 
-        <form name="partitions.permanentPartitionsForm" novalidate
-              ng-submit="partitions.partitionsDelete('permanentPartitions')"
+        <form name="$ctrl.permanentPartitionsForm" novalidate
+              ng-submit="$ctrl.partitionsDelete('permanentPartitions')"
               class="form-inline"
-              ng-class="{'has-error':partitions.permanentPartitionsForm.$invalid}">
+              ng-class="{'has-error':$ctrl.permanentPartitionsForm.$invalid}">
 
 
             <div class="panel-body">
 
                 <div class="form-group">
                     <input type="text" name="confirm"
-                           placeholder="Enter CONFIRM to proceed" class="form-control" confirm-validate required ng-model="partitions.permConfirm">
-                    <input type="submit" class="btn btn-danger" ng-disabled="partitions.permanentPartitionsForm.$invalid">
-                    <input type="checkbox" ng-model="partitions.permChecked" ng-change="partitions.setCheckedList('permanentPartitions')"> Check All
+                           placeholder="Enter CONFIRM to proceed" class="form-control" confirm-validate required ng-model="$ctrl.permConfirm">
+                    <input type="submit" class="btn btn-danger" ng-disabled="$ctrl.permanentPartitionsForm.$invalid">
+                    <input type="checkbox" ng-model="$ctrl.permChecked" ng-change="$ctrl.setCheckedList('permanentPartitions')"> Check All
                 </div>
 
             </div>
@@ -71,7 +71,7 @@
                     <th class="c1 date">Date</th>
                     <th class="c2 indices">Indices</th>
                 </tr>
-                <tr class="r{{$index}}" ng-repeat="row in partitions.permanentPartitions">
+                <tr class="r{{$index}}" ng-repeat="row in $ctrl.permanentPartitions">
                     <td class="c1">{{row[0]}}</td>
                     <td class="c2">
                         <ul class="list-group">

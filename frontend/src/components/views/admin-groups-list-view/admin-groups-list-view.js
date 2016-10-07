@@ -17,13 +17,18 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers').controller('AdminGroupsController', AdminGroupsController);
+angular.module('appenlight.components.adminGroupsListView', [])
+    .component('adminGroupsListView', {
+        templateUrl: 'components/views/admin-groups-list-view/admin-groups-list-view.html',
+        controller: AdminGroupsListViewController
+    });
 
-AdminGroupsController.$inject = ['groupsResource'];
+AdminGroupsListViewController.$inject = ['$state', 'groupsResource'];
 
-function AdminGroupsController(groupsResource) {
-    console.debug('AdminGroupsController');
+function AdminGroupsListViewController($state, groupsResource) {
+    console.debug('AdminGroupsListViewController');
     var vm = this;
+    vm.$state = $state;
     vm.loading = {groups: true};
 
     vm.groups = groupsResource.query({}, function (data) {

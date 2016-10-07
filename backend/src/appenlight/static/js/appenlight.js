@@ -2703,6 +2703,15 @@ angular.module('appenlight.components', [
     'appenlight.components.jiraIntegrationConfigView',
     'appenlight.components.slackIntegrationConfigView',
     'appenlight.components.webhooksIntegrationConfigView',
+    'appenlight.components.adminView',
+    'appenlight.components.adminApplicationsListView',
+    'appenlight.components.adminUsersListView',
+    'appenlight.components.adminUsersCreateView',
+    'appenlight.components.adminGroupsListView',
+    'appenlight.components.adminGroupsCreateView',
+    'appenlight.components.adminConfigurationView',
+    'appenlight.components.adminSystemView',
+    'appenlight.components.adminPartitionsView',
     'appenlight.components.settingsView'
 ]);
 angular.module('appenlight.directives', [
@@ -2984,6 +2993,854 @@ function kickstartAE(initialUserData) {
     "            </div><!-- /.container-fluid -->\n" +
     "        </div>\n" +
     "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/admin-applications-list-view/admin-applications-list-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.loading.applications\"></ng-include>\n" +
+    "\n" +
+    "<div class=\"panel panel-default\" ng-if=\"!$ctrl.loading.applications\">\n" +
+    "    <div class=\"panel-heading\">\n" +
+    "\n" +
+    "        Currently active applications: {{$ctrl.applications.length}}\n" +
+    "\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <table st-table=\"displayedCollection\" st-safe-src=\"$ctrl.applications\" class=\"table table-striped\">\n" +
+    "        <thead>\n" +
+    "        <tr>\n" +
+    "            <th st-sort=\"resource_name\"><a>Application name</a></th>\n" +
+    "            <th st-sort=\"owner_user_name\"><a>Owner User</a></th>\n" +
+    "            <th st-sort=\"owner_group_name\"><a>Owner Group</a></th>\n" +
+    "            <th class=\"options\"></th>\n" +
+    "        </tr>\n" +
+    "        <tr>\n" +
+    "            <th><input st-search=\"resource_name\" placeholder=\"search for application\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
+    "            <th><input st-search=\"owner_user_name\" placeholder=\"search for user\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
+    "            <th><input st-search=\"owner_group_name\" placeholder=\"search for group\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
+    "            <th></th>\n" +
+    "        </tr>\n" +
+    "        </thead>\n" +
+    "        <tbody>\n" +
+    "\n" +
+    "        <tr ng-repeat=\"resource in displayedCollection track by resource.resource_id\">\n" +
+    "            <td> {{resource.resource_name}}</td>\n" +
+    "            <td>{{resource.owner_user_name}}</td>\n" +
+    "            <td>{{resource.owner_group_name}}</td>\n" +
+    "            <td>\n" +
+    "                <a class=\"btn btn-default btn-sm\" data-ui-sref=\"applications.update({resourceId:resource.resource_id})\" data-toggle=\"tooltip\" title=\"Update application\"><span class=\"fa fa-cog\"></span></a>\n" +
+    "            </td>\n" +
+    "        </tr>\n" +
+    "        <tfoot>\n" +
+    "        <tr>\n" +
+    "            <td colspan=\"4\" class=\"text-center\">\n" +
+    "                <div st-pagination=\"\" st-items-by-page=\"100\" st-displayed-pages=\"7\"></div>\n" +
+    "            </td>\n" +
+    "        </tr>\n" +
+    "        </tfoot>\n" +
+    "        </tbody>\n" +
+    "    </table>\n" +
+    "\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/admin-configuration-view/admin-configuration-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.loading.config\"></ng-include>\n" +
+    "\n" +
+    "<div class=\"panel panel-default\" ng-show=\"!$ctrl.loading.config\">\n" +
+    "    <div class=\"panel-heading\">\n" +
+    "        <h3 class=\"panel-title\">Basic Configuration</h3>\n" +
+    "    </div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "        <h2>Visual</h2>\n" +
+    "        <form class=\"form-horizontal\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "                <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                    Footer HTML\n" +
+    "                </label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <textarea class=\"form-control\" type=\"text\" ng-model=\"$ctrl.configs.global.template_footer_html.value\" style=\"min-height: 150px\"></textarea>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "        </form>\n" +
+    "\n" +
+    "        <h2>Functional</h2>\n" +
+    "\n" +
+    "        <form class=\"form-horizontal\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "                <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                    Show user groups to non-admin users\n" +
+    "                </label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <button type=\"button\" class=\"btn btn-default\" ng-model=\"$ctrl.configs.global.list_groups_to_non_admins.value\" uib-btn-checkbox>\n" +
+    "                        Enable\n" +
+    "                    </button>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "        </form>\n" +
+    "\n" +
+    "        <h2>Global Rate Limiting</h2>\n" +
+    "\n" +
+    "        <form class=\"form-horizontal\">\n" +
+    "            <div class=\"form-group\">\n" +
+    "                <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                    Ignore reports per minute/per application\n" +
+    "                </label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <input class=\"form-control\" type=\"number\" ng-model=\"$ctrl.configs.global.per_application_reports_rate_limit.value\" />\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "                <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                    Ignore logs per minute/per application\n" +
+    "                </label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <input class=\"form-control\" type=\"number\" ng-model=\"$ctrl.configs.global.per_application_logs_rate_limit.value\" />\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <div class=\"form-group\">\n" +
+    "                <label class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                    Ignore metrics per minute/per application\n" +
+    "                </label>\n" +
+    "                <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                    <input class=\"form-control\" type=\"number\" ng-model=\"$ctrl.configs.global.per_application_metrics_rate_limit.value\" />\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "\n" +
+    "        </form>\n" +
+    "\n" +
+    "        <hr/>\n" +
+    "\n" +
+    "        <a class=\"btn btn-primary\" ng-click=\"$ctrl.save()\">Save configuration</a>\n" +
+    "    </div>\n" +
+    "\n" +
+    "</div>\n" +
+    "\n" +
+    "\n" +
+    "<div class=\"panel panel-default\">\n" +
+    "    <div class=\"panel-heading\">\n" +
+    "        <h3 class=\"panel-title\">Plugin Configuration</h3>\n" +
+    "    </div>\n" +
+    "    <div class=\"panel-body\">\n" +
+    "        <plugin-config section=\"'admin.config'\">\n" +
+    "        </plugin-config>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/admin-groups-create-view/admin-groups-create-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.loading.group\"></ng-include>\n" +
+    "\n" +
+    "<div ng-show=\"!$ctrl.loading.group\">\n" +
+    "\n" +
+    "    <div class=\"panel panel-default\">\n" +
+    "        <div class=\"panel-body\">\n" +
+    "            <form name=\"$ctrl.groupForm\" class=\"form-horizontal\" ng-submit=\"$ctrl.createGroup()\">\n" +
+    "                <div class=\"form-group\" id=\"row-group_name\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.groupForm.ae_validation.group_name\"></data-form-errors>\n" +
+    "                    <label for=\"group_name\" id=\"label-group_name\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        Group name\n" +
+    "                        <span class=\"required\">*</span>\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control\" id=\"group_name\" name=\"group_name\" type=\"text\" ng-model=\"$ctrl.group.group_name\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\" id=\"row-description\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.groupForm.ae_validation.description\"></data-form-errors>\n" +
+    "                    <label for=\"description\" id=\"label-description\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        Description\n" +
+    "                        <span class=\"required\">*</span>\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control\" id=\"description\" name=\"description\" type=\"text\" ng-model=\"$ctrl.group.description\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "\n" +
+    "\n" +
+    "                <div class=\"form-group\" id=\"row-submit\">\n" +
+    "                    <label for=\"submit\" id=\"label-submit\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control btn btn-primary\" id=\"submit\" name=\"submit\" type=\"submit\" value=\"{{$ctrl.$state.params.groupId ? 'Update' : 'Add'}} Group\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "            </form>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "\n" +
+    "\n" +
+    "    <div class=\"panel panel-default\" ng-if=\"$ctrl.group.id\">\n" +
+    "        <div class=\"panel-heading\">\n" +
+    "            <h3 class=\"panel-title\">Permissions summary</h3>\n" +
+    "        </div>\n" +
+    "        <div class=\"panel-body\">\n" +
+    "            <h3>Direct application permissions</h3>\n" +
+    "\n" +
+    "            <ul class=\"list-group\">\n" +
+    "                <li ng-repeat=\"perm in $ctrl.resourcePermissions.group.application\" class=\"animate-repeat list-group-item\">\n" +
+    "                    <strong>{{ perm.self.resource_name }}</strong>\n" +
+    "\n" +
+    "                    <div class=\"pull-right\">\n" +
+    "\n" +
+    "                        <span class=\"btn btn-primary btn-xs m-r-1\" disabled ng-repeat=\"perm_name in perm.permissions\">{{ perm.self.owner ? 'Resource owner' : perm_name }}</span>\n" +
+    "\n" +
+    "                        <a class=\"btn btn-default btn-xs\" data-uib-tooltip=\"Visit Application\" data-ui-sref=\"applications.update({resourceId:perm.self.resource_id})\">\n" +
+    "                            <span class=\"fa fa-cog\"></span>\n" +
+    "                        </a>\n" +
+    "                    </div>\n" +
+    "                </li>\n" +
+    "            </ul>\n" +
+    "\n" +
+    "            <h3>Direct dashboard permissions</h3>\n" +
+    "\n" +
+    "            <ul class=\"list-group\">\n" +
+    "                <li ng-repeat=\"perm in $ctrl.resourcePermissions.group.dashboard\" class=\"animate-repeat list-group-item\">\n" +
+    "                    <strong>{{ perm.self.resource_name }}</strong>\n" +
+    "\n" +
+    "                    <div class=\"pull-right\">\n" +
+    "                        <span class=\"btn btn-primary btn-xs m-r-1\" disabled ng-repeat=\"perm_name in perm.permissions\">{{ perm.self.owner ? 'Resource owner' : perm_name }}</span>\n" +
+    "\n" +
+    "                        <a class=\"btn btn-default btn-xs\" data-uib-tooltip=\"Visit Dashboard\" data-ui-sref=\"dashboard.update({resourceId:perm.self.resource_id})\">\n" +
+    "                            <span class=\"fa fa-cog\"></span>\n" +
+    "                        </a>\n" +
+    "                    </div>\n" +
+    "                </li>\n" +
+    "            </ul>\n" +
+    "\n" +
+    "        </div>\n" +
+    "\n" +
+    "    </div>\n" +
+    "\n" +
+    "\n" +
+    "    <div class=\"panel panel-default\" ng-if=\"$ctrl.group.id\">\n" +
+    "        <div class=\"panel-heading\">\n" +
+    "            <h3 class=\"panel-title\">User list</h3>\n" +
+    "        </div>\n" +
+    "        <div class=\"panel-body\">\n" +
+    "\n" +
+    "            <form name=\"add_permission\" class=\"form-inline\" ng-submit=\"$ctrl.addUser()\">\n" +
+    "                <div class=\"form-group\">\n" +
+    "                    <input placeholder=\"Username or email\" type=\"text\" class=\"autocomplete form-control\" ng-model=\"$ctrl.form.autocompleteUser\" uib-typeahead=\"u for u in $ctrl.searchUsers($viewValue) | limitTo:8\" typeahead-loading=\"searchingUsers\" typeahead-wait-ms=\"250\"/>\n" +
+    "                </div>\n" +
+    "                <div class=\"form-group\">\n" +
+    "                    <button class=\"btn btn-info\" ng-disabled=\"!$ctrl.form.autocompleteUser\"><span class=\"fa fa-user\"></span> Add user</button>\n" +
+    "                </div>\n" +
+    "            </form>\n" +
+    "\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <table st-table=\"displayedCollection\" st-safe-src=\"$ctrl.users\" class=\"table table-striped\">\n" +
+    "            <thead>\n" +
+    "            <tr>\n" +
+    "                <th st-sort=\"user_name\"><a>Username</a></th>\n" +
+    "                <th st-sort=\"email\"><a>Email</a></th>\n" +
+    "                <th st-sort=\"status\"><a>Status</a></th>\n" +
+    "                <th st-sort=\"first_name\"><a>First Name</a></th>\n" +
+    "                <th st-sort=\"last_name\"><a>Last Name</a></th>\n" +
+    "                <th st-sort=\"last_login_date\"><a>Last login</a></th>\n" +
+    "                <th class=\"options\" style=\"width: 130px\"></th>\n" +
+    "            </tr>\n" +
+    "            <tr>\n" +
+    "                <th><input st-search=\"user_name\" placeholder=\"search for user name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
+    "                <th><input st-search=\"email\" placeholder=\"search for email\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
+    "                <th></th>\n" +
+    "                <th><input st-search=\"first_name\" placeholder=\"search for first name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
+    "                <th><input st-search=\"last_name\" placeholder=\"search for last name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
+    "                <th><input st-search=\"last_login_date\" placeholder=\"search for last name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
+    "                <th></th>\n" +
+    "            </tr>\n" +
+    "            </thead>\n" +
+    "            <tbody>\n" +
+    "\n" +
+    "            <tr ng-repeat=\"user in displayedCollection\">\n" +
+    "                <td><img src=\"{{user.gravatar_url}}\" class=\"avatar\"> {{user.user_name}}</td>\n" +
+    "                <td>{{user.email}}</td>\n" +
+    "                <td class=\"text-center\"><span class=\"fa\" ng-class=\"{'fa-check-circle':user.status, 'fa-times':!user.status}\"></span></td>\n" +
+    "                <td>{{user.first_name}}</td>\n" +
+    "                <td>{{user.last_name}}</td>\n" +
+    "                <td><span data-uib-tooltip=\"{{user.last_login_date}}\">{{user.last_login_date | isoToRelativeTime}}</span></td>\n" +
+    "                <td>\n" +
+    "                    <a class=\"btn btn-default btn-sm\" data-ui-sref=\"admin.user.update({userId:user.id})\"><span class=\"fa fa-cog\"></span></a>\n" +
+    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
+    "                            <a class=\"btn btn-danger btn-sm\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
+    "                          <ul class=\"dropdown-menu\">\n" +
+    "                              <li><a>No</a></li>\n" +
+    "                              <li><a ng-click=\"$ctrl.removeUser(user)\">Yes</a></li>\n" +
+    "                          </ul>\n" +
+    "                        </span>\n" +
+    "            </tr>\n" +
+    "            <tfoot>\n" +
+    "            <tr>\n" +
+    "                <td colspan=\"7\" class=\"text-center\">\n" +
+    "                    <div st-pagination=\"\" st-items-by-page=\"50\" st-displayed-pages=\"7\"></div>\n" +
+    "                </td>\n" +
+    "            </tr>\n" +
+    "            </tfoot>\n" +
+    "            </tbody>\n" +
+    "        </table>\n" +
+    "\n" +
+    "    </div>\n" +
+    "\n" +
+    "\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/admin-groups-list-view/admin-groups-list-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.loading.groups\"></ng-include>\n" +
+    "\n" +
+    "<div class=\"panel panel-default\" ng-show=\"!$ctrl.loading.groups\">\n" +
+    "\n" +
+    "    <table st-table=\"displayedCollection\" st-safe-src=\"$ctrl.groups\" class=\"table table-striped\">\n" +
+    "        <thead>\n" +
+    "        <tr>\n" +
+    "            <th st-sort=\"group_name\"><a>Group name</a></th>\n" +
+    "            <th st-sort=\"description\"><a>Description</a></th>\n" +
+    "            <th st-sort=\"members\"><a>Member count</a></th>\n" +
+    "            <th class=\"options\"></th>\n" +
+    "        </tr>\n" +
+    "        <tr>\n" +
+    "            <th><input st-search=\"group_name\" placeholder=\"search for group name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
+    "            <th><input st-search=\"description\" placeholder=\"search for description\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
+    "            <th></th>\n" +
+    "            <th></th>\n" +
+    "        </tr>\n" +
+    "        </thead>\n" +
+    "        <tbody>\n" +
+    "\n" +
+    "        <tr ng-repeat=\"group in displayedCollection track by group.id\">\n" +
+    "            <td>{{group.group_name}}</td>\n" +
+    "            <td>{{group.description}}</td>\n" +
+    "            <td>{{group.member_count}}</td>\n" +
+    "            <td>\n" +
+    "                <a class=\"btn btn-default btn-sm\" data-ui-sref=\"admin.group.update({groupId:group.id})\"><span class=\"fa fa-cog\"></span></a>\n" +
+    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
+    "                            <a class=\"btn btn-danger btn-sm\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
+    "                          <ul class=\"dropdown-menu\">\n" +
+    "                              <li><a>No</a></li>\n" +
+    "                              <li><a ng-click=\"$ctrl.removeGroup(group)\">Yes</a></li>\n" +
+    "                          </ul>\n" +
+    "                        </span>\n" +
+    "        </tr>\n" +
+    "        <tfoot>\n" +
+    "        <tr>\n" +
+    "            <td colspan=\"4\" class=\"text-center\">\n" +
+    "                <div st-pagination=\"\" st-items-by-page=\"100\" st-displayed-pages=\"7\"></div>\n" +
+    "            </td>\n" +
+    "        </tr>\n" +
+    "        </tfoot>\n" +
+    "        </tbody>\n" +
+    "    </table>\n" +
+    "\n" +
+    "</div>\n" +
+    "\n"
+  );
+
+
+  $templateCache.put('components/views/admin-partitions-view/admin-partitions-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.loading.partitions\"></ng-include>\n" +
+    "\n" +
+    "<div ng-show=\"!$ctrl.loading.partitions\">\n" +
+    "\n" +
+    "    <div class=\"panel panel-default\">\n" +
+    "        <div class=\"panel-heading\">\n" +
+    "            DELETE Daily Partitions\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <form name=\"$ctrl.dailyPartitionsForm\"\n" +
+    "              novalidate ng-submit=\"$ctrl.partitionsDelete('dailyPartitions')\"\n" +
+    "              class=\"form-inline\"\n" +
+    "              ng-class=\"{'has-error':$ctrl.dailyPartitionsForm.$invalid}\">\n" +
+    "\n" +
+    "            <div class=\"panel-body\">\n" +
+    "\n" +
+    "                <input type=\"text\" name=\"confirm\"\n" +
+    "                       placeholder=\"Enter CONFIRM to proceed\" class=\"form-control input-autosize\" confirm-validate required ng-model=\"$ctrl.dailyConfirm\">\n" +
+    "                <input type=\"submit\" class=\"btn btn-danger\" ng-disabled=\"$ctrl.dailyPartitionsForm.$invalid\">\n" +
+    "                <input type=\"checkbox\" ng-model=\"$ctrl.dailyChecked\" ng-change=\"$ctrl.setCheckedList('dailyPartitions')\"> Check All\n" +
+    "\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <table class=\"table table-striped\">\n" +
+    "                <tr>\n" +
+    "                    <th class=\"c1 date\">Date</th>\n" +
+    "                    <th class=\"c2 indices\">Indices</th>\n" +
+    "                </tr>\n" +
+    "                <tr class=\"r{{$index}}\" ng-repeat=\"row in $ctrl.dailyPartitions\">\n" +
+    "                    <td class=\"c1\">{{row[0]}}</td>\n" +
+    "                    <td class=\"c2\">\n" +
+    "                        <ul class=\"list-group\">\n" +
+    "                        <li class=\"list-group-item\" ng-repeat=\"partition in row[1].elasticsearch\">\n" +
+    "                            <input name=\"es_index\" type=\"checkbox\" ng-model=\"partition.checked\"> ES: {{partition.name}}\n" +
+    "                        </li>\n" +
+    "                        <li class=\"list-group-item\" ng-repeat=\"partition in row[1].pg\">\n" +
+    "                            <input name=\"pg_index\" type=\"checkbox\" ng-model=\"partition.checked\"> PG: {{partition.name}}\n" +
+    "                        </li>\n" +
+    "                        </ul>\n" +
+    "                    </td>\n" +
+    "                </tr>\n" +
+    "            </table>\n" +
+    "        </form>\n" +
+    "\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <div class=\"panel panel-default\">\n" +
+    "        <div class=\"panel-heading\">\n" +
+    "            DELETE Permanent Partitions\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <form name=\"$ctrl.permanentPartitionsForm\" novalidate\n" +
+    "              ng-submit=\"$ctrl.partitionsDelete('permanentPartitions')\"\n" +
+    "              class=\"form-inline\"\n" +
+    "              ng-class=\"{'has-error':$ctrl.permanentPartitionsForm.$invalid}\">\n" +
+    "\n" +
+    "\n" +
+    "            <div class=\"panel-body\">\n" +
+    "\n" +
+    "                <div class=\"form-group\">\n" +
+    "                    <input type=\"text\" name=\"confirm\"\n" +
+    "                           placeholder=\"Enter CONFIRM to proceed\" class=\"form-control\" confirm-validate required ng-model=\"$ctrl.permConfirm\">\n" +
+    "                    <input type=\"submit\" class=\"btn btn-danger\" ng-disabled=\"$ctrl.permanentPartitionsForm.$invalid\">\n" +
+    "                    <input type=\"checkbox\" ng-model=\"$ctrl.permChecked\" ng-change=\"$ctrl.setCheckedList('permanentPartitions')\"> Check All\n" +
+    "                </div>\n" +
+    "\n" +
+    "            </div>\n" +
+    "\n" +
+    "            <table class=\"table table-striped\">\n" +
+    "                <tr>\n" +
+    "                    <th class=\"c1 date\">Date</th>\n" +
+    "                    <th class=\"c2 indices\">Indices</th>\n" +
+    "                </tr>\n" +
+    "                <tr class=\"r{{$index}}\" ng-repeat=\"row in $ctrl.permanentPartitions\">\n" +
+    "                    <td class=\"c1\">{{row[0]}}</td>\n" +
+    "                    <td class=\"c2\">\n" +
+    "                        <ul class=\"list-group\">\n" +
+    "                        <li class=\"list-group-item\" ng-repeat=\"partition in row[1].elasticsearch\">\n" +
+    "                            <input name=\"es_index\" type=\"checkbox\" ng-model=\"partition.checked\"> ES: {{partition.name}}\n" +
+    "                        </li>\n" +
+    "                        <li class=\"list-group-item\" ng-repeat=\"partition in row[1].pg\">\n" +
+    "                            <input name=\"pg_index\" type=\"checkbox\" ng-model=\"partition.checked\"> PG: {{partition.name}}\n" +
+    "                        </li>\n" +
+    "                        </ul>\n" +
+    "                    </td>\n" +
+    "                </tr>\n" +
+    "            </table>\n" +
+    "        </form>\n" +
+    "\n" +
+    "    </div>\n" +
+    "\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/admin-system-view/admin-system-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.loading.system\"></ng-include>\n" +
+    "\n" +
+    "<div ng-if=\"$ctrl.loading.system == false\">\n" +
+    "    <div class=\"row\">\n" +
+    "        <div class=\"col-sm-12\">\n" +
+    "            <div class=\"panel panel-default\">\n" +
+    "                <div class=\"panel-heading\">\n" +
+    "                    <h3 class=\"panel-title\">\n" +
+    "                        System Info\n" +
+    "                    </h3>\n" +
+    "                </div>\n" +
+    "                <div class=\"panel-body\">\n" +
+    "\n" +
+    "                    <p><strong>System Load:</strong>\n" +
+    "                        1min: {{$ctrl.systemLoad[0]}}, 5min: {{$ctrl.systemLoad[1]}}, 15min: {{$ctrl.systemLoad[2]}}\n" +
+    "                    </p>\n" +
+    "                    <p><strong>Awaiting tasks:</strong>\n" +
+    "                    <ul>\n" +
+    "                        <li>reports: {{$ctrl.queueStats.waiting_reports}}</li>\n" +
+    "                        <li>logs: {{$ctrl.queueStats.waiting_logs}}</li>\n" +
+    "                        <li>metrics: {{$ctrl.queueStats.waiting_metrics}}</li>\n" +
+    "                        <li>other: {{$ctrl.queueStats.waiting_other}}</li>\n" +
+    "                    </ul>\n" +
+    "                    </p>\n" +
+    "                    <p><strong>Queue stats from last minute:</strong>\n" +
+    "                    <ul>\n" +
+    "                        <li>Processed reports: {{$ctrl.queueStats.processed_reports}}</li>\n" +
+    "                        <li>Processed logs: {{$ctrl.queueStats.processed_logs}}</li>\n" +
+    "                        <li>Processed metrics: {{$ctrl.queueStats.processed_metrics}}</li>\n" +
+    "                    </ul>\n" +
+    "                    </p>\n" +
+    "\n" +
+    "                    <p><strong>Disks:</strong>\n" +
+    "                    <ul>\n" +
+    "                        <li ng-repeat=\"disk in $ctrl.disks\">\n" +
+    "                            <strong>{{disk.device}}</strong> {{disk.free}}/{{disk.total}}, {{disk.percentage}}% used\n" +
+    "                        </li>\n" +
+    "                    </ul>\n" +
+    "                    </p>\n" +
+    "\n" +
+    "                    <p><strong>Process stats:</strong>\n" +
+    "                    <ul>\n" +
+    "                        <li>FD soft limits: {{$ctrl.selfInfo.fds.soft}}</li>\n" +
+    "                        <li>FD hard limits: {{$ctrl.selfInfo.fds.hard}}</li>\n" +
+    "                        <li>Memlock soft limits: {{$ctrl.selfInfo.memlock.soft}}</li>\n" +
+    "                        <li>Memlock hard limits: {{$ctrl.selfInfo.memlock.hard}}</li>\n" +
+    "                    </ul>\n" +
+    "                    </p>\n" +
+    "\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "    <div class=\"row\">\n" +
+    "        <div class=\"col-sm-12\">\n" +
+    "\n" +
+    "            <div class=\"panel panel-default\">\n" +
+    "                <div class=\"panel-body\">\n" +
+    "\n" +
+    "                    <uib-tabset>\n" +
+    "                        <uib-tab>\n" +
+    "                            <uib-tab-heading>\n" +
+    "                                Postgresql Tables\n" +
+    "                            </uib-tab-heading>\n" +
+    "\n" +
+    "                            <table class=\"table table-striped\">\n" +
+    "                                <thead>\n" +
+    "                                <tr>\n" +
+    "                                    <th class=\"c1 tablename\">Table name</th>\n" +
+    "                                    <th class=\"c2 size_human\">Size</th>\n" +
+    "                                </tr>\n" +
+    "                                </thead>\n" +
+    "                                <tbody>\n" +
+    "                                <tr class=\"r{{$index}}\" ng-repeat=\"row in $ctrl.DBtables\">\n" +
+    "                                    <td class=\"c1\">{{row.table_name}}</td>\n" +
+    "                                    <td class=\"c2\">{{row.size_human}}</td>\n" +
+    "                                </tr>\n" +
+    "                                </tbody>\n" +
+    "                            </table>\n" +
+    "\n" +
+    "                        </uib-tab>\n" +
+    "\n" +
+    "                        <uib-tab>\n" +
+    "                            <uib-tab-heading>\n" +
+    "                                Elasticsearch Indices\n" +
+    "                            </uib-tab-heading>\n" +
+    "\n" +
+    "                            <table class=\"table table-striped\">\n" +
+    "                                <thead>\n" +
+    "                                <tr>\n" +
+    "                                    <th class=\"c1 tablename\">Index name</th>\n" +
+    "                                    <th class=\"c2 size_human\">Size</th>\n" +
+    "                                </tr>\n" +
+    "                                </thead>\n" +
+    "                                <tbody>\n" +
+    "                                <tr class=\"r{{$index}}\" ng-repeat=\"row in $ctrl.ESIndices\">\n" +
+    "                                    <td class=\"c1\">{{row.name}}</td>\n" +
+    "                                    <td class=\"c2\">{{row.size_human}}</td>\n" +
+    "                                </tr>\n" +
+    "                                </tbody>\n" +
+    "                            </table>\n" +
+    "\n" +
+    "                        </uib-tab>\n" +
+    "\n" +
+    "                        <uib-tab>\n" +
+    "                            <uib-tab-heading>\n" +
+    "                                Processes\n" +
+    "                            </uib-tab-heading>\n" +
+    "\n" +
+    "                            <table class=\"table table-striped\">\n" +
+    "                                <thead>\n" +
+    "                                <tr>\n" +
+    "                                    <th class=\"c1 tablename\">Owner</th>\n" +
+    "                                    <th class=\"c2 tablename\">PID</th>\n" +
+    "                                    <th class=\"c3 tablename\">CPU</th>\n" +
+    "                                    <th class=\"c4 tablename\">MEM</th>\n" +
+    "                                    <th class=\"c4 tablename\">Name</th>\n" +
+    "                                </tr>\n" +
+    "                                </thead>\n" +
+    "                                <tbody>\n" +
+    "                                <tr class=\"r{{$index}}\" ng-repeat-start=\"row in $ctrl.processInfo\">\n" +
+    "                                    <td class=\"c1\">{{row.owner}}</td>\n" +
+    "                                    <td class=\"c2\">{{row.pid}}</td>\n" +
+    "                                    <td class=\"c3\">{{row.cpu}}</td>\n" +
+    "                                    <td class=\"c4\">{{row.mem_usage}} ({{row.mem_percentage}}%)</td>\n" +
+    "                                    <td class=\"c5\"><strong>{{row.name}}</strong></td>\n" +
+    "                                </tr>\n" +
+    "                                <tr ng-repeat-end>\n" +
+    "                                    <td colspan=\"5\" class=\"word-wrap\">{{row.command}}</td>\n" +
+    "                                </tr>\n" +
+    "                                </tbody>\n" +
+    "                            </table>\n" +
+    "\n" +
+    "                        </uib-tab>\n" +
+    "\n" +
+    "                        <uib-tab>\n" +
+    "                            <uib-tab-heading>\n" +
+    "                                Python packages\n" +
+    "                            </uib-tab-heading>\n" +
+    "\n" +
+    "                            <table class=\"table\">\n" +
+    "                                <tr ng-repeat=\"package in $ctrl.packages\">\n" +
+    "                                    <td>{{package.name}}</td>\n" +
+    "                                    <td>{{package.version}}</td>\n" +
+    "                                </tr>\n" +
+    "                            </table>\n" +
+    "                            </p>\n" +
+    "\n" +
+    "                        </uib-tab>\n" +
+    "\n" +
+    "                    </uib-tabset>\n" +
+    "                </div>\n" +
+    "            </div>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/admin-users-create-view/admin-users-create-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.loading.user\"></ng-include>\n" +
+    "\n" +
+    "<div ng-show=\"!$ctrl.loading.user\">\n" +
+    "\n" +
+    "    <div class=\"panel panel-default\">\n" +
+    "        <div class=\"panel-body\">\n" +
+    "\n" +
+    "                <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\" ng-if=\"$ctrl.user.id\">\n" +
+    "                    <a class=\"btn btn-default\" data-uib-dropdown-toggle><span class=\"fa fa-user-secret\"></span> Re-login to user</a>\n" +
+    "                  <ul class=\"dropdown-menu\">\n" +
+    "                      <li><a>No</a></li>\n" +
+    "                      <li><a ng-click=\"$ctrl.reloginUser(user)\">Yes</a></li>\n" +
+    "                  </ul>\n" +
+    "                </span>\n" +
+    "\n" +
+    "            <form name=\"$ctrl.profileForm\" class=\"form-horizontal\" ng-submit=\"$ctrl.createUser()\">\n" +
+    "                <div class=\"form-group\" id=\"row-user_name\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.profileForm.ae_validation.user_name\"></data-form-errors>\n" +
+    "                    <label for=\"user_name\" id=\"label-user_name\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        User name\n" +
+    "                        <span class=\"required\">*</span>\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control\" id=\"user_name\" name=\"user_name\" type=\"text\" ng-model=\"$ctrl.user.user_name\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\" id=\"row-user_password\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.profileForm.ae_validation.user_password\"></data-form-errors>\n" +
+    "                    <label for=\"user_password\" id=\"label-user_password\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        Password\n" +
+    "                        <span class=\"required\">*</span>\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control\" id=\"user_password\" name=\"user_password\" type=\"password\" ng-model=\"$ctrl.user.user_password\">\n" +
+    "\n" +
+    "                        <p class=\"m-t-1\"><a class=\"btn btn-info btn-sm\" ng-click=\"$ctrl.generatePassword()\"><span class=\"fa fa-lock\"></span> Generate password</a>\n" +
+    "                            <span ng-show=\"$ctrl.gen_pass.length > 0\">(generated password: {{$ctrl.gen_pass}})</span>\n" +
+    "                        </p>\n" +
+    "\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "\n" +
+    "\n" +
+    "                <div class=\"form-group\" id=\"row-email\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.profileForm.ae_validation.email\"></data-form-errors>\n" +
+    "                    <label for=\"email\" id=\"label-email\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        Email Address\n" +
+    "                        <span class=\"required\">*</span>\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control\" id=\"email\" name=\"email\" type=\"text\" ng-model=\"$ctrl.user.email\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\" id=\"row-first_name\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.profileForm.ae_validation.first_name\"></data-form-errors>\n" +
+    "                    <label for=\"first_name\" id=\"label-first_name\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        First Name\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control\" id=\"first_name\" name=\"first_name\" type=\"text\" ng-model=\"$ctrl.user.first_name\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "                <div class=\"form-group\" id=\"row-last_name\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.profileForm.ae_validation.last_name\"></data-form-errors>\n" +
+    "                    <label for=\"last_name\" id=\"label-last_name\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        Last Name\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control\" id=\"last_name\" name=\"last_name\" type=\"text\" ng-model=\"$ctrl.user.last_name\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\" id=\"row-status\">\n" +
+    "                    <data-form-errors errors=\"$ctrl.profileForm.ae_validation.status\"></data-form-errors>\n" +
+    "                    <label for=\"status\" id=\"label-status\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                        Active\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input checked class=\"form-control\" id=\"status\" name=\"status\" type=\"checkbox\" ng-model=\"$ctrl.user.status\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "\n" +
+    "                <div class=\"form-group\" id=\"row-submit\">\n" +
+    "                    <label for=\"submit\" id=\"label-submit\" class=\"control-label col-sm-4 col-lg-3\">\n" +
+    "                    </label>\n" +
+    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
+    "                        <input class=\"form-control btn btn-primary\" id=\"submit\" name=\"submit\" type=\"submit\" value=\"{{$ctrl.$state.params.userId ? 'Update' : 'Add'}} User\">\n" +
+    "                    </div>\n" +
+    "                </div>\n" +
+    "            </form>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "\n" +
+    "\n" +
+    "    <div class=\"panel panel-default\" ng-if=\"$ctrl.user.id\">\n" +
+    "        <div class=\"panel-heading\">\n" +
+    "            <h3 class=\"panel-title\">Permission Summary</h3>\n" +
+    "        </div>\n" +
+    "        <div class=\"panel-body\">\n" +
+    "            <h3>Direct application permissions</h3>\n" +
+    "\n" +
+    "            <ul class=\"list-group\">\n" +
+    "                <li ng-repeat=\"perm in $ctrl.resourcePermissions.user.application\" class=\"animate-repeat list-group-item\">\n" +
+    "                    <strong>{{ perm.self.resource_name }}</strong>\n" +
+    "                    <div class=\"pull-right\">\n" +
+    "\n" +
+    "                        <span class=\"btn btn-primary btn-xs m-r-1\" disabled ng-repeat=\"perm_name in perm.permissions\">{{ perm.self.owner ? 'Resource owner' : perm_name }}</span>\n" +
+    "\n" +
+    "                        <a class=\"btn btn-default btn-xs\" data-uib-tooltip=\"Visit Application\" data-ui-sref=\"applications.update({resourceId:perm.self.resource_id})\">\n" +
+    "                            <span class=\"fa fa-cog\"></span>\n" +
+    "                        </a>\n" +
+    "                    </div>\n" +
+    "                </li>\n" +
+    "            </ul>\n" +
+    "\n" +
+    "            <h3>Direct dashboard permissions</h3>\n" +
+    "\n" +
+    "            <ul class=\"list-group\">\n" +
+    "                <li ng-repeat=\"perm in $ctrl.resourcePermissions.user.dashboard\" class=\"animate-repeat list-group-item\">\n" +
+    "                    <strong>{{ perm.self.resource_name }}</strong>\n" +
+    "                    <div class=\"pull-right\">\n" +
+    "\n" +
+    "                        <span class=\"btn btn-primary btn-xs m-r-1\" disabled ng-repeat=\"perm_name in perm.permissions\">{{ perm.self.owner ? 'Resource owner' : perm_name }}</span>\n" +
+    "\n" +
+    "                        <a class=\"btn btn-default btn-xs\" data-uib-tooltip=\"Visit Dashboard\" data-ui-sref=\"dashboard.update({resourceId:perm.self.resource_id})\">\n" +
+    "                            <span class=\"fa fa-cog\"></span>\n" +
+    "                        </a>\n" +
+    "                    </div>\n" +
+    "                </li>\n" +
+    "            </ul>\n" +
+    "\n" +
+    "        </div>\n" +
+    "\n" +
+    "    </div>\n" +
+    "\n" +
+    "\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/admin-users-list-view/admin-users-list-view.html',
+    "<ng-include src=\"'templates/loader.html'\" ng-if=\"$ctrl.loading.users\"></ng-include>\n" +
+    "\n" +
+    "<div ng-show=\"!$ctrl.loading.users\">\n" +
+    "\n" +
+    "    <div class=\"panel panel-default\">\n" +
+    "\n" +
+    "        <div class=\"panel-heading\">\n" +
+    "            {{$ctrl.activeUsers}} active out of {{$ctrl.users.length}} users\n" +
+    "        </div>\n" +
+    "\n" +
+    "\n" +
+    "        <table st-table=\"displayedCollection\" st-safe-src=\"$ctrl.users\" class=\"table table-striped\">\n" +
+    "            <thead>\n" +
+    "            <tr>\n" +
+    "                <th class=\"user_name\" st-sort=\"user_name\"><a>Username</a></th>\n" +
+    "                <th class=\"email\" st-sort=\"email\"><a>Email</a></th>\n" +
+    "                <th class=\"status\" st-sort=\"status\"><a>Status</a></th>\n" +
+    "                <th st-sort=\"first_name\"><a>First Name</a></th>\n" +
+    "                <th st-sort=\"last_name\"><a>Last Name</a></th>\n" +
+    "                <th st-sort=\"last_login_date\"><a>Last login</a></th>\n" +
+    "                <th class=\"options\"></th>\n" +
+    "            </tr>\n" +
+    "            <tr>\n" +
+    "                <th><input st-search=\"user_name\" placeholder=\"search for user name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
+    "                <th><input st-search=\"email\" placeholder=\"search for email\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
+    "                <th></th>\n" +
+    "                <th><input st-search=\"first_name\" placeholder=\"search for first name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
+    "                <th><input st-search=\"last_name\" placeholder=\"search for last name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
+    "                <th><input st-search=\"last_login_date\" placeholder=\"search for last name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
+    "                <th></th>\n" +
+    "            </tr>\n" +
+    "            </thead>\n" +
+    "            <tbody>\n" +
+    "\n" +
+    "            <tr ng-repeat=\"user in displayedCollection track by user.id\">\n" +
+    "                <td><img src=\"{{user.gravatar_url}}\" class=\"avatar\"> {{user.user_name}}</td>\n" +
+    "                <td class=\"word-wrap small\">{{user.email}}</td>\n" +
+    "                <td class=\"text-center\"><span class=\"fa\" ng-class=\"{'fa-check-circle':user.status, 'fa-times':!user.status}\"></span></td>\n" +
+    "                <td class=\"word-wrap small\">{{user.first_name}}</td>\n" +
+    "                <td class=\"word-wrap small\">{{user.last_name}}</td>\n" +
+    "                <td><span data-uib-tooltip=\"{{user.last_login_date}}\" class=\"small\">{{user.last_login_date | isoToRelativeTime}}</span></td>\n" +
+    "                <td>\n" +
+    "                    <a class=\"btn btn-default btn-sm\" data-ui-sref=\"admin.user.update({userId:user.id})\"><span class=\"fa fa-cog\"></span></a>\n" +
+    "                    <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
+    "                        <a class=\"btn btn-danger btn-sm\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
+    "                      <ul class=\"dropdown-menu\">\n" +
+    "                          <li><a>No</a></li>\n" +
+    "                          <li><a ng-click=\"$ctrl.removeUser(user)\">Yes</a></li>\n" +
+    "                      </ul>\n" +
+    "                    </span>\n" +
+    "            </tr>\n" +
+    "            <tfoot>\n" +
+    "            <tr>\n" +
+    "                <td colspan=\"6\" class=\"text-center\">\n" +
+    "                    <div st-pagination=\"\" st-items-by-page=\"100\" st-displayed-pages=\"7\"></div>\n" +
+    "                </td>\n" +
+    "            </tr>\n" +
+    "            </tfoot>\n" +
+    "            </tbody>\n" +
+    "        </table>\n" +
+    "\n" +
+    "\n" +
+    "    </div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('components/views/admin-view/admin-view.html',
+    "<div class=\"row\">\n" +
+    "    <div class=\"col-sm-3\" id=\"menu\">\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "            <div class=\"panel-heading\">Users and groups</div>\n" +
+    "            <ul class=\"list-group\">\n" +
+    "                <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.user.list\"> Users</a></li>\n" +
+    "                <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.user.create\"> Create user</a></li>\n" +
+    "                <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.group.list\"> Groups</a></li>\n" +
+    "                <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.group.create\"> Create group</a></li>\n" +
+    "            </ul>\n" +
+    "        </div>\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "            <div class=\"panel-heading\">Resources</div>\n" +
+    "            <ul class=\"list-group\">\n" +
+    "                <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.application.list\"> List applications</a></li>\n" +
+    "            </ul>\n" +
+    "        </div>\n" +
+    "\n" +
+    "        <div class=\"panel panel-default\">\n" +
+    "            <div class=\"panel-heading\">System</div>\n" +
+    "            <ul class=\"list-group\">\n" +
+    "                <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.configs.list\"> Config variables</a></li>\n" +
+    "                <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.system\"> System</a></li>\n" +
+    "                <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.partitions\"> Partition Management</a></li>\n" +
+    "            </ul>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "\n" +
+    "    <div class=\"col-sm-9\" ui-view></div>\n" +
     "</div>\n"
   );
 
@@ -5985,868 +6842,6 @@ function kickstartAE(initialUserData) {
   );
 
 
-  $templateCache.put('templates/admin/applications/applications_list.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"applications.loading.applications\"></ng-include>\n" +
-    "\n" +
-    "<div class=\"panel panel-default\" ng-if=\"!applications.loading.applications\">\n" +
-    "    <div class=\"panel-heading\">\n" +
-    "\n" +
-    "        Currently active applications: {{applications.applications.length}}\n" +
-    "\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <table st-table=\"displayedCollection\" st-safe-src=\"applications.applications\" class=\"table table-striped\">\n" +
-    "        <thead>\n" +
-    "        <tr>\n" +
-    "            <th st-sort=\"resource_name\"><a>Application name</a></th>\n" +
-    "            <th st-sort=\"owner_user_name\"><a>Owner User</a></th>\n" +
-    "            <th st-sort=\"owner_group_name\"><a>Owner Group</a></th>\n" +
-    "            <th class=\"options\"></th>\n" +
-    "        </tr>\n" +
-    "        <tr>\n" +
-    "            <th><input st-search=\"resource_name\" placeholder=\"search for application\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
-    "            <th><input st-search=\"owner_user_name\" placeholder=\"search for user\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
-    "            <th><input st-search=\"owner_group_name\" placeholder=\"search for group\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
-    "            <th></th>\n" +
-    "        </tr>\n" +
-    "        </thead>\n" +
-    "        <tbody>\n" +
-    "\n" +
-    "        <tr ng-repeat=\"resource in displayedCollection track by resource.resource_id\">\n" +
-    "            <td> {{resource.resource_name}}</td>\n" +
-    "            <td>{{resource.owner_user_name}}</td>\n" +
-    "            <td>{{resource.owner_group_name}}</td>\n" +
-    "            <td>\n" +
-    "                <a class=\"btn btn-default btn-sm\" data-ui-sref=\"applications.update({resourceId:resource.resource_id})\" data-toggle=\"tooltip\" title=\"Update application\"><span class=\"fa fa-cog\"></span></a>\n" +
-    "            </td>\n" +
-    "        </tr>\n" +
-    "        <tfoot>\n" +
-    "        <tr>\n" +
-    "            <td colspan=\"4\" class=\"text-center\">\n" +
-    "                <div st-pagination=\"\" st-items-by-page=\"100\" st-displayed-pages=\"7\"></div>\n" +
-    "            </td>\n" +
-    "        </tr>\n" +
-    "        </tfoot>\n" +
-    "        </tbody>\n" +
-    "    </table>\n" +
-    "\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/admin/configs/edit.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"configs.loading.config\"></ng-include>\n" +
-    "\n" +
-    "<div class=\"panel panel-default\" ng-show=\"!configs.loading.config\">\n" +
-    "    <div class=\"panel-heading\">\n" +
-    "        <h3 class=\"panel-title\">Basic Configuration</h3>\n" +
-    "    </div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "        <h2>Visual</h2>\n" +
-    "        <form class=\"form-horizontal\">\n" +
-    "            <div class=\"form-group\">\n" +
-    "                <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                    Footer HTML\n" +
-    "                </label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <textarea class=\"form-control\" type=\"text\" ng-model=\"configs.configs.global.template_footer_html.value\" style=\"min-height: 150px\"></textarea>\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "        </form>\n" +
-    "\n" +
-    "        <h2>Functional</h2>\n" +
-    "\n" +
-    "        <form class=\"form-horizontal\">\n" +
-    "            <div class=\"form-group\">\n" +
-    "                <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                    Show user groups to non-admin users\n" +
-    "                </label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <button type=\"button\" class=\"btn btn-default\" ng-model=\"configs.configs.global.list_groups_to_non_admins.value\" uib-btn-checkbox>\n" +
-    "                        Enable\n" +
-    "                    </button>\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "        </form>\n" +
-    "\n" +
-    "        <h2>Global Rate Limiting</h2>\n" +
-    "\n" +
-    "        <form class=\"form-horizontal\">\n" +
-    "            <div class=\"form-group\">\n" +
-    "                <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                    Ignore reports per minute/per application\n" +
-    "                </label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <input class=\"form-control\" type=\"number\" ng-model=\"configs.configs.global.per_application_reports_rate_limit.value\" />\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "                <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                    Ignore logs per minute/per application\n" +
-    "                </label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <input class=\"form-control\" type=\"number\" ng-model=\"configs.configs.global.per_application_logs_rate_limit.value\" />\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <div class=\"form-group\">\n" +
-    "                <label class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                    Ignore metrics per minute/per application\n" +
-    "                </label>\n" +
-    "                <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                    <input class=\"form-control\" type=\"number\" ng-model=\"configs.configs.global.per_application_metrics_rate_limit.value\" />\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "\n" +
-    "        </form>\n" +
-    "\n" +
-    "        <hr/>\n" +
-    "\n" +
-    "        <a class=\"btn btn-primary\" ng-click=\"configs.save()\">Save configuration</a>\n" +
-    "    </div>\n" +
-    "\n" +
-    "</div>\n" +
-    "\n" +
-    "\n" +
-    "<div class=\"panel panel-default\">\n" +
-    "    <div class=\"panel-heading\">\n" +
-    "        <h3 class=\"panel-title\">Plugin Configuration</h3>\n" +
-    "    </div>\n" +
-    "    <div class=\"panel-body\">\n" +
-    "        <plugin-config section=\"'admin.config'\">\n" +
-    "        </plugin-config>\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/admin/configs/parent_view.html',
-    "<div ui-view></div>"
-  );
-
-
-  $templateCache.put('templates/admin/groups/groups_create.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"group.loading.group\"></ng-include>\n" +
-    "\n" +
-    "<div ng-show=\"!group.loading.group\">\n" +
-    "\n" +
-    "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-body\">\n" +
-    "            <form name=\"group.groupForm\" class=\"form-horizontal\" ng-submit=\"group.createGroup()\">\n" +
-    "                <div class=\"form-group\" id=\"row-group_name\">\n" +
-    "                    <data-form-errors errors=\"group.groupForm.ae_validation.group_name\"></data-form-errors>\n" +
-    "                    <label for=\"group_name\" id=\"label-group_name\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        Group name\n" +
-    "                        <span class=\"required\">*</span>\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control\" id=\"group_name\" name=\"group_name\" type=\"text\" ng-model=\"group.group.group_name\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "\n" +
-    "                <div class=\"form-group\" id=\"row-description\">\n" +
-    "                    <data-form-errors errors=\"group.groupForm.ae_validation.description\"></data-form-errors>\n" +
-    "                    <label for=\"description\" id=\"label-description\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        Description\n" +
-    "                        <span class=\"required\">*</span>\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control\" id=\"description\" name=\"description\" type=\"text\" ng-model=\"group.group.description\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "\n" +
-    "\n" +
-    "                <div class=\"form-group\" id=\"row-submit\">\n" +
-    "                    <label for=\"submit\" id=\"label-submit\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control btn btn-primary\" id=\"submit\" name=\"submit\" type=\"submit\" value=\"{{$state.params.groupId ? 'Update' : 'Add'}} Group\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "            </form>\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "\n" +
-    "\n" +
-    "    <div class=\"panel panel-default\" ng-if=\"group.group.id\">\n" +
-    "        <div class=\"panel-heading\">\n" +
-    "            <h3 class=\"panel-title\">Permissions summary</h3>\n" +
-    "        </div>\n" +
-    "        <div class=\"panel-body\">\n" +
-    "            <h3>Direct application permissions</h3>\n" +
-    "\n" +
-    "            <ul class=\"list-group\">\n" +
-    "                <li ng-repeat=\"perm in group.resourcePermissions.group.application\" class=\"animate-repeat list-group-item\">\n" +
-    "                    <strong>{{ perm.self.resource_name }}</strong>\n" +
-    "\n" +
-    "                    <div class=\"pull-right\">\n" +
-    "\n" +
-    "                        <span class=\"btn btn-primary btn-xs m-r-1\" disabled ng-repeat=\"perm_name in perm.permissions\">{{ perm.self.owner ? 'Resource owner' : perm_name }}</span>\n" +
-    "\n" +
-    "                        <a class=\"btn btn-default btn-xs\" data-uib-tooltip=\"Visit Application\" data-ui-sref=\"applications.update({resourceId:perm.self.resource_id})\">\n" +
-    "                            <span class=\"fa fa-cog\"></span>\n" +
-    "                        </a>\n" +
-    "                    </div>\n" +
-    "                </li>\n" +
-    "            </ul>\n" +
-    "\n" +
-    "            <h3>Direct dashboard permissions</h3>\n" +
-    "\n" +
-    "            <ul class=\"list-group\">\n" +
-    "                <li ng-repeat=\"perm in group.resourcePermissions.group.dashboard\" class=\"animate-repeat list-group-item\">\n" +
-    "                    <strong>{{ perm.self.resource_name }}</strong>\n" +
-    "\n" +
-    "                    <div class=\"pull-right\">\n" +
-    "                        <span class=\"btn btn-primary btn-xs m-r-1\" disabled ng-repeat=\"perm_name in perm.permissions\">{{ perm.self.owner ? 'Resource owner' : perm_name }}</span>\n" +
-    "\n" +
-    "                        <a class=\"btn btn-default btn-xs\" data-uib-tooltip=\"Visit Dashboard\" data-ui-sref=\"dashboard.update({resourceId:perm.self.resource_id})\">\n" +
-    "                            <span class=\"fa fa-cog\"></span>\n" +
-    "                        </a>\n" +
-    "                    </div>\n" +
-    "                </li>\n" +
-    "            </ul>\n" +
-    "\n" +
-    "        </div>\n" +
-    "\n" +
-    "    </div>\n" +
-    "\n" +
-    "\n" +
-    "    <div class=\"panel panel-default\" ng-if=\"group.group.id\">\n" +
-    "        <div class=\"panel-heading\">\n" +
-    "            <h3 class=\"panel-title\">User list</h3>\n" +
-    "        </div>\n" +
-    "        <div class=\"panel-body\">\n" +
-    "\n" +
-    "            <form name=\"add_permission\" class=\"form-inline\" ng-submit=\"group.addUser()\">\n" +
-    "                <div class=\"form-group\">\n" +
-    "                    <input placeholder=\"Username or email\" type=\"text\" class=\"autocomplete form-control\" ng-model=\"group.form.autocompleteUser\" uib-typeahead=\"u for u in group.searchUsers($viewValue) | limitTo:8\" typeahead-loading=\"searchingUsers\" typeahead-wait-ms=\"250\"/>\n" +
-    "                </div>\n" +
-    "                <div class=\"form-group\">\n" +
-    "                    <button class=\"btn btn-info\" ng-disabled=\"!group.form.autocompleteUser\"><span class=\"fa fa-user\"></span> Add user</button>\n" +
-    "                </div>\n" +
-    "            </form>\n" +
-    "\n" +
-    "        </div>\n" +
-    "\n" +
-    "        <table st-table=\"displayedCollection\" st-safe-src=\"group.users\" class=\"table table-striped\">\n" +
-    "            <thead>\n" +
-    "            <tr>\n" +
-    "                <th st-sort=\"user_name\"><a>Username</a></th>\n" +
-    "                <th st-sort=\"email\"><a>Email</a></th>\n" +
-    "                <th st-sort=\"status\"><a>Status</a></th>\n" +
-    "                <th st-sort=\"first_name\"><a>First Name</a></th>\n" +
-    "                <th st-sort=\"last_name\"><a>Last Name</a></th>\n" +
-    "                <th st-sort=\"last_login_date\"><a>Last login</a></th>\n" +
-    "                <th class=\"options\" style=\"width: 130px\"></th>\n" +
-    "            </tr>\n" +
-    "            <tr>\n" +
-    "                <th><input st-search=\"user_name\" placeholder=\"search for user name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
-    "                <th><input st-search=\"email\" placeholder=\"search for email\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
-    "                <th></th>\n" +
-    "                <th><input st-search=\"first_name\" placeholder=\"search for first name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
-    "                <th><input st-search=\"last_name\" placeholder=\"search for last name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
-    "                <th><input st-search=\"last_login_date\" placeholder=\"search for last name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
-    "                <th></th>\n" +
-    "            </tr>\n" +
-    "            </thead>\n" +
-    "            <tbody>\n" +
-    "\n" +
-    "            <tr ng-repeat=\"user in displayedCollection\">\n" +
-    "                <td><img src=\"{{user.gravatar_url}}\" class=\"avatar\"> {{user.user_name}}</td>\n" +
-    "                <td>{{user.email}}</td>\n" +
-    "                <td class=\"text-center\"><span class=\"fa\" ng-class=\"{'fa-check-circle':user.status, 'fa-times':!user.status}\"></span></td>\n" +
-    "                <td>{{user.first_name}}</td>\n" +
-    "                <td>{{user.last_name}}</td>\n" +
-    "                <td><span data-uib-tooltip=\"{{user.last_login_date}}\">{{user.last_login_date | isoToRelativeTime}}</span></td>\n" +
-    "                <td>\n" +
-    "                    <a class=\"btn btn-default btn-sm\" data-ui-sref=\"admin.user.update({userId:user.id})\"><span class=\"fa fa-cog\"></span></a>\n" +
-    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
-    "                            <a class=\"btn btn-danger btn-sm\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
-    "                          <ul class=\"dropdown-menu\">\n" +
-    "                              <li><a>No</a></li>\n" +
-    "                              <li><a ng-click=\"group.removeUser(user)\">Yes</a></li>\n" +
-    "                          </ul>\n" +
-    "                        </span>\n" +
-    "            </tr>\n" +
-    "            <tfoot>\n" +
-    "            <tr>\n" +
-    "                <td colspan=\"7\" class=\"text-center\">\n" +
-    "                    <div st-pagination=\"\" st-items-by-page=\"50\" st-displayed-pages=\"7\"></div>\n" +
-    "                </td>\n" +
-    "            </tr>\n" +
-    "            </tfoot>\n" +
-    "            </tbody>\n" +
-    "        </table>\n" +
-    "\n" +
-    "    </div>\n" +
-    "\n" +
-    "\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/admin/groups/groups_list.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"groups.loading.groups\"></ng-include>\n" +
-    "\n" +
-    "<div class=\"panel panel-default\" ng-show=\"!groups.loading.groups\">\n" +
-    "\n" +
-    "    <table st-table=\"displayedCollection\" st-safe-src=\"groups.groups\" class=\"table table-striped\">\n" +
-    "        <thead>\n" +
-    "        <tr>\n" +
-    "            <th st-sort=\"group_name\"><a>Group name</a></th>\n" +
-    "            <th st-sort=\"description\"><a>Description</a></th>\n" +
-    "            <th st-sort=\"members\"><a>Member count</a></th>\n" +
-    "            <th class=\"options\"></th>\n" +
-    "        </tr>\n" +
-    "        <tr>\n" +
-    "            <th><input st-search=\"group_name\" placeholder=\"search for group name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
-    "            <th><input st-search=\"description\" placeholder=\"search for description\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
-    "            <th></th>\n" +
-    "            <th></th>\n" +
-    "        </tr>\n" +
-    "        </thead>\n" +
-    "        <tbody>\n" +
-    "\n" +
-    "        <tr ng-repeat=\"group in displayedCollection track by group.id\">\n" +
-    "            <td>{{group.group_name}}</td>\n" +
-    "            <td>{{group.description}}</td>\n" +
-    "            <td>{{group.member_count}}</td>\n" +
-    "            <td>\n" +
-    "                <a class=\"btn btn-default btn-sm\" data-ui-sref=\"admin.group.update({groupId:group.id})\"><span class=\"fa fa-cog\"></span></a>\n" +
-    "                        <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
-    "                            <a class=\"btn btn-danger btn-sm\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
-    "                          <ul class=\"dropdown-menu\">\n" +
-    "                              <li><a>No</a></li>\n" +
-    "                              <li><a ng-click=\"groups.removeGroup(group)\">Yes</a></li>\n" +
-    "                          </ul>\n" +
-    "                        </span>\n" +
-    "        </tr>\n" +
-    "        <tfoot>\n" +
-    "        <tr>\n" +
-    "            <td colspan=\"4\" class=\"text-center\">\n" +
-    "                <div st-pagination=\"\" st-items-by-page=\"100\" st-displayed-pages=\"7\"></div>\n" +
-    "            </td>\n" +
-    "        </tr>\n" +
-    "        </tfoot>\n" +
-    "        </tbody>\n" +
-    "    </table>\n" +
-    "\n" +
-    "</div>\n" +
-    "\n"
-  );
-
-
-  $templateCache.put('templates/admin/groups/parent_view.html',
-    "<div ui-view></div>"
-  );
-
-
-  $templateCache.put('templates/admin/parent_view.html',
-    "<div class=\"col-sm-3\" id=\"menu\">\n" +
-    "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-heading\">Users and groups</div>\n" +
-    "        <ul class=\"list-group\">\n" +
-    "            <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.user.list\"> Users</a></li>\n" +
-    "            <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.user.create\"> Create user</a></li>\n" +
-    "            <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.group.list\"> Groups</a></li>\n" +
-    "            <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.group.create\"> Create group</a></li>\n" +
-    "        </ul>\n" +
-    "    </div>\n" +
-    "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-heading\">Resources</div>\n" +
-    "        <ul class=\"list-group\">\n" +
-    "            <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.application.list\"> List applications</a></li>\n" +
-    "        </ul>\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-heading\">System</div>\n" +
-    "        <ul class=\"list-group\">\n" +
-    "            <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.configs.list\"> Config variables</a></li>\n" +
-    "            <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.system\"> System</a></li>\n" +
-    "            <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.partitions\"> Partition Management</a></li>\n" +
-    "        </ul>\n" +
-    "    </div>\n" +
-    "</div>\n" +
-    "\n" +
-    "\n" +
-    "<div class=\"col-sm-9\" ui-view></div>\n"
-  );
-
-
-  $templateCache.put('templates/admin/partitions.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"partitions.loading.partitions\"></ng-include>\n" +
-    "\n" +
-    "<div ng-show=\"!partitions.loading.partitions\">\n" +
-    "\n" +
-    "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-heading\">\n" +
-    "            DELETE Daily Partitions\n" +
-    "        </div>\n" +
-    "\n" +
-    "        <form name=\"partitions.dailyPartitionsForm\"\n" +
-    "              novalidate ng-submit=\"partitions.partitionsDelete('dailyPartitions')\"\n" +
-    "              class=\"form-inline\"\n" +
-    "              ng-class=\"{'has-error':partitions.dailyPartitionsForm.$invalid}\">\n" +
-    "\n" +
-    "            <div class=\"panel-body\">\n" +
-    "\n" +
-    "                <input type=\"text\" name=\"confirm\"\n" +
-    "                       placeholder=\"Enter CONFIRM to proceed\" class=\"form-control input-autosize\" confirm-validate required ng-model=\"partitions.dailyConfirm\">\n" +
-    "                <input type=\"submit\" class=\"btn btn-danger\" ng-disabled=\"partitions.dailyPartitionsForm.$invalid\">\n" +
-    "                <input type=\"checkbox\" ng-model=\"partitions.dailyChecked\" ng-change=\"partitions.setCheckedList('dailyPartitions')\"> Check All\n" +
-    "\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <table class=\"table table-striped\">\n" +
-    "                <tr>\n" +
-    "                    <th class=\"c1 date\">Date</th>\n" +
-    "                    <th class=\"c2 indices\">Indices</th>\n" +
-    "                </tr>\n" +
-    "                <tr class=\"r{{$index}}\" ng-repeat=\"row in partitions.dailyPartitions\">\n" +
-    "                    <td class=\"c1\">{{row[0]}}</td>\n" +
-    "                    <td class=\"c2\">\n" +
-    "                        <ul class=\"list-group\">\n" +
-    "                        <li class=\"list-group-item\" ng-repeat=\"partition in row[1].elasticsearch\">\n" +
-    "                            <input name=\"es_index\" type=\"checkbox\" ng-model=\"partition.checked\"> ES: {{partition.name}}\n" +
-    "                        </li>\n" +
-    "                        <li class=\"list-group-item\" ng-repeat=\"partition in row[1].pg\">\n" +
-    "                            <input name=\"pg_index\" type=\"checkbox\" ng-model=\"partition.checked\"> PG: {{partition.name}}\n" +
-    "                        </li>\n" +
-    "                        </ul>\n" +
-    "                    </td>\n" +
-    "                </tr>\n" +
-    "            </table>\n" +
-    "        </form>\n" +
-    "\n" +
-    "    </div>\n" +
-    "\n" +
-    "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-heading\">\n" +
-    "            DELETE Permanent Partitions\n" +
-    "        </div>\n" +
-    "\n" +
-    "        <form name=\"partitions.permanentPartitionsForm\" novalidate\n" +
-    "              ng-submit=\"partitions.partitionsDelete('permanentPartitions')\"\n" +
-    "              class=\"form-inline\"\n" +
-    "              ng-class=\"{'has-error':partitions.permanentPartitionsForm.$invalid}\">\n" +
-    "\n" +
-    "\n" +
-    "            <div class=\"panel-body\">\n" +
-    "\n" +
-    "                <div class=\"form-group\">\n" +
-    "                    <input type=\"text\" name=\"confirm\"\n" +
-    "                           placeholder=\"Enter CONFIRM to proceed\" class=\"form-control\" confirm-validate required ng-model=\"partitions.permConfirm\">\n" +
-    "                    <input type=\"submit\" class=\"btn btn-danger\" ng-disabled=\"partitions.permanentPartitionsForm.$invalid\">\n" +
-    "                    <input type=\"checkbox\" ng-model=\"partitions.permChecked\" ng-change=\"partitions.setCheckedList('permanentPartitions')\"> Check All\n" +
-    "                </div>\n" +
-    "\n" +
-    "            </div>\n" +
-    "\n" +
-    "            <table class=\"table table-striped\">\n" +
-    "                <tr>\n" +
-    "                    <th class=\"c1 date\">Date</th>\n" +
-    "                    <th class=\"c2 indices\">Indices</th>\n" +
-    "                </tr>\n" +
-    "                <tr class=\"r{{$index}}\" ng-repeat=\"row in partitions.permanentPartitions\">\n" +
-    "                    <td class=\"c1\">{{row[0]}}</td>\n" +
-    "                    <td class=\"c2\">\n" +
-    "                        <ul class=\"list-group\">\n" +
-    "                        <li class=\"list-group-item\" ng-repeat=\"partition in row[1].elasticsearch\">\n" +
-    "                            <input name=\"es_index\" type=\"checkbox\" ng-model=\"partition.checked\"> ES: {{partition.name}}\n" +
-    "                        </li>\n" +
-    "                        <li class=\"list-group-item\" ng-repeat=\"partition in row[1].pg\">\n" +
-    "                            <input name=\"pg_index\" type=\"checkbox\" ng-model=\"partition.checked\"> PG: {{partition.name}}\n" +
-    "                        </li>\n" +
-    "                        </ul>\n" +
-    "                    </td>\n" +
-    "                </tr>\n" +
-    "            </table>\n" +
-    "        </form>\n" +
-    "\n" +
-    "    </div>\n" +
-    "\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/admin/system.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"system.loading.system\"></ng-include>\n" +
-    "\n" +
-    "<div ng-if=\"system.loading.system == false\">\n" +
-    "    <div class=\"row\">\n" +
-    "        <div class=\"col-sm-12\">\n" +
-    "            <div class=\"panel panel-default\">\n" +
-    "                <div class=\"panel-heading\">\n" +
-    "                    <h3 class=\"panel-title\">\n" +
-    "                        System Info\n" +
-    "                    </h3>\n" +
-    "                </div>\n" +
-    "                <div class=\"panel-body\">\n" +
-    "\n" +
-    "                    <p><strong>System Load:</strong>\n" +
-    "                        1min: {{system.systemLoad[0]}}, 5min: {{system.systemLoad[1]}}, 15min: {{system.systemLoad[2]}}\n" +
-    "                    </p>\n" +
-    "                    <p><strong>Awaiting tasks:</strong>\n" +
-    "                    <ul>\n" +
-    "                        <li>reports: {{system.queueStats.waiting_reports}}</li>\n" +
-    "                        <li>logs: {{system.queueStats.waiting_logs}}</li>\n" +
-    "                        <li>metrics: {{system.queueStats.waiting_metrics}}</li>\n" +
-    "                        <li>other: {{system.queueStats.waiting_other}}</li>\n" +
-    "                    </ul>\n" +
-    "                    </p>\n" +
-    "                    <p><strong>Queue stats from last minute:</strong>\n" +
-    "                    <ul>\n" +
-    "                        <li>Processed reports: {{system.queueStats.processed_reports}}</li>\n" +
-    "                        <li>Processed logs: {{system.queueStats.processed_logs}}</li>\n" +
-    "                        <li>Processed metrics: {{system.queueStats.processed_metrics}}</li>\n" +
-    "                    </ul>\n" +
-    "                    </p>\n" +
-    "\n" +
-    "                    <p><strong>Disks:</strong>\n" +
-    "                    <ul>\n" +
-    "                        <li ng-repeat=\"disk in system.disks\">\n" +
-    "                            <strong>{{disk.device}}</strong> {{disk.free}}/{{disk.total}}, {{disk.percentage}}% used\n" +
-    "                        </li>\n" +
-    "                    </ul>\n" +
-    "                    </p>\n" +
-    "\n" +
-    "                    <p><strong>Process stats:</strong>\n" +
-    "                    <ul>\n" +
-    "                        <li>FD soft limits: {{system.selfInfo.fds.soft}}</li>\n" +
-    "                        <li>FD hard limits: {{system.selfInfo.fds.hard}}</li>\n" +
-    "                        <li>Memlock soft limits: {{system.selfInfo.memlock.soft}}</li>\n" +
-    "                        <li>Memlock hard limits: {{system.selfInfo.memlock.hard}}</li>\n" +
-    "                    </ul>\n" +
-    "                    </p>\n" +
-    "\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "    <div class=\"row\">\n" +
-    "        <div class=\"col-sm-12\">\n" +
-    "\n" +
-    "            <div class=\"panel panel-default\">\n" +
-    "                <div class=\"panel-body\">\n" +
-    "\n" +
-    "                    <uib-tabset>\n" +
-    "                        <uib-tab>\n" +
-    "                            <uib-tab-heading>\n" +
-    "                                Postgresql Tables\n" +
-    "                            </uib-tab-heading>\n" +
-    "\n" +
-    "                            <table class=\"table table-striped\">\n" +
-    "                                <thead>\n" +
-    "                                <tr>\n" +
-    "                                    <th class=\"c1 tablename\">Table name</th>\n" +
-    "                                    <th class=\"c2 size_human\">Size</th>\n" +
-    "                                </tr>\n" +
-    "                                </thead>\n" +
-    "                                <tbody>\n" +
-    "                                <tr class=\"r{{$index}}\" ng-repeat=\"row in system.DBtables\">\n" +
-    "                                    <td class=\"c1\">{{row.table_name}}</td>\n" +
-    "                                    <td class=\"c2\">{{row.size_human}}</td>\n" +
-    "                                </tr>\n" +
-    "                                </tbody>\n" +
-    "                            </table>\n" +
-    "\n" +
-    "                        </uib-tab>\n" +
-    "\n" +
-    "                        <uib-tab>\n" +
-    "                            <uib-tab-heading>\n" +
-    "                                Elasticsearch Indices\n" +
-    "                            </uib-tab-heading>\n" +
-    "\n" +
-    "                            <table class=\"table table-striped\">\n" +
-    "                                <thead>\n" +
-    "                                <tr>\n" +
-    "                                    <th class=\"c1 tablename\">Index name</th>\n" +
-    "                                    <th class=\"c2 size_human\">Size</th>\n" +
-    "                                </tr>\n" +
-    "                                </thead>\n" +
-    "                                <tbody>\n" +
-    "                                <tr class=\"r{{$index}}\" ng-repeat=\"row in system.ESIndices\">\n" +
-    "                                    <td class=\"c1\">{{row.name}}</td>\n" +
-    "                                    <td class=\"c2\">{{row.size_human}}</td>\n" +
-    "                                </tr>\n" +
-    "                                </tbody>\n" +
-    "                            </table>\n" +
-    "\n" +
-    "                        </uib-tab>\n" +
-    "\n" +
-    "                        <uib-tab>\n" +
-    "                            <uib-tab-heading>\n" +
-    "                                Processes\n" +
-    "                            </uib-tab-heading>\n" +
-    "\n" +
-    "                            <table class=\"table table-striped\">\n" +
-    "                                <thead>\n" +
-    "                                <tr>\n" +
-    "                                    <th class=\"c1 tablename\">Owner</th>\n" +
-    "                                    <th class=\"c2 tablename\">PID</th>\n" +
-    "                                    <th class=\"c3 tablename\">CPU</th>\n" +
-    "                                    <th class=\"c4 tablename\">MEM</th>\n" +
-    "                                    <th class=\"c4 tablename\">Name</th>\n" +
-    "                                </tr>\n" +
-    "                                </thead>\n" +
-    "                                <tbody>\n" +
-    "                                <tr class=\"r{{$index}}\" ng-repeat-start=\"row in system.processInfo\">\n" +
-    "                                    <td class=\"c1\">{{row.owner}}</td>\n" +
-    "                                    <td class=\"c2\">{{row.pid}}</td>\n" +
-    "                                    <td class=\"c3\">{{row.cpu}}</td>\n" +
-    "                                    <td class=\"c4\">{{row.mem_usage}} ({{row.mem_percentage}}%)</td>\n" +
-    "                                    <td class=\"c5\"><strong>{{row.name}}</strong></td>\n" +
-    "                                </tr>\n" +
-    "                                <tr ng-repeat-end>\n" +
-    "                                    <td colspan=\"5\" class=\"word-wrap\">{{row.command}}</td>\n" +
-    "                                </tr>\n" +
-    "                                </tbody>\n" +
-    "                            </table>\n" +
-    "\n" +
-    "                        </uib-tab>\n" +
-    "\n" +
-    "                        <uib-tab>\n" +
-    "                            <uib-tab-heading>\n" +
-    "                                Python packages\n" +
-    "                            </uib-tab-heading>\n" +
-    "\n" +
-    "                            <table class=\"table\">\n" +
-    "                                <tr ng-repeat=\"package in system.packages\">\n" +
-    "                                    <td>{{package.name}}</td>\n" +
-    "                                    <td>{{package.version}}</td>\n" +
-    "                                </tr>\n" +
-    "                            </table>\n" +
-    "                            </p>\n" +
-    "\n" +
-    "                        </uib-tab>\n" +
-    "\n" +
-    "                    </uib-tabset>\n" +
-    "                </div>\n" +
-    "            </div>\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/admin/users/parent_view.html',
-    "<div ui-view></div>"
-  );
-
-
-  $templateCache.put('templates/admin/users/users_create.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"user.loading.user\"></ng-include>\n" +
-    "\n" +
-    "<div ng-show=\"!user.loading.user\">\n" +
-    "\n" +
-    "    <div class=\"panel panel-default\">\n" +
-    "        <div class=\"panel-body\">\n" +
-    "\n" +
-    "                <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\" ng-if=\"user.user.id\">\n" +
-    "                    <a class=\"btn btn-default\" data-uib-dropdown-toggle><span class=\"fa fa-user-secret\"></span> Re-login to user</a>\n" +
-    "                  <ul class=\"dropdown-menu\">\n" +
-    "                      <li><a>No</a></li>\n" +
-    "                      <li><a ng-click=\"user.reloginUser(user)\">Yes</a></li>\n" +
-    "                  </ul>\n" +
-    "                </span>\n" +
-    "\n" +
-    "            <form name=\"user.profileForm\" class=\"form-horizontal\" ng-submit=\"user.createUser()\">\n" +
-    "                <div class=\"form-group\" id=\"row-user_name\">\n" +
-    "                    <data-form-errors errors=\"user.profileForm.ae_validation.user_name\"></data-form-errors>\n" +
-    "                    <label for=\"user_name\" id=\"label-user_name\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        User name\n" +
-    "                        <span class=\"required\">*</span>\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control\" id=\"user_name\" name=\"user_name\" type=\"text\" ng-model=\"user.user.user_name\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "\n" +
-    "                <div class=\"form-group\" id=\"row-user_password\">\n" +
-    "                    <data-form-errors errors=\"user.profileForm.ae_validation.user_password\"></data-form-errors>\n" +
-    "                    <label for=\"user_password\" id=\"label-user_password\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        Password\n" +
-    "                        <span class=\"required\">*</span>\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control\" id=\"user_password\" name=\"user_password\" type=\"password\" ng-model=\"user.user.user_password\">\n" +
-    "\n" +
-    "                        <p class=\"m-t-1\"><a class=\"btn btn-info btn-sm\" ng-click=\"user.generatePassword()\"><span class=\"fa fa-lock\"></span> Generate password</a>\n" +
-    "                            <span ng-show=\"user.gen_pass.length > 0\">(generated password: {{user.gen_pass}})</span>\n" +
-    "                        </p>\n" +
-    "\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "\n" +
-    "\n" +
-    "                <div class=\"form-group\" id=\"row-email\">\n" +
-    "                    <data-form-errors errors=\"user.profileForm.ae_validation.email\"></data-form-errors>\n" +
-    "                    <label for=\"email\" id=\"label-email\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        Email Address\n" +
-    "                        <span class=\"required\">*</span>\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control\" id=\"email\" name=\"email\" type=\"text\" ng-model=\"user.user.email\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "\n" +
-    "                <div class=\"form-group\" id=\"row-first_name\">\n" +
-    "                    <data-form-errors errors=\"user.profileForm.ae_validation.first_name\"></data-form-errors>\n" +
-    "                    <label for=\"first_name\" id=\"label-first_name\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        First Name\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control\" id=\"first_name\" name=\"first_name\" type=\"text\" ng-model=\"user.user.first_name\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "                <div class=\"form-group\" id=\"row-last_name\">\n" +
-    "                    <data-form-errors errors=\"user.profileForm.ae_validation.last_name\"></data-form-errors>\n" +
-    "                    <label for=\"last_name\" id=\"label-last_name\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        Last Name\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control\" id=\"last_name\" name=\"last_name\" type=\"text\" ng-model=\"user.user.last_name\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "\n" +
-    "                <div class=\"form-group\" id=\"row-status\">\n" +
-    "                    <data-form-errors errors=\"user.profileForm.ae_validation.status\"></data-form-errors>\n" +
-    "                    <label for=\"status\" id=\"label-status\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                        Active\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input checked class=\"form-control\" id=\"status\" name=\"status\" type=\"checkbox\" ng-model=\"user.user.status\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "\n" +
-    "                <div class=\"form-group\" id=\"row-submit\">\n" +
-    "                    <label for=\"submit\" id=\"label-submit\" class=\"control-label col-sm-4 col-lg-3\">\n" +
-    "                    </label>\n" +
-    "                    <div class=\"col-sm-8 col-lg-9\">\n" +
-    "                        <input class=\"form-control btn btn-primary\" id=\"submit\" name=\"submit\" type=\"submit\" value=\"{{$state.params.userId ? 'Update' : 'Add'}} User\">\n" +
-    "                    </div>\n" +
-    "                </div>\n" +
-    "            </form>\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "\n" +
-    "\n" +
-    "    <div class=\"panel panel-default\" ng-if=\"user.user.id\">\n" +
-    "        <div class=\"panel-heading\">\n" +
-    "            <h3 class=\"panel-title\">Permission Summary</h3>\n" +
-    "        </div>\n" +
-    "        <div class=\"panel-body\">\n" +
-    "            <h3>Direct application permissions</h3>\n" +
-    "\n" +
-    "            <ul class=\"list-group\">\n" +
-    "                <li ng-repeat=\"perm in user.resourcePermissions.user.application\" class=\"animate-repeat list-group-item\">\n" +
-    "                    <strong>{{ perm.self.resource_name }}</strong>\n" +
-    "                    <div class=\"pull-right\">\n" +
-    "\n" +
-    "                        <span class=\"btn btn-primary btn-xs m-r-1\" disabled ng-repeat=\"perm_name in perm.permissions\">{{ perm.self.owner ? 'Resource owner' : perm_name }}</span>\n" +
-    "\n" +
-    "                        <a class=\"btn btn-default btn-xs\" data-uib-tooltip=\"Visit Application\" data-ui-sref=\"applications.update({resourceId:perm.self.resource_id})\">\n" +
-    "                            <span class=\"fa fa-cog\"></span>\n" +
-    "                        </a>\n" +
-    "                    </div>\n" +
-    "                </li>\n" +
-    "            </ul>\n" +
-    "\n" +
-    "            <h3>Direct dashboard permissions</h3>\n" +
-    "\n" +
-    "            <ul class=\"list-group\">\n" +
-    "                <li ng-repeat=\"perm in user.resourcePermissions.user.dashboard\" class=\"animate-repeat list-group-item\">\n" +
-    "                    <strong>{{ perm.self.resource_name }}</strong>\n" +
-    "                    <div class=\"pull-right\">\n" +
-    "\n" +
-    "                        <span class=\"btn btn-primary btn-xs m-r-1\" disabled ng-repeat=\"perm_name in perm.permissions\">{{ perm.self.owner ? 'Resource owner' : perm_name }}</span>\n" +
-    "\n" +
-    "                        <a class=\"btn btn-default btn-xs\" data-uib-tooltip=\"Visit Dashboard\" data-ui-sref=\"dashboard.update({resourceId:perm.self.resource_id})\">\n" +
-    "                            <span class=\"fa fa-cog\"></span>\n" +
-    "                        </a>\n" +
-    "                    </div>\n" +
-    "                </li>\n" +
-    "            </ul>\n" +
-    "\n" +
-    "        </div>\n" +
-    "\n" +
-    "    </div>\n" +
-    "\n" +
-    "\n" +
-    "</div>\n"
-  );
-
-
-  $templateCache.put('templates/admin/users/users_list.html',
-    "<ng-include src=\"'templates/loader.html'\" ng-if=\"users.loading.users\"></ng-include>\n" +
-    "\n" +
-    "<div ng-show=\"!users.loading.users\">\n" +
-    "\n" +
-    "    <div class=\"panel panel-default\">\n" +
-    "\n" +
-    "        <div class=\"panel-heading\">\n" +
-    "            {{users.activeUsers}} active out of {{users.users.length}} users\n" +
-    "        </div>\n" +
-    "\n" +
-    "\n" +
-    "        <table st-table=\"displayedCollection\" st-safe-src=\"users.users\" class=\"table table-striped\">\n" +
-    "            <thead>\n" +
-    "            <tr>\n" +
-    "                <th class=\"user_name\" st-sort=\"user_name\"><a>Username</a></th>\n" +
-    "                <th class=\"email\" st-sort=\"email\"><a>Email</a></th>\n" +
-    "                <th class=\"status\" st-sort=\"status\"><a>Status</a></th>\n" +
-    "                <th st-sort=\"first_name\"><a>First Name</a></th>\n" +
-    "                <th st-sort=\"last_name\"><a>Last Name</a></th>\n" +
-    "                <th st-sort=\"last_login_date\"><a>Last login</a></th>\n" +
-    "                <th class=\"options\"></th>\n" +
-    "            </tr>\n" +
-    "            <tr>\n" +
-    "                <th><input st-search=\"user_name\" placeholder=\"search for user name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
-    "                <th><input st-search=\"email\" placeholder=\"search for email\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
-    "                <th></th>\n" +
-    "                <th><input st-search=\"first_name\" placeholder=\"search for first name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
-    "                <th><input st-search=\"last_name\" placeholder=\"search for last name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
-    "                <th><input st-search=\"last_login_date\" placeholder=\"search for last name\" class=\"form-control\" type=\"search\" st-delay=\"1\"/></th>\n" +
-    "                <th></th>\n" +
-    "            </tr>\n" +
-    "            </thead>\n" +
-    "            <tbody>\n" +
-    "\n" +
-    "            <tr ng-repeat=\"user in displayedCollection track by user.id\">\n" +
-    "                <td><img src=\"{{user.gravatar_url}}\" class=\"avatar\"> {{user.user_name}}</td>\n" +
-    "                <td class=\"word-wrap small\">{{user.email}}</td>\n" +
-    "                <td class=\"text-center\"><span class=\"fa\" ng-class=\"{'fa-check-circle':user.status, 'fa-times':!user.status}\"></span></td>\n" +
-    "                <td class=\"word-wrap small\">{{user.first_name}}</td>\n" +
-    "                <td class=\"word-wrap small\">{{user.last_name}}</td>\n" +
-    "                <td><span data-uib-tooltip=\"{{user.last_login_date}}\" class=\"small\">{{user.last_login_date | isoToRelativeTime}}</span></td>\n" +
-    "                <td>\n" +
-    "                    <a class=\"btn btn-default btn-sm\" data-ui-sref=\"admin.user.update({userId:user.id})\"><span class=\"fa fa-cog\"></span></a>\n" +
-    "                    <span class=\"dropdown\" data-uib-dropdown on-toggle=\"toggled(open)\">\n" +
-    "                        <a class=\"btn btn-danger btn-sm\" data-uib-dropdown-toggle><span class=\"fa fa-trash-o\"></span></a>\n" +
-    "                      <ul class=\"dropdown-menu\">\n" +
-    "                          <li><a>No</a></li>\n" +
-    "                          <li><a ng-click=\"users.removeUser(user)\">Yes</a></li>\n" +
-    "                      </ul>\n" +
-    "                    </span>\n" +
-    "            </tr>\n" +
-    "            <tfoot>\n" +
-    "            <tr>\n" +
-    "                <td colspan=\"6\" class=\"text-center\">\n" +
-    "                    <div st-pagination=\"\" st-items-by-page=\"100\" st-displayed-pages=\"7\"></div>\n" +
-    "                </td>\n" +
-    "            </tr>\n" +
-    "            </tfoot>\n" +
-    "            </tbody>\n" +
-    "        </table>\n" +
-    "\n" +
-    "\n" +
-    "    </div>\n" +
-    "</div>\n"
-  );
-
-
   $templateCache.put('templates/directives/search_type_ahead.html',
     "<a>\n" +
     "    <span class=\"tag\" ng-show=\"match.model.tag\">{{match.model.tag}}</span>\n" +
@@ -7302,6 +7297,708 @@ function ChannelstreamController($rootScope, stateHolder, userSelfPropertyResour
             
         };
     }.bind(this));
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.adminApplicationsListView', [])
+    .component('adminApplicationsListView', {
+        templateUrl: 'components/views/admin-applications-list-view/admin-applications-list-view.html',
+        controller: AdminApplicationsListController
+    });
+
+AdminApplicationsListController.$inject = ['applicationsResource'];
+
+function AdminApplicationsListController(applicationsResource) {
+    
+    var vm = this;
+    vm.loading = {applications: true};
+
+    vm.applications = applicationsResource.query({
+        root_list: true,
+        resource_type: 'application'
+    }, function (data) {
+        vm.loading = {applications: false};
+    });
+};
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.adminConfigurationView', [])
+    .component('adminConfigurationView', {
+        templateUrl: 'components/views/admin-configuration-view/admin-configuration-view.html',
+        controller: AdminConfigurationViewController
+    });
+
+AdminConfigurationViewController.$inject = ['configsResource', 'configsNoIdResource'];
+
+function AdminConfigurationViewController(configsResource, configsNoIdResource) {
+    var vm = this;
+    vm.loading = {config: true};
+
+    var filters = [
+        'template_footer_html:global',
+        'list_groups_to_non_admins:global',
+        'per_application_reports_rate_limit:global',
+        'per_application_logs_rate_limit:global',
+        'per_application_metrics_rate_limit:global',
+    ];
+
+    vm.configs = {};
+
+    vm.configList = configsResource.query({filter: filters},
+        function (data) {
+            vm.loading = {config: false};
+            _.each(data, function (item) {
+                if (vm.configs[item.section] === undefined) {
+                    vm.configs[item.section] = {};
+                }
+                vm.configs[item.section][item.key] = item;
+            });
+        });
+
+    vm.save = function () {
+        vm.loading.config = true;
+        _.each(vm.configList, function (item) {
+            item.$save();
+        });
+        vm.loading.config = false;
+    };
+
+};
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.adminGroupsCreateView', [])
+    .component('adminGroupsCreateView', {
+        templateUrl: 'components/views/admin-groups-create-view/admin-groups-create-view.html',
+        controller: AdminGroupsCreateViewController
+    });
+
+AdminGroupsCreateViewController.$inject = ['$state', 'groupsResource', 'groupsPropertyResource', 'sectionViewResource'];
+
+function AdminGroupsCreateViewController($state, groupsResource, groupsPropertyResource, sectionViewResource) {
+    
+    var vm = this;
+    vm.$state = $state;
+    vm.loading = {
+        group: false,
+        resource_permissions: false,
+        users: false
+    };
+
+    vm.form = {
+        autocompleteUser: '',
+    }
+
+
+    if (typeof $state.params.groupId !== 'undefined') {
+        vm.loading.group = true;
+        var groupId = $state.params.groupId;
+        vm.group = groupsResource.get({groupId: groupId}, function (data) {
+            vm.loading.group = false;
+        });
+
+        vm.resource_permissions = groupsPropertyResource.query(
+            {groupId: groupId, key: 'resource_permissions'}, function (data) {
+                vm.loading.resource_permissions = false;
+                var tmpObj = {
+                    'group': {
+                        'application': {},
+                        'dashboard': {}
+                    }
+                };
+                _.each(data, function (item) {
+                    
+                    var section = tmpObj[item.type][item.resource_type];
+                    if (typeof section[item.resource_id] == 'undefined') {
+                        section[item.resource_id] = {
+                            self: item,
+                            permissions: []
+                        }
+                    }
+                    section[item.resource_id].permissions.push(item.perm_name);
+
+                });
+                vm.resourcePermissions = tmpObj;
+            });
+
+        vm.users = groupsPropertyResource.query(
+            {groupId: groupId, key: 'users'}, function (data) {
+                vm.loading.users = false;
+            }, function () {
+                vm.loading.users = false;
+            });
+
+    }
+    else {
+        var groupId = null;
+    }
+
+    var formResponse = function (response) {
+        if (response.status === 422) {
+            setServerValidation(vm.groupForm, response.data);
+        }
+        vm.loading.group = false;
+    };
+
+    vm.createGroup = function () {
+        vm.loading.group = true;
+        if (groupId) {
+            groupsResource.update({groupId: vm.group.id}, vm.group, function (data) {
+                setServerValidation(vm.groupForm);
+                vm.loading.group = false;
+            }, formResponse);
+        }
+        else {
+            groupsResource.save(vm.group, function (data) {
+                $state.go('admin.group.update', {groupId: data.id});
+            }, formResponse);
+        }
+    };
+
+    vm.removeUser = function (user) {
+        groupsPropertyResource.delete(
+            {groupId: groupId, key: 'users', user_name: user.user_name},
+            function (data) {
+                vm.loading.users = false;
+                vm.users = _.filter(vm.users, function (item) {
+                    return item != user;
+                });
+            }, function () {
+                vm.loading.users = false;
+            });
+    };
+
+    vm.addUser = function () {
+        groupsPropertyResource.save(
+            {groupId: groupId, key: 'users'},
+            {user_name: vm.form.autocompleteUser},
+            function (data) {
+                vm.loading.users = false;
+                vm.users.push(data);
+                vm.form.autocompleteUser = '';
+            }, function () {
+                vm.loading.users = false;
+            });
+    }
+
+    vm.searchUsers = function (searchPhrase) {
+        
+        return sectionViewResource.query({
+            section: 'users_section',
+            view: 'search_users',
+            'user_name': searchPhrase
+        }).$promise.then(function (data) {
+                return _.map(data, function (item) {
+                    return item.user;
+                });
+            });
+    }
+};
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.adminGroupsListView', [])
+    .component('adminGroupsListView', {
+        templateUrl: 'components/views/admin-groups-list-view/admin-groups-list-view.html',
+        controller: AdminGroupsListViewController
+    });
+
+AdminGroupsListViewController.$inject = ['$state', 'groupsResource'];
+
+function AdminGroupsListViewController($state, groupsResource) {
+    
+    var vm = this;
+    vm.$state = $state;
+    vm.loading = {groups: true};
+
+    vm.groups = groupsResource.query({}, function (data) {
+        vm.loading = {groups: false};
+        vm.activeUsers = _.reduce(vm.groups, function(memo, val){
+            if (val.status == 1){
+                return memo + 1;
+            }
+            return memo;
+        }, 0);
+        
+    });
+
+
+    vm.removeGroup = function (group) {
+        groupsResource.remove({groupId: group.id}, function (data, responseHeaders) {
+            
+            if (data) {
+                var index = vm.groups.indexOf(group);
+                if (index !== -1) {
+                    vm.groups.splice(index, 1);
+                    vm.activeGroups -= 1;
+                }
+            }
+        });
+    }
+};
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.adminPartitionsView', [])
+    .component('adminPartitionsView', {
+        templateUrl: 'components/views/admin-partitions-view/admin-partitions-view.html',
+        controller: AdminPartitionsViewController
+    });
+
+AdminPartitionsViewController.$inject = ['sectionViewResource'];
+
+function AdminPartitionsViewController(sectionViewResource) {
+    var vm = this;
+    vm.permanentPartitions = [];
+    vm.dailyPartitions = [];
+    vm.loading = {partitions: true};
+    vm.dailyChecked = false;
+    vm.permChecked = false;
+    vm.dailyConfirm = '';
+    vm.permConfirm = '';
+
+
+    vm.loadPartitions = function (data) {
+        var permanentPartitions = vm.transformPartitionList(
+            data.permanent_partitions);
+        var dailyPartitions = vm.transformPartitionList(
+            data.daily_partitions);
+        vm.permanentPartitions = permanentPartitions;
+        vm.dailyPartitions = dailyPartitions;
+        vm.loading = {partitions: false};
+    };
+
+    vm.setCheckedList = function (scope) {
+        var toTest = null;
+        if (scope === 'dailyPartitions'){
+            toTest = 'dailyChecked';
+        }
+        else{
+            toTest = 'permChecked';
+        }
+
+        if (vm[toTest]) {
+            var val = true;
+        }
+        else {
+            var val = false;
+        }
+        
+        _.each(vm[scope], function (item) {
+            _.each(item[1].pg, function (index) {
+                index.checked = val;
+            });
+            _.each(item[1].elasticsearch, function (index) {
+                index.checked = val;
+            });
+        });
+    }
+
+
+    vm.transformPartitionList = function (inputList) {
+        var outputList = [];
+
+        _.each(inputList, function (item) {
+            var time = [item[0], {
+                elasticsearch: [],
+                pg: []
+            }]
+            _.each(item[1].pg, function (index) {
+                time[1].pg.push({name: index, checked: false})
+            });
+            _.each(item[1].elasticsearch, function (index) {
+                time[1].elasticsearch.push({
+                    name: index,
+                    checked: false
+                })
+            });
+            outputList.push(time);
+        });
+        return outputList;
+    };
+
+    sectionViewResource.get({section:'admin_section', view: 'partitions'},
+        vm.loadPartitions);
+
+    vm.partitionsDelete = function (partitionType) {
+        var es_indices = [];
+        var pg_indices = [];
+        _.each(vm[partitionType], function (item) {
+            _.each(item[1].pg, function (index) {
+                if (index.checked) {
+                    pg_indices.push(index.name)
+                }
+            });
+            _.each(item[1].elasticsearch, function (index) {
+                if (index.checked) {
+                    es_indices.push(index.name)
+                }
+            });
+        });
+        
+
+        vm.loading = {partitions: true};
+        sectionViewResource.save({section:'admin_section',
+            view: 'partitions_remove'}, {
+            es_indices: es_indices,
+            pg_indices: pg_indices,
+            confirm: 'CONFIRM'
+        }, vm.loadPartitions);
+
+    }
+
+}
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.adminSystemView', [])
+    .component('adminSystemView', {
+        templateUrl: 'components/views/admin-system-view/admin-system-view.html',
+        controller: AdminSystemViewController
+    });
+
+AdminSystemViewController.$inject = ['sectionViewResource'];
+
+function AdminSystemViewController(sectionViewResource) {
+    var vm = this;
+    vm.tables = [];
+    vm.loading = {system: true};
+    sectionViewResource.get({
+        section: 'admin_section',
+        view: 'system'
+    }, null, function (data) {
+        vm.DBtables = data.db_tables;
+        vm.ESIndices = data.es_indices;
+        vm.queueStats = data.queue_stats;
+        vm.systemLoad = data.system_load;
+        vm.packages = data.packages;
+        vm.processInfo = data.process_info;
+        vm.disks = data.disks;
+        vm.memory = data.memory;
+        vm.selfInfo = data.self_info;
+
+        vm.loading.system = false;
+    });
+};
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.adminUsersCreateView', [])
+    .component('adminUsersCreateView', {
+        templateUrl: 'components/views/admin-users-create-view/admin-users-create-view.html',
+        controller: AdminUsersCreateViewController
+    });
+
+AdminUsersCreateViewController.$inject = ['$state', 'usersResource', 'usersPropertyResource', 'sectionViewResource', 'AeConfig'];
+
+function AdminUsersCreateViewController($state, usersResource, usersPropertyResource, sectionViewResource, AeConfig) {
+    
+    var vm = this;
+    vm.$state = $state;
+    vm.loading = {user: false};
+
+
+    if (typeof $state.params.userId !== 'undefined') {
+        vm.loading.user = true;
+        var userId = $state.params.userId;
+        vm.user = usersResource.get({userId: userId}, function (data) {
+            vm.loading.user = false;
+            // cast to true for angular checkbox
+            if (vm.user.status === 1) {
+                vm.user.status = true;
+            }
+        });
+
+        vm.resource_permissions = usersPropertyResource.query(
+            {userId: userId, key: 'resource_permissions'}, function (data) {
+                vm.loading.resource_permissions = false;
+                var tmpObj = {
+                    'user': {
+                        'application': {},
+                        'dashboard': {}
+                    },
+                    'group': {
+                        'application': {},
+                        'dashboard': {}
+                    }
+                };
+                _.each(data, function (item) {
+                    
+                    var section = tmpObj[item.type][item.resource_type];
+                    if (typeof section[item.resource_id] == 'undefined'){
+                        section[item.resource_id] = {
+                            self:item,
+                            permissions: []
+                        }
+                    }
+                    section[item.resource_id].permissions.push(item.perm_name);
+
+                });
+                vm.resourcePermissions = tmpObj;
+            });
+
+    }
+    else {
+        var userId = null;
+        vm.user = {
+            status: true
+        }
+    }
+
+    var formResponse = function (response) {
+        if (response.status == 422) {
+            setServerValidation(vm.profileForm, response.data);
+        }
+        vm.loading.user = false;
+    }
+
+    vm.createUser = function () {
+        vm.loading.user = true;
+        
+        if (userId) {
+            usersResource.update({userId: vm.user.id}, vm.user, function (data) {
+                setServerValidation(vm.profileForm);
+                vm.loading.user = false;
+            }, formResponse);
+        }
+        else {
+            usersResource.save(vm.user, function (data) {
+                $state.go('admin.user.update', {userId: data.id});
+            }, formResponse);
+        }
+    }
+
+    vm.generatePassword = function () {
+        var length = 8;
+        var charset = "abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        vm.gen_pass = "";
+        for (var i = 0, n = charset.length; i < length; ++i) {
+            vm.gen_pass += charset.charAt(Math.floor(Math.random() * n));
+        }
+        vm.user.user_password = '' + vm.gen_pass;
+        
+    }
+
+    vm.reloginUser = function () {
+        sectionViewResource.get({
+            section: 'admin_section', view: 'relogin_user',
+            user_id: vm.user.id
+        }, function () {
+            window.location = AeConfig.urls.baseUrl;
+        });
+
+    }
+};
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.adminUsersListView', [])
+    .component('adminUsersListView', {
+        templateUrl: 'components/views/admin-users-list-view/admin-users-list-view.html',
+        controller: AdminUserListViewController
+    });
+
+AdminUserListViewController.$inject = ['usersResource'];
+
+function AdminUserListViewController(usersResource) {
+    
+    var vm = this;
+    vm.loading = {users: true};
+
+    vm.users = usersResource.query({}, function (data) {
+        vm.loading = {users: false};
+        vm.activeUsers = _.reduce(vm.users, function(memo, val){
+            if (val.status == 1){
+                return memo + 1;
+            }
+            return memo;
+        }, 0);
+        
+    });
+
+
+    vm.removeUser = function (user) {
+        usersResource.remove({userId: user.id}, function (data, responseHeaders) {
+            
+            if (data) {
+                var index = vm.users.indexOf(user);
+                if (index !== -1) {
+                    vm.users.splice(index, 1);
+                    vm.activeUsers -= 1;
+                }
+            }
+        });
+    }
+};
+
+;// # Copyright (C) 2010-2016  RhodeCode GmbH
+// #
+// # This program is free software: you can redistribute it and/or modify
+// # it under the terms of the GNU Affero General Public License, version 3
+// # (only), as published by the Free Software Foundation.
+// #
+// # This program is distributed in the hope that it will be useful,
+// # but WITHOUT ANY WARRANTY; without even the implied warranty of
+// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// # GNU General Public License for more details.
+// #
+// # You should have received a copy of the GNU Affero General Public License
+// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// #
+// # This program is dual-licensed. If you wish to learn more about the
+// # AppEnlight Enterprise Edition, including its added features, Support
+// # services, and proprietary license terms, please see
+// # https://rhodecode.com/licenses/
+
+angular.module('appenlight.components.adminView', [])
+    .component('adminView', {
+        templateUrl: 'components/views/admin-view/admin-view.html',
+        controller: AdminViewController
+    });
+
+AdminViewController.$inject = ['$state'];
+
+function AdminViewController($state) {
+    this.$state = $state;
+    console.info('AdminViewController');
 }
 
 ;// # Copyright (C) 2010-2016  RhodeCode GmbH
@@ -10253,641 +10950,6 @@ aeconfig.factory('AeConfig', function () {
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers').controller('AdminApplicationsListController', AdminApplicationsListController);
-
-AdminApplicationsListController.$inject = ['applicationsResource'];
-
-function AdminApplicationsListController(applicationsResource) {
-    
-    var vm = this;
-    vm.loading = {applications: true};
-
-    vm.applications = applicationsResource.query({
-        root_list: true,
-        resource_type: 'application'
-    }, function (data) {
-        vm.loading = {applications: false};
-    });
-};
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers').controller('ConfigsListController', ConfigsListController);
-
-ConfigsListController.$inject = ['configsResource', 'configsNoIdResource'];
-
-function ConfigsListController(configsResource, configsNoIdResource) {
-    var vm = this;
-    vm.loading = {config: true};
-
-    var filters = [
-        'template_footer_html:global',
-        'list_groups_to_non_admins:global',
-        'per_application_reports_rate_limit:global',
-        'per_application_logs_rate_limit:global',
-        'per_application_metrics_rate_limit:global',
-    ];
-
-    vm.configs = {};
-
-    vm.configList = configsResource.query({filter: filters},
-        function (data) {
-            vm.loading = {config: false};
-            _.each(data, function (item) {
-                if (vm.configs[item.section] === undefined) {
-                    vm.configs[item.section] = {};
-                }
-                vm.configs[item.section][item.key] = item;
-            });
-        });
-
-    vm.save = function () {
-        vm.loading.config = true;
-        _.each(vm.configList, function (item) {
-            item.$save();
-        });
-        vm.loading.config = false;
-    };
-
-};
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers').controller('AdminGroupsCreateController', AdminGroupsCreateController);
-
-AdminGroupsCreateController.$inject = ['$state', 'groupsResource', 'groupsPropertyResource', 'sectionViewResource', 'AeConfig'];
-
-function AdminGroupsCreateController($state, groupsResource, groupsPropertyResource, sectionViewResource, AeConfig) {
-    
-    var vm = this;
-    vm.loading = {
-        group: false,
-        resource_permissions: false,
-        users: false
-    };
-
-    vm.form = {
-        autocompleteUser: '',
-    }
-
-
-    if (typeof $state.params.groupId !== 'undefined') {
-        vm.loading.group = true;
-        var groupId = $state.params.groupId;
-        vm.group = groupsResource.get({groupId: groupId}, function (data) {
-            vm.loading.group = false;
-        });
-
-        vm.resource_permissions = groupsPropertyResource.query(
-            {groupId: groupId, key: 'resource_permissions'}, function (data) {
-                vm.loading.resource_permissions = false;
-                var tmpObj = {
-                    'group': {
-                        'application': {},
-                        'dashboard': {}
-                    }
-                };
-                _.each(data, function (item) {
-                    
-                    var section = tmpObj[item.type][item.resource_type];
-                    if (typeof section[item.resource_id] == 'undefined') {
-                        section[item.resource_id] = {
-                            self: item,
-                            permissions: []
-                        }
-                    }
-                    section[item.resource_id].permissions.push(item.perm_name);
-
-                });
-                vm.resourcePermissions = tmpObj;
-            });
-
-        vm.users = groupsPropertyResource.query(
-            {groupId: groupId, key: 'users'}, function (data) {
-                vm.loading.users = false;
-            }, function () {
-                vm.loading.users = false;
-            });
-
-    }
-    else {
-        var groupId = null;
-    }
-
-    var formResponse = function (response) {
-        if (response.status === 422) {
-            setServerValidation(vm.groupForm, response.data);
-        }
-        vm.loading.group = false;
-    };
-
-    vm.createGroup = function () {
-        vm.loading.group = true;
-        if (groupId) {
-            groupsResource.update({groupId: vm.group.id}, vm.group, function (data) {
-                setServerValidation(vm.groupForm);
-                vm.loading.group = false;
-            }, formResponse);
-        }
-        else {
-            groupsResource.save(vm.group, function (data) {
-                $state.go('admin.group.update', {groupId: data.id});
-            }, formResponse);
-        }
-    };
-
-    vm.removeUser = function (user) {
-        groupsPropertyResource.delete(
-            {groupId: groupId, key: 'users', user_name: user.user_name},
-            function (data) {
-                vm.loading.users = false;
-                vm.users = _.filter(vm.users, function (item) {
-                    return item != user;
-                });
-            }, function () {
-                vm.loading.users = false;
-            });
-    };
-
-    vm.addUser = function () {
-        groupsPropertyResource.save(
-            {groupId: groupId, key: 'users'},
-            {user_name: vm.form.autocompleteUser},
-            function (data) {
-                vm.loading.users = false;
-                vm.users.push(data);
-                vm.form.autocompleteUser = '';
-            }, function () {
-                vm.loading.users = false;
-            });
-    }
-
-    vm.searchUsers = function (searchPhrase) {
-        
-        return sectionViewResource.query({
-            section: 'users_section',
-            view: 'search_users',
-            'user_name': searchPhrase
-        }).$promise.then(function (data) {
-                return _.map(data, function (item) {
-                    return item.user;
-                });
-            });
-    }
-};
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers').controller('AdminGroupsController', AdminGroupsController);
-
-AdminGroupsController.$inject = ['groupsResource'];
-
-function AdminGroupsController(groupsResource) {
-    
-    var vm = this;
-    vm.loading = {groups: true};
-
-    vm.groups = groupsResource.query({}, function (data) {
-        vm.loading = {groups: false};
-        vm.activeUsers = _.reduce(vm.groups, function(memo, val){
-            if (val.status == 1){
-                return memo + 1;
-            }
-            return memo;
-        }, 0);
-        
-    });
-
-
-    vm.removeGroup = function (group) {
-        groupsResource.remove({groupId: group.id}, function (data, responseHeaders) {
-            
-            if (data) {
-                var index = vm.groups.indexOf(group);
-                if (index !== -1) {
-                    vm.groups.splice(index, 1);
-                    vm.activeGroups -= 1;
-                }
-            }
-        });
-    }
-};
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers').controller('AdminPartitionsController', AdminPartitionsController);
-
-AdminPartitionsController.$inject = ['sectionViewResource'];
-
-function AdminPartitionsController(sectionViewResource) {
-    var vm = this;
-    vm.permanentPartitions = [];
-    vm.dailyPartitions = [];
-    vm.loading = {partitions: true};
-    vm.dailyChecked = false;
-    vm.permChecked = false;
-    vm.dailyConfirm = '';
-    vm.permConfirm = '';
-
-
-    vm.loadPartitions = function (data) {
-        var permanentPartitions = vm.transformPartitionList(
-            data.permanent_partitions);
-        var dailyPartitions = vm.transformPartitionList(
-            data.daily_partitions);
-        vm.permanentPartitions = permanentPartitions;
-        vm.dailyPartitions = dailyPartitions;
-        vm.loading = {partitions: false};
-    };
-
-    vm.setCheckedList = function (scope) {
-        var toTest = null;
-        if (scope === 'dailyPartitions'){
-            toTest = 'dailyChecked';
-        }
-        else{
-            toTest = 'permChecked';
-        }
-
-        if (vm[toTest]) {
-            var val = true;
-        }
-        else {
-            var val = false;
-        }
-        
-        _.each(vm[scope], function (item) {
-            _.each(item[1].pg, function (index) {
-                index.checked = val;
-            });
-            _.each(item[1].elasticsearch, function (index) {
-                index.checked = val;
-            });
-        });
-    }
-
-
-    vm.transformPartitionList = function (inputList) {
-        var outputList = [];
-
-        _.each(inputList, function (item) {
-            var time = [item[0], {
-                elasticsearch: [],
-                pg: []
-            }]
-            _.each(item[1].pg, function (index) {
-                time[1].pg.push({name: index, checked: false})
-            });
-            _.each(item[1].elasticsearch, function (index) {
-                time[1].elasticsearch.push({
-                    name: index,
-                    checked: false
-                })
-            });
-            outputList.push(time);
-        });
-        return outputList;
-    };
-
-    sectionViewResource.get({section:'admin_section', view: 'partitions'},
-        vm.loadPartitions);
-
-    vm.partitionsDelete = function (partitionType) {
-        var es_indices = [];
-        var pg_indices = [];
-        _.each(vm[partitionType], function (item) {
-            _.each(item[1].pg, function (index) {
-                if (index.checked) {
-                    pg_indices.push(index.name)
-                }
-            });
-            _.each(item[1].elasticsearch, function (index) {
-                if (index.checked) {
-                    es_indices.push(index.name)
-                }
-            });
-        });
-        
-
-        vm.loading = {partitions: true};
-        sectionViewResource.save({section:'admin_section',
-            view: 'partitions_remove'}, {
-            es_indices: es_indices,
-            pg_indices: pg_indices,
-            confirm: 'CONFIRM'
-        }, vm.loadPartitions);
-
-    }
-
-}
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers').controller('AdminSystemController', AdminSystemController);
-
-AdminSystemController.$inject = ['sectionViewResource'];
-
-function AdminSystemController(sectionViewResource) {
-    var vm = this;
-    vm.tables = [];
-    vm.loading = {system: true};
-    sectionViewResource.get({
-        section: 'admin_section',
-        view: 'system'
-    }, null, function (data) {
-        vm.DBtables = data.db_tables;
-        vm.ESIndices = data.es_indices;
-        vm.queueStats = data.queue_stats;
-        vm.systemLoad = data.system_load;
-        vm.packages = data.packages;
-        vm.processInfo = data.process_info;
-        vm.disks = data.disks;
-        vm.memory = data.memory;
-        vm.selfInfo = data.self_info;
-
-        vm.loading.system = false;
-    });
-};
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers').controller('AdminUsersCreateController', AdminUsersCreateController);
-
-AdminUsersCreateController.$inject = ['$state', 'usersResource', 'usersPropertyResource', 'sectionViewResource', 'AeConfig'];
-
-function AdminUsersCreateController($state, usersResource, usersPropertyResource, sectionViewResource, AeConfig) {
-    
-    var vm = this;
-    vm.loading = {user: false};
-
-
-    if (typeof $state.params.userId !== 'undefined') {
-        vm.loading.user = true;
-        var userId = $state.params.userId;
-        vm.user = usersResource.get({userId: userId}, function (data) {
-            vm.loading.user = false;
-            // cast to true for angular checkbox
-            if (vm.user.status === 1) {
-                vm.user.status = true;
-            }
-        });
-
-        vm.resource_permissions = usersPropertyResource.query(
-            {userId: userId, key: 'resource_permissions'}, function (data) {
-                vm.loading.resource_permissions = false;
-                var tmpObj = {
-                    'user': {
-                        'application': {},
-                        'dashboard': {}
-                    },
-                    'group': {
-                        'application': {},
-                        'dashboard': {}
-                    }
-                };
-                _.each(data, function (item) {
-                    
-                    var section = tmpObj[item.type][item.resource_type];
-                    if (typeof section[item.resource_id] == 'undefined'){
-                        section[item.resource_id] = {
-                            self:item,
-                            permissions: []
-                        }
-                    }
-                    section[item.resource_id].permissions.push(item.perm_name);
-
-                });
-                vm.resourcePermissions = tmpObj;
-            });
-
-    }
-    else {
-        var userId = null;
-        vm.user = {
-            status: true
-        }
-    }
-
-    var formResponse = function (response) {
-        if (response.status == 422) {
-            setServerValidation(vm.profileForm, response.data);
-        }
-        vm.loading.user = false;
-    }
-
-    vm.createUser = function () {
-        vm.loading.user = true;
-        
-        if (userId) {
-            usersResource.update({userId: vm.user.id}, vm.user, function (data) {
-                setServerValidation(vm.profileForm);
-                vm.loading.user = false;
-            }, formResponse);
-        }
-        else {
-            usersResource.save(vm.user, function (data) {
-                $state.go('admin.user.update', {userId: data.id});
-            }, formResponse);
-        }
-    }
-
-    vm.generatePassword = function () {
-        var length = 8;
-        var charset = "abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        vm.gen_pass = "";
-        for (var i = 0, n = charset.length; i < length; ++i) {
-            vm.gen_pass += charset.charAt(Math.floor(Math.random() * n));
-        }
-        vm.user.user_password = '' + vm.gen_pass;
-        
-    }
-
-    vm.reloginUser = function () {
-        sectionViewResource.get({
-            section: 'admin_section', view: 'relogin_user',
-            user_id: vm.user.id
-        }, function () {
-            window.location = AeConfig.urls.baseUrl;
-        });
-
-    }
-};
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
-angular.module('appenlight.controllers').controller('AdminUsersController', AdminUsersController);
-
-AdminUsersController.$inject = ['usersResource'];
-
-function AdminUsersController(usersResource) {
-    
-    var vm = this;
-    vm.loading = {users: true};
-
-    vm.users = usersResource.query({}, function (data) {
-        vm.loading = {users: false};
-        vm.activeUsers = _.reduce(vm.users, function(memo, val){
-            if (val.status == 1){
-                return memo + 1;
-            }
-            return memo;
-        }, 0);
-        
-    });
-
-
-    vm.removeUser = function (user) {
-        usersResource.remove({userId: user.id}, function (data, responseHeaders) {
-            
-            if (data) {
-                var index = vm.users.indexOf(user);
-                if (index !== -1) {
-                    vm.users.splice(index, 1);
-                    vm.activeUsers -= 1;
-                }
-            }
-        });
-    }
-};
-
-;// # Copyright (C) 2010-2016  RhodeCode GmbH
-// #
-// # This program is free software: you can redistribute it and/or modify
-// # it under the terms of the GNU Affero General Public License, version 3
-// # (only), as published by the Free Software Foundation.
-// #
-// # This program is distributed in the hope that it will be useful,
-// # but WITHOUT ANY WARRANTY; without even the implied warranty of
-// # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// # GNU General Public License for more details.
-// #
-// # You should have received a copy of the GNU Affero General Public License
-// # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// #
-// # This program is dual-licensed. If you wish to learn more about the
-// # AppEnlight Enterprise Edition, including its added features, Support
-// # services, and proprietary license terms, please see
-// # https://rhodecode.com/licenses/
-
 angular.module('appenlight.controllers')
     .controller('BitbucketIntegrationCtrl', BitbucketIntegrationCtrl)
 
@@ -12438,84 +12500,74 @@ angular.module('appenlight').config(['$stateProvider', '$urlRouterProvider', fun
     });
     $stateProvider.state('admin', {
         url: '/ui/admin',
-        templateUrl: 'templates/admin/parent_view.html'
+        component: 'adminView'
     });
     $stateProvider.state('admin.user', {
         abstract: true,
         url: '/user',
-        templateUrl: 'templates/admin/users/parent_view.html'
+        template: '<ui-view></ui-view>'
     });
     $stateProvider.state('admin.user.list', {
         url: '/list',
-        templateUrl: 'templates/admin/users/users_list.html',
-        controller: 'AdminUsersController as users'
+        component: 'adminUsersListView'
     });
     $stateProvider.state('admin.user.create', {
         url: '/create',
-        templateUrl: 'templates/admin/users/users_create.html',
-        controller: 'AdminUsersCreateController as user'
+        component: 'adminUsersCreateView'
     });
     $stateProvider.state('admin.user.update', {
         url: '/{userId}/update',
-        templateUrl: 'templates/admin/users/users_create.html',
-        controller: 'AdminUsersCreateController as user'
+        component: 'adminUsersCreateView'
     });
 
 
     $stateProvider.state('admin.group', {
         abstract: true,
         url: '/group',
-        templateUrl: 'templates/admin/groups/parent_view.html'
+        template: '<ui-view></ui-view>'
     });
     $stateProvider.state('admin.group.list', {
         url: '/list',
-        templateUrl: 'templates/admin/groups/groups_list.html',
-        controller: 'AdminGroupsController as groups'
+        component: 'adminGroupsListView'
     });
     $stateProvider.state('admin.group.create', {
         url: '/create',
-        templateUrl: 'templates/admin/groups/groups_create.html',
-        controller: 'AdminGroupsCreateController as group'
+        component: 'adminGroupsCreateView'
     });
     $stateProvider.state('admin.group.update', {
         url: '/{groupId}/update',
-        templateUrl: 'templates/admin/groups/groups_create.html',
-        controller: 'AdminGroupsCreateController as group'
+        component: 'adminGroupsCreateView'
     });
 
     $stateProvider.state('admin.application', {
         abstract: true,
         url: '/application',
-        templateUrl: 'templates/admin/users/parent_view.html'
+        template: '<ui-view></ui-view>'
     });
 
     $stateProvider.state('admin.application.list', {
         url: '/list',
-        templateUrl: 'templates/admin/applications/applications_list.html',
-        controller: 'AdminApplicationsListController as applications'
+        component: 'adminApplicationsListView'
     });
 
     $stateProvider.state('admin.partitions', {
         url: '/partitions',
-        templateUrl: 'templates/admin/partitions.html',
-        controller: 'AdminPartitionsController as partitions'
+        component: 'adminPartitionsView'
     });
     $stateProvider.state('admin.system', {
         url: '/system',
-        templateUrl: 'templates/admin/system.html',
-        controller: 'AdminSystemController as system'
+        component: 'adminSystemView'
     });
 
     $stateProvider.state('admin.configs', {
         abstract: true,
         url: '/configs',
-        templateUrl: 'templates/admin/configs/parent_view.html'
+        template: '<ui-view></ui-view>'
     });
 
     $stateProvider.state('admin.configs.list', {
         url: '/list',
-        templateUrl: 'templates/admin/configs/edit.html',
-        controller: 'ConfigsListController as configs'
+        component: 'adminConfigurationView'
     });
 
     $stateProvider.state('user', {

@@ -17,11 +17,15 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers').controller('ConfigsListController', ConfigsListController);
+angular.module('appenlight.components.adminConfigurationView', [])
+    .component('adminConfigurationView', {
+        templateUrl: 'components/views/admin-configuration-view/admin-configuration-view.html',
+        controller: AdminConfigurationViewController
+    });
 
-ConfigsListController.$inject = ['configsResource', 'configsNoIdResource'];
+AdminConfigurationViewController.$inject = ['configsResource', 'configsNoIdResource'];
 
-function ConfigsListController(configsResource, configsNoIdResource) {
+function AdminConfigurationViewController(configsResource, configsNoIdResource) {
     var vm = this;
     vm.loading = {config: true};
 

@@ -17,7 +17,11 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers').controller('AdminApplicationsListController', AdminApplicationsListController);
+angular.module('appenlight.components.adminApplicationsListView', [])
+    .component('adminApplicationsListView', {
+        templateUrl: 'components/views/admin-applications-list-view/admin-applications-list-view.html',
+        controller: AdminApplicationsListController
+    });
 
 AdminApplicationsListController.$inject = ['applicationsResource'];
 

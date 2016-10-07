@@ -17,11 +17,15 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers').controller('AdminPartitionsController', AdminPartitionsController);
+angular.module('appenlight.components.adminPartitionsView', [])
+    .component('adminPartitionsView', {
+        templateUrl: 'components/views/admin-partitions-view/admin-partitions-view.html',
+        controller: AdminPartitionsViewController
+    });
 
-AdminPartitionsController.$inject = ['sectionViewResource'];
+AdminPartitionsViewController.$inject = ['sectionViewResource'];
 
-function AdminPartitionsController(sectionViewResource) {
+function AdminPartitionsViewController(sectionViewResource) {
     var vm = this;
     vm.permanentPartitions = [];
     vm.dailyPartitions = [];

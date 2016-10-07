@@ -1,0 +1,30 @@
+<div class="row">
+    <div class="col-sm-3" id="menu">
+        <div class="panel panel-default">
+            <div class="panel-heading">Users and groups</div>
+            <ul class="list-group">
+                <li class="list-group-item" ui-sref-active="active"><a data-ui-sref="admin.user.list"> Users</a></li>
+                <li class="list-group-item" ui-sref-active="active"><a data-ui-sref="admin.user.create"> Create user</a></li>
+                <li class="list-group-item" ui-sref-active="active"><a data-ui-sref="admin.group.list"> Groups</a></li>
+                <li class="list-group-item" ui-sref-active="active"><a data-ui-sref="admin.group.create"> Create group</a></li>
+            </ul>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Resources</div>
+            <ul class="list-group">
+                <li class="list-group-item" ui-sref-active="active"><a data-ui-sref="admin.application.list"> List applications</a></li>
+            </ul>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">System</div>
+            <ul class="list-group">
+                <li class="list-group-item" ui-sref-active="active"><a data-ui-sref="admin.configs.list"> Config variables</a></li>
+                <li class="list-group-item" ui-sref-active="active"><a data-ui-sref="admin.system"> System</a></li>
+                <li class="list-group-item" ui-sref-active="active"><a data-ui-sref="admin.partitions"> Partition Management</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-sm-9" ui-view></div>
+</div>

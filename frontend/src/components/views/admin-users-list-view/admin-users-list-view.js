@@ -17,11 +17,15 @@
 // # services, and proprietary license terms, please see
 // # https://rhodecode.com/licenses/
 
-angular.module('appenlight.controllers').controller('AdminUsersController', AdminUsersController);
+angular.module('appenlight.components.adminUsersListView', [])
+    .component('adminUsersListView', {
+        templateUrl: 'components/views/admin-users-list-view/admin-users-list-view.html',
+        controller: AdminUserListViewController
+    });
 
-AdminUsersController.$inject = ['usersResource'];
+AdminUserListViewController.$inject = ['usersResource'];
 
-function AdminUsersController(usersResource) {
+function AdminUserListViewController(usersResource) {
     console.debug('AdminUsersController');
     var vm = this;
     vm.loading = {users: true};

@@ -1,13 +1,13 @@
-<ng-include src="'templates/loader.html'" ng-if="applications.loading.applications"></ng-include>
+<ng-include src="'templates/loader.html'" ng-if="$ctrl.loading.applications"></ng-include>
 
-<div class="panel panel-default" ng-if="!applications.loading.applications">
+<div class="panel panel-default" ng-if="!$ctrl.loading.applications">
     <div class="panel-heading">
 
-        Currently active applications: {{applications.applications.length}}
+        Currently active applications: {{$ctrl.applications.length}}
 
     </div>
 
-    <table st-table="displayedCollection" st-safe-src="applications.applications" class="table table-striped">
+    <table st-table="displayedCollection" st-safe-src="$ctrl.applications" class="table table-striped">
         <thead>
         <tr>
             <th st-sort="resource_name"><a>Application name</a></th>

@@ -1,6 +1,6 @@
-<ng-include src="'templates/loader.html'" ng-if="configs.loading.config"></ng-include>
+<ng-include src="'templates/loader.html'" ng-if="$ctrl.loading.config"></ng-include>
 
-<div class="panel panel-default" ng-show="!configs.loading.config">
+<div class="panel panel-default" ng-show="!$ctrl.loading.config">
     <div class="panel-heading">
         <h3 class="panel-title">Basic Configuration</h3>
     </div>
@@ -12,7 +12,7 @@
                     Footer HTML
                 </label>
                 <div class="col-sm-8 col-lg-9">
-                    <textarea class="form-control" type="text" ng-model="configs.configs.global.template_footer_html.value" style="min-height: 150px"></textarea>
+                    <textarea class="form-control" type="text" ng-model="$ctrl.configs.global.template_footer_html.value" style="min-height: 150px"></textarea>
                 </div>
             </div>
         </form>
@@ -25,7 +25,7 @@
                     Show user groups to non-admin users
                 </label>
                 <div class="col-sm-8 col-lg-9">
-                    <button type="button" class="btn btn-default" ng-model="configs.configs.global.list_groups_to_non_admins.value" uib-btn-checkbox>
+                    <button type="button" class="btn btn-default" ng-model="$ctrl.configs.global.list_groups_to_non_admins.value" uib-btn-checkbox>
                         Enable
                     </button>
                 </div>
@@ -40,7 +40,7 @@
                     Ignore reports per minute/per application
                 </label>
                 <div class="col-sm-8 col-lg-9">
-                    <input class="form-control" type="number" ng-model="configs.configs.global.per_application_reports_rate_limit.value" />
+                    <input class="form-control" type="number" ng-model="$ctrl.configs.global.per_application_reports_rate_limit.value" />
                 </div>
             </div>
 
@@ -49,7 +49,7 @@
                     Ignore logs per minute/per application
                 </label>
                 <div class="col-sm-8 col-lg-9">
-                    <input class="form-control" type="number" ng-model="configs.configs.global.per_application_logs_rate_limit.value" />
+                    <input class="form-control" type="number" ng-model="$ctrl.configs.global.per_application_logs_rate_limit.value" />
                 </div>
             </div>
 
@@ -58,7 +58,7 @@
                     Ignore metrics per minute/per application
                 </label>
                 <div class="col-sm-8 col-lg-9">
-                    <input class="form-control" type="number" ng-model="configs.configs.global.per_application_metrics_rate_limit.value" />
+                    <input class="form-control" type="number" ng-model="$ctrl.configs.global.per_application_metrics_rate_limit.value" />
                 </div>
             </div>
 
@@ -66,7 +66,7 @@
 
         <hr/>
 
-        <a class="btn btn-primary" ng-click="configs.save()">Save configuration</a>
+        <a class="btn btn-primary" ng-click="$ctrl.save()">Save configuration</a>
     </div>
 
 </div>
