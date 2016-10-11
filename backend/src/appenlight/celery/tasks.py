@@ -91,8 +91,8 @@ def test_retry_exception_task():
 
 
 @celery.task(queue="reports", default_retry_delay=600, max_retries=144)
-def add_reports(resource_id, params, dataset, environ=None, **kwargs):
-    proto_version = parse_proto(params.get('protocol_version', ''))
+def add_reports(resource_id, request_params, dataset, **kwargs):
+    proto_version = parse_proto(request_params.get('protocol_version', ''))
     current_time = datetime.utcnow().replace(second=0, microsecond=0)
     try:
         # we will store solr docs here for single insert
@@ -194,13 +194,18 @@ def add_reports(resource_id, params, dataset, environ=None, **kwargs):
                 proto_version)
             log.info(log_msg)
         total_reports = len(dataset)
+        redis_pipeline = Datastores.redis.pipeline(transaction=False)
         key = REDIS_KEYS['counters']['reports_per_minute'].format(current_time)
-        Datastores.redis.incr(key, total_reports)
-        Datastores.redis.expire(key, 3600 * 24)
-        key = REDIS_KEYS['counters']['reports_per_minute_per_app'].format(
-            resource_id, current_time)
-        Datastores.redis.incr(key, total_reports)
-        Datastores.redis.expire(key, 3600 * 24)
+        redis_pipeline.incr(key, total_reports)
+        redis_pipeline.expire(key, 3600 * 24)
+        key = REDIS_KEYS['counters']['reports_per_hour_per_app'].format(
+            resource_id, current_time.replace(minute=0))
+        redis_pipeline.incr(key, total_reports)
+        redis_pipeline.expire(key, 3600 * 24 * 7)
+        redis_pipeline.sadd(
+            REDIS_KEYS['apps_that_got_new_data_per_hour'],
+            resource_id, current_time.replace(minute=0))
+        redis_pipeline.execute()
 
         add_reports_es(es_report_group_docs, es_report_docs)
         add_reports_slow_calls_es(es_slow_calls_docs)
@@ -233,8 +238,8 @@ def add_reports_stats_rows_es(es_docs):
 
 
 @celery.task(queue="logs", default_retry_delay=600, max_retries=144)
-def add_logs(resource_id, request, dataset, environ=None, **kwargs):
-    proto_version = request.get('protocol_version')
+def add_logs(resource_id, request_params, dataset, **kwargs):
+    proto_version = request_params.get('protocol_version')
     current_time = datetime.utcnow().replace(second=0, microsecond=0)
 
     try:
@@ -308,13 +313,18 @@ def add_logs(resource_id, request, dataset, environ=None, **kwargs):
             proto_version)
         log.info(log_msg)
         # mark_changed(session)
+        redis_pipeline = Datastores.redis.pipeline(transaction=False)
         key = REDIS_KEYS['counters']['logs_per_minute'].format(current_time)
-        Datastores.redis.incr(key, total_logs)
-        Datastores.redis.expire(key, 3600 * 24)
-        key = REDIS_KEYS['counters']['logs_per_minute_per_app'].format(
-            resource_id, current_time)
-        Datastores.redis.incr(key, total_logs)
-        Datastores.redis.expire(key, 3600 * 24)
+        redis_pipeline.incr(key, total_logs)
+        redis_pipeline.expire(key, 3600 * 24)
+        key = REDIS_KEYS['counters']['logs_per_hour_per_app'].format(
+            resource_id, current_time.replace(minute=0))
+        redis_pipeline.incr(key, total_logs)
+        redis_pipeline.expire(key, 3600 * 24 * 7)
+        redis_pipeline.sadd(
+            REDIS_KEYS['apps_that_got_new_data_per_hour'],
+            resource_id, current_time.replace(minute=0))
+        redis_pipeline.execute()
         add_logs_es(es_docs)
         return True
     except Exception as exc:
@@ -329,7 +339,7 @@ def add_logs_es(es_docs):
 
 
 @celery.task(queue="metrics", default_retry_delay=600, max_retries=144)
-def add_metrics(resource_id, request, dataset, proto_version):
+def add_metrics(resource_id, request_params, dataset, proto_version):
     current_time = datetime.utcnow().replace(second=0, microsecond=0)
     try:
         application = ApplicationService.by_id_cached()(resource_id)
@@ -361,13 +371,18 @@ def add_metrics(resource_id, request, dataset, proto_version):
         log.info(metrics_msg)
 
         mark_changed(session)
+        redis_pipeline = Datastores.redis.pipeline(transaction=False)
         key = REDIS_KEYS['counters']['metrics_per_minute'].format(current_time)
-        Datastores.redis.incr(key, len(rows))
-        Datastores.redis.expire(key, 3600 * 24)
-        key = REDIS_KEYS['counters']['metrics_per_minute_per_app'].format(
-            resource_id, current_time)
-        Datastores.redis.incr(key, len(rows))
-        Datastores.redis.expire(key, 3600 * 24)
+        redis_pipeline.incr(key, len(rows))
+        redis_pipeline.expire(key, 3600 * 24)
+        key = REDIS_KEYS['counters']['metrics_per_hour_per_app'].format(
+            resource_id, current_time.replace(minute=0))
+        redis_pipeline.incr(key, len(rows))
+        redis_pipeline.expire(key, 3600 * 24 * 7)
+        redis_pipeline.sadd(
+            REDIS_KEYS['apps_that_got_new_data_per_hour'],
+            resource_id, current_time.replace(minute=0))
+        redis_pipeline.execute()
         add_metrics_es(es_docs)
         return True
     except Exception as exc:

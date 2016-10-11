@@ -191,45 +191,46 @@ class ReportGroup(Base, BaseModel):
         # global app counter
         key = REDIS_KEYS['counters']['reports_per_type'].format(
             self.report_type, current_time)
-        Datastores.redis.incr(key)
-        Datastores.redis.expire(key, 3600 * 24)
+        redis_pipeline = Datastores.redis.pipeline()
+        redis_pipeline.incr(key)
+        redis_pipeline.expire(key, 3600 * 24)
         # detailed app notification for alerts and notifications
-        Datastores.redis.sadd(REDIS_KEYS['apps_that_had_reports'],
-                              self.resource_id)
-        Datastores.redis.sadd(REDIS_KEYS['apps_that_had_reports_alerting'],
-                              self.resource_id)
+        redis_pipeline.sadd(
+            REDIS_KEYS['apps_that_had_reports'], self.resource_id)
+        redis_pipeline.sadd(
+            REDIS_KEYS['apps_that_had_reports_alerting'], self.resource_id)
         # only notify for exceptions here
         if self.report_type == ReportType.error:
-            Datastores.redis.sadd(
-                REDIS_KEYS['apps_that_had_reports'],
-                self.resource_id)
-            Datastores.redis.sadd(
+            redis_pipeline.sadd(
+                REDIS_KEYS['apps_that_had_reports'], self.resource_id)
+            redis_pipeline.sadd(
                 REDIS_KEYS['apps_that_had_error_reports_alerting'],
                 self.resource_id)
         key = REDIS_KEYS['counters']['report_group_occurences'].format(self.id)
-        Datastores.redis.incr(key)
-        Datastores.redis.expire(key, 3600 * 24)
+        redis_pipeline.incr(key)
+        redis_pipeline.expire(key, 3600 * 24)
         key = REDIS_KEYS['counters']['report_group_occurences_alerting'].format(self.id)
-        Datastores.redis.incr(key)
-        Datastores.redis.expire(key, 3600 * 24)
+        redis_pipeline.incr(key)
+        redis_pipeline.expire(key, 3600 * 24)
 
         if notify_10:
             key = REDIS_KEYS['counters'][
                 'report_group_occurences_10th'].format(self.id)
-            Datastores.redis.setex(key, 3600 * 24, 1)
+            redis_pipeline.setex(key, 3600 * 24, 1)
         if notify_100:
             key = REDIS_KEYS['counters'][
                 'report_group_occurences_100th'].format(self.id)
-            Datastores.redis.setex(key, 3600 * 24, 1)
+            redis_pipeline.setex(key, 3600 * 24, 1)
 
         key = REDIS_KEYS['reports_to_notify_per_type_per_app'].format(
             self.report_type, self.resource_id)
-        Datastores.redis.sadd(key, self.id)
-        Datastores.redis.expire(key, 3600 * 24)
+        redis_pipeline.sadd(key, self.id)
+        redis_pipeline.expire(key, 3600 * 24)
         key = REDIS_KEYS['reports_to_notify_per_type_per_app_alerting'].format(
             self.report_type, self.resource_id)
-        Datastores.redis.sadd(key, self.id)
-        Datastores.redis.expire(key, 3600 * 24)
+        redis_pipeline.sadd(key, self.id)
+        redis_pipeline.expire(key, 3600 * 24)
+        redis_pipeline.execute()
 
     @property
     def partition_id(self):

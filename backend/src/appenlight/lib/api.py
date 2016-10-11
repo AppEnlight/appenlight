@@ -35,8 +35,11 @@ def rate_limiting(request, resource, section, to_increment=1):
     tsample = datetime.datetime.utcnow().replace(second=0, microsecond=0)
     key = REDIS_KEYS['rate_limits'][section].format(tsample,
                                                     resource.resource_id)
-    current_count = Datastores.redis.incr(key, to_increment)
-    Datastores.redis.expire(key, 3600 * 24)
+    redis_pipeline = request.registry.redis_conn.pipeline()
+    redis_pipeline.incr(key, to_increment)
+    redis_pipeline.expire(key, 3600 * 24)
+    results = redis_pipeline.execute()
+    current_count = results[0]
     config = ConfigService.by_key_and_section(section, 'global')
     limit = config.value if config else 1000
     if current_count > int(limit):

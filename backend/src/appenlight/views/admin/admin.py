@@ -56,14 +56,13 @@ def system(request):
     current_time = datetime.utcnow(). \
                        replace(second=0, microsecond=0) - timedelta(minutes=1)
     # global app counter
-
-    processed_reports = Datastores.redis.get(
+    processed_reports = request.registry.redis_conn.get(
         REDIS_KEYS['counters']['reports_per_minute'].format(current_time))
     processed_reports = int(processed_reports) if processed_reports else 0
-    processed_logs = Datastores.redis.get(
+    processed_logs = request.registry.redis_conn.get(
         REDIS_KEYS['counters']['logs_per_minute'].format(current_time))
     processed_logs = int(processed_logs) if processed_logs else 0
-    processed_metrics = Datastores.redis.get(
+    processed_metrics = request.registry.redis_conn.get(
         REDIS_KEYS['counters']['metrics_per_minute'].format(current_time))
     processed_metrics = int(processed_metrics) if processed_metrics else 0
 
