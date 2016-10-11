@@ -23,12 +23,13 @@ angular.module('appenlight.components.applicationsUpdateView', [])
         controller: applicationsUpdateViewController
     });
 
-applicationsUpdateViewController.$inject = ['$state', 'applicationsNoIdResource', 'applicationsResource', 'applicationsPropertyResource', 'stateHolder'];
+applicationsUpdateViewController.$inject = ['$state', 'applicationsNoIdResource', 'applicationsResource', 'applicationsPropertyResource', 'stateHolder', 'AeConfig'];
 
-function applicationsUpdateViewController($state, applicationsNoIdResource, applicationsResource, applicationsPropertyResource, stateHolder) {
+function applicationsUpdateViewController($state, applicationsNoIdResource, applicationsResource, applicationsPropertyResource, stateHolder, AeConfig) {
     'use strict';
     console.debug('applicationsUpdateView');
     var vm = this;
+    vm.AeConfig = AeConfig;
     vm.$state = $state;
     vm.loading = {application: false};
 

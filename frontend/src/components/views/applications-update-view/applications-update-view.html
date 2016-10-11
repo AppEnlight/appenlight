@@ -180,7 +180,7 @@
 
                     <div class="codehilite">
                     <pre class="m-a-0">
-curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/logs?protocol_version=0.5\&ampapi_key={{$ctrl.resource.api_key}} -d '
+curl -H "Content-Type: application/json" -k {{$ctrl.AeConfig.urls.baseUrl}}api/logs?protocol_version=0.5\&ampapi_key={{$ctrl.resource.api_key}} -d '
     [
       {
       "log_level": "WARNING",
@@ -215,7 +215,7 @@ curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/logs?pr
 
                     <div class="codehilite">
                     <pre class="m-a-0">
-curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/reports?protocol_version=0.5\&ampapi_key={{$ctrl.resource.api_key}} -d '
+curl -H "Content-Type: application/json" -k {{$ctrl.AeConfig.urls.baseUrl}}api/reports?protocol_version=0.5\&ampapi_key={{$ctrl.resource.api_key}} -d '
     [{
     "client": "your-client-name-python",
     "language": "python",
@@ -289,7 +289,7 @@ curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/reports
 
                 <div class="codehilite">
                     <pre class="m-a-0">
-curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/general_metrics?protocol_version=0.5\&ampapi_key={{$ctrl.resource.api_key}} -d '
+curl -H "Content-Type: application/json" -k {{$ctrl.AeConfig.urls.baseUrl}}api/general_metrics?protocol_version=0.5\&ampapi_key={{$ctrl.resource.api_key}} -d '
         [{
         "namespace": "some.monitor",
         "timestamp": "{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}",
@@ -308,7 +308,7 @@ curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/general
 
                     <div class="codehilite">
                     <pre class="m-a-0">
-curl -H "Content-Type: application/json" -k {{AeConfig.urls.baseUrl}}api/request_stats?protocol_version=0.5\&ampapi_key={{$ctrl.resource.api_key}} -d '
+curl -H "Content-Type: application/json" -k {{$ctrl.AeConfig.urls.baseUrl}}api/request_stats?protocol_version=0.5\&ampapi_key={{$ctrl.resource.api_key}} -d '
         [{"server": "some.server.hostname",
           "timestamp": "{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}",
           "metrics": [["dir/module:func",

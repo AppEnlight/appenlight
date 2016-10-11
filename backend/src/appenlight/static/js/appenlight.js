@@ -4184,7 +4184,7 @@ function kickstartAE(initialUserData) {
     "\n" +
     "                    <div class=\"codehilite\">\n" +
     "                    <pre class=\"m-a-0\">\n" +
-    "curl -H \"Content-Type: application/json\" -k {{AeConfig.urls.baseUrl}}api/logs?protocol_version=0.5\\&ampapi_key={{$ctrl.resource.api_key}} -d '\n" +
+    "curl -H \"Content-Type: application/json\" -k {{$ctrl.AeConfig.urls.baseUrl}}api/logs?protocol_version=0.5\\&ampapi_key={{$ctrl.resource.api_key}} -d '\n" +
     "    [\n" +
     "      {\n" +
     "      \"log_level\": \"WARNING\",\n" +
@@ -4219,7 +4219,7 @@ function kickstartAE(initialUserData) {
     "\n" +
     "                    <div class=\"codehilite\">\n" +
     "                    <pre class=\"m-a-0\">\n" +
-    "curl -H \"Content-Type: application/json\" -k {{AeConfig.urls.baseUrl}}api/reports?protocol_version=0.5\\&ampapi_key={{$ctrl.resource.api_key}} -d '\n" +
+    "curl -H \"Content-Type: application/json\" -k {{$ctrl.AeConfig.urls.baseUrl}}api/reports?protocol_version=0.5\\&ampapi_key={{$ctrl.resource.api_key}} -d '\n" +
     "    [{\n" +
     "    \"client\": \"your-client-name-python\",\n" +
     "    \"language\": \"python\",\n" +
@@ -4293,7 +4293,7 @@ function kickstartAE(initialUserData) {
     "\n" +
     "                <div class=\"codehilite\">\n" +
     "                    <pre class=\"m-a-0\">\n" +
-    "curl -H \"Content-Type: application/json\" -k {{AeConfig.urls.baseUrl}}api/general_metrics?protocol_version=0.5\\&ampapi_key={{$ctrl.resource.api_key}} -d '\n" +
+    "curl -H \"Content-Type: application/json\" -k {{$ctrl.AeConfig.urls.baseUrl}}api/general_metrics?protocol_version=0.5\\&ampapi_key={{$ctrl.resource.api_key}} -d '\n" +
     "        [{\n" +
     "        \"namespace\": \"some.monitor\",\n" +
     "        \"timestamp\": \"{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}\",\n" +
@@ -4312,7 +4312,7 @@ function kickstartAE(initialUserData) {
     "\n" +
     "                    <div class=\"codehilite\">\n" +
     "                    <pre class=\"m-a-0\">\n" +
-    "curl -H \"Content-Type: application/json\" -k {{AeConfig.urls.baseUrl}}api/request_stats?protocol_version=0.5\\&ampapi_key={{$ctrl.resource.api_key}} -d '\n" +
+    "curl -H \"Content-Type: application/json\" -k {{$ctrl.AeConfig.urls.baseUrl}}api/request_stats?protocol_version=0.5\\&ampapi_key={{$ctrl.resource.api_key}} -d '\n" +
     "        [{\"server\": \"some.server.hostname\",\n" +
     "          \"timestamp\": \"{{$ctrl.momentJs.utc().milliseconds(0).toISOString()}}\",\n" +
     "          \"metrics\": [[\"dir/module:func\",\n" +
@@ -8165,12 +8165,13 @@ angular.module('appenlight.components.applicationsUpdateView', [])
         controller: applicationsUpdateViewController
     });
 
-applicationsUpdateViewController.$inject = ['$state', 'applicationsNoIdResource', 'applicationsResource', 'applicationsPropertyResource', 'stateHolder'];
+applicationsUpdateViewController.$inject = ['$state', 'applicationsNoIdResource', 'applicationsResource', 'applicationsPropertyResource', 'stateHolder', 'AeConfig'];
 
-function applicationsUpdateViewController($state, applicationsNoIdResource, applicationsResource, applicationsPropertyResource, stateHolder) {
+function applicationsUpdateViewController($state, applicationsNoIdResource, applicationsResource, applicationsPropertyResource, stateHolder, AeConfig) {
     'use strict';
     
     var vm = this;
+    vm.AeConfig = AeConfig;
     vm.$state = $state;
     vm.loading = {application: false};
 
