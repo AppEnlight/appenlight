@@ -53,7 +53,7 @@ REDIS_KEYS = {
         'per_application_metrics_rate_limit': BASE.format(
             'per_application_metrics_rate_limit:{}:{}'),
     },
-    'apps_that_got_new_data_per_hour': BASE.format('apps_that_got_new_data_per_hour'),
+    'apps_that_got_new_data_per_hour': BASE.format('apps_that_got_new_data_per_hour:{}'),
     'apps_that_had_reports': BASE.format('apps_that_had_reports'),
     'apps_that_had_error_reports': BASE.format('apps_that_had_error_reports'),
     'apps_that_had_reports_alerting': BASE.format(

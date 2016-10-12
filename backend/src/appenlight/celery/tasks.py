@@ -203,8 +203,8 @@ def add_reports(resource_id, request_params, dataset, **kwargs):
         redis_pipeline.incr(key, total_reports)
         redis_pipeline.expire(key, 3600 * 24 * 7)
         redis_pipeline.sadd(
-            REDIS_KEYS['apps_that_got_new_data_per_hour'],
-            resource_id, current_time.replace(minute=0))
+            REDIS_KEYS['apps_that_got_new_data_per_hour'].format(
+                current_time.replace(minute=0)), resource_id)
         redis_pipeline.execute()
 
         add_reports_es(es_report_group_docs, es_report_docs)
@@ -322,8 +322,8 @@ def add_logs(resource_id, request_params, dataset, **kwargs):
         redis_pipeline.incr(key, total_logs)
         redis_pipeline.expire(key, 3600 * 24 * 7)
         redis_pipeline.sadd(
-            REDIS_KEYS['apps_that_got_new_data_per_hour'],
-            resource_id, current_time.replace(minute=0))
+            REDIS_KEYS['apps_that_got_new_data_per_hour'].format(
+                current_time.replace(minute=0)), resource_id)
         redis_pipeline.execute()
         add_logs_es(es_docs)
         return True
@@ -380,8 +380,8 @@ def add_metrics(resource_id, request_params, dataset, proto_version):
         redis_pipeline.incr(key, len(rows))
         redis_pipeline.expire(key, 3600 * 24 * 7)
         redis_pipeline.sadd(
-            REDIS_KEYS['apps_that_got_new_data_per_hour'],
-            resource_id, current_time.replace(minute=0))
+            REDIS_KEYS['apps_that_got_new_data_per_hour'].format(
+                current_time.replace(minute=0)), resource_id)
         redis_pipeline.execute()
         add_metrics_es(es_docs)
         return True
