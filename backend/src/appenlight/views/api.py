@@ -326,7 +326,7 @@ def airbrake_xml_compat(request):
     else:
         check_cors(request, application, should_return=False)
 
-    params = request.params.copy()
+    params = dict(request.params.copy())
 
     error_dict = parse_airbrake_xml(request)
     schema = ReportListSchema_0_5().bind(utcnow=datetime.datetime.utcnow())
