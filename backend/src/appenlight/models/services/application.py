@@ -37,9 +37,14 @@ from appenlight.models.services.event import EventService
 log = logging.getLogger(__name__)
 
 
-# cache_memory_min_1 = get_region('memory_min_1')
-
 class ApplicationService(BaseService):
+
+    @classmethod
+    def all(cls, db_session=None):
+        db_session = get_db_session(db_session)
+        q = db_session.query(Application)
+        return q
+
     @classmethod
     def by_api_key(cls, api_key, db_session=None):
         db_session = get_db_session(db_session)
