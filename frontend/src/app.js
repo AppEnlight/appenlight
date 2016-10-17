@@ -108,7 +108,8 @@ var pluginsToLoad = _.map(decodeEncodedJSON(window.AE.plugins),
     function(item){
         return item.config.angular_module
     });
-console.log(pluginsToLoad);
+console.info(pluginsToLoad);
+
 angular.module('appenlight.plugins', pluginsToLoad);
 
 var app = angular.module('appenlight', [
@@ -179,6 +180,14 @@ function kickstartAE(initialUserData) {
         function ($rootScope, $timeout, stateHolder, $state, $location, $transitions, $window, AeConfig) {
             if (initialUserData){
                 stateHolder.AeUser.update(initialUserData);
+
+                if (stateHolder.AeUser.hasAppPermission('root_administration'
+                )){
+                    AeConfig.topNav.menuAdminItems.push(
+                        {'sref': 'admin', 'label': 'Admin Settings'}
+                    )
+                }
+
             }
             $rootScope.$state = $state;
             $rootScope.stateHolder = stateHolder;

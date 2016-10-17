@@ -2744,6 +2744,7 @@ var pluginsToLoad = _.map(decodeEncodedJSON(window.AE.plugins),
     function(item){
         return item.config.angular_module
     });
+console.info(pluginsToLoad);
 
 angular.module('appenlight.plugins', pluginsToLoad);
 
@@ -2815,6 +2816,14 @@ function kickstartAE(initialUserData) {
         function ($rootScope, $timeout, stateHolder, $state, $location, $transitions, $window, AeConfig) {
             if (initialUserData){
                 stateHolder.AeUser.update(initialUserData);
+
+                if (stateHolder.AeUser.hasAppPermission('root_administration'
+                )){
+                    AeConfig.topNav.menuAdminItems.push(
+                        {'sref': 'admin', 'label': 'Admin Settings'}
+                    )
+                }
+
             }
             $rootScope.$state = $state;
             $rootScope.stateHolder = stateHolder;
@@ -2948,7 +2957,7 @@ function kickstartAE(initialUserData) {
     "                                    <span class=\"fa fa-bar-chart-o \"></span></a>\n" +
     "                                <ul class=\"dropdown-menu\">\n" +
     "                                    <li role=\"presentation\"><a data-ui-sref=\"front_dashboard\">Main dashboard</a></li>\n" +
-    "                                    <li role=\"presentation\" ng-repeat=\"item in $ctrl.AeConfig.topNav.menu_dashboards_items\">\n" +
+    "                                    <li role=\"presentation\" ng-repeat=\"item in $ctrl.AeConfig.topNav.menuDashboardsItems\">\n" +
     "                                        <a data-ui-sref=\"{{ item.sref }}\">{{ item.label }}</a>\n" +
     "                                    </li>\n" +
     "                                </ul>\n" +
@@ -2973,11 +2982,11 @@ function kickstartAE(initialUserData) {
     "                            <li>\n" +
     "                                <a data-ui-sref=\"user\" data-uib-tooltip=\"Settings\" tooltip-placement=\"bottom\"><span class=\"fa fa-cog \"></span></a>\n" +
     "                            </li>\n" +
-    "                            <li class=\"dropdown\" data-uib-dropdown data-ng-if=\"$ctrl.AeConfig.topNav.menu_admin_items.length\">\n" +
+    "                            <li class=\"dropdown\" data-uib-dropdown data-ng-if=\"$ctrl.AeConfig.topNav.menuAdminItems.length\">\n" +
     "                                <a class=\"dropdown-toggle\" data-uib-dropdown-toggle tooltip-placement=\"bottom\" data-uib-tooltip=\"Admin Settings\">\n" +
     "                                    <span class=\"fa fa-wrench\"></span></a>\n" +
     "                                <ul class=\"dropdown-menu\">\n" +
-    "                                    <li role=\"presentation\" ng-repeat=\"item in $ctrl.AeConfig.topNav.menu_admin_items\">\n" +
+    "                                    <li role=\"presentation\" ng-repeat=\"item in $ctrl.AeConfig.topNav.menuAdminItems\">\n" +
     "                                        <a data-ui-sref=\"{{ item.sref }}\">{{ item.label }}</a>\n" +
     "                                    </li>\n" +
     "                                </ul>\n" +
@@ -6157,6 +6166,13 @@ function kickstartAE(initialUserData) {
     "                <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"applications.update({resourceId:'new'})\"><span class=\"fa fa-plus-circle\"></span> Create application</a></li>\n" +
     "                <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"applications.purge_logs\"><span class=\"fa fa-trash-o\"></span> Purge logs</a></li>\n" +
     "            </ul>\n" +
+    "\n" +
+    "            <ul class=\"list-group\" data-ng-if=\"$ctrl.AeConfig.settingsNav.menuApplicationsItems.length\">\n" +
+    "                <li class=\"list-group-item\" ng-repeat=\"item in $ctrl.AeConfig.settingsNav.menuApplicationsItems\">\n" +
+    "                    <a data-ui-sref=\"{{ item.sref }}\">{{ item.label }}</a>\n" +
+    "                </li>\n" +
+    "            </ul>\n" +
+    "\n" +
     "        </div>\n" +
     "\n" +
     "\n" +
@@ -6168,6 +6184,13 @@ function kickstartAE(initialUserData) {
     "                <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.profile.identities\"><span class=\"fa fa-link\"></span> External Identities</a></li>\n" +
     "                <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.profile.auth_tokens\"><span class=\"fa fa-unlock\"></span> Auth Tokens</a></li>\n" +
     "            </ul>\n" +
+    "\n" +
+    "            <ul class=\"list-group\" data-ng-if=\"$ctrl.AeConfig.settingsNav.menuUserSettingsItems.length\">\n" +
+    "                <li class=\"list-group-item\" ng-repeat=\"item in $ctrl.AeConfig.settingsNav.menuUserSettingsItems\">\n" +
+    "                    <a data-ui-sref=\"{{ item.sref }}\">{{ item.label }}</a>\n" +
+    "                </li>\n" +
+    "            </ul>\n" +
+    "\n" +
     "        </div>\n" +
     "\n" +
     "        <div class=\"panel panel-default\">\n" +
@@ -6176,7 +6199,15 @@ function kickstartAE(initialUserData) {
     "                <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.alert_channels.list\"><span class=\"fa fa-bullhorn\"></span> Alert channels</a></li>\n" +
     "                <li class=\"list-group-item\" ui-sref-active-eq=\"active\"><a data-ui-sref=\"user.alert_channels.email\"><span class=\"fa fa-envelope\"></span> Add email channel</a></li>\n" +
     "            </ul>\n" +
+    "\n" +
+    "            <ul class=\"list-group\" data-ng-if=\"$ctrl.AeConfig.settingsNav.menuNotificationsItems.length\">\n" +
+    "                <li class=\"list-group-item\" ng-repeat=\"item in $ctrl.AeConfig.settingsNav.menuNotificationsItems\">\n" +
+    "                    <a data-ui-sref=\"{{ item.sref }}\">{{ item.label }}</a>\n" +
+    "                </li>\n" +
+    "            </ul>\n" +
+    "\n" +
     "        </div>\n" +
+    "\n" +
     "    </div>\n" +
     "\n" +
     "    <div class=\"col-sm-9\" ui-view></div>\n" +
@@ -10465,10 +10496,11 @@ angular.module('appenlight.components.settingsView', [])
         controller: SettingsViewController
     });
 
-SettingsViewController.$inject = ['$state'];
+SettingsViewController.$inject = ['$state', 'AeConfig'];
 
-function SettingsViewController($state) {
+function SettingsViewController($state, AeConfig) {
     this.$state = $state;
+    this.AeConfig = AeConfig;
     console.info('SettingsViewController');
 }
 
@@ -10921,7 +10953,19 @@ aeconfig.factory('AeConfig', function () {
     obj.flashMessages = decodeEncodedJSON(window.AE.flash_messages);
     obj.timeOptions = decodeEncodedJSON(window.AE.timeOptions);
     obj.plugins = decodeEncodedJSON(window.AE.plugins);
-    obj.topNav = decodeEncodedJSON(window.AE.topNav);
+    obj.topNav = {
+        menuDashboardsItems: [],
+        menuReportsItems: [],
+        menuLogsItems: [],
+        menuSettingsItems: [],
+        menuAdminItems: []
+    };
+    obj.settingsNav = {
+        menuApplicationsItems: [],
+        menuUserSettingsItems: [],
+        menuNotificationsItems: []
+    };
+    obj.adminNav = {};
     obj.ws_url = window.AE.ws_url;
     obj.urls = window.AE.urls;
     // set keys on values because we wont be able to retrieve them everywhere
@@ -13096,7 +13140,14 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder',
                 self.inclusions[name] = [];
             }
             self.inclusions[name].push(inclusion);
-        }
+        },
+        addnavigation: function (name, inclusion) {
+            var self = this;
+            if (self.inclusions.hasOwnProperty(name) === false) {
+                self.inclusions[name] = [];
+            }
+            self.inclusions[name].push(inclusion);
+        },
     };
 
     var stateHolder = {

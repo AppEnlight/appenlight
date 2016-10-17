@@ -27,7 +27,6 @@
         AE.flash_messages = {{ flash_msgs|toJSONUnsafe }};
         AE.timeOptions = {{ h.time_options|toJSONUnsafe }};
         AE.plugins = {{ js_plugins|toJSONUnsafe }};
-        AE.topNav = {{ top_nav|toJSONUnsafe }};
     </script>
     {% if request.registry.settings.get('appenlight.public_api_key') %}
         <script type="application/javascript">

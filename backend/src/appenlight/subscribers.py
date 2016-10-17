@@ -38,8 +38,8 @@ def gen_urls(request):
         'applicationsNoId': request.route_url('applications_no_id'),
         'applications': request.route_url('applications', resource_id='REPLACE_ID').replace('REPLACE_ID',':resourceId'),
         'applicationsProperty': request.route_url('applications_property',key='REPLACE_KEY', resource_id='REPLACE_ID').replace('REPLACE_ID',':resourceId').replace('REPLACE_KEY',':key'),
-        'configsNoId':  request.route_url('admin_configs'),
-        'configs':  request.route_url('admin_config', key='REPLACE_KEY', section='REPLACE_SECTION').replace('REPLACE_SECTION',':section').replace('REPLACE_KEY',':key'),
+        'configsNoId': request.route_url('admin_configs'),
+        'configs': request.route_url('admin_config', key='REPLACE_KEY', section='REPLACE_SECTION').replace('REPLACE_SECTION',':section').replace('REPLACE_KEY',':key'),
         'docs': 'http://getappenlight.com/page/api/main.html',
         'eventsNoId': request.route_url('events_no_id'),
         'events': request.route_url('events', event_id='REPLACE_ID').replace('REPLACE_ID',':eventId'),
@@ -47,34 +47,34 @@ def gen_urls(request):
         'groupsNoId': request.route_url('groups_no_id'),
         'groups': request.route_url('groups', group_id='REPLACE_ID').replace('REPLACE_ID',':groupId'),
         'groupsProperty': request.route_url('groups_property',key='REPLACE_KEY', group_id='REPLACE_ID').replace('REPLACE_ID',':groupId').replace('REPLACE_KEY',':key'),
-        'logsNoId':  request.route_url('logs_no_id'),
+        'logsNoId': request.route_url('logs_no_id'),
         'integrationAction': request.route_url('integrations_id',action='REPLACE_ACT', resource_id='REPLACE_RID', integration='REPLACE_IID').replace('REPLACE_RID',':resourceId').replace('REPLACE_ACT',':action').replace('REPLACE_IID',':integration'),
         'usersNoId': request.route_url('users_no_id'),
         'users': request.route_url('users', user_id='REPLACE_ID').replace('REPLACE_ID',':userId'),
         'usersProperty': request.route_url('users_property',key='REPLACE_KEY', user_id='REPLACE_ID').replace('REPLACE_ID',':userId').replace('REPLACE_KEY',':key'),
         'userSelf': request.route_url('users_self'),
         'userSelfProperty': request.route_url('users_self_property',key='REPLACE_KEY').replace('REPLACE_KEY',':key'),
-        'reports':  request.route_url('reports'),
-        'reportGroup':  request.route_url('report_groups', group_id='REPLACE_RID').replace('REPLACE_RID',':groupId'),
-        'reportGroupProperty':  request.route_url('report_groups_property', key='REPLACE_KEY', group_id='REPLACE_GID').replace('REPLACE_KEY',':key').replace('REPLACE_GID',':groupId'),
-        'pluginConfigsNoId':  request.route_url('plugin_configs', plugin_name='REPLACE_TYPE').replace('REPLACE_TYPE',':plugin_name'),
-        'pluginConfigs':  request.route_url('plugin_config', id='REPLACE_ID', plugin_name='REPLACE_TYPE').replace('REPLACE_ID',':id').replace('REPLACE_TYPE',':plugin_name'),
+        'reports': request.route_url('reports'),
+        'reportGroup': request.route_url('report_groups', group_id='REPLACE_RID').replace('REPLACE_RID',':groupId'),
+        'reportGroupProperty': request.route_url('report_groups_property', key='REPLACE_KEY', group_id='REPLACE_GID').replace('REPLACE_KEY',':key').replace('REPLACE_GID',':groupId'),
+        'pluginConfigsNoId': request.route_url('plugin_configs', plugin_name='REPLACE_TYPE').replace('REPLACE_TYPE',':plugin_name'),
+        'pluginConfigs': request.route_url('plugin_config', id='REPLACE_ID', plugin_name='REPLACE_TYPE').replace('REPLACE_ID',':id').replace('REPLACE_TYPE',':plugin_name'),
         'resourceProperty': request.route_url('resources_property',key='REPLACE_KEY', resource_id='REPLACE_ID').replace('REPLACE_ID',':resourceId').replace('REPLACE_KEY',':key'),
-        'slowReports':  request.route_url('slow_reports'),
-        'sectionView':  request.route_url('section_view', section='REPLACE_S', view='REPLACE_V').replace('REPLACE_S',':section').replace('REPLACE_V',':view'),
+        'slowReports': request.route_url('slow_reports'),
+        'sectionView': request.route_url('section_view', section='REPLACE_S', view='REPLACE_V').replace('REPLACE_S',':section').replace('REPLACE_V',':view'),
         'otherRoutes': {
-            'register':  request.route_url('register') ,
-            'lostPassword':  request.route_url('lost_password') ,
-            'lostPasswordGenerate':  request.route_url('lost_password_generate'),
+            'register': request.route_url('register'),
+            'lostPassword': request.route_url('lost_password'),
+            'lostPasswordGenerate': request.route_url('lost_password_generate'),
             'signOut': request.route_url('ziggurat.routes.sign_out')
         },
         'social_auth': {
-            'google':request.route_url('social_auth', provider='google'),
-            'twitter':request.route_url('social_auth', provider='twitter'),
-            'bitbucket':request.route_url('social_auth', provider='bitbucket'),
-            'github':request.route_url('social_auth', provider='github'),
+            'google': request.route_url('social_auth', provider='google'),
+            'twitter': request.route_url('social_auth', provider='twitter'),
+            'bitbucket': request.route_url('social_auth', provider='bitbucket'),
+            'github': request.route_url('social_auth', provider='github'),
         },
-        "plugins":{},
+        "plugins": {},
         "adminAction": request.route_url('admin', action="REPLACE_ACT").replace('REPLACE_ACT',':action')
     }
     return urls
@@ -111,13 +111,6 @@ def add_renderer_globals(event):
     renderer_globals['security'] = security
     renderer_globals['flash_msgs'] = []
     renderer_globals['js_plugins'] = []
-    renderer_globals['top_nav'] = {
-        'menu_dashboards_items': [],
-        'menu_reports_items': [],
-        'menu_logs_items': [],
-        'menu_settings_items': [],
-        'menu_admin_items': [],
-    }
 
     if 'jinja' in event['renderer_info'].type:
         renderer_globals['url_list'] = gen_urls(request)
@@ -129,17 +122,7 @@ def add_renderer_globals(event):
 
             if config['javascript']:
                 renderer_globals['js_plugins'].append(
-                    ({'name':module, 'config':config['javascript']}))
-            for nav_key in renderer_globals['top_nav'].keys():
-                if nav_key in config['top_nav'] and config['top_nav'][nav_key]:
-                    renderer_globals['top_nav'][nav_key].append(
-                        config['top_nav'][nav_key])
-
-        if request.has_permission('root_administration',
-                                  security.RootFactory(request)):
-            renderer_globals['top_nav']['menu_admin_items'].append(
-                {'sref': 'admin', 'label': 'Admin Settings'}
-            )
+                    ({'name': module, 'config': config['javascript']}))
 
         footer_config = ConfigService.by_key_and_section(
             'template_footer_html', 'global', default_value='')

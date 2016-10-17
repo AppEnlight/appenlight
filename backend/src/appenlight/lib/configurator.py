@@ -71,7 +71,6 @@ def register_appenlight_plugin(config, plugin_name, plugin_config):
                 'javascript': None,
                 'static': None,
                 'css': None,
-                'top_nav': None,
                 'celery_tasks': None,
                 'celery_beats': None,
                 'fulltext_indexer': None,

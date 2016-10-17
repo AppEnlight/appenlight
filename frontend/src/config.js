@@ -23,7 +23,19 @@ aeconfig.factory('AeConfig', function () {
     obj.flashMessages = decodeEncodedJSON(window.AE.flash_messages);
     obj.timeOptions = decodeEncodedJSON(window.AE.timeOptions);
     obj.plugins = decodeEncodedJSON(window.AE.plugins);
-    obj.topNav = decodeEncodedJSON(window.AE.topNav);
+    obj.topNav = {
+        menuDashboardsItems: [],
+        menuReportsItems: [],
+        menuLogsItems: [],
+        menuSettingsItems: [],
+        menuAdminItems: []
+    };
+    obj.settingsNav = {
+        menuApplicationsItems: [],
+        menuUserSettingsItems: [],
+        menuNotificationsItems: []
+    };
+    obj.adminNav = {};
     obj.ws_url = window.AE.ws_url;
     obj.urls = window.AE.urls;
     // set keys on values because we wont be able to retrieve them everywhere

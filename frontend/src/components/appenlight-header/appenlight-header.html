@@ -53,7 +53,7 @@
                                     <span class="fa fa-bar-chart-o "></span></a>
                                 <ul class="dropdown-menu">
                                     <li role="presentation"><a data-ui-sref="front_dashboard">Main dashboard</a></li>
-                                    <li role="presentation" ng-repeat="item in $ctrl.AeConfig.topNav.menu_dashboards_items">
+                                    <li role="presentation" ng-repeat="item in $ctrl.AeConfig.topNav.menuDashboardsItems">
                                         <a data-ui-sref="{{ item.sref }}">{{ item.label }}</a>
                                     </li>
                                 </ul>
@@ -78,11 +78,11 @@
                             <li>
                                 <a data-ui-sref="user" data-uib-tooltip="Settings" tooltip-placement="bottom"><span class="fa fa-cog "></span></a>
                             </li>
-                            <li class="dropdown" data-uib-dropdown data-ng-if="$ctrl.AeConfig.topNav.menu_admin_items.length">
+                            <li class="dropdown" data-uib-dropdown data-ng-if="$ctrl.AeConfig.topNav.menuAdminItems.length">
                                 <a class="dropdown-toggle" data-uib-dropdown-toggle tooltip-placement="bottom" data-uib-tooltip="Admin Settings">
                                     <span class="fa fa-wrench"></span></a>
                                 <ul class="dropdown-menu">
-                                    <li role="presentation" ng-repeat="item in $ctrl.AeConfig.topNav.menu_admin_items">
+                                    <li role="presentation" ng-repeat="item in $ctrl.AeConfig.topNav.menuAdminItems">
                                         <a data-ui-sref="{{ item.sref }}">{{ item.label }}</a>
                                     </li>
                                 </ul>

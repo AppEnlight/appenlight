@@ -7,6 +7,13 @@
                 <li class="list-group-item" ui-sref-active-eq="active"><a data-ui-sref="applications.update({resourceId:'new'})"><span class="fa fa-plus-circle"></span> Create application</a></li>
                 <li class="list-group-item" ui-sref-active-eq="active"><a data-ui-sref="applications.purge_logs"><span class="fa fa-trash-o"></span> Purge logs</a></li>
             </ul>
+
+            <ul class="list-group" data-ng-if="$ctrl.AeConfig.settingsNav.menuApplicationsItems.length">
+                <li class="list-group-item" ng-repeat="item in $ctrl.AeConfig.settingsNav.menuApplicationsItems">
+                    <a data-ui-sref="{{ item.sref }}">{{ item.label }}</a>
+                </li>
+            </ul>
+
         </div>
 
 
@@ -18,6 +25,13 @@
                 <li class="list-group-item" ui-sref-active-eq="active"><a data-ui-sref="user.profile.identities"><span class="fa fa-link"></span> External Identities</a></li>
                 <li class="list-group-item" ui-sref-active-eq="active"><a data-ui-sref="user.profile.auth_tokens"><span class="fa fa-unlock"></span> Auth Tokens</a></li>
             </ul>
+
+            <ul class="list-group" data-ng-if="$ctrl.AeConfig.settingsNav.menuUserSettingsItems.length">
+                <li class="list-group-item" ng-repeat="item in $ctrl.AeConfig.settingsNav.menuUserSettingsItems">
+                    <a data-ui-sref="{{ item.sref }}">{{ item.label }}</a>
+                </li>
+            </ul>
+
         </div>
 
         <div class="panel panel-default">
@@ -26,7 +40,15 @@
                 <li class="list-group-item" ui-sref-active-eq="active"><a data-ui-sref="user.alert_channels.list"><span class="fa fa-bullhorn"></span> Alert channels</a></li>
                 <li class="list-group-item" ui-sref-active-eq="active"><a data-ui-sref="user.alert_channels.email"><span class="fa fa-envelope"></span> Add email channel</a></li>
             </ul>
+
+            <ul class="list-group" data-ng-if="$ctrl.AeConfig.settingsNav.menuNotificationsItems.length">
+                <li class="list-group-item" ng-repeat="item in $ctrl.AeConfig.settingsNav.menuNotificationsItems">
+                    <a data-ui-sref="{{ item.sref }}">{{ item.label }}</a>
+                </li>
+            </ul>
+
         </div>
+
     </div>
 
     <div class="col-sm-9" ui-view></div>
