@@ -18,6 +18,7 @@ Install the app by performing
 
 To run the app and configure datastore you need to run:
 
+* python 3.5+
 * elasticsearch (2.2+ tested)
 * postgresql 9.5+
 * redis 2.8+

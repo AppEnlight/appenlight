@@ -3,6 +3,7 @@
 
 To run the app you need to have meet prerequsites:
 
+- python 3.5+
 - running elasticsearch (2.3+ tested)
 - running postgresql (9.5+ required)
 - running redis
