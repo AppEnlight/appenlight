@@ -23,9 +23,10 @@ angular.module('appenlight.components.adminView', [])
         controller: AdminViewController
     });
 
-AdminViewController.$inject = ['$state'];
+AdminViewController.$inject = ['$state', 'AeConfig'];
 
-function AdminViewController($state) {
+function AdminViewController($state, AeConfig) {
     this.$state = $state;
+    this.AeConfig = AeConfig;
     console.info('AdminViewController');
 }

@@ -8,12 +8,26 @@
                 <li class="list-group-item" ui-sref-active="active"><a data-ui-sref="admin.group.list"> Groups</a></li>
                 <li class="list-group-item" ui-sref-active="active"><a data-ui-sref="admin.group.create"> Create group</a></li>
             </ul>
+
+            <ul class="list-group" data-ng-if="$ctrl.AeConfig.adminNav.menuUsersItems.length">
+                <li class="list-group-item" ng-repeat="item in $ctrl.AeConfig.adminNav.menuUsersItems">
+                    <a data-ui-sref="{{ item.sref }}">{{ item.label }}</a>
+                </li>
+            </ul>
+
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">Resources</div>
             <ul class="list-group">
                 <li class="list-group-item" ui-sref-active="active"><a data-ui-sref="admin.application.list"> List applications</a></li>
             </ul>
+
+            <ul class="list-group" data-ng-if="$ctrl.AeConfig.adminNav.menuResourcesItems.length">
+                <li class="list-group-item" ng-repeat="item in $ctrl.AeConfig.adminNav.menuResourcesItems">
+                    <a data-ui-sref="{{ item.sref }}">{{ item.label }}</a>
+                </li>
+            </ul>
+
         </div>
 
         <div class="panel panel-default">
@@ -23,6 +37,13 @@
                 <li class="list-group-item" ui-sref-active="active"><a data-ui-sref="admin.system"> System</a></li>
                 <li class="list-group-item" ui-sref-active="active"><a data-ui-sref="admin.partitions"> Partition Management</a></li>
             </ul>
+
+            <ul class="list-group" data-ng-if="$ctrl.AeConfig.adminNav.menuSystemItems.length">
+                <li class="list-group-item" ng-repeat="item in $ctrl.AeConfig.adminNav.menuSystemItems">
+                    <a data-ui-sref="{{ item.sref }}">{{ item.label }}</a>
+                </li>
+            </ul>
+
         </div>
     </div>
 

@@ -35,7 +35,11 @@ aeconfig.factory('AeConfig', function () {
         menuUserSettingsItems: [],
         menuNotificationsItems: []
     };
-    obj.adminNav = {};
+    obj.adminNav = {
+        menuUsersItems: [],
+        menuResourcesItems: [],
+        menuSystemItems: []
+    };
     obj.ws_url = window.AE.ws_url;
     obj.urls = window.AE.urls;
     // set keys on values because we wont be able to retrieve them everywhere

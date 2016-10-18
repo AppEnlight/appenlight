@@ -3831,12 +3831,26 @@ function kickstartAE(initialUserData) {
     "                <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.group.list\"> Groups</a></li>\n" +
     "                <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.group.create\"> Create group</a></li>\n" +
     "            </ul>\n" +
+    "\n" +
+    "            <ul class=\"list-group\" data-ng-if=\"$ctrl.AeConfig.adminNav.menuUsersItems.length\">\n" +
+    "                <li class=\"list-group-item\" ng-repeat=\"item in $ctrl.AeConfig.adminNav.menuUsersItems\">\n" +
+    "                    <a data-ui-sref=\"{{ item.sref }}\">{{ item.label }}</a>\n" +
+    "                </li>\n" +
+    "            </ul>\n" +
+    "\n" +
     "        </div>\n" +
     "        <div class=\"panel panel-default\">\n" +
     "            <div class=\"panel-heading\">Resources</div>\n" +
     "            <ul class=\"list-group\">\n" +
     "                <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.application.list\"> List applications</a></li>\n" +
     "            </ul>\n" +
+    "\n" +
+    "            <ul class=\"list-group\" data-ng-if=\"$ctrl.AeConfig.adminNav.menuResourcesItems.length\">\n" +
+    "                <li class=\"list-group-item\" ng-repeat=\"item in $ctrl.AeConfig.adminNav.menuResourcesItems\">\n" +
+    "                    <a data-ui-sref=\"{{ item.sref }}\">{{ item.label }}</a>\n" +
+    "                </li>\n" +
+    "            </ul>\n" +
+    "\n" +
     "        </div>\n" +
     "\n" +
     "        <div class=\"panel panel-default\">\n" +
@@ -3846,6 +3860,13 @@ function kickstartAE(initialUserData) {
     "                <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.system\"> System</a></li>\n" +
     "                <li class=\"list-group-item\" ui-sref-active=\"active\"><a data-ui-sref=\"admin.partitions\"> Partition Management</a></li>\n" +
     "            </ul>\n" +
+    "\n" +
+    "            <ul class=\"list-group\" data-ng-if=\"$ctrl.AeConfig.adminNav.menuSystemItems.length\">\n" +
+    "                <li class=\"list-group-item\" ng-repeat=\"item in $ctrl.AeConfig.adminNav.menuSystemItems\">\n" +
+    "                    <a data-ui-sref=\"{{ item.sref }}\">{{ item.label }}</a>\n" +
+    "                </li>\n" +
+    "            </ul>\n" +
+    "\n" +
     "        </div>\n" +
     "    </div>\n" +
     "\n" +
@@ -8025,10 +8046,11 @@ angular.module('appenlight.components.adminView', [])
         controller: AdminViewController
     });
 
-AdminViewController.$inject = ['$state'];
+AdminViewController.$inject = ['$state', 'AeConfig'];
 
-function AdminViewController($state) {
+function AdminViewController($state, AeConfig) {
     this.$state = $state;
+    this.AeConfig = AeConfig;
     console.info('AdminViewController');
 }
 
@@ -10965,7 +10987,11 @@ aeconfig.factory('AeConfig', function () {
         menuUserSettingsItems: [],
         menuNotificationsItems: []
     };
-    obj.adminNav = {};
+    obj.adminNav = {
+        menuUsersItems: [],
+        menuResourcesItems: [],
+        menuSystemItems: []
+    };
     obj.ws_url = window.AE.ws_url;
     obj.urls = window.AE.urls;
     // set keys on values because we wont be able to retrieve them everywhere
@@ -13140,14 +13166,7 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder',
                 self.inclusions[name] = [];
             }
             self.inclusions[name].push(inclusion);
-        },
-        addnavigation: function (name, inclusion) {
-            var self = this;
-            if (self.inclusions.hasOwnProperty(name) === false) {
-                self.inclusions[name] = [];
-            }
-            self.inclusions[name].push(inclusion);
-        },
+        }
     };
 
     var stateHolder = {
