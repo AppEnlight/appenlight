@@ -198,6 +198,10 @@ def add_reports(resource_id, request_params, dataset, **kwargs):
         key = REDIS_KEYS['counters']['reports_per_minute'].format(current_time)
         redis_pipeline.incr(key, total_reports)
         redis_pipeline.expire(key, 3600 * 24)
+        key = REDIS_KEYS['counters']['events_per_minute_per_user'].format(
+            resource.owner_user_id, current_time)
+        redis_pipeline.incr(key, total_reports)
+        redis_pipeline.expire(key, 3600)
         key = REDIS_KEYS['counters']['reports_per_hour_per_app'].format(
             resource_id, current_time.replace(minute=0))
         redis_pipeline.incr(key, total_reports)
@@ -244,7 +248,8 @@ def add_logs(resource_id, request_params, dataset, **kwargs):
 
     try:
         es_docs = collections.defaultdict(list)
-        application = ApplicationService.by_id(resource_id)
+        resource = ApplicationService.by_id_cached()(resource_id)
+        resource = DBSession.merge(resource, load=False)
         ns_pairs = []
         for entry in dataset:
             # gather pk and ns so we can remove older versions of row later
@@ -252,9 +257,9 @@ def add_logs(resource_id, request_params, dataset, **kwargs):
                 ns_pairs.append({"pk": entry['primary_key'],
                                  "ns": entry['namespace']})
             log_entry = Log()
-            log_entry.set_data(entry, resource=application)
+            log_entry.set_data(entry, resource=resource)
             log_entry._skip_ft_index = True
-            application.logs.append(log_entry)
+            resource.logs.append(log_entry)
             DBSession.flush()
             # insert non pk rows first
             if entry['primary_key'] is None:
@@ -308,7 +313,7 @@ def add_logs(resource_id, request_params, dataset, **kwargs):
         total_logs = len(dataset)
 
         log_msg = 'LOG_NEW: %s, entries: %s, proto:%s' % (
-            str(application),
+            str(resource),
             total_logs,
             proto_version)
         log.info(log_msg)
@@ -317,6 +322,10 @@ def add_logs(resource_id, request_params, dataset, **kwargs):
         key = REDIS_KEYS['counters']['logs_per_minute'].format(current_time)
         redis_pipeline.incr(key, total_logs)
         redis_pipeline.expire(key, 3600 * 24)
+        key = REDIS_KEYS['counters']['events_per_minute_per_user'].format(
+            resource.owner_user_id, current_time)
+        redis_pipeline.incr(key, total_logs)
+        redis_pipeline.expire(key, 3600)
         key = REDIS_KEYS['counters']['logs_per_hour_per_app'].format(
             resource_id, current_time.replace(minute=0))
         redis_pipeline.incr(key, total_logs)
@@ -342,8 +351,8 @@ def add_logs_es(es_docs):
 def add_metrics(resource_id, request_params, dataset, proto_version):
     current_time = datetime.utcnow().replace(second=0, microsecond=0)
     try:
-        application = ApplicationService.by_id_cached()(resource_id)
-        application = DBSession.merge(application, load=False)
+        resource = ApplicationService.by_id_cached()(resource_id)
+        resource = DBSession.merge(resource, load=False)
         es_docs = []
         rows = []
         for metric in dataset:
@@ -352,7 +361,7 @@ def add_metrics(resource_id, request_params, dataset, proto_version):
             tags['server_name'] = server_n or 'unknown'
             new_metric = Metric(
                 timestamp=metric['timestamp'],
-                resource_id=application.resource_id,
+                resource_id=resource.resource_id,
                 namespace=metric['namespace'],
                 tags=tags)
             rows.append(new_metric)
@@ -364,7 +373,7 @@ def add_metrics(resource_id, request_params, dataset, proto_version):
         action = 'METRICS'
         metrics_msg = '%s: %s, metrics: %s, proto:%s' % (
             action,
-            str(application),
+            str(resource),
             len(dataset),
             proto_version
         )
@@ -375,6 +384,10 @@ def add_metrics(resource_id, request_params, dataset, proto_version):
         key = REDIS_KEYS['counters']['metrics_per_minute'].format(current_time)
         redis_pipeline.incr(key, len(rows))
         redis_pipeline.expire(key, 3600 * 24)
+        key = REDIS_KEYS['counters']['events_per_minute_per_user'].format(
+            resource.owner_user_id, current_time)
+        redis_pipeline.incr(key, len(rows))
+        redis_pipeline.expire(key, 3600)
         key = REDIS_KEYS['counters']['metrics_per_hour_per_app'].format(
             resource_id, current_time.replace(minute=0))
         redis_pipeline.incr(key, len(rows))

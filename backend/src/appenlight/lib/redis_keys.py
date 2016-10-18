@@ -27,6 +27,8 @@ REDIS_KEYS = {
         'add_logs_lock': BASE.format('add_logs_lock:{}'),
     },
     'counters': {
+        'events_per_minute_per_user': BASE.format(
+            'events_per_minute_per_user:{}:{}'),
         'reports_per_minute': BASE.format('reports_per_minute:{}'),
         'reports_per_hour_per_app': BASE.format(
             'reports_per_hour_per_app:{}:{}'),
