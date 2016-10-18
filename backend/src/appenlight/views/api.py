@@ -428,7 +428,9 @@ def sentry_compat(request):
                                                      len(non_pkey_logs)))
         tasks.add_logs.delay(application.resource_id, {}, non_pkey_logs)
     if event_type == ParsedSentryEventType.ERROR_REPORT:
-        schema = ReportSchema_0_5().bind(utcnow=datetime.datetime.utcnow())
+        schema = ReportSchema_0_5().bind(
+            utcnow=datetime.datetime.utcnow(),
+            allow_permanent_storage=application.allow_permanent_storage)
         deserialized_reports = [schema.deserialize(event)]
         rate_limiting(request, application,
                       'per_application_reports_rate_limit',

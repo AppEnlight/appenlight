@@ -1498,6 +1498,7 @@ class TestAPISentryView(object):
         request = pyramid.threadlocal.get_current_request()
         context = DummyContext()
         context.resource = ApplicationService.by_id(1)
+        context.resource.allow_permanent_storage = True
         request.context = context
         request.matched_route = route
         request.body = b'eJy1UmFr2zAQ/S0T+7BCLOzYThp/C6xjG6SDLd/GCBf57Ki' \
@@ -1537,6 +1538,7 @@ class TestAPISentryView(object):
                      })
         context = DummyContext()
         context.resource = ApplicationService.by_id(1)
+        context.resource.allow_permanent_storage = True
         request.context = context
         request.matched_route = route
         request.body = SENTRY_RUBY_ENCODED
@@ -1556,6 +1558,7 @@ class TestAPISentryView(object):
         request = pyramid.threadlocal.get_current_request()
         context = DummyContext()
         context.resource = ApplicationService.by_id(1)
+        context.resource.allow_permanent_storage = True
         request.context = context
         request.matched_route = route
         request.body = json.dumps(SENTRY_PYTHON_PAYLOAD_7).encode('utf8')
@@ -1583,6 +1586,7 @@ class TestAPISentryView(object):
                      })
         context = DummyContext()
         context.resource = ApplicationService.by_id(1)
+        context.resource.allow_permanent_storage = True
         request.context = context
         request.matched_route = route
         request.body = SENTRY_PYTHON_ENCODED

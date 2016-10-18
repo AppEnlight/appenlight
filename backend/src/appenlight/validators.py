@@ -50,6 +50,12 @@ def deferred_utcnow(node, kw):
     return kw['utcnow']
 
 
+@colander.deferred
+def optional_limited_date(node, kw):
+    if not kw.get('allow_permanent_storage'):
+        return limited_date
+
+
 def lowercase_preparer(input_data):
     """
     Transforms a list of string entries to lowercase
@@ -292,9 +298,11 @@ class ReportDetailBaseSchema(colander.MappingSchema):
                               preparer=shortener_factory(1024), missing='')
     ip = colander.SchemaNode(colander.String(), preparer=shortener_factory(39),
                              missing=None)
-    start_time = colander.SchemaNode(NonTZDate(), validator=limited_date,
+    start_time = colander.SchemaNode(NonTZDate(),
+                                     validator=optional_limited_date,
                                      missing=deferred_utcnow)
-    end_time = colander.SchemaNode(NonTZDate(), validator=limited_date,
+    end_time = colander.SchemaNode(NonTZDate(),
+                                   validator=optional_limited_date,
                                    missing=None)
     user_agent = colander.SchemaNode(colander.String(),
                                      preparer=[shortener_factory(512),
