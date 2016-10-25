@@ -25,7 +25,7 @@ from webtest import TestApp
 
 @pytest.mark.usefixtures('base_app', 'with_migrations', 'clean_tables',
                          'default_application')
-class TestIntegrationAPIReportsView(object):
+class TestAPIReportsView(object):
     def test_no_json_payload(self, base_app):
         app = TestApp(base_app)
         url_path = '/api/reports'
@@ -58,7 +58,7 @@ class TestIntegrationAPIReportsView(object):
 
 @pytest.mark.usefixtures('base_app', 'with_migrations', 'clean_tables',
                          'default_data', 'default_application')
-class TestIntegrationRegistrationView(object):
+class TestRegistrationView(object):
     def test_register_empty(self, base_app):
         url_path = '/register'
         app = TestApp(base_app)
@@ -96,7 +96,7 @@ class TestIntegrationRegistrationView(object):
 
 @pytest.mark.usefixtures('base_app', 'with_migrations', 'clean_tables',
                          'default_data', 'default_application')
-class TestIntegrationRegistrationAuthTokenView(object):
+class TestRegistrationAuthTokenView(object):
 
     def test_create_application_bad(self, base_app):
         url_path = '/applications'

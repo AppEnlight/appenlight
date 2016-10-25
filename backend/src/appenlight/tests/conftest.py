@@ -111,9 +111,10 @@ def default_user():
     from appenlight.models.user import User
     from appenlight.models.auth_token import AuthToken
     transaction.begin()
-    user = User(user_name='testuser',
+    user = User(id=1,
+                user_name='testuser',
                 status=1,
-                email='ergo14@gmail.com')
+                email='foo@barbaz99.com')
     DBSession.add(user)
     token = AuthToken(token='1234')
     user.auth_tokens.append(token)
