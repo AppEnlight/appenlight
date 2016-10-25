@@ -110,7 +110,7 @@ def add_renderer_globals(event):
     renderer_globals['_'] = _
     renderer_globals['security'] = security
     renderer_globals['flash_msgs'] = []
-    renderer_globals['js_plugins'] = []
+    renderer_globals['appenlight_plugins'] = []
 
     if 'jinja' in event['renderer_info'].type:
         renderer_globals['url_list'] = gen_urls(request)
@@ -120,9 +120,12 @@ def add_renderer_globals(event):
                 urls = config['url_gen'](request)
                 renderer_globals['url_list']['plugins'][module] = urls
 
-            if config['javascript']:
-                renderer_globals['js_plugins'].append(
-                    ({'name': module, 'config': config['javascript']}))
+            renderer_globals['appenlight_plugins'].append(
+                {'name': module,
+                 'config': {
+                     'javascript':config['javascript'],
+                     'header_html':config['header_html']
+                 }})
 
         footer_config = ConfigService.by_key_and_section(
             'template_footer_html', 'global', default_value='')

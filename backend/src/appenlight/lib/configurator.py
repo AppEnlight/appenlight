@@ -76,6 +76,7 @@ def register_appenlight_plugin(config, plugin_name, plugin_config):
                 'fulltext_indexer': None,
                 'sqlalchemy_migrations': None,
                 'default_values_setter': None,
+                'header_html': None,
                 'resource_types': [],
                 'url_gen': None
             }

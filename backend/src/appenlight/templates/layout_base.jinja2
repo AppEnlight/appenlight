@@ -26,7 +26,7 @@
         AE.ws_url = '{{ request.registry.settings['cometd.ws_url'] }}';
         AE.flash_messages = {{ flash_msgs|toJSONUnsafe }};
         AE.timeOptions = {{ h.time_options|toJSONUnsafe }};
-        AE.plugins = {{ js_plugins|toJSONUnsafe }};
+        AE.plugins = {{ appenlight_plugins|toJSONUnsafe }};
     </script>
     {% if request.registry.settings.get('appenlight.public_api_key') %}
         <script type="application/javascript">
@@ -62,8 +62,11 @@
         </script>
     {% endif %}
     <script src="{{ request.static_url('appenlight:webassets/appenlight/js/appenlight.js', _query={'rev':js_hash}) }}"></script>
-    {% for plugin in js_plugins %}
-    <script src="{{ request.static_url('appenlight:webassets/{}/js/{}'.format(plugin['name'], plugin['config']['src']), _query={'rev':js_hash}) }}"></script>
+    {% for plugin in appenlight_plugins %}
+    <script src="{{ request.static_url('appenlight:webassets/{}/js/{}'.format(plugin['name'], plugin['config']['javascript']['src']), _query={'rev':js_hash}) }}"></script>
+        {% if plugin['config']['header_html'] %}
+            {{ plugin['config']['header_html']|safe }}
+        {% endif %}
     {% endfor %}
     <script>
         var xhr = new XMLHttpRequest();

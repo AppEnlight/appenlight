@@ -2742,7 +2742,7 @@ angular.module('appenlight.services', [
 
 var pluginsToLoad = _.map(decodeEncodedJSON(window.AE.plugins),
     function(item){
-        return item.config.angular_module
+        return item.config.javascript.angular_module
     });
 console.info(pluginsToLoad);
 
