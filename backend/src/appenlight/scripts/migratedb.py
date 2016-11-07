@@ -47,12 +47,14 @@ def main(argv=sys.argv):
     bootstrap(config_uri)
     registry = get_current_registry()
     alembic_cfg = Config()
+    alembic_cfg.set_main_option("sqlalchemy.echo", 'true')
     alembic_cfg.set_main_option("script_location",
                                 "ziggurat_foundations:migrations")
     alembic_cfg.set_main_option("sqlalchemy.url",
                                 registry.settings["sqlalchemy.url"])
     command.upgrade(alembic_cfg, "head")
     alembic_cfg = Config()
+    alembic_cfg.set_main_option("sqlalchemy.echo", 'true')
     alembic_cfg.set_main_option("script_location", "appenlight:migrations")
     alembic_cfg.set_main_option("sqlalchemy.url",
                                 registry.settings["sqlalchemy.url"])
@@ -65,6 +67,7 @@ def main(argv=sys.argv):
                                         config['sqlalchemy_migrations'])
             alembic_cfg.set_main_option("sqlalchemy.url",
                                         registry.settings["sqlalchemy.url"])
+            alembic_cfg.set_main_option("sqlalchemy.echo", 'true')
             command.upgrade(alembic_cfg, "head")
 
     with get_current_request().tm:
