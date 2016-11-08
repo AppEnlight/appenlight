@@ -2547,7 +2547,7 @@ function decodeEncodedJSON (input){
         delete doc;
         return val;
     }catch(exc){
-        console.error('decodeEncodedJSON:' + exc + ' input:' + input);
+        
         delete doc;
     }
 }
@@ -2600,16 +2600,16 @@ function timeSpanToStartDate(timeSpan){
 /* Sets server validation messages on form using angular machinery +
 * custom key holding actual error messages */
 function setServerValidation(form, errors){
-    console.log('form', form);
+    
     if (typeof form.ae_validation === 'undefined'){
         form.ae_validation = {};
-        console.log('create ae_validation key');
+        
     }
     for (var key in form.ae_validation){
         form.ae_validation[key] = [];
-        console.log('clear key:', key);
+        
     }
-    console.log('errors:',errors);
+    
 
     for (var key in form){
         if (key[0] !== '$' && key !== 'ae_validation'){
@@ -2814,7 +2814,7 @@ function kickstartAE(initialUserData) {
 
     app.run(['$rootScope', '$timeout', 'stateHolder', '$state', '$location', '$transitions', '$window', 'AeConfig',
         function ($rootScope, $timeout, stateHolder, $state, $location, $transitions, $window, AeConfig) {
-            console.log('appenlight run()');
+            
             if (initialUserData){
                 stateHolder.AeUser.update(initialUserData);
 
@@ -2850,7 +2850,7 @@ function kickstartAE(initialUserData) {
                     AeConfig.urls.otherRoutes.lostPassword,
                     AeConfig.urls.otherRoutes.lostPasswordGenerate
                 ];
-                console.log('$transitions.onBefore', path, $transition$.to().name, $state);
+                
                 _.each(openViews, function (url) {
                     var url = '/' + url.split('/').slice(3).join('/');
                     if (url === path) {
@@ -2859,7 +2859,7 @@ function kickstartAE(initialUserData) {
                 });
                 if (stateHolder.AeUser.id === null && !isGuestState && !isOpenView) {
                     if (window.location.toString().indexOf(AeConfig.urls.otherRoutes.register) === -1) {
-                        console.log('redirect to register');
+                        
                         var newLocation = AeConfig.urls.otherRoutes.register + '?came_from=' + encodeURIComponent(window.location);
                         // fix infinite digest here
                         $rootScope.$on('$locationChangeStart',
@@ -7197,7 +7197,7 @@ angular.module('appenlight.components.appenlightApp', [])
 AppEnlightAppController.$inject = ['$scope','$state', 'stateHolder', 'AeConfig'];
 
 function AppEnlightAppController($scope, $state, stateHolder, AeConfig){
-    console.log('app start');
+    
     // to keep bw compatibility
     $scope.$state = $state;
     $scope.stateHolder = stateHolder;
@@ -7293,7 +7293,7 @@ function AppEnlightHeaderController($state, stateHolder, AeConfig){
             $state.go('uptime', {resource:event.resource_id, start_date:event.start_date});
         }
         else{
-            console.log('other');
+            
         }
     }
 }
@@ -7334,13 +7334,13 @@ function ChannelstreamController($rootScope, stateHolder, userSelfPropertyResour
     userSelfPropertyResource.get({key: 'websocket'}, function (data) {
         stateHolder.websocket = new ReconnectingWebSocket(this.config.ws_url + '/ws?conn_id=' + data.conn_id);
         stateHolder.websocket.onopen = function (event) {
-            console.log('open');
+            
         };
         stateHolder.websocket.onmessage = function (event) {
             var data = JSON.parse(event.data);
             $rootScope.$apply(function (scope) {
                 _.each(data, function (message) {
-                    console.log('channelstream-message', message);
+                    
                     if(typeof message.message.topic !== 'undefined'){
                         $rootScope.$emit(
                             'channelstream-message.'+message.message.topic, message);
@@ -7352,11 +7352,11 @@ function ChannelstreamController($rootScope, stateHolder, userSelfPropertyResour
             });
         };
         stateHolder.websocket.onclose = function (event) {
-            console.log('closed');
+            
         };
 
         stateHolder.websocket.onerror = function (event) {
-            console.log('error');
+            
         };
     }.bind(this));
 }
@@ -7389,7 +7389,7 @@ angular.module('appenlight.components.adminApplicationsListView', [])
 AdminApplicationsListController.$inject = ['applicationsResource'];
 
 function AdminApplicationsListController(applicationsResource) {
-    console.debug('AdminApplicationsListController');
+    
     var vm = this;
     vm.loading = {applications: true};
 
@@ -7491,7 +7491,7 @@ angular.module('appenlight.components.adminGroupsCreateView', [])
 AdminGroupsCreateViewController.$inject = ['$state', 'groupsResource', 'groupsPropertyResource', 'sectionViewResource'];
 
 function AdminGroupsCreateViewController($state, groupsResource, groupsPropertyResource, sectionViewResource) {
-    console.debug('AdminGroupsCreateController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {
@@ -7522,7 +7522,7 @@ function AdminGroupsCreateViewController($state, groupsResource, groupsPropertyR
                     }
                 };
                 _.each(data, function (item) {
-                    console.log(item);
+                    
                     var section = tmpObj[item.type][item.resource_type];
                     if (typeof section[item.resource_id] == 'undefined') {
                         section[item.resource_id] = {
@@ -7533,7 +7533,6 @@ function AdminGroupsCreateViewController($state, groupsResource, groupsPropertyR
                     section[item.resource_id].permissions.push(item.perm_name);
 
                 });
-                console.log(tmpObj)
                 vm.resourcePermissions = tmpObj;
             });
 
@@ -7598,7 +7597,7 @@ function AdminGroupsCreateViewController($state, groupsResource, groupsPropertyR
     }
 
     vm.searchUsers = function (searchPhrase) {
-        console.log(searchPhrase);
+        
         return sectionViewResource.query({
             section: 'users_section',
             view: 'search_users',
@@ -7639,7 +7638,7 @@ angular.module('appenlight.components.adminGroupsListView', [])
 AdminGroupsListViewController.$inject = ['$state', 'groupsResource'];
 
 function AdminGroupsListViewController($state, groupsResource) {
-    console.debug('AdminGroupsListViewController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {groups: true};
@@ -7652,13 +7651,13 @@ function AdminGroupsListViewController($state, groupsResource) {
             }
             return memo;
         }, 0);
-        console.log(vm.groups);
+        
     });
 
 
     vm.removeGroup = function (group) {
         groupsResource.remove({groupId: group.id}, function (data, responseHeaders) {
-            console.log('x',data, responseHeaders());
+            
             if (data) {
                 var index = vm.groups.indexOf(group);
                 if (index !== -1) {
@@ -7733,7 +7732,7 @@ function AdminPartitionsViewController(sectionViewResource) {
         else {
             var val = false;
         }
-        console.log('scope', scope);
+        
         _.each(vm[scope], function (item) {
             _.each(item[1].pg, function (index) {
                 index.checked = val;
@@ -7785,7 +7784,7 @@ function AdminPartitionsViewController(sectionViewResource) {
                 }
             });
         });
-        console.log(es_indices, pg_indices);
+        
 
         vm.loading = {partitions: true};
         sectionViewResource.save({section:'admin_section',
@@ -7876,7 +7875,7 @@ angular.module('appenlight.components.adminUsersCreateView', [])
 AdminUsersCreateViewController.$inject = ['$state', 'usersResource', 'usersPropertyResource', 'sectionViewResource', 'AeConfig'];
 
 function AdminUsersCreateViewController($state, usersResource, usersPropertyResource, sectionViewResource, AeConfig) {
-    console.debug('AdminUsersCreateViewController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {user: false};
@@ -7907,7 +7906,7 @@ function AdminUsersCreateViewController($state, usersResource, usersPropertyReso
                     }
                 };
                 _.each(data, function (item) {
-                    console.log(item);
+                    
                     var section = tmpObj[item.type][item.resource_type];
                     if (typeof section[item.resource_id] == 'undefined'){
                         section[item.resource_id] = {
@@ -7918,7 +7917,6 @@ function AdminUsersCreateViewController($state, usersResource, usersPropertyReso
                     section[item.resource_id].permissions.push(item.perm_name);
 
                 });
-                console.log(tmpObj)
                 vm.resourcePermissions = tmpObj;
             });
 
@@ -7939,7 +7937,7 @@ function AdminUsersCreateViewController($state, usersResource, usersPropertyReso
 
     vm.createUser = function () {
         vm.loading.user = true;
-        console.log('updateProfile');
+        
         if (userId) {
             usersResource.update({userId: vm.user.id}, vm.user, function (data) {
                 setServerValidation(vm.profileForm);
@@ -7961,7 +7959,7 @@ function AdminUsersCreateViewController($state, usersResource, usersPropertyReso
             vm.gen_pass += charset.charAt(Math.floor(Math.random() * n));
         }
         vm.user.user_password = '' + vm.gen_pass;
-        console.log('x', vm.gen_pass);
+        
     }
 
     vm.reloginUser = function () {
@@ -8003,7 +8001,7 @@ angular.module('appenlight.components.adminUsersListView', [])
 AdminUserListViewController.$inject = ['usersResource'];
 
 function AdminUserListViewController(usersResource) {
-    console.debug('AdminUsersController');
+    
     var vm = this;
     vm.loading = {users: true};
 
@@ -8015,13 +8013,13 @@ function AdminUserListViewController(usersResource) {
             }
             return memo;
         }, 0);
-        console.log(vm.users);
+        
     });
 
 
     vm.removeUser = function (user) {
         usersResource.remove({userId: user.id}, function (data, responseHeaders) {
-            console.log('x',data, responseHeaders());
+            
             if (data) {
                 var index = vm.users.indexOf(user);
                 if (index !== -1) {
@@ -8094,7 +8092,7 @@ angular.module('appenlight.components.integrationsListView', [])
 IntegrationsListViewController.$inject = ['$state', 'applicationsResource'];
 
 function IntegrationsListViewController($state, applicationsResource) {
-    console.debug('IntegrationsListController');
+    
     var vm = this;
     vm.loading = {application: true};
     vm.resource = applicationsResource.get({resourceId: $state.params.resourceId}, function (data) {
@@ -8131,7 +8129,7 @@ angular.module('appenlight.components.applicationsListView', [])
 ApplicationsListViewController.$inject = ['$state', 'applicationsResource'];
 
 function ApplicationsListViewController($state, applicationsResource) {
-    console.debug('ApplicationsListController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {applications: true};
@@ -8168,7 +8166,7 @@ angular.module('appenlight.components.applicationsPurgeLogsView', [])
 applicationsPurgeLogsViewController.$inject = ['$state' ,'applicationsResource', 'sectionViewResource', 'logsNoIdResource'];
 
 function applicationsPurgeLogsViewController($state, applicationsResource, sectionViewResource, logsNoIdResource) {
-    console.debug('applicationsPurgeLogsViewController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {applications: true};
@@ -8234,7 +8232,7 @@ applicationsUpdateViewController.$inject = ['$state', 'applicationsNoIdResource'
 
 function applicationsUpdateViewController($state, applicationsNoIdResource, applicationsResource, applicationsPropertyResource, stateHolder, AeConfig) {
     'use strict';
-    console.debug('applicationsUpdateView');
+    
     var vm = this;
     vm.AeConfig = AeConfig;
     vm.$state = $state;
@@ -8283,7 +8281,7 @@ function applicationsUpdateViewController($state, applicationsNoIdResource, appl
                     setServerValidation(vm.BasicForm, response.data);
                 }
                 vm.loading.application = false;
-                console.log(vm.BasicForm);
+                
             });
         }
         else {
@@ -8302,7 +8300,7 @@ function applicationsUpdateViewController($state, applicationsNoIdResource, appl
     };
 
     vm.addRule = function () {
-        console.log('addrule');
+        
         applicationsPropertyResource.save({
                 resourceId: vm.resource.resource_id,
                 key: 'postprocessing_rules'
@@ -8328,7 +8326,7 @@ function applicationsUpdateViewController($state, applicationsNoIdResource, appl
             function (response) {
                 if (response.status == 422) {
                     setServerValidation(vm.regenerateAPIKeysForm, response.data);
-                    console.log(response.data);
+                    
                 }
                 vm.loading.application = false;
             }
@@ -8348,7 +8346,7 @@ function applicationsUpdateViewController($state, applicationsNoIdResource, appl
             function (response) {
                 if (response.status == 422) {
                     setServerValidation(vm.formDelete, response.data);
-                    console.log(response.data);
+                    
                 }
                 vm.loading.application = false;
             }
@@ -8367,7 +8365,7 @@ function applicationsUpdateViewController($state, applicationsNoIdResource, appl
             function (response) {
                 if (response.status == 422) {
                     setServerValidation(vm.formTransfer, response.data);
-                    console.log(response.data);
+                    
                 }
                 vm.loading.application = false;
             }
@@ -8417,7 +8415,7 @@ function EventBrowserController(eventsNoIdResource, eventsResource) {
 
 
     vm.closeEvent = function (event) {
-        console.log('closeEvent');
+        
         eventsResource.update({eventId: event.id}, {status: 0}, function (data) {
             event.status = 0;
         });
@@ -8839,7 +8837,7 @@ function IndexDashboardController($rootScope, $scope, $location, $cookies, $inte
 
             if (!vm.resource){
                 var cookieResource = $cookies.getObject('resource');
-                console.log('cookieResource', cookieResource);
+                
 
                 if (cookieResource) {
                     vm.resource = cookieResource;
@@ -9115,7 +9113,7 @@ function IndexDashboardController($rootScope, $scope, $location, $cookies, $inte
 ApplicationsIntegrationsEditViewController.$inject = ['$state', 'integrationResource'];
 
 function ApplicationsIntegrationsEditViewController($state, integrationResource) {
-    console.debug('IntegrationController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {integration: true};
@@ -9176,7 +9174,7 @@ function ApplicationsIntegrationsEditViewController($state, integrationResource)
             });
     }
 
-    console.log(vm);
+    
 }
 
 ;angular.module('appenlight.components.bitbucketIntegrationConfigView', [])
@@ -9491,7 +9489,7 @@ function LogsBrowserController($location, stateHolder, typeAheadTagHelper, logsN
         searchParams['view'] = 'fetch_series';
         vm.isLoading.series = true;
         sectionViewResource.query(searchParams, function (data) {
-            console.log('show node here');
+            
             vm.logEventsChartData = {
                 json: data,
                 xFormat: '%Y-%m-%dT%H:%M:%S',
@@ -9654,7 +9652,7 @@ function ReportViewController($window, $location, $state, $uibModal, $cookies, r
     };
 
     vm.searchTag = function (tag, value) {
-        console.log(tag, value);
+        
         if (vm.report.report_type === 3) {
             $location.url($state.href('report.list_slow'));
         }
@@ -9744,7 +9742,7 @@ function ReportViewController($window, $location, $state, $uibModal, $cookies, r
             vm.selectedTab($cookies.selectedReportTab);
 
         }, function (response) {
-            console.log(response);
+            
             if (response.status == 403) {
                 var uid = response.headers('x-appenlight-uid');
                 if (!uid) {
@@ -9841,7 +9839,7 @@ function ReportViewController($window, $location, $state, $uibModal, $cookies, r
     };
 
     vm.runIntegration = function (integration_name) {
-        console.log(integration_name);
+        
         if (integration_name == 'bitbucket') {
             var controller = 'BitbucketIntegrationCtrl as ctrl';
             var template_url = 'templates/integrations/bitbucket.html';
@@ -10176,7 +10174,7 @@ function reportsBrowserViewController($location, $cookies, stateHolder,
         vm.is_loading = true;
         reportsResource.query(searchParams, function (data, getResponseHeaders) {
             var headers = getResponseHeaders();
-            console.log(headers);
+            
             vm.is_loading = false;
             vm.reportsPage = _.map(data, function (item) {
                 return reportPresentation(item);
@@ -10200,7 +10198,7 @@ function reportsBrowserViewController($location, $cookies, stateHolder,
         vm.searchParams = parseSearchToTags($location.search());
         vm.page = Number(vm.searchParams.page) || 1;
         var params = parseTagsToSearch(vm.searchParams);
-        console.log(params);
+        
         vm.fetchReports(params);
     };
     // initial load
@@ -10475,7 +10473,7 @@ function ReportsSlowBrowserViewController($location, $cookies, stateHolder, type
         vm.is_loading = true;
         slowReportsResource.query(searchParams, function (data, getResponseHeaders) {
             var headers = getResponseHeaders();
-            console.log(headers);
+            
             vm.is_loading = false;
             vm.reportsPage = _.map(data, function (item) {
                 return reportPresentation(item);
@@ -10566,7 +10564,7 @@ angular.module('appenlight.components.userAlertChannelsEmailNewView', [])
 AlertChannelsEmailController.$inject = ['$state','userSelfPropertyResource'];
 
 function AlertChannelsEmailController($state, userSelfPropertyResource) {
-    console.debug('AlertChannelsEmailController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {email: false};
@@ -10574,7 +10572,7 @@ function AlertChannelsEmailController($state, userSelfPropertyResource) {
 
     vm.createChannel = function () {
         vm.loading.email = true;
-        console.log('createChannel');
+        
         userSelfPropertyResource.save({key: 'alert_channels'}, vm.form, function () {
             //vm.loading.email = false;
             //setServerValidation(vm.channelForm);
@@ -10617,7 +10615,7 @@ angular.module('appenlight.components.userAlertChannelsListView', [])
 userAlertChannelsListViewController.$inject = ['$state','userSelfPropertyResource', 'applicationsNoIdResource'];
 
 function userAlertChannelsListViewController($state, userSelfPropertyResource, applicationsNoIdResource) {
-    console.debug('AlertChannelsController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {channels: true, applications: true, actions:true};
@@ -10684,12 +10682,12 @@ function userAlertChannelsListViewController($state, userSelfPropertyResource, a
     };
 
     vm.addAction = function (channel) {
-        console.log('test');
+        
         userSelfPropertyResource.save({key: 'alert_channels_rules'}, {}, function (data) {
             vm.alertActions.push(data);
         }, function (response) {
             if (response.status == 422) {
-                console.log('scope', response);
+                
             }
         });
     };
@@ -10710,7 +10708,7 @@ function userAlertChannelsListViewController($state, userSelfPropertyResource, a
     };
 
     vm.removeChannel = function (channel) {
-        console.log(channel);
+        
         userSelfPropertyResource.delete({
             key: 'alert_channels',
             channel_name: channel.channel_name,
@@ -10753,7 +10751,7 @@ angular.module('appenlight.components.userAuthTokensView', [])
 userAuthTokensViewController.$inject = ['$state', 'userSelfPropertyResource', 'AeConfig'];
 
 function userAuthTokensViewController($state, userSelfPropertyResource, AeConfig) {
-    console.debug('userAuthTokensViewController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {tokens: true};
@@ -10824,7 +10822,7 @@ angular.module('appenlight.components.userIdentitiesView', [])
 UserIdentitiesController.$inject = ['$state', 'userSelfPropertyResource', 'AeConfig'];
 
 function UserIdentitiesController($state, userSelfPropertyResource, AeConfig) {
-    console.debug('UserIdentitiesController');
+    
     var vm = this;
     vm.$state = $state;
     vm.AeConfig = AeConfig;
@@ -10834,11 +10832,11 @@ function UserIdentitiesController($state, userSelfPropertyResource, AeConfig) {
         {key: 'external_identities'},
         function (data) {
             vm.loading.identities = false;
-            console.log(vm.identities);
+            
         });
 
     vm.removeProvider = function (provider) {
-        console.log('provider', provider);
+        
         userSelfPropertyResource.delete(
             {
                 key: 'external_identities',
@@ -10884,7 +10882,7 @@ angular.module('appenlight.components.userPasswordView', [])
 UserPasswordViewController.$inject = ['$state', 'userSelfPropertyResource'];
 
 function UserPasswordViewController($state, userSelfPropertyResource) {
-    console.debug('UserPasswordViewController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {password: false};
@@ -10892,16 +10890,16 @@ function UserPasswordViewController($state, userSelfPropertyResource) {
 
     vm.updatePassword = function () {
         vm.loading.password = true;
-        console.log('updatePassword');
+        
         userSelfPropertyResource.update({key: 'password'}, vm.form, function () {
             vm.loading.password = false;
             vm.form = {};
             setServerValidation(vm.passwordForm);
         }, function (response) {
             if (response.status == 422) {
-                console.log('vm', vm);
+                
                 setServerValidation(vm.passwordForm, response.data);
-                console.log(response.data);
+                
             }
             vm.loading.password = false;
         });
@@ -10936,20 +10934,20 @@ angular.module('appenlight.components.userProfileView', [])
 UserProfileViewController.$inject = ['$state', 'userSelfResource'];
 
 function UserProfileViewController($state, userSelfResource) {
-    console.debug('UserProfileViewController');
+    
     var vm = this;
     vm.$state = $state;
     vm.loading = {profile: true};
 
     vm.user = userSelfResource.get(null, function (data) {
         vm.loading.profile = false;
-        console.log('loaded profile');
+        
     });
 
     vm.updateProfile = function () {
         vm.loading.profile = true;
 
-        console.log('updateProfile');
+        
         vm.user.$update(null, function () {
             vm.loading.profile = false;
             setServerValidation(vm.profileForm);
@@ -11262,7 +11260,7 @@ function JiraIntegrationCtrl($uibModalInstance, $state, report, integrationName,
                 vm.form.responsible = vm.assignees[0];
                 vm.form.priority = vm.priorities[0];
             }, function (error_data) {
-                console.log('ERROR');
+                
                 if (error_data.data.error_messages) {
                     vm.error_messages = error_data.data.error_messages;
                 }
@@ -11423,7 +11421,7 @@ angular.module('appenlight.directives.c3chart', [])
                 if (!_.isEmpty($scope.data)) {
                     _.extend(config.data, angular.copy($scope.data));
                 }
-                console.log('ChartCtrl.showGraph', config);
+                
                 config.onresized = function () {
                     if (this.currentWidth < 400){
                         $scope.chart.internal.config.axis_x_tick_culling_max = 3;
@@ -11442,19 +11440,19 @@ angular.module('appenlight.directives.c3chart', [])
                 originalXTickCount = $scope.chart.internal.config.axis_x_tick_culling_max;
                 $scope.chart.internal.config.onresized.call($scope.chart.internal);
             }
-            console.log('should update', $scope.update);
+            
             if ($scope.update) {
-                console.log('reload driven');
+                
                 $scope.$watch('data', function () {
                     if (!firstLoad) {
-                        console.log('data updated', $scope.data);
+                        
                         $scope.chart.load(angular.copy($scope.data), {unload: true});
                         if (typeof $scope.data.groups != 'undefined') {
-                            console.log('add groups');
+                            
                             $scope.chart.groups($scope.data.groups);
                         }
                         if (typeof $scope.data.names != 'undefined') {
-                            console.log('add names');
+                            
                             $scope.chart.data.names($scope.data.names);
                         }
                         $scope.chart.flush();
@@ -11466,7 +11464,7 @@ angular.module('appenlight.directives.c3chart', [])
                     return
                 }
                 if (typeof $scope.config.regions != 'undefined') {
-                    console.log('update regions', $scope.config.regions);
+                    
                     $scope.chart.regions($scope.config.regions);
                 }
             });
@@ -11542,7 +11540,7 @@ directive('confirmValidate', [function () {
         link: function ($scope, elem, attrs, ngModel) {
             ngModel.$validators.confirm = function (modelValue, viewValue) {
                 var value = modelValue || viewValue;
-                console.log('validate', value.toLowerCase() == 'confirm');
+                
                 if (value.toLowerCase() == 'confirm') {
                     return true;
                 }
@@ -11719,7 +11717,7 @@ function ApplicationPermissionsController(sectionViewResource, applicationsPrope
             vm.form.selectedGroup = vm.possibleGroups[0].id;
         }
     });
-    console.log('g', vm.possibleGroups);
+    
     vm.possibleUsers = [];
     _.each(vm.resource.possible_permissions, function (perm) {
         vm.form.selectedUserPermissions[perm] = false;
@@ -11735,7 +11733,7 @@ function ApplicationPermissionsController(sectionViewResource, applicationsPrope
         group: {}
     };
     _.each(vm.currentPermissions, function (perm) {
-        console.log(perm);
+        
         if (perm.type == 'user') {
             if (typeof tmpObj[perm.type][perm.user_name] === 'undefined') {
                 tmpObj[perm.type][perm.user_name] = {
@@ -11765,10 +11763,10 @@ function ApplicationPermissionsController(sectionViewResource, applicationsPrope
         group: _.values(tmpObj.group),
     };
 
-    console.log('test', tmpObj, vm.currentPermissions);
+    
 
     vm.searchUsers = function (searchPhrase) {
-        console.log('SEARCHING');
+        
         vm.searchingUsers = true;
         return sectionViewResource.query({
             section: 'users_section',
@@ -11817,7 +11815,7 @@ function ApplicationPermissionsController(sectionViewResource, applicationsPrope
 
 
     vm.setUserPermission = function () {
-        console.log('set permissions');
+        
         var POSTObj = {
             'user_name': vm.form.autocompleteUser,
             'permissions': []
@@ -11847,8 +11845,8 @@ function ApplicationPermissionsController(sectionViewResource, applicationsPrope
     }
 
     vm.removeUserPermission = function (perm_name, curr_perm) {
-        console.log(perm_name);
-        console.log(curr_perm);
+        
+        
         var POSTObj = {
             key: 'user_permissions',
             user_name: curr_perm.self.user_name,
@@ -11865,7 +11863,7 @@ function ApplicationPermissionsController(sectionViewResource, applicationsPrope
     }
 
     vm.removeGroupPermission = function (perm_name, curr_perm) {
-        console.log('g', curr_perm);
+        
         var POSTObj = {
             key: 'group_permissions',
             group_id: curr_perm.self.group_id,
@@ -11971,7 +11969,7 @@ angular.module('appenlight.directives.postProcessAction', []).directive('postPro
     };
     function postProcessActionController(){
         var vm = this;
-        console.log(vm);
+        
         var allOps = {
             'eq': 'Equal',
             'ne': 'Not equal',
@@ -12055,7 +12053,7 @@ angular.module('appenlight.directives.postProcessAction', []).directive('postPro
 
         vm.setDirty = function() {
             vm.action.dirty = true;
-            console.log('set dirty');
+            
         };
     }
 
@@ -12151,14 +12149,14 @@ angular.module('appenlight.directives.reportAlertAction', []).directive('reportA
                 channel_pkey: vm.channelToBind.pkey,
                 action_pkey: vm.action.pkey
             };
-            console.log(post);
+            
             userSelfPropertyResource.save({key: 'alert_channels_actions_binds'}, post,
                 function (data) {
                     vm.action.channels = [];
                     vm.action.channels = data.channels;
                 }, function (response) {
                     if (response.status == 422) {
-                        console.log('scope', response);
+                        
                     }
                 });
         };
@@ -12174,7 +12172,7 @@ angular.module('appenlight.directives.reportAlertAction', []).directive('reportA
                     vm.action.channels = data.channels;
                 }, function (response) {
                     if (response.status == 422) {
-                        console.log('scope', response);
+                        
                     }
                 });
         };
@@ -12211,7 +12209,7 @@ angular.module('appenlight.directives.reportAlertAction', []).directive('reportA
 
         vm.setDirty = function() {
             vm.action.dirty = true;
-            console.log('set dirty');
+            
         };
     }
 
@@ -12310,10 +12308,10 @@ angular.module('appenlight.directives.rule', []).directive('rule', function () {
 
         vm.setDirty = function() {
             vm.rule.dirty = true;
-            console.log('set dirty');
+            
             if (vm.parentObj){
-                console.log('p', vm.parentObj);
-                console.log('set parent dirty');
+                
+                
                 vm.parentObj.dirty = true;
             }
         };
@@ -12327,13 +12325,13 @@ angular.module('appenlight.directives.rule', []).directive('rule', function () {
                 vm.rule.op = vm.ruleDefinitions.fieldOps[vm.rule.field][0];
             }
             if ((new_is_compound && !old_was_compound)) {
-                console.log('resetting config');
+                
                 delete vm.rule.value;
                 vm.rule.rules = [];
                 vm.add();
             }
             else if (!new_is_compound && old_was_compound) {
-                console.log('resetting config');
+                
                 delete vm.rule.rules;
                 vm.rule.value = '';
             }
@@ -13113,7 +13111,7 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder',
                 }
             }
         }.bind(this));
-        console.log('AeUser.hasContextPermission', permName, hasPerm);
+        
         return hasPerm;
     };
 
@@ -13127,7 +13125,7 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder',
         list: [],
         timeout: null,
         extend: function (values) {
-            console.log('pushing flash', this);
+            
             if (this.list.length > 2) {
                 this.list.splice(0, this.list.length - 2);
             }
@@ -13136,7 +13134,7 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder',
             this.removeMessages();
         },
         pop: function () {
-            console.log('popping flash');
+            
             this.list.pop();
         },
         cancelTimeout: function () {
@@ -13232,7 +13230,7 @@ angular.module('appenlight.services.typeAheadTagHelper', []).factory('typeAheadT
         return true;
     };
     typeAheadTagHelper.removeSearchTag = function (tag) {
-        console.log(typeAheadTagHelper.tags);
+        
         var indexValue = _.indexOf(typeAheadTagHelper.tags, tag);
         typeAheadTagHelper.tags.splice(indexValue, 1);
 
