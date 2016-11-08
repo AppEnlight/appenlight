@@ -2814,6 +2814,7 @@ function kickstartAE(initialUserData) {
 
     app.run(['$rootScope', '$timeout', 'stateHolder', '$state', '$location', '$transitions', '$window', 'AeConfig',
         function ($rootScope, $timeout, stateHolder, $state, $location, $transitions, $window, AeConfig) {
+            
             if (initialUserData){
                 stateHolder.AeUser.update(initialUserData);
 
@@ -2873,8 +2874,12 @@ function kickstartAE(initialUserData) {
                 }
                 return true;
             };
-            $transitions.onBefore({}, transitionApp);
 
+            for (var i=0; i < stateHolder.plugins.callables.length; i++){
+                
+            }
+
+            $transitions.onBefore({}, transitionApp);
         }]);
 }
 
@@ -6891,6 +6896,11 @@ function kickstartAE(initialUserData) {
     "            </span>\n" +
     "    </div>\n" +
     "</div>\n"
+  );
+
+
+  $templateCache.put('templates/admin/groups/parent_view.html',
+    "<div ui-view></div>"
   );
 
 
@@ -11921,9 +11931,8 @@ angular.module('appenlight.directives.pluginConfig', []).directive('pluginConfig
     PluginConfig.$inject = ['stateHolder'];
 
     function PluginConfig(stateHolder) {
-        var vm = this;
-        vm.plugins = {};
-        vm.inclusions = stateHolder.plugins.inclusions[vm.section];
+        this.plugins = {};
+        this.inclusions = stateHolder.plugins.inclusions[this.section];
     }
 });
 
@@ -13159,6 +13168,7 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder',
     var Plugins = {
         enabled: [],
         configs: {},
+        callables: [],
         inclusions: {},
         addInclusion: function (name, inclusion) {
             var self = this;

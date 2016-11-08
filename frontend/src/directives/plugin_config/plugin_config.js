@@ -33,8 +33,7 @@ angular.module('appenlight.directives.pluginConfig', []).directive('pluginConfig
     PluginConfig.$inject = ['stateHolder'];
 
     function PluginConfig(stateHolder) {
-        var vm = this;
-        vm.plugins = {};
-        vm.inclusions = stateHolder.plugins.inclusions[vm.section];
+        this.plugins = {};
+        this.inclusions = stateHolder.plugins.inclusions[this.section];
     }
 });

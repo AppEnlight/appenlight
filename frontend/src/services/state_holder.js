@@ -139,6 +139,7 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder',
     var Plugins = {
         enabled: [],
         configs: {},
+        callables: [],
         inclusions: {},
         addInclusion: function (name, inclusion) {
             var self = this;

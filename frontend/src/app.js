@@ -178,6 +178,7 @@ function kickstartAE(initialUserData) {
 
     app.run(['$rootScope', '$timeout', 'stateHolder', '$state', '$location', '$transitions', '$window', 'AeConfig',
         function ($rootScope, $timeout, stateHolder, $state, $location, $transitions, $window, AeConfig) {
+            console.log('appenlight run()');
             if (initialUserData){
                 stateHolder.AeUser.update(initialUserData);
 
@@ -237,7 +238,12 @@ function kickstartAE(initialUserData) {
                 }
                 return true;
             };
-            $transitions.onBefore({}, transitionApp);
 
+            for (var i=0; i < stateHolder.plugins.callables.length; i++){
+                console.log('X', stateHolder.plugins.callables.length)
+                stateHolder.plugins.callables[i]();
+            }
+
+            $transitions.onBefore({}, transitionApp);
         }]);
 }
