@@ -240,7 +240,6 @@ function kickstartAE(initialUserData) {
             };
 
             for (var i=0; i < stateHolder.plugins.callables.length; i++){
-                console.log('X', stateHolder.plugins.callables.length)
                 stateHolder.plugins.callables[i]();
             }
 
