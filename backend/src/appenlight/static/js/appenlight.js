@@ -13092,6 +13092,9 @@ angular.module('appenlight.services.stateHolder', []).factory('stateHolder',
     };
 
     AeUser.hasAppPermission = function (perm_name) {
+        if (!this.permissions){
+            return false
+        }
         if (this.permissions.indexOf('root_administration') !== -1) {
             return true
         }
