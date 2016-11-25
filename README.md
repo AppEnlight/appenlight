@@ -35,14 +35,16 @@ After installing the application you need to perform following steps:
 2. Setup database structure:
 
 
-    appenlight-migrate-db -c FILENAME.ini
+    appenlight-migratedb -c FILENAME.ini
 
 3. To configure elasticsearch:
 
 
     appenlight-reindex-elasticsearch -t all -c FILENAME.ini
 
-4. Create base database objects
+4. Create base database objects 
+
+   (run this command with help flag to see how to create administrator user)
 
 
     appenlight-initializedb -c FILENAME.ini
