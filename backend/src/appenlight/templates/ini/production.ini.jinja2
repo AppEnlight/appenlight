@@ -48,15 +48,6 @@ redis.sessions.cookie_httponly = True
 redis.sessions.cookie_on_exception = True
 redis.sessions.prefix = appenlight:session:
 
-#cache
-cache.regions = default_term, second, short_term, long_term
-cache.type = ext:memcached
-cache.url = 127.0.0.1:11211
-cache.lock_dir = %(here)s/data/cache/lock
-cache.second.expire = 1
-cache.short_term.expire = 60
-cache.default_term.expire = 300
-
 #mailing
 mailing.app_url = https://{{appenlight_domain}}
 mailing.from_name = AppEnlight
