@@ -333,13 +333,15 @@ class ReportGroupService(BaseService):
         return query
 
     @classmethod
-    def by_hash_and_resource(self, resource_id,
-                             grouping_hash, db_session=None):
+    def by_hash_and_resource(cls, resource_id, grouping_hash, since_when=None,
+                             db_session=None):
         db_session = get_db_session(db_session)
         q = db_session.query(ReportGroup)
         q = q.filter(ReportGroup.resource_id == resource_id)
         q = q.filter(ReportGroup.grouping_hash == grouping_hash)
         q = q.filter(ReportGroup.fixed == False)
+        if since_when:
+            q = q.filter(ReportGroup.first_timestamp >= since_when)
         return q.first()
 
     @classmethod

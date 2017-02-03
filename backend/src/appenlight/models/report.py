@@ -19,7 +19,7 @@
 # services, and proprietary license terms, please see
 # https://rhodecode.com/licenses/
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import math
 import uuid
 import hashlib
@@ -380,7 +380,7 @@ class Report(Base, BaseModel):
             server_name = self.tags.get('server_name') or ''
             if default_grouping == 'url_traceback':
                 hash_string = '%s_%s_%s' % (self.traceback_hash, location,
-                                             self.error)
+                                            self.error)
                 if self.language == Language.javascript:
                     hash_string = '%s_%s' % (self.traceback_hash, self.error)
 
@@ -390,6 +390,8 @@ class Report(Base, BaseModel):
                     hash_string = '%s_%s' % (self.traceback_hash, server_name)
             else:
                 hash_string = '%s_%s' % (self.error, location)
+        month = datetime.utcnow().date().replace(day=1)
+        hash_string = '{}_{}'.format(month, hash_string)
         binary_string = hash_string.encode('utf8')
         self.grouping_hash = hashlib.sha1(binary_string).hexdigest()
         return self.grouping_hash
@@ -442,7 +444,7 @@ class Report(Base, BaseModel):
 
         }
         channelstream_request(settings['cometd.secret'], '/message', [payload],
-                       servers=[settings['cometd_servers']])
+                              servers=[settings['cometd_servers']])
 
     def es_doc(self):
         tags = {}
@@ -482,6 +484,12 @@ class Report(Base, BaseModel):
     @property
     def partition_id(self):
         return 'rcae_r_%s' % self.report_group_time.strftime('%Y_%m')
+
+    def partition_range(self):
+        start_date = self.report_group_time.date().replace(day=1)
+        end_date = start_date + timedelta(days=40)
+        end_date = end_date.replace(day=1)
+        return start_date, end_date
 
 
 def after_insert(mapper, connection, target):

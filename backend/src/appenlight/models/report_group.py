@@ -22,7 +22,7 @@
 import logging
 import sqlalchemy as sa
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from pyramid.threadlocal import get_current_request
 from sqlalchemy.dialects.postgresql import JSON
@@ -209,7 +209,8 @@ class ReportGroup(Base, BaseModel):
         key = REDIS_KEYS['counters']['report_group_occurences'].format(self.id)
         redis_pipeline.incr(key)
         redis_pipeline.expire(key, 3600 * 24)
-        key = REDIS_KEYS['counters']['report_group_occurences_alerting'].format(self.id)
+        key = REDIS_KEYS['counters']['report_group_occurences_alerting'].format(
+            self.id)
         redis_pipeline.incr(key)
         redis_pipeline.expire(key, 3600 * 24)
 
@@ -236,6 +237,12 @@ class ReportGroup(Base, BaseModel):
     def partition_id(self):
         return 'rcae_r_%s' % self.first_timestamp.strftime('%Y_%m')
 
+    def partition_range(self):
+        start_date = self.first_timestamp.date().replace(day=1)
+        end_date = start_date + timedelta(days=40)
+        end_date = end_date.replace(day=1)
+        return start_date, end_date
+
 
 def after_insert(mapper, connection, target):
     if not hasattr(target, '_skip_ft_index'):
@@ -256,7 +263,7 @@ def after_update(mapper, connection, target):
 def after_delete(mapper, connection, target):
     query = {'term': {'group_id': target.id}}
     # TODO: routing seems unnecessary, need to test a bit more
-    #Datastores.es.delete_by_query(target.partition_id, 'report', query,
+    # Datastores.es.delete_by_query(target.partition_id, 'report', query,
     #                              query_params={'routing':str(target.id)})
     Datastores.es.delete_by_query(target.partition_id, 'report', query)
     query = {'term': {'pg_id': target.id}}

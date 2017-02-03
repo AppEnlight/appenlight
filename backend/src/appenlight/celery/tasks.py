@@ -110,9 +110,11 @@ def add_reports(resource_id, request_params, dataset, **kwargs):
             report.set_data(report_data, resource, proto_version)
             report._skip_ft_index = True
 
+            # find latest group in this months partition
             report_group = ReportGroupService.by_hash_and_resource(
                 report.resource_id,
-                report.grouping_hash
+                report.grouping_hash,
+                since_when=datetime.utcnow().date().replace(day=1)
             )
             occurences = report_data.get('occurences', 1)
             if not report_group:
