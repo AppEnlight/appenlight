@@ -132,8 +132,10 @@ def partitions_remove(request):
                    csrf_context=request)
     if form.validate():
         for ix in form.data['es_index']:
+            log.warning('deleting ES partition: {}'.format(ix))
             Datastores.es.delete_index(ix)
         for ix in form.data['pg_index']:
+            log.warning('deleting PG partition: {}'.format(ix))
             stmt = sa.text('DROP TABLE %s CASCADE' % sa.text(ix))
             session = DBSession()
             session.connection().execute(stmt)
