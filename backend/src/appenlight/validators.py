@@ -312,7 +312,7 @@ class ReportDetailBaseSchema(colander.MappingSchema):
                                   preparer=shortener_factory(2048),
                                   missing='')
     group_string = colander.SchemaNode(colander.String(),
-                                       validator=colander.Length(1, 512),
+                                       preparer=shortener_factory(512),
                                        missing=None)
     request_stats = RequestStatsSchema(missing=None)
     request = colander.SchemaNode(colander.Mapping(unknown='preserve'),
