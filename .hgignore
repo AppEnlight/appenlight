@@ -4,6 +4,7 @@ syntax: glob
 ### Example user template template
 ### Example user template
 
+.venv
 # IntelliJ project files
 .idea
 *.iml
