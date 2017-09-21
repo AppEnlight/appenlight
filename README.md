@@ -4,8 +4,8 @@ AppEnlight
 Automatic Installation
 ======================
 
-Use the ansible scripts in the `/automation` directory to build complete instance of application
-You can also use `packer` files in `/automation/packer` to create whole VM's for KVM and VMWare.
+Use the ansible scripts in the `automation` repository to build complete instance of application
+You can also use `packer` files in `automation/packer` to create whole VM's for KVM and VMWare.
 
 Manual Installation
 ===================
@@ -13,7 +13,7 @@ Manual Installation
 To run the app you need to have meet prerequsites:
 
 - python 3.5+
-- running elasticsearch (2.3+ tested)
+- running elasticsearch (2.3+/2.4 tested)
 - running postgresql (9.5+ required)
 - running redis
 
@@ -23,7 +23,7 @@ Install the app by performing
     
     python setup.py develop
 
-Install the appenlight uptime plugin (`ae_uptime_ce` package).
+Install the appenlight uptime plugin (`ae_uptime_ce` package from `appenlight-uptime-ce` repository).
 
 After installing the application you need to perform following steps:
 
