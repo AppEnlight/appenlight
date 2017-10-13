@@ -43,7 +43,7 @@ from appenlight.lib import cache_regions
 from appenlight.lib.ext_json import json
 from appenlight.security import groupfinder, AuthTokenAuthenticationPolicy
 
-__license__ = 'AGPLv3, and Commercial License'
+__license__ = 'Apache 2.0'
 __author__ = 'RhodeCode GmbH'
 __url__ = 'http://rhodecode.com'
 
