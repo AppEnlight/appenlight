@@ -141,7 +141,7 @@ def update_template():
         "settings": {
             "index": {
                 "refresh_interval": "5s",
-                "translog": {"interval": "5s",
+                "translog": {"sync_interval": "5s",
                              "durability": "async"}
             },
             "number_of_shards": 5,
