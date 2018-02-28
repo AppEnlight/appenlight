@@ -92,7 +92,12 @@ class Event(Base, BaseModel):
         users = set([p.user for p in resource.users_for_perm('view')])
         for user in users:
             for channel in user.alert_channels:
-                if not channel.channel_validated or not channel.send_alerts:
+                matches_resource = not channel.resources or resource in [r.resource_id for r in channel.resources]
+                if (
+                    not channel.channel_validated or
+                    not channel.send_alerts or
+                    not matches_resource
+                ):
                     continue
                 else:
                     try:

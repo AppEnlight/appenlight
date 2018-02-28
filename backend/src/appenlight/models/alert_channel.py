@@ -34,6 +34,14 @@ channel_rules_m2m_table = sa.Table(
               sa.ForeignKey('alert_channels_actions.pkey'))
 )
 
+channel_resources_m2m_table = sa.Table(
+    'channels_resources', Base.metadata,
+    sa.Column('channel_pkey', sa.Integer,
+              sa.ForeignKey('alert_channels.pkey')),
+    sa.Column('resource_id', sa.Integer,
+              sa.ForeignKey('resources.resource_id'))
+)
+
 DATE_FRMT = '%Y-%m-%dT%H:%M'
 
 
@@ -70,6 +78,12 @@ class AlertChannel(Base, BaseModel):
                                           passive_updates=True,
                                           secondary=channel_rules_m2m_table,
                                           backref='channels')
+    resources = sa.orm.relationship('Resource',
+                                    cascade="all, delete-orphan",
+                                    passive_deletes=True,
+                                    passive_updates=True,
+                                    secondary=channel_resources_m2m_table,
+                                    backref='resources')
 
     @property
     def channel_visible_value(self):
