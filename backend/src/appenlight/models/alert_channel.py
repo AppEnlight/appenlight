@@ -79,7 +79,7 @@ class AlertChannel(Base, BaseModel):
                                           secondary=channel_rules_m2m_table,
                                           backref='channels')
     resources = sa.orm.relationship('Resource',
-                                    cascade="all, delete-orphan",
+                                    cascade="all",
                                     passive_deletes=True,
                                     passive_updates=True,
                                     secondary=channel_resources_m2m_table,
