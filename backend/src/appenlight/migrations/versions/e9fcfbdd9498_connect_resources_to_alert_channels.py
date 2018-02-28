@@ -19,10 +19,12 @@ def upgrade():
         'channels_resources',
         sa.Column('channel_pkey', sa.Integer,
                   sa.ForeignKey('alert_channels.pkey',
-                                ondelete='CASCADE', onupdate='CASCADE')),
+                                ondelete='CASCADE', onupdate='CASCADE'),
+                  primary_key=True),
         sa.Column('resource_id', sa.Integer,
                   sa.ForeignKey('resources.resource_id',
-                                ondelete='CASCADE', onupdate='CASCADE'))
+                                ondelete='CASCADE', onupdate='CASCADE'),
+                  primary_key=True)
     )
 
 
