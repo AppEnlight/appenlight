@@ -84,6 +84,11 @@ def main(global_config, **settings):
     encryption.ENCRYPTION_SECRET = settings.get('encryption_secret')
     # import this later so encyption key can be monkeypatched
     from appenlight.models import DBSession, register_datastores
+
+    # registration
+    settings['appenlight.disable_registration'] = asbool(
+        settings.get('appenlight.disable_registration'))
+
     # update config with cometd info
     settings['cometd_servers'] = {'server': settings['cometd.server'],
                                   'secret': settings['cometd.secret']}

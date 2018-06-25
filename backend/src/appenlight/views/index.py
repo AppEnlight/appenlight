@@ -176,6 +176,10 @@ def register(request):
     if request.method == 'POST' and form.validate():
         log.info('registering user')
         # insert new user here
+        if request.registry.settings['appenlight.disable_registration']:
+            request.session.flash(_('Registration is currently disabled.'))
+            return HTTPFound(location=request.route_url('/'))
+
         new_user = User()
         DBSession.add(new_user)
         form.populate_obj(new_user)

@@ -79,6 +79,10 @@ def users_create(request):
                                 csrf_context=request)
     if form.validate():
         log.info('registering user')
+        # probably not needed in the future since this requires root anyways
+        # lets keep this here in case we lower view permission in the future
+        # if request.registry.settings['appenlight.disable_registration']:
+        #     return HTTPUnprocessableEntity(body={'error': 'Registration is currently disabled.'})
         user = User()
         # insert new user here
         DBSession.add(user)
