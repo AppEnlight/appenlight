@@ -27,8 +27,8 @@ dogpile.cache==0.5.7
 pyramid_redis_sessions==1.0.1
 simplejson==3.8.2
 waitress==1.0
-gunicorn==19.4.5
-requests==2.9.1
+gunicorn==19.9.0
+requests==2.20.0
 requests_oauthlib==0.6.1
 gevent==1.1.1
 gevent-websocket==0.9.5
@@ -39,7 +39,7 @@ paginate-sqlalchemy==0.2.0
 pyelasticsearch==1.4
 six==1.9.0
 mock==1.0.1
-itsdangerous==0.24
+itsdangerous==1.1.0
 camplight==0.9.6
 jira==1.0.7
 python-dateutil==2.5.3
