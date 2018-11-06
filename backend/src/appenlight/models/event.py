@@ -114,6 +114,11 @@ class Event(Base, BaseModel):
         event_types = [Event.types['error_report_alert'],
                        Event.types['slow_report_alert']]
         app = Resource.by_resource_id(self.resource_id)
+        # if app was deleted close instantly
+        if not app:
+            self.close()
+            return
+
         if self.event_type in event_types:
             total = ReportStatService.count_by_type(
                 self.event_type, self.resource_id, since_when)
