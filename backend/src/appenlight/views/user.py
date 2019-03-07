@@ -29,6 +29,7 @@ from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
 from pyramid.security import NO_PERMISSION_REQUIRED
 from ziggurat_foundations.models.services.external_identity import \
     ExternalIdentityService
+from ziggurat_foundations.models.services.user import UserService
 
 from appenlight.lib import generate_random_string
 from appenlight.lib.social import handle_social_data
@@ -64,7 +65,7 @@ def users_list(request):
     users_dicts = []
     for user in users:
         u_dict = user.get_dict(include_keys=props)
-        u_dict['gravatar_url'] = user.gravatar_url(s=20)
+        u_dict['gravatar_url'] = UserService.gravatar_url(user, s=20)
         users_dicts.append(u_dict)
     return users_dicts
 
@@ -87,8 +88,8 @@ def users_create(request):
         # insert new user here
         DBSession.add(user)
         form.populate_obj(user)
-        user.regenerate_security_code()
-        user.set_password(user.user_password)
+        UserService.regenerate_security_code(user)
+        UserService.set_password(user, user.user_password)
         user.status = 1 if form.status.data else 0
         request.session.flash(_('User created'))
         DBSession.flush()
@@ -106,7 +107,7 @@ def users_update(request):
     """
     Updates user object
     """
-    user = User.by_id(request.matchdict.get('user_id'))
+    user = UserService.by_id(request.matchdict.get('user_id'))
     if not user:
         return HTTPNotFound()
     post_data = request.safe_json_body or {}
@@ -116,7 +117,7 @@ def users_update(request):
         if form.validate():
             form.populate_obj(user, ignore_none=True)
             if form.user_password.data:
-                user.set_password(user.user_password)
+                UserService.set_password(user, user.user_password)
             if form.status.data:
                 user.status = 1
             else:
@@ -134,11 +135,11 @@ def users_resource_permissions_list(request):
     """
     Get list of permissions assigned to specific resources
     """
-    user = User.by_id(request.matchdict.get('user_id'))
+    user = UserService.by_id(request.matchdict.get('user_id'))
     if not user:
         return HTTPNotFound()
     return [permission_tuple_to_dict(perm) for perm in
-            user.resources_with_possible_perms()]
+            UserService.resources_with_possible_perms(user)]
 
 
 @view_config(route_name='users', renderer='json',
@@ -149,9 +150,9 @@ def users_DELETE(request):
     operation there will be at least one admin left
     """
     msg = _('There needs to be at least one administrator in the system')
-    user = User.by_id(request.matchdict.get('user_id'))
+    user = UserService.by_id(request.matchdict.get('user_id'))
     if user:
-        users = User.users_for_perms(['root_administration']).all()
+        users = UserService.users_for_perms(['root_administration']).all()
         if len(users) < 2 and user.id == users[0].id:
             request.session.flash(msg, 'warning')
         else:
@@ -227,8 +228,8 @@ def users_password(request):
                                     csrf_context=request)
     form.old_password.user = user
     if form.validate():
-        user.regenerate_security_code()
-        user.set_password(form.new_password.data)
+        UserService.regenerate_security_code(user)
+        UserService.set_password(user, form.new_password.data)
         msg = 'Your password got updated. ' \
               'Next time log in with your new credentials.'
         request.session.flash(_(msg))
@@ -250,8 +251,7 @@ def users_websocket(request):
         res = request.response.body('OK')
         add_cors_headers(res)
         return res
-    applications = user.resources_with_perms(
-        ['view'], resource_types=['application'])
+    applications = UserService.resources_with_perms(user, ['view'], resource_types=['application'])
     channels = ['app_%s' % app.resource_id for app in applications]
     payload = {"username": user.user_name,
                "conn_id": str(uuid.uuid4()),
@@ -594,11 +594,11 @@ def search_users(request):
     items_returned = []
     like_condition = request.params.get('user_name', '') + '%'
     # first append used if email is passed
-    found_user = User.by_email(request.params.get('user_name', ''))
+    found_user = UserService.by_email(request.params.get('user_name', ''))
     if found_user:
         name = '{} {}'.format(found_user.first_name, found_user.last_name)
         items_returned.append({'user': found_user.user_name, 'name': name})
-    for found_user in User.user_names_like(like_condition).limit(20):
+    for found_user in UserService.user_names_like(like_condition).limit(20):
         name = '{} {}'.format(found_user.first_name, found_user.last_name)
         items_returned.append({'user': found_user.user_name, 'name': name})
     return items_returned
@@ -615,7 +615,7 @@ def auth_tokens_list(request):
     if request.matched_route.name == 'users_self_property':
         user = request.user
     else:
-        user = User.by_id(request.matchdict.get('user_id'))
+        user = UserService.by_id(request.matchdict.get('user_id'))
         if not user:
             return HTTPNotFound()
     return [c.get_dict() for c in user.auth_tokens]
@@ -634,7 +634,7 @@ def auth_tokens_POST(request):
     if request.matched_route.name == 'users_self_property':
         user = request.user
     else:
-        user = User.by_id(request.matchdict.get('user_id'))
+        user = UserService.by_id(request.matchdict.get('user_id'))
         if not user:
             return HTTPNotFound()
 
@@ -667,7 +667,7 @@ def auth_tokens_DELETE(request):
     if request.matched_route.name == 'users_self_property':
         user = request.user
     else:
-        user = User.by_id(request.matchdict.get('user_id'))
+        user = UserService.by_id(request.matchdict.get('user_id'))
         if not user:
             return HTTPNotFound()
 

@@ -20,11 +20,11 @@ import logging
 from datetime import datetime
 from appenlight.models import Base, get_db_session
 from appenlight.models.services.report_stat import ReportStatService
-from appenlight.models.resource import Resource
 from appenlight.models.integrations import IntegrationException
 from pyramid.threadlocal import get_current_request
 from sqlalchemy.dialects.postgresql import JSON
 from ziggurat_foundations.models.base import BaseModel
+from ziggurat_foundations.models.services.resource import ResourceService
 
 log = logging.getLogger(__name__)
 
@@ -84,12 +84,12 @@ class Event(Base, BaseModel):
         db_session = get_db_session(db_session)
         db_session.flush()
         if not resource:
-            resource = Resource.by_resource_id(self.resource_id)
+            resource = ResourceService.by_resource_id(self.resource_id)
         if not request:
             request = get_current_request()
         if not resource:
             return
-        users = set([p.user for p in resource.users_for_perm('view')])
+        users = set([p.user for p in ResourceService.users_for_perm(resource, 'view')])
         for user in users:
             for channel in user.alert_channels:
                 matches_resource = not channel.resources or resource in [r.resource_id for r in channel.resources]
@@ -113,7 +113,7 @@ class Event(Base, BaseModel):
             Generates close alert event if alerts get closed """
         event_types = [Event.types['error_report_alert'],
                        Event.types['slow_report_alert']]
-        app = Resource.by_resource_id(self.resource_id)
+        app = ResourceService.by_resource_id(self.resource_id)
         # if app was deleted close instantly
         if not app:
             self.close()

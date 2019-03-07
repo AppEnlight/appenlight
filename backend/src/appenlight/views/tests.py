@@ -23,6 +23,9 @@ import redis
 import six
 import pyramid.renderers
 import requests
+
+from ziggurat_foundations.models.services.user import UserService
+
 import appenlight.celery.tasks
 from pyramid.view import view_config
 from pyramid_mailer.message import Message
@@ -72,8 +75,7 @@ def alerting_test(request):
     """
     Allows to test send data on various registered alerting channels
     """
-    applications = request.user.resources_with_perms(
-        ['view'], resource_types=['application'])
+    applications = UserService.resources_with_perms(request.user, ['view'], resource_types=['application'])
     # what we can select in total
     all_possible_app_ids = [app.resource_id for app in applications]
     resource = applications[0]

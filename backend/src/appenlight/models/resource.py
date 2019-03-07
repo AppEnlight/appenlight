@@ -19,6 +19,7 @@ from appenlight.models import Base
 from appenlight.lib.utils import permission_tuple_to_dict
 from pyramid.security import Allow, ALL_PERMISSIONS
 from ziggurat_foundations.models.resource import ResourceMixin
+from ziggurat_foundations.models.services.resource import ResourceService
 
 
 class Resource(ResourceMixin, Base):
@@ -67,8 +68,8 @@ class Resource(ResourceMixin, Base):
     @property
     def user_permissions_list(self):
         return [permission_tuple_to_dict(perm) for perm in
-                self.users_for_perm('__any_permission__',
-                                    limit_group_permissions=True)]
+                ResourceService.users_for_perm(
+                    self, '__any_permission__', limit_group_permissions=True)]
 
     @property
     def __acl__(self):

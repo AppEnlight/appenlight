@@ -20,6 +20,9 @@ from datetime import datetime, timedelta
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPUnprocessableEntity
 
+from ziggurat_foundations.models.services.resource import ResourceService
+from ziggurat_foundations.models.services.user import UserService
+
 from appenlight.models import DBSession
 from appenlight.models.user import User
 from appenlight.models.report_comment import ReportComment
@@ -51,8 +54,8 @@ def index(request):
     if request.user:
         request.user.last_login_date = datetime.utcnow()
 
-    applications = request.user.resources_with_perms(
-        ['view'], resource_types=['application'])
+    applications = UserService.resources_with_perms(
+        request.user, ['view'], resource_types=['application'])
 
     search_params = request.GET.mixed()
 
@@ -134,7 +137,7 @@ def comment_create(request):
                                 report_time=report_group.first_timestamp)
         form.populate_obj(comment)
         report_group.comments.append(comment)
-        perm_list = application.users_for_perm('view')
+        perm_list = ResourceService.users_for_perm(application, 'view')
         uids_to_notify = []
         users_to_notify = []
         for perm in perm_list:
@@ -179,13 +182,13 @@ def assigned_users(request):
     """
     report_group = request.context.report_group
     application = request.context.resource
-    users = set([p.user for p in application.users_for_perm('view')])
+    users = set([p.user for p in ResourceService.users_for_perm(application, 'view')])
     currently_assigned = [u.user_name for u in report_group.assigned_users]
     user_status = {'assigned': [], 'unassigned': []}
     # handle users
     for user in users:
         user_dict = {'user_name': user.user_name,
-                     'gravatar_url': user.gravatar_url(),
+                     'gravatar_url': UserService.gravatar_url(user),
                      'name': '%s %s' % (user.first_name, user.last_name,)}
         if user.user_name in currently_assigned:
             user_status['assigned'].append(user_dict)
@@ -209,7 +212,7 @@ def assign_users(request):
     # first unassign old users
     for user_name in new_assigns['unassigned']:
         if user_name in currently_assigned:
-            user = User.by_user_name(user_name)
+            user = UserService.by_user_name(user_name)
             report_group.assigned_users.remove(user)
             comment = ReportComment(owner_id=request.user.id,
                                     report_time=report_group.first_timestamp)
@@ -219,7 +222,7 @@ def assign_users(request):
     # assign new users
     for user_name in new_assigns['assigned']:
         if user_name not in currently_assigned:
-            user = User.by_user_name(user_name)
+            user = UserService.by_user_name(user_name)
             if user in report_group.assigned_users:
                 report_group.assigned_users.remove(user)
             DBSession.flush()

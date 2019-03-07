@@ -22,12 +22,13 @@ import sqlalchemy as sa
 from collections import namedtuple
 from datetime import datetime
 
+from ziggurat_foundations.models.services.user import UserService
+
 from appenlight.lib.rule import Rule
 from appenlight.models import get_db_session
 from appenlight.models.integrations import IntegrationException
 from appenlight.models.report import REPORT_TYPE_MATRIX
 from appenlight.models.user import User
-from appenlight.models.services.base import BaseService
 from paginate_sqlalchemy import SqlalchemyOrmPage
 from pyramid.threadlocal import get_current_registry
 
@@ -36,7 +37,7 @@ log = logging.getLogger(__name__)
 GroupOccurence = namedtuple('GroupOccurence', ['occurences', 'group'])
 
 
-class UserService(BaseService):
+class UserService(UserService):
     @classmethod
     def all(cls, db_session=None):
         return get_db_session(db_session).query(User).order_by(User.user_name)

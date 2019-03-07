@@ -1419,7 +1419,7 @@ class TestRegistration(object):
         register(request)
         user = UserService.by_user_name('foo')
         assert user.user_name == 'foo'
-        assert len(user.user_password) == 60
+        assert len(user.user_password) >= 60
 
 
 @pytest.mark.usefixtures('base_app', 'with_migrations', 'clean_tables',

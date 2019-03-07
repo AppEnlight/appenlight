@@ -17,6 +17,8 @@
 import sqlalchemy as sa
 from pyramid.threadlocal import get_current_registry
 from paginate_sqlalchemy import SqlalchemyOrmPage
+from ziggurat_foundations.models.services.user import UserService
+
 from appenlight.models import get_db_session
 from appenlight.models.event import Event
 from appenlight.models.services.base import BaseService
@@ -82,8 +84,7 @@ class EventService(BaseService):
     @classmethod
     def latest_for_user(cls, user, db_session=None):
         registry = get_current_registry()
-        resources = user.resources_with_perms(
-            ['view'], resource_types=registry.resource_types)
+        resources = UserService.resources_with_perms(user, ['view'], resource_types=registry.resource_types)
         resource_ids = [r.resource_id for r in resources]
         db_session = get_db_session(db_session)
         return EventService.for_resource(
@@ -96,8 +97,7 @@ class EventService(BaseService):
         if not filter_settings:
             filter_settings = {}
         registry = get_current_registry()
-        resources = user.resources_with_perms(
-            ['view'], resource_types=registry.resource_types)
+        resources = UserService.resources_with_perms(user, ['view'], resource_types=registry.resource_types)
         resource_ids = [r.resource_id for r in resources]
         query = EventService.for_resource(
             resource_ids, or_target_user_id=user.id, limit=100,

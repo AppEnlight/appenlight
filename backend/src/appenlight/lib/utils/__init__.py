@@ -33,6 +33,7 @@ from appenlight.validators import (LogSearchSchema,
                                    accepted_search_params)
 from itsdangerous import TimestampSigner
 from ziggurat_foundations.permissions import ALL_PERMISSIONS
+from ziggurat_foundations.models.services.user import UserService
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import rrule, MONTHLY, DAILY
 
@@ -251,8 +252,8 @@ def build_filter_settings_from_query_dict(
         resource_permissions = ['view']
 
     if request.user:
-        applications = request.user.resources_with_perms(
-            resource_permissions, resource_types=['application'])
+        applications = UserService.resources_with_perms(
+            request.user, resource_permissions, resource_types=['application'])
 
     # CRITICAL - this ensures our resultset is limited to only the ones
     # user has view permissions

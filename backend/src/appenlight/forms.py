@@ -21,8 +21,8 @@ import pyramid.threadlocal
 import datetime
 import appenlight.lib.helpers as h
 
-from appenlight.models.user import User
-from appenlight.models.group import Group
+from ziggurat_foundations.models.services.user import UserService
+from ziggurat_foundations.models.services.group import GroupService
 from appenlight.models import DBSession
 from appenlight.models.alert_channel import AlertChannel
 from appenlight.models.integrations import IntegrationException
@@ -153,7 +153,7 @@ def clean_whitespace(value):
 
 
 def found_username_validator(form, field):
-    user = User.by_user_name(field.data)
+    user = UserService.by_user_name(field.data)
     # sets user to recover in email validator
     form.field_user = user
     if not user:
@@ -161,19 +161,19 @@ def found_username_validator(form, field):
 
 
 def found_username_email_validator(form, field):
-    user = User.by_email(field.data)
+    user = UserService.by_email(field.data)
     if not user:
         raise wtforms.ValidationError('Email is incorrect')
 
 
 def unique_username_validator(form, field):
-    user = User.by_user_name(field.data)
+    user = UserService.by_user_name(field.data)
     if user:
         raise wtforms.ValidationError('This username already exists in system')
 
 
 def unique_groupname_validator(form, field):
-    group = Group.by_group_name(field.data)
+    group = GroupService.by_group_name(field.data)
     mod_group = getattr(form, '_modified_group', None)
     if group and (not mod_group or mod_group.id != group.id):
         raise wtforms.ValidationError(
@@ -181,7 +181,7 @@ def unique_groupname_validator(form, field):
 
 
 def unique_email_validator(form, field):
-    user = User.by_email(field.data)
+    user = UserService.by_email(field.data)
     if user:
         raise wtforms.ValidationError('This email already exists in system')
 
@@ -219,7 +219,7 @@ def blocked_email_validator(form, field):
 
 
 def old_password_validator(form, field):
-    if not field.user.check_password(field.data or ''):
+    if not UserService.check_password(field.user, field.data or ''):
         raise wtforms.ValidationError('You need to enter correct password')
 
 

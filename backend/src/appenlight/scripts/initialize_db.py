@@ -20,6 +20,8 @@ import logging
 
 from pyramid.paster import setup_logging, bootstrap
 from pyramid.threadlocal import get_current_request
+from ziggurat_foundations.models.services.user import UserService
+
 
 from appenlight.forms import UserRegisterForm
 from appenlight.lib.ext_json import json
@@ -138,8 +140,8 @@ def main():
         if create_user:
             group = GroupService.by_id(1)
             user = User(user_name=user_name, email=email, status=1)
-            user.regenerate_security_code()
-            user.set_password(user_password)
+            UserService.regenerate_security_code(user)
+            UserService.set_password(user, user_password)
             DBSession.add(user)
             token = AuthToken(description="Uptime monitoring token")
             if args.auth_token:

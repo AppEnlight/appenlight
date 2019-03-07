@@ -22,6 +22,7 @@ from appenlight.models.services.event import EventService
 from appenlight.models.integrations import IntegrationException
 from pyramid.threadlocal import get_current_request
 from ziggurat_foundations.models.user import UserMixin
+from ziggurat_foundations.models.services.user import UserService
 
 log = logging.getLogger(__name__)
 
@@ -66,9 +67,9 @@ class User(UserMixin, Base):
         result = super(User, self).get_dict(exclude_keys, include_keys)
         if extended_info:
             result['groups'] = [g.group_name for g in self.groups]
-            result['permissions'] = [p.perm_name for p in self.permissions]
+            result['permissions'] = [p.perm_name for p in UserService.permissions(self)]
             request = get_current_request()
-            apps = self.resources_with_perms(
+            apps = UserService.resources_with_perms(self,
                 ['view'], resource_types=['application'])
             result['applications'] = sorted(
                 [{'resource_id': a.resource_id,
@@ -96,8 +97,7 @@ class User(UserMixin, Base):
     def assigned_report_groups(self):
         from appenlight.models.report_group import ReportGroup
 
-        resources = self.resources_with_perms(
-            ['view'], resource_types=['application'])
+        resources = UserService.resources_with_perms(self, ['view'], resource_types=['application'])
         query = self.assigned_reports_relation
         rid_list = [r.resource_id for r in resources]
         query = query.filter(ReportGroup.resource_id.in_(rid_list))

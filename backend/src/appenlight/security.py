@@ -24,6 +24,8 @@ from appenlight.models.services.plugin_config import PluginConfigService
 from appenlight.lib import to_integer_safe
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
 from ziggurat_foundations.permissions import permission_to_04_acls
+from ziggurat_foundations.models.services.user import UserService
+from ziggurat_foundations.models.services.resource import ResourceService
 import defusedxml.ElementTree as ElementTree
 import urllib.request, urllib.error, urllib.parse
 import logging
@@ -82,7 +84,7 @@ def add_root_superperm(request, context):
     non-resource permission
     """
     if hasattr(request, 'user') and request.user:
-        acls = permission_to_04_acls(request.user.permissions)
+        acls = permission_to_04_acls(UserService.permissions(request.user))
         for perm_user, perm_name in acls:
             if perm_name == 'root_administration':
                 context.__acl__.append(rewrite_root_perm(perm_user, perm_name))
@@ -98,7 +100,7 @@ class RootFactory(object):
                         (Allow, Authenticated, 'create_resources')]
         # general page factory - append custom non resource permissions
         if hasattr(request, 'user') and request.user:
-            acls = permission_to_04_acls(request.user.permissions)
+            acls = permission_to_04_acls(UserService.permissions(request.user))
             for perm_user, perm_name in acls:
                 self.__acl__.append(rewrite_root_perm(perm_user, perm_name))
 
@@ -115,11 +117,11 @@ class ResourceFactory(object):
         resource_id = request.matchdict.get("resource_id",
                                             request.GET.get("resource_id"))
         resource_id = to_integer_safe(resource_id)
-        self.resource = Resource.by_resource_id(resource_id) \
+        self.resource = ResourceService.by_resource_id(resource_id) \
             if resource_id else None
         if self.resource and request.user:
             self.__acl__ = self.resource.__acl__
-            permissions = self.resource.perms_for_user(request.user)
+            permissions = ResourceService.perms_for_user(self.resource, request.user)
             for perm_user, perm_name in permission_to_04_acls(permissions):
                 self.__acl__.append(rewrite_root_perm(perm_user, perm_name))
         add_root_superperm(request, self)
@@ -145,13 +147,13 @@ class ResourceReportFactory(object):
             raise HTTPNotFound()
 
         self.public = self.report_group.public
-        self.resource = Resource.by_resource_id(self.report_group.resource_id) \
+        self.resource = ResourceService.by_resource_id(self.report_group.resource_id) \
             if self.report_group else None
 
         if self.resource:
             self.__acl__ = self.resource.__acl__
         if request.user:
-            permissions = self.resource.perms_for_user(request.user)
+            permissions = ResourceService.perms_for_user(self.resource, request.user)
             for perm_user, perm_name in permission_to_04_acls(permissions):
                 self.__acl__.append(rewrite_root_perm(perm_user, perm_name))
         if self.public:
@@ -293,11 +295,11 @@ class ResourcePluginConfigFactory(object):
         if not self.plugin:
             raise HTTPNotFound()
         if self.plugin.resource_id:
-            self.resource = Resource.by_resource_id(self.plugin.resource_id)
+            self.resource = ResourceService.by_resource_id(self.plugin.resource_id)
         if self.resource:
             self.__acl__ = self.resource.__acl__
         if request.user and self.resource:
-            permissions = self.resource.perms_for_user(request.user)
+            permissions = ResourceService.perms_for_user(self.resource, request.user)
             for perm_user, perm_name in permission_to_04_acls(permissions):
                 self.__acl__.append(rewrite_root_perm(perm_user, perm_name))
 
@@ -316,10 +318,10 @@ class ResourceJSONBodyFactory(object):
         self.__acl__ = []
         resource_id = request.unsafe_json_body().get('resource_id')
         resource_id = to_integer_safe(resource_id)
-        self.resource = Resource.by_resource_id(resource_id)
+        self.resource = ResourceService.by_resource_id(resource_id)
         if self.resource and request.user:
             self.__acl__ = self.resource.__acl__
-            permissions = self.resource.perms_for_user(request.user)
+            permissions = ResourceService.perms_for_user(self.resource, request.user)
             for perm_user, perm_name in permission_to_04_acls(permissions):
                 self.__acl__.append(rewrite_root_perm(perm_user, perm_name))
         add_root_superperm(request, self)
@@ -337,10 +339,10 @@ class ResourcePluginMixedFactory(object):
             resource_id = request.GET.get('resource_id')
         if resource_id:
             resource_id = to_integer_safe(resource_id)
-            self.resource = Resource.by_resource_id(resource_id)
+            self.resource = ResourceService.by_resource_id(resource_id)
         if self.resource and request.user:
             self.__acl__ = self.resource.__acl__
-            permissions = self.resource.perms_for_user(request.user)
+            permissions = ResourceService.perms_for_user(self.resource, request.user)
             for perm_user, perm_name in permission_to_04_acls(permissions):
                 self.__acl__.append(rewrite_root_perm(perm_user, perm_name))
         add_root_superperm(request, self)

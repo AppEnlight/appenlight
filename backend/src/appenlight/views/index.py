@@ -27,6 +27,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from ziggurat_foundations.ext.pyramid.sign_in import ZigguratSignInSuccess
 from ziggurat_foundations.ext.pyramid.sign_in import ZigguratSignInBadAuth
 from ziggurat_foundations.ext.pyramid.sign_in import ZigguratSignOut
+from ziggurat_foundations.models.services.user import UserService
 
 from appenlight.lib.social import handle_social_data
 from appenlight.models import DBSession
@@ -93,9 +94,9 @@ def lost_password(request):
     """
     form = forms.LostPasswordForm(request.POST, csrf_context=request)
     if request.method == 'POST' and form.validate():
-        user = User.by_email(form.email.data)
+        user = UserService.by_email(form.email.data)
         if user:
-            user.regenerate_security_code()
+            UserService.regenerate_security_code(user)
             user.security_code_date = datetime.datetime.utcnow()
             email_vars = {
                 'user': user,
@@ -120,7 +121,7 @@ def lost_password_generate(request):
     """
     Shows new password form - perform time check and set new password for user
     """
-    user = User.by_user_name_and_security_code(
+    user = UserService.by_user_name_and_security_code(
         request.GET.get('user_name'), request.GET.get('security_code'))
     if user:
         delta = datetime.datetime.utcnow() - user.security_code_date
@@ -128,7 +129,7 @@ def lost_password_generate(request):
     if user and delta.total_seconds() < 600:
         form = forms.NewPasswordForm(request.POST, csrf_context=request)
         if request.method == "POST" and form.validate():
-            user.set_password(form.new_password.data)
+            UserService.set_password(user, form.new_password.data)
             request.session.flash(_('You can sign in with your new password.'))
             return HTTPFound(location=request.route_url('register'))
         else:
@@ -183,9 +184,9 @@ def register(request):
         new_user = User()
         DBSession.add(new_user)
         form.populate_obj(new_user)
-        new_user.regenerate_security_code()
+        UserService.regenerate_security_code(new_user)
         new_user.status = 1
-        new_user.set_password(new_user.user_password)
+        UserService.set_password(new_user, new_user.user_password)
         new_user.registration_ip = request.environ.get('REMOTE_ADDR')
 
         if social_data:

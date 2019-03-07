@@ -25,6 +25,8 @@ import pyelasticsearch
 from celery.utils.log import get_task_logger
 from zope.sqlalchemy import mark_changed
 from pyramid.threadlocal import get_current_request, get_current_registry
+from ziggurat_foundations.models.services.resource import ResourceService
+
 from appenlight.celery import celery
 from appenlight.models.report_group import ReportGroup
 from appenlight.models import DBSession, Datastores
@@ -442,7 +444,7 @@ def check_user_report_notifications(resource_id):
         ApplicationService.check_for_groups_alert(
             application, 'alert', report_groups=report_groups,
             occurence_dict=occurence_dict)
-        users = set([p.user for p in application.users_for_perm('view')])
+        users = set([p.user for p in ResourceService.users_for_perm(application, 'view')])
         report_groups = report_groups.all()
         for user in users:
             UserService.report_notify(user, request, application,
@@ -576,7 +578,7 @@ def daily_digest():
 
         application = ApplicationService.by_id(resource_id)
         if application:
-            users = set([p.user for p in application.users_for_perm('view')])
+            users = set([p.user for p in ResourceService.users_for_perm(application, 'view')])
             for user in users:
                 user.send_digest(request, application, reports=reports,
                                  since_when=since_when)

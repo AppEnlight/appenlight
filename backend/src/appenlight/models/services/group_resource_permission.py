@@ -16,10 +16,10 @@
 
 from appenlight.models.group_resource_permission import GroupResourcePermission
 from appenlight.models import get_db_session
-from appenlight.models.services.base import BaseService
+from ziggurat_foundations.models.services.group_resource_permission import GroupResourcePermissionService
 
 
-class GroupResourcePermissionService(BaseService):
+class GroupResourcePermissionService(GroupResourcePermissionService):
     @classmethod
     def by_resource_group_and_perm(cls, group_id, perm_name, resource_id,
                                    db_session=None):

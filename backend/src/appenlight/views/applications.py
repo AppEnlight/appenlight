@@ -34,7 +34,9 @@ from appenlight.models.resource import Resource
 from appenlight.models.application import Application
 from appenlight.models.application_postprocess_conf import \
     ApplicationPostprocessConf
-from appenlight.models.user import User
+from ziggurat_foundations.models.services.user import UserService
+from ziggurat_foundations.models.services.resource import ResourceService
+from ziggurat_foundations.models.services.user_resource_permission import UserResourcePermissionService
 from appenlight.models.user_resource_permission import UserResourcePermission
 from appenlight.models.group_resource_permission import GroupResourcePermission
 from appenlight.models.services.application import ApplicationService
@@ -92,7 +94,8 @@ def applications_list(request):
     else:
         permissions = request.params.getall('permission')
         if permissions:
-            resources = request.user.resources_with_perms(
+            resources = UserService.resources_with_perms(
+                request.user,
                 permissions,
                 resource_types=[request.GET.get('resource_type',
                                                 'application')])
@@ -242,7 +245,7 @@ def application_ownership_transfer(request):
         MultiDict(request.safe_json_body or {}), csrf_context=request)
     form.password.user = request.user
     if form.validate():
-        user = User.by_user_name(form.user_name.data)
+        user = UserService.by_user_name(form.user_name.data)
         user.resources.append(resource)
         # remove integrations to not leak security data of external applications
         for integration in resource.integrations[:]:
@@ -650,21 +653,21 @@ def user_resource_permission_create(request):
     """
     resource = request.context.resource
     user_name = request.unsafe_json_body.get('user_name')
-    user = User.by_user_name(user_name)
+    user = UserService.by_user_name(user_name)
     if not user:
-        user = User.by_email(user_name)
+        user = UserService.by_email(user_name)
     if not user:
         return False
 
     for perm_name in request.unsafe_json_body.get('permissions', []):
-        permission = UserResourcePermission.by_resource_user_and_perm(
+        permission = UserResourcePermissionService.by_resource_user_and_perm(
             user.id, perm_name, resource.resource_id)
         if not permission:
             permission = UserResourcePermission(perm_name=perm_name,
                                                 user_id=user.id)
             resource.user_permissions.append(permission)
     DBSession.flush()
-    perms = [p.perm_name for p in resource.perms_for_user(user)
+    perms = [p.perm_name for p in ResourceService.perms_for_user(resource, user)
              if p.type == 'user']
     result = {'user_name': user.user_name,
               'permissions': list(set(perms))}
@@ -680,16 +683,16 @@ def user_resource_permission_delete(request):
     """
     resource = request.context.resource
 
-    user = User.by_user_name(request.GET.get('user_name'))
+    user = UserService.by_user_name(request.GET.get('user_name'))
     if not user:
         return False
 
     for perm_name in request.GET.getall('permissions'):
-        permission = UserResourcePermission.by_resource_user_and_perm(
+        permission = UserResourcePermissionService.by_resource_user_and_perm(
             user.id, perm_name, resource.resource_id)
         resource.user_permissions.remove(permission)
     DBSession.flush()
-    perms = [p.perm_name for p in resource.perms_for_user(user)
+    perms = [p.perm_name for p in ResourceService.perms_for_user(resource, user)
              if p.type == 'user']
     result = {'user_name': user.user_name,
               'permissions': list(set(perms))}
@@ -716,7 +719,8 @@ def group_resource_permission_create(request):
                                                  group_id=group.id)
             resource.group_permissions.append(permission)
     DBSession.flush()
-    perm_tuples = resource.groups_for_perm(
+    perm_tuples = ResourceService.groups_for_perm(
+        resource,
         ANY_PERMISSION,
         limit_group_permissions=True,
         group_ids=[group.id])
@@ -745,7 +749,8 @@ def group_resource_permission_delete(request):
             group.id, perm_name, resource.resource_id)
         resource.group_permissions.remove(permission)
     DBSession.flush()
-    perm_tuples = resource.groups_for_perm(
+    perm_tuples = ResourceService.groups_for_perm(
+        resource,
         ANY_PERMISSION,
         limit_group_permissions=True,
         group_ids=[group.id])

@@ -17,7 +17,7 @@ wtforms==2.1
 celery==3.1.23
 formencode==1.3.0
 psutil==2.1.2
-ziggurat_foundations==0.6.8
+ziggurat_foundations==0.8.3
 bcrypt==3.1.6
 appenlight_client
 markdown==2.5

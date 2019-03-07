@@ -16,10 +16,10 @@
 
 from appenlight.models import get_db_session
 from appenlight.models.group import Group
-from appenlight.models.services.base import BaseService
+from ziggurat_foundations.models.services.group import GroupService
 
 
-class GroupService(BaseService):
+class GroupService(GroupService):
     @classmethod
     def by_id(cls, group_id, db_session=None):
         db_session = get_db_session(db_session)

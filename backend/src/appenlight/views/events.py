@@ -18,6 +18,7 @@ from appenlight.lib.helpers import gen_pagination_headers
 from appenlight.models.services.event import EventService
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
+from ziggurat_foundations.models.services.user import UserService
 
 
 @view_config(route_name='events_no_id',
@@ -40,8 +41,8 @@ def fetch_events(request):
 @view_config(route_name='events', renderer='json', request_method='PATCH',
              permission='authenticated')
 def event_PATCH(request):
-    resources = request.user.resources_with_perms(
-        ['view'], resource_types=request.registry.resource_types)
+    resources = UserService.resources_with_perms(
+        request.user, ['view'], resource_types=request.registry.resource_types)
     event = EventService.for_resource(
         [r.resource_id for r in resources],
         event_id=request.matchdict['event_id']).first()

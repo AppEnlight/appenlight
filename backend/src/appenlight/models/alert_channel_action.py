@@ -16,7 +16,7 @@
 
 import sqlalchemy as sa
 
-from appenlight.models.resource import Resource
+from ziggurat_foundations.models.services.resource import ResourceService
 from appenlight.models import Base, get_db_session
 from sqlalchemy.orm import validates
 from ziggurat_foundations.models.base import BaseModel
@@ -53,8 +53,8 @@ class AlertChannelAction(Base, BaseModel):
     def resource_name(self, db_session=None):
         db_session = get_db_session(db_session)
         if self.resource_id:
-            return Resource.by_resource_id(self.resource_id,
-                                           db_session=db_session).resource_name
+            return ResourceService.by_resource_id(
+                self.resource_id, db_session=db_session).resource_name
         else:
             return 'any resource'
 

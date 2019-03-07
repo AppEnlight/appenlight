@@ -22,7 +22,7 @@ import appenlight.lib.helpers as helpers
 
 from authomatic.providers import oauth2, oauth1
 from authomatic import Authomatic
-from appenlight.models.user import User
+from ziggurat_foundations.models.services.user import UserService
 
 
 class CSRFException(Exception):
@@ -66,7 +66,7 @@ def get_user(request):
             return None
 
         if user_id:
-            user = User.by_id(user_id)
+            user = UserService.by_id(user_id)
             if user:
                 request.environ['appenlight.username'] = '%d:%s' % (
                     user_id, user.user_name)

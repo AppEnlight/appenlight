@@ -19,6 +19,7 @@ import logging
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPUnprocessableEntity, HTTPNotFound
 
+from ziggurat_foundations.models.services.user import UserService
 from appenlight.lib.utils import permission_tuple_to_dict
 from appenlight.models.services.config import ConfigService
 from appenlight.models.group import Group
@@ -122,7 +123,7 @@ def groups_resource_permissions_list(request):
     if not group:
         return HTTPNotFound()
     return [permission_tuple_to_dict(perm) for perm in
-            group.resources_with_possible_perms()]
+            GroupService.resources_with_possible_perms(group)]
 
 
 @view_config(route_name='groups_property',
@@ -140,7 +141,7 @@ def groups_users_list(request):
     users_dicts = []
     for user in group.users:
         u_dict = user.get_dict(include_keys=props)
-        u_dict['gravatar_url'] = user.gravatar_url(s=20)
+        u_dict['gravatar_url'] = UserService.gravatar_url(user, s=20)
         users_dicts.append(u_dict)
     return users_dicts
 
@@ -153,7 +154,7 @@ def groups_users_remove(request):
     Get list of permissions assigned to specific resources
     """
     group = GroupService.by_id(request.matchdict.get('group_id'))
-    user = User.by_user_name(request.GET.get('user_name'))
+    user = UserService.by_user_name(request.GET.get('user_name'))
     if not group or not user:
         return HTTPNotFound()
     if len(group.users) > 1:
@@ -175,9 +176,9 @@ def groups_users_add(request):
     Get list of permissions assigned to specific resources
     """
     group = GroupService.by_id(request.matchdict.get('group_id'))
-    user = User.by_user_name(request.unsafe_json_body.get('user_name'))
+    user = UserService.by_user_name(request.unsafe_json_body.get('user_name'))
     if not user:
-        user = User.by_email(request.unsafe_json_body.get('user_name'))
+        user = UserService.by_email(request.unsafe_json_body.get('user_name'))
 
     if not group or not user:
         return HTTPNotFound()
@@ -187,5 +188,5 @@ def groups_users_add(request):
     props = ['user_name', 'id', 'first_name', 'last_name', 'email',
              'last_login_date', 'status']
     u_dict = user.get_dict(include_keys=props)
-    u_dict['gravatar_url'] = user.gravatar_url(s=20)
+    u_dict['gravatar_url'] = UserService.gravatar_url(user, s=20)
     return u_dict
