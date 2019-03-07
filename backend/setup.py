@@ -61,6 +61,10 @@ setup(name='appenlight',
       zip_safe=False,
       test_suite='appenlight',
       install_requires=requires,
+      extras_require={
+          "dev": ["coverage", "pytest", "pyramid", "tox", "mock", "webtest"],
+          "lint": ["black"],
+      },
       entry_points={
           'paste.app_factory': [
               'main = appenlight:main'

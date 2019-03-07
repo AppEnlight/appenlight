@@ -19,6 +19,7 @@ import logging
 import pyelasticsearch
 import redis
 import os
+import pkg_resources
 from pkg_resources import iter_entry_points
 
 import appenlight.lib.jinja2_filters as jinja2_filters
@@ -46,6 +47,7 @@ from appenlight.security import groupfinder, AuthTokenAuthenticationPolicy
 __license__ = 'Apache 2.0'
 __author__ = 'RhodeCode GmbH'
 __url__ = 'http://rhodecode.com'
+__version__ = pkg_resources.get_distribution("appenlight").parsed_version
 
 json_renderer = JSON(serializer=json.dumps, indent=4)
 
