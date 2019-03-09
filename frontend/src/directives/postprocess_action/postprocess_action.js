@@ -15,69 +15,71 @@
 angular.module('appenlight.directives.postProcessAction', []).directive('postProcessAction', ['applicationsPropertyResource', function (applicationsPropertyResource) {
     return {
         scope: {},
-        bindToController:{
+        bindToController: {
             action: '=',
             resource: '='
         },
-        controller:postProcessActionController,
-        controllerAs:'ctrl',
+        controller: postProcessActionController,
+        controllerAs: 'ctrl',
         restrict: 'E',
         templateUrl: 'directives/postprocess_action/postprocess_action.html'
     };
-    function postProcessActionController(){
+
+    function postProcessActionController() {
         var vm = this;
-        console.log(vm);
-        var allOps = {
-            'eq': 'Equal',
-            'ne': 'Not equal',
-            'ge': 'Greater or equal',
-            'gt': 'Greater than',
-            'le': 'Lesser or equal',
-            'lt': 'Lesser than',
-            'startswith': 'Starts with',
-            'endswith': 'Ends with',
-            'contains': 'Contains'
-        };
+        vm.$onInit = function () {
+            console.log(vm);
+            var allOps = {
+                'eq': 'Equal',
+                'ne': 'Not equal',
+                'ge': 'Greater or equal',
+                'gt': 'Greater than',
+                'le': 'Lesser or equal',
+                'lt': 'Lesser than',
+                'startswith': 'Starts with',
+                'endswith': 'Ends with',
+                'contains': 'Contains'
+            };
 
-        var fieldOps = {};
-        fieldOps['http_status'] = ['eq', 'ne', 'ge', 'le'];
-        fieldOps['group:priority'] = ['eq', 'ne', 'ge', 'le'];
-        fieldOps['duration'] = ['ge', 'le'];
-        fieldOps['url_domain'] = ['eq', 'ne', 'startswith', 'endswith',
-            'contains'];
-        fieldOps['url_path'] = ['eq', 'ne', 'startswith', 'endswith',
-            'contains'];
-        fieldOps['error'] = ['eq', 'ne', 'startswith', 'endswith',
-            'contains'];
-        fieldOps['tags:server_name'] = ['eq', 'ne', 'startswith', 'endswith',
-            'contains'];
-        fieldOps['group:occurences'] = ['eq', 'ne', 'ge', 'le'];
+            var fieldOps = {};
+            fieldOps['http_status'] = ['eq', 'ne', 'ge', 'le'];
+            fieldOps['group:priority'] = ['eq', 'ne', 'ge', 'le'];
+            fieldOps['duration'] = ['ge', 'le'];
+            fieldOps['url_domain'] = ['eq', 'ne', 'startswith', 'endswith',
+                'contains'];
+            fieldOps['url_path'] = ['eq', 'ne', 'startswith', 'endswith',
+                'contains'];
+            fieldOps['error'] = ['eq', 'ne', 'startswith', 'endswith',
+                'contains'];
+            fieldOps['tags:server_name'] = ['eq', 'ne', 'startswith', 'endswith',
+                'contains'];
+            fieldOps['group:occurences'] = ['eq', 'ne', 'ge', 'le'];
 
-        var possibleFields = {
-            '__AND__': 'All met (composite rule)',
-            '__OR__': 'One met (composite rule)',
-            '__NOT__': 'Not met (composite rule)',
-            'http_status': 'HTTP Status',
-            'duration': 'Request duration',
-            'group:priority': 'Group -> Priority',
-            'url_domain': 'Domain',
-            'url_path': 'URL Path',
-            'error': 'Error',
-            'tags:server_name': 'Tag -> Server name',
-            'group:occurences': 'Group -> Occurences'
-        };
+            var possibleFields = {
+                '__AND__': 'All met (composite rule)',
+                '__OR__': 'One met (composite rule)',
+                '__NOT__': 'Not met (composite rule)',
+                'http_status': 'HTTP Status',
+                'duration': 'Request duration',
+                'group:priority': 'Group -> Priority',
+                'url_domain': 'Domain',
+                'url_path': 'URL Path',
+                'error': 'Error',
+                'tags:server_name': 'Tag -> Server name',
+                'group:occurences': 'Group -> Occurences'
+            };
 
-        vm.ruleDefinitions = {
-            fieldOps: fieldOps,
-            allOps: allOps,
-            possibleFields: possibleFields
-        };
+            vm.ruleDefinitions = {
+                fieldOps: fieldOps,
+                allOps: allOps,
+                possibleFields: possibleFields
+            };
 
-        vm.possibleActions = [
-            ['1', 'Priority +1'],
-            ['-1', 'Priority -1']
-        ];
-
+            vm.possibleActions = [
+                ['1', 'Priority +1'],
+                ['-1', 'Priority -1']
+            ];
+        }
         vm.deleteAction = function (action) {
             applicationsPropertyResource.remove({
                 pkey: vm.action.pkey,
@@ -108,7 +110,7 @@ angular.module('appenlight.directives.postProcessAction', []).directive('postPro
                 });
         };
 
-        vm.setDirty = function() {
+        vm.setDirty = function () {
             vm.action.dirty = true;
             console.log('set dirty');
         };

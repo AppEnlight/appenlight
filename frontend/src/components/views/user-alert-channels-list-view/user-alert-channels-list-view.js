@@ -18,75 +18,76 @@ angular.module('appenlight.components.userAlertChannelsListView', [])
         controller: userAlertChannelsListViewController
     });
 
-userAlertChannelsListViewController.$inject = ['$state','userSelfPropertyResource', 'applicationsNoIdResource'];
+userAlertChannelsListViewController.$inject = ['$state', 'userSelfPropertyResource', 'applicationsNoIdResource'];
 
 function userAlertChannelsListViewController($state, userSelfPropertyResource, applicationsNoIdResource) {
     console.debug('AlertChannelsController');
     var vm = this;
-    vm.$state = $state;
-    vm.loading = {channels: true, applications: true, actions:true};
+    vm.$onInit = function () {
+        vm.$state = $state;
+        vm.loading = {channels: true, applications: true, actions: true};
 
-    vm.alertChannels = userSelfPropertyResource.query({key: 'alert_channels'},
-        function (data) {
-            vm.loading.channels = false;
-        });
+        vm.alertChannels = userSelfPropertyResource.query({key: 'alert_channels'},
+            function (data) {
+                vm.loading.channels = false;
+            });
 
-    vm.alertActions = userSelfPropertyResource.query({key: 'alert_actions'},
-        function (data) {
-            vm.loading.actions = false;
-        });
+        vm.alertActions = userSelfPropertyResource.query({key: 'alert_actions'},
+            function (data) {
+                vm.loading.actions = false;
+            });
 
-    vm.applications = applicationsNoIdResource.query({permission: 'view'},
-        function (data) {
-            vm.loading.applications = false;
-        });
+        vm.applications = applicationsNoIdResource.query({permission: 'view'},
+            function (data) {
+                vm.loading.applications = false;
+            });
 
-    var allOps = {
-        'eq': 'Equal',
-        'ne': 'Not equal',
-        'ge': 'Greater or equal',
-        'gt': 'Greater than',
-        'le': 'Lesser or equal',
-        'lt': 'Lesser than',
-        'startswith': 'Starts with',
-        'endswith': 'Ends with',
-        'contains': 'Contains'
-    };
+        var allOps = {
+            'eq': 'Equal',
+            'ne': 'Not equal',
+            'ge': 'Greater or equal',
+            'gt': 'Greater than',
+            'le': 'Lesser or equal',
+            'lt': 'Lesser than',
+            'startswith': 'Starts with',
+            'endswith': 'Ends with',
+            'contains': 'Contains'
+        };
 
-    var fieldOps = {};
-    fieldOps['http_status'] = ['eq', 'ne', 'ge', 'le'];
-    fieldOps['group:priority'] = ['eq', 'ne', 'ge', 'le'];
-    fieldOps['duration'] = ['ge', 'le'];
-    fieldOps['url_domain'] = ['eq', 'ne', 'startswith', 'endswith',
-        'contains'];
-    fieldOps['url_path'] = ['eq', 'ne', 'startswith', 'endswith',
-        'contains'];
-    fieldOps['error'] = ['eq', 'ne', 'startswith', 'endswith',
-        'contains'];
-    fieldOps['tags:server_name'] = ['eq', 'ne', 'startswith', 'endswith',
-        'contains'];
-    fieldOps['group:occurences'] = ['eq', 'ne', 'ge', 'le'];
+        var fieldOps = {};
+        fieldOps['http_status'] = ['eq', 'ne', 'ge', 'le'];
+        fieldOps['group:priority'] = ['eq', 'ne', 'ge', 'le'];
+        fieldOps['duration'] = ['ge', 'le'];
+        fieldOps['url_domain'] = ['eq', 'ne', 'startswith', 'endswith',
+            'contains'];
+        fieldOps['url_path'] = ['eq', 'ne', 'startswith', 'endswith',
+            'contains'];
+        fieldOps['error'] = ['eq', 'ne', 'startswith', 'endswith',
+            'contains'];
+        fieldOps['tags:server_name'] = ['eq', 'ne', 'startswith', 'endswith',
+            'contains'];
+        fieldOps['group:occurences'] = ['eq', 'ne', 'ge', 'le'];
 
-    var possibleFields = {
-        '__AND__': 'All met (composite rule)',
-        '__OR__': 'One met (composite rule)',
-        '__NOT__': 'Not met (composite rule)',
-        'http_status': 'HTTP Status',
-        'duration': 'Request duration',
-        'group:priority': 'Group -> Priority',
-        'url_domain': 'Domain',
-        'url_path': 'URL Path',
-        'error': 'Error',
-        'tags:server_name': 'Tag -> Server name',
-        'group:occurences': 'Group -> Occurences'
-    };
+        var possibleFields = {
+            '__AND__': 'All met (composite rule)',
+            '__OR__': 'One met (composite rule)',
+            '__NOT__': 'Not met (composite rule)',
+            'http_status': 'HTTP Status',
+            'duration': 'Request duration',
+            'group:priority': 'Group -> Priority',
+            'url_domain': 'Domain',
+            'url_path': 'URL Path',
+            'error': 'Error',
+            'tags:server_name': 'Tag -> Server name',
+            'group:occurences': 'Group -> Occurences'
+        };
 
-    vm.ruleDefinitions = {
-        fieldOps: fieldOps,
-        allOps: allOps,
-        possibleFields: possibleFields
-    };
-
+        vm.ruleDefinitions = {
+            fieldOps: fieldOps,
+            allOps: allOps,
+            possibleFields: possibleFields
+        };
+    }
     vm.addAction = function (channel) {
         console.log('test');
         userSelfPropertyResource.save({key: 'alert_channels_rules'}, {}, function (data) {
@@ -120,7 +121,7 @@ function userAlertChannelsListViewController($state, userSelfPropertyResource, a
             channel_name: channel.channel_name,
             channel_value: channel.channel_value
         }, function () {
-            vm.alertChannels = _.filter(vm.alertChannels, function(item){
+            vm.alertChannels = _.filter(vm.alertChannels, function (item) {
                 return item != channel;
             });
         });

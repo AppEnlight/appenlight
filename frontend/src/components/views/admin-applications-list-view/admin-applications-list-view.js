@@ -23,12 +23,14 @@ AdminApplicationsListController.$inject = ['applicationsResource'];
 function AdminApplicationsListController(applicationsResource) {
     console.debug('AdminApplicationsListController');
     var vm = this;
-    vm.loading = {applications: true};
+    vm.$onInit = function () {
+        vm.loading = {applications: true};
 
-    vm.applications = applicationsResource.query({
-        root_list: true,
-        resource_type: 'application'
-    }, function (data) {
-        vm.loading = {applications: false};
-    });
+        vm.applications = applicationsResource.query({
+            root_list: true,
+            resource_type: 'application'
+        }, function (data) {
+            vm.loading = {applications: false};
+        });
+    }
 };

@@ -23,9 +23,11 @@ ApplicationsListViewController.$inject = ['$state', 'applicationsResource'];
 function ApplicationsListViewController($state, applicationsResource) {
     console.debug('ApplicationsListController');
     var vm = this;
-    vm.$state = $state;
-    vm.loading = {applications: true};
-    vm.applications = applicationsResource.query(null, function(){
-        vm.loading.applications = false;
-    });
+    vm.$onInit = function () {
+        vm.$state = $state;
+        vm.loading = {applications: true};
+        vm.applications = applicationsResource.query(null, function () {
+            vm.loading.applications = false;
+        });
+    }
 }

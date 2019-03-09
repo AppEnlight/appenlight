@@ -23,15 +23,16 @@ EventBrowserController.$inject = ['eventsNoIdResource', 'eventsResource'];
 function EventBrowserController(eventsNoIdResource, eventsResource) {
     console.info('EventBrowserController');
     var vm = this;
+    vm.$onInit = function () {
 
-    vm.loading = {events: true};
+        vm.loading = {events: true};
 
-    vm.events = eventsNoIdResource.query(
-        {key: 'events'},
-        function (data) {
-            vm.loading.events = false;
-        });
-
+        vm.events = eventsNoIdResource.query(
+            {key: 'events'},
+            function (data) {
+                vm.loading.events = false;
+            });
+    }
 
     vm.closeEvent = function (event) {
         console.log('closeEvent');

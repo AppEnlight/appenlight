@@ -23,19 +23,20 @@ AdminUserListViewController.$inject = ['usersResource'];
 function AdminUserListViewController(usersResource) {
     console.debug('AdminUsersController');
     var vm = this;
-    vm.loading = {users: true};
+    vm.$onInit = function () {
+        vm.loading = {users: true};
 
-    vm.users = usersResource.query({}, function (data) {
-        vm.loading = {users: false};
-        vm.activeUsers = _.reduce(vm.users, function(memo, val){
-            if (val.status == 1){
-                return memo + 1;
-            }
-            return memo;
-        }, 0);
-        console.log(vm.users);
-    });
-
+        vm.users = usersResource.query({}, function (data) {
+            vm.loading = {users: false};
+            vm.activeUsers = _.reduce(vm.users, function (memo, val) {
+                if (val.status == 1) {
+                    return memo + 1;
+                }
+                return memo;
+            }, 0);
+            console.log(vm.users);
+        });
+    }
 
     vm.removeUser = function (user) {
         usersResource.remove({userId: user.id}, function (data, responseHeaders) {

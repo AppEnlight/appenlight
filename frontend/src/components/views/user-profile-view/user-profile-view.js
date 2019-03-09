@@ -23,14 +23,15 @@ UserProfileViewController.$inject = ['$state', 'userSelfResource'];
 function UserProfileViewController($state, userSelfResource) {
     console.debug('UserProfileViewController');
     var vm = this;
-    vm.$state = $state;
-    vm.loading = {profile: true};
+    vm.$onInit = function () {
+        vm.$state = $state;
+        vm.loading = {profile: true};
 
-    vm.user = userSelfResource.get(null, function (data) {
-        vm.loading.profile = false;
-        console.log('loaded profile');
-    });
-
+        vm.user = userSelfResource.get(null, function (data) {
+            vm.loading.profile = false;
+            console.log('loaded profile');
+        });
+    }
     vm.updateProfile = function () {
         vm.loading.profile = true;
 

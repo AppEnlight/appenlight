@@ -1,8 +1,8 @@
 {
   "name": "errormator",
-  "description": "JS layer for Errormator",
+  "description": "JS layer for AppEnlight",
   "devDependencies": {
-    "bower": "1.7.9",
+    "bower": "^1.8.8",
     "bower-requirejs": "1.2.0",
     "grunt": "1.0.1",
     "grunt-angular-templates": "1.0.4",
@@ -17,9 +17,12 @@
     "grunt-contrib-uglify": "1.0.1",
     "grunt-contrib-watch": "1.0.0",
     "grunt-remove-logging": "0.2.0",
+    "ini": "1.3.4",
     "karma": "0.13.22",
     "underscore": "1.8.3",
-    "yo": "1.8.4",
-    "ini": "1.3.4"
+    "yo": "1.8.4"
+  },
+  "dependencies": {
+    "grunt-cli": "^1.3.2"
   }
 }

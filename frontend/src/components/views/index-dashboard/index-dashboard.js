@@ -22,359 +22,376 @@ IndexDashboardController.$inject = ['$rootScope', '$scope', '$location','$cookie
 
 function IndexDashboardController($rootScope, $scope, $location, $cookies, $interval, stateHolder, applicationsPropertyResource, AeConfig) {
     var vm = this;
-    stateHolder.section = 'dashboard';
-    vm.timeOptions = {};
-    var allowed = ['1h', '4h', '12h', '24h', '1w', '2w', '1M'];
-    _.each(allowed, function (key) {
-        if (allowed.indexOf(key) !== -1) {
-            vm.timeOptions[key] = AeConfig.timeOptions[key];
-        }
-    });
-    vm.stateHolder = stateHolder;
-    vm.urls = AeConfig.urls;
-    vm.applications = stateHolder.AeUser.applications_map;
-    vm.show_dashboard = false;
-    vm.resource = null;
-    vm.graphType = {selected: null};
-    vm.timeSpan = vm.timeOptions['1h'];
-    vm.trendingReports = [];
-    vm.exceptions = 0;
-    vm.satisfyingRequests = 0;
-    vm.toleratedRequests = 0;
-    vm.frustratingRequests = 0;
-    vm.uptimeStats = 0;
-    vm.apdexStats = [];
-    vm.seriesRequestsData = [];
-    vm.seriesMetricsData = [];
-    vm.seriesSlowData = [];
-    vm.slowCalls = [];
-    vm.slowURIS = [];
+    vm.$onInit = function () {
+        stateHolder.section = 'dashboard';
+        vm.timeOptions = {};
+        var allowed = ['1h', '4h', '12h', '24h', '1w', '2w', '1M'];
+        _.each(allowed, function (key) {
+            if (allowed.indexOf(key) !== -1) {
+                vm.timeOptions[key] = AeConfig.timeOptions[key];
+            }
+        });
+        vm.stateHolder = stateHolder;
+        vm.urls = AeConfig.urls;
+        vm.applications = stateHolder.AeUser.applications_map;
+        vm.show_dashboard = false;
+        vm.resource = null;
+        vm.graphType = {selected: null};
+        vm.timeSpan = vm.timeOptions['1h'];
+        vm.trendingReports = [];
+        vm.exceptions = 0;
+        vm.satisfyingRequests = 0;
+        vm.toleratedRequests = 0;
+        vm.frustratingRequests = 0;
+        vm.uptimeStats = 0;
+        vm.apdexStats = [];
+        vm.seriesRequestsData = [];
+        vm.seriesMetricsData = [];
+        vm.seriesSlowData = [];
+        vm.slowCalls = [];
+        vm.slowURIS = [];
 
-    vm.reportChartConfig = {
-        data: {
-            json: [],
-            xFormat: '%Y-%m-%dT%H:%M:%S'
-        },
-        color: {
-            pattern: ['#6baed6', '#e6550d', '#74c476', '#fdd0a2', '#8c564b']
-        },
-        axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    culling: {
-                        max: 6 // the number of tick texts will be adjusted to less than this value
-                    },
-                    format: '%Y-%m-%d %H:%M'
-                }
+        vm.reportChartConfig = {
+            data: {
+                json: [],
+                xFormat: '%Y-%m-%dT%H:%M:%S'
             },
-            y: {
-                tick: {
-                    count: 5,
-                    format: d3.format('.2s')
-                }
-            }
-        },
-        subchart: {
-            show: true,
-            size: {
-                height: 20
-            }
-        },
-        size: {
-            height: 250
-        },
-        zoom: {
-            rescale: true
-        },
-        grid: {
-            x: {
-                show: true
+            color: {
+                pattern: ['#6baed6', '#e6550d', '#74c476', '#fdd0a2', '#8c564b']
             },
-            y: {
-                show: true
-            }
-        },
-        tooltip: {
-            format: {
-                title: function (d) {
-                    return '' + d;
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        culling: {
+                            max: 6 // the number of tick texts will be adjusted to less than this value
+                        },
+                        format: '%Y-%m-%d %H:%M'
+                    }
                 },
-                value: function (v) {
-                    return v
-                }
-            }
-        }
-    };
-    vm.reportChartData = {};
-
-    vm.reportSlowChartConfig = {
-        data: {
-            json: [],
-            xFormat: '%Y-%m-%dT%H:%M:%S'
-        },
-        color: {
-            pattern: ['#6baed6', '#e6550d', '#74c476', '#fdd0a2', '#8c564b']
-        },
-        axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    culling: {
-                        max: 6 // the number of tick texts will be adjusted to less than this value
-                    },
-                    format: '%Y-%m-%d %H:%M'
+                y: {
+                    tick: {
+                        count: 5,
+                        format: d3.format('.2s')
+                    }
                 }
             },
-            y: {
-                tick: {
-                    count: 5,
-                    format: d3.format('.2s')
+            subchart: {
+                show: true,
+                size: {
+                    height: 20
                 }
-            }
-        },
-        subchart: {
-            show: true,
+            },
             size: {
-                height: 20
-            }
-        },
-        size: {
-            height: 250
-        },
-        zoom: {
-            rescale: true
-        },
-        grid: {
-            x: {
-                show: true
+                height: 250
             },
-            y: {
-                show: true
-            }
-        },
-        tooltip: {
-            format: {
-                title: function (d) {
-                    return '' + d;
+            zoom: {
+                rescale: true
+            },
+            grid: {
+                x: {
+                    show: true
                 },
-                value: function (v) {
-                    return v
+                y: {
+                    show: true
                 }
-            }
-        }
-    };
-    vm.reportSlowChartData = {};
-
-    vm.metricsChartConfig = {
-        data: {
-            json: [],
-            xFormat: '%Y-%m-%dT%H:%M:%S',
-            keys: {
-                x: 'x',
-                value: ["main", "sql", "nosql", "tmpl", "remote", "custom"]
             },
-            names: {
-                main: 'View/Application logic',
-                sql: 'Relational database queries',
-                nosql: 'NoSql datastore calls',
-                tmpl: 'Template rendering',
-                custom: 'Custom timed calls',
-                remote: 'Requests to remote resources'
-            },
-            type: 'area',
-            groups: [["main", "sql", "nosql", "remote", "custom", "tmpl"]],
-            order: null
-        },
-        color: {
-            pattern: ['#6baed6', '#c7e9c0', '#fd8d3c', '#d6616b', '#ffcc00', '#c6dbef']
-        },
-        axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    culling: {
-                        max: 6 // the number of tick texts will be adjusted to less than this value
+            tooltip: {
+                format: {
+                    title: function (d) {
+                        return '' + d;
                     },
-                    format: '%Y-%m-%d %H:%M'
-                }
-            },
-            y: {
-                tick: {
-                    count: 5,
-                    format: d3.format('.2f')
+                    value: function (v) {
+                        return v
+                    }
                 }
             }
-        },
-        point: {
-            show: false
-        },
-        subchart: {
-            show: true,
-            size: {
-                height: 20
-            }
-        },
-        size: {
-            height: 350
-        },
-        zoom: {
-            rescale: true
-        },
-        grid: {
-            x: {
-                show: true
-            },
-            y: {
-                show: true
-            }
-        },
-        tooltip: {
-            format: {
-                title: function (d) {
-                    return '' + d;
-                },
-                value: function (v) {
-                    return v
-                }
-            }
-        }
-    };
-    vm.metricsChartData = {};
+        };
+        vm.reportChartData = {};
 
-    vm.responseChartConfig = {
-        data: {
-            json: [],
-            xFormat: '%Y-%m-%dT%H:%M:%S'
-        },
-        color: {
-            pattern: ['#d6616b', '#6baed6', '#fd8d3c']
-        },
-        axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    culling: {
-                        max: 6 // the number of tick texts will be adjusted to less than this value
+        vm.reportSlowChartConfig = {
+            data: {
+                json: [],
+                xFormat: '%Y-%m-%dT%H:%M:%S'
+            },
+            color: {
+                pattern: ['#6baed6', '#e6550d', '#74c476', '#fdd0a2', '#8c564b']
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        culling: {
+                            max: 6 // the number of tick texts will be adjusted to less than this value
+                        },
+                        format: '%Y-%m-%d %H:%M'
+                    }
+                },
+                y: {
+                    tick: {
+                        count: 5,
+                        format: d3.format('.2s')
+                    }
+                }
+            },
+            subchart: {
+                show: true,
+                size: {
+                    height: 20
+                }
+            },
+            size: {
+                height: 250
+            },
+            zoom: {
+                rescale: true
+            },
+            grid: {
+                x: {
+                    show: true
+                },
+                y: {
+                    show: true
+                }
+            },
+            tooltip: {
+                format: {
+                    title: function (d) {
+                        return '' + d;
                     },
-                    format: '%Y-%m-%d %H:%M'
-                }
-            },
-            y: {
-                tick: {
-                    count: 5,
-                    format: d3.format('.2f')
+                    value: function (v) {
+                        return v
+                    }
                 }
             }
-        },
-        point: {
-            show: false
-        },
-        subchart: {
-            show: true,
-            size: {
-                height: 20
-            }
-        },
-        size: {
-            height: 350
-        },
-        zoom: {
-            rescale: true
-        },
-        grid: {
-            x: {
-                show: true
-            },
-            y: {
-                show: true
-            }
-        },
-        tooltip: {
-            format: {
-                title: function (d) {
-                    return '' + d;
-                },
-                value: function (v) {
-                    return v
-                }
-            }
-        }
-    };
-    vm.responseChartData = {};
+        };
+        vm.reportSlowChartData = {};
 
-    vm.requestsChartConfig = {
-        data: {
-            json: [],
-            xFormat: '%Y-%m-%dT%H:%M:%S'
-        },
-        color: {
-            pattern: ['#d6616b', '#6baed6', '#fd8d3c']
-        },
-        axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    culling: {
-                        max: 6 // the number of tick texts will be adjusted to less than this value
+        vm.metricsChartConfig = {
+            data: {
+                json: [],
+                xFormat: '%Y-%m-%dT%H:%M:%S',
+                keys: {
+                    x: 'x',
+                    value: ["main", "sql", "nosql", "tmpl", "remote", "custom"]
+                },
+                names: {
+                    main: 'View/Application logic',
+                    sql: 'Relational database queries',
+                    nosql: 'NoSql datastore calls',
+                    tmpl: 'Template rendering',
+                    custom: 'Custom timed calls',
+                    remote: 'Requests to remote resources'
+                },
+                type: 'area',
+                groups: [["main", "sql", "nosql", "remote", "custom", "tmpl"]],
+                order: null
+            },
+            color: {
+                pattern: ['#6baed6', '#c7e9c0', '#fd8d3c', '#d6616b', '#ffcc00', '#c6dbef']
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        culling: {
+                            max: 6 // the number of tick texts will be adjusted to less than this value
+                        },
+                        format: '%Y-%m-%d %H:%M'
+                    }
+                },
+                y: {
+                    tick: {
+                        count: 5,
+                        format: d3.format('.2f')
+                    }
+                }
+            },
+            point: {
+                show: false
+            },
+            subchart: {
+                show: true,
+                size: {
+                    height: 20
+                }
+            },
+            size: {
+                height: 350
+            },
+            zoom: {
+                rescale: true
+            },
+            grid: {
+                x: {
+                    show: true
+                },
+                y: {
+                    show: true
+                }
+            },
+            tooltip: {
+                format: {
+                    title: function (d) {
+                        return '' + d;
                     },
-                    format: '%Y-%m-%d %H:%M'
-                }
-            },
-            y: {
-                tick: {
-                    count: 5,
-                    format: d3.format('.2f')
+                    value: function (v) {
+                        return v
+                    }
                 }
             }
-        },
-        point: {
-            show: false
-        },
-        subchart: {
-            show: true,
-            size: {
-                height: 20
-            }
-        },
-        size: {
-            height: 350
-        },
-        zoom: {
-            rescale: true
-        },
-        grid: {
-            x: {
-                show: true
+        };
+        vm.metricsChartData = {};
+
+        vm.responseChartConfig = {
+            data: {
+                json: [],
+                xFormat: '%Y-%m-%dT%H:%M:%S'
             },
-            y: {
-                show: true
-            }
-        },
-        tooltip: {
-            format: {
-                title: function (d) {
-                    return '' + d;
+            color: {
+                pattern: ['#d6616b', '#6baed6', '#fd8d3c']
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        culling: {
+                            max: 6 // the number of tick texts will be adjusted to less than this value
+                        },
+                        format: '%Y-%m-%d %H:%M'
+                    }
                 },
-                value: function (v) {
-                    return v
+                y: {
+                    tick: {
+                        count: 5,
+                        format: d3.format('.2f')
+                    }
+                }
+            },
+            point: {
+                show: false
+            },
+            subchart: {
+                show: true,
+                size: {
+                    height: 20
+                }
+            },
+            size: {
+                height: 350
+            },
+            zoom: {
+                rescale: true
+            },
+            grid: {
+                x: {
+                    show: true
+                },
+                y: {
+                    show: true
+                }
+            },
+            tooltip: {
+                format: {
+                    title: function (d) {
+                        return '' + d;
+                    },
+                    value: function (v) {
+                        return v
+                    }
                 }
             }
+        };
+        vm.responseChartData = {};
+
+        vm.requestsChartConfig = {
+            data: {
+                json: [],
+                xFormat: '%Y-%m-%dT%H:%M:%S'
+            },
+            color: {
+                pattern: ['#d6616b', '#6baed6', '#fd8d3c']
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        culling: {
+                            max: 6 // the number of tick texts will be adjusted to less than this value
+                        },
+                        format: '%Y-%m-%d %H:%M'
+                    }
+                },
+                y: {
+                    tick: {
+                        count: 5,
+                        format: d3.format('.2f')
+                    }
+                }
+            },
+            point: {
+                show: false
+            },
+            subchart: {
+                show: true,
+                size: {
+                    height: 20
+                }
+            },
+            size: {
+                height: 350
+            },
+            zoom: {
+                rescale: true
+            },
+            grid: {
+                x: {
+                    show: true
+                },
+                y: {
+                    show: true
+                }
+            },
+            tooltip: {
+                format: {
+                    title: function (d) {
+                        return '' + d;
+                    },
+                    value: function (v) {
+                        return v
+                    }
+                }
+            }
+        };
+        vm.requestsChartData = {};
+
+        vm.loading = {
+            'apdex': true,
+            'reports': true,
+            'graphs': true,
+            'slowCalls': true,
+            'slowURIS': true,
+            'requestsBreakdown': true,
+            'series': true
+        };
+        vm.stream = {paused: false, filtered: false, messages: [], reports: []};
+
+        vm.intervalId = $interval(function () {
+            if (_.contains(['30m', "1h"], vm.timeSpan.key)) {
+                // don't do anything if window is unfocused
+                if(document.hidden === true){
+                    return ;
+                }
+                vm.refreshData();
+            }
+        }, 60000);
+
+        if (stateHolder.AeUser.applications.length){
+            vm.show_dashboard = true;
+            vm.determineStartState();
         }
-    };
-    vm.requestsChartData = {};
 
-    vm.loading = {
-        'apdex': true,
-        'reports': true,
-        'graphs': true,
-        'slowCalls': true,
-        'slowURIS': true,
-        'requestsBreakdown': true,
-        'series': true
-    };
-    vm.stream = {paused: false, filtered: false, messages: [], reports: []};
-
+    }
     $rootScope.$on('channelstream-message.front_dashboard.new_topic', function(event, message){
         var ws_report = message.message.report;
         if (ws_report.http_status != 500) {
@@ -462,16 +479,6 @@ function IndexDashboardController($rootScope, $scope, $location, $cookies, $inte
         vm.startDateFilter = timeSpanToStartDate(vm.timeSpan.key);
         vm.refreshData();
     };
-
-    vm.intervalId = $interval(function () {
-        if (_.contains(['30m', "1h"], vm.timeSpan.key)) {
-            // don't do anything if window is unfocused
-            if(document.hidden === true){
-                return ;
-            }
-            vm.refreshData();
-        }
-    }, 60000);
 
     vm.fetchApdexStats = function () {
         vm.loading.apdex = true;
@@ -653,9 +660,4 @@ function IndexDashboardController($rootScope, $scope, $location, $cookies, $inte
     $scope.$on('$destroy',function(){
         $interval.cancel(vm.intervalId);
     });
-
-    if (stateHolder.AeUser.applications.length){
-        vm.show_dashboard = true;
-        vm.determineStartState();
-    }
 }

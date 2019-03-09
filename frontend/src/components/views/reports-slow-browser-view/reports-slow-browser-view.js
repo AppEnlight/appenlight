@@ -27,109 +27,149 @@ ReportsSlowBrowserViewController.$inject = ['$location', '$cookies',
 
 function ReportsSlowBrowserViewController($location, $cookies, stateHolder, typeAheadTagHelper, slowReportsResource) {
     var vm = this;
-    vm.applications = stateHolder.AeUser.applications_map;
-    stateHolder.section = 'slow_reports';
-    vm.today = function () {
-        vm.pickerDate = new Date();
-    };
-    vm.today();
-    vm.reportsPage = [];
-    vm.page = 1;
-    vm.itemCount = 0;
-    vm.itemsPerPage = 250;
-    typeAheadTagHelper.tags = [];
-    vm.searchParams = {tags: [], page: 1, type: 'slow_report'};
-    vm.is_loading = false;
-    vm.filterTypeAheadOptions = [
-        {
-            type: 'view_name',
-            text: 'view_name:',
-            'description': 'Query reports occured in specific views',
-            tag: 'View Name',
-            example: "view_name:module.foo"
-        },
-        {
-            type: 'resource',
-            text: 'resource:',
-            'description': 'Restrict resultset to application',
-            tag: 'Application',
-            example: "resource:ID"
-        },
-        {
-            type: 'priority',
-            text: 'priority:',
-            'description': 'Show reports with specific priority',
-            example: 'priority:8',
-            tag: 'Priority'
-        },
-        {
-            type: 'min_occurences',
-            text: 'min_occurences:',
-            'description': 'Show reports from groups with at least X occurences',
-            example: 'min_occurences:25',
-            tag: 'Min. occurences'
-        },
-        {
-            type: 'min_duration',
-            text: 'min_duration:',
-            'description': 'Show reports from groups with average duration >= Xs',
-            example: 'min_duration:4.5',
-            tag: 'Min. duration'
-        },
-        {
-            type: 'url_path',
-            text: 'url_path:',
-            'description': 'Show reports from specific URL paths',
-            example: 'url_path:/foo/bar/baz',
-            tag: 'Url Path'
-        },
-        {
-            type: 'url_domain',
-            text: 'url_domain:',
-            'description': 'Show reports from specific domain',
-            example: 'url_domain:domain.com',
-            tag: 'Domain'
-        },
-        {
-            type: 'request_id',
-            text: 'request_id:',
-            'description': 'Show reports with specific request id',
-            example: "request_id:883143dc572e4c38aceae92af0ea5ae0",
-            tag: 'Request ID'
-        },
-        {
-            type: 'report_status',
-            text: 'report_status:',
-            'description': 'Show reports from groups with specific status',
-            example: 'report_status:never_reviewed',
-            tag: 'Status'
-        },
-        {
-            type: 'server_name',
-            text: 'server_name:',
-            'description': 'Show reports tagged with this key/value pair',
-            example: 'server_name:hostname',
-            tag: 'Tag'
-        },
-        {
-            type: 'start_date',
-            text: 'start_date:',
-            'description': 'Show reports newer than this date (press TAB for dropdown)',
-            example: 'start_date:2014-08-15T13:00',
-            tag: 'Start Date'
-        },
-        {
-            type: 'end_date',
-            text: 'end_date:',
-            'description': 'Show reports older than this date (press TAB for dropdown)',
-            example: 'start_date:2014-08-15T23:59',
-            tag: 'End Date'
-        }
-    ];
+    vm.$onInit = function () {
+        vm.applications = stateHolder.AeUser.applications_map;
+        stateHolder.section = 'slow_reports';
+        vm.today = function () {
+            vm.pickerDate = new Date();
+        };
+        vm.today();
+        vm.reportsPage = [];
+        vm.page = 1;
+        vm.itemCount = 0;
+        vm.itemsPerPage = 250;
+        typeAheadTagHelper.tags = [];
+        vm.searchParams = {tags: [], page: 1, type: 'slow_report'};
+        vm.is_loading = false;
+        vm.filterTypeAheadOptions = [
+            {
+                type: 'view_name',
+                text: 'view_name:',
+                'description': 'Query reports occured in specific views',
+                tag: 'View Name',
+                example: "view_name:module.foo"
+            },
+            {
+                type: 'resource',
+                text: 'resource:',
+                'description': 'Restrict resultset to application',
+                tag: 'Application',
+                example: "resource:ID"
+            },
+            {
+                type: 'priority',
+                text: 'priority:',
+                'description': 'Show reports with specific priority',
+                example: 'priority:8',
+                tag: 'Priority'
+            },
+            {
+                type: 'min_occurences',
+                text: 'min_occurences:',
+                'description': 'Show reports from groups with at least X occurences',
+                example: 'min_occurences:25',
+                tag: 'Min. occurences'
+            },
+            {
+                type: 'min_duration',
+                text: 'min_duration:',
+                'description': 'Show reports from groups with average duration >= Xs',
+                example: 'min_duration:4.5',
+                tag: 'Min. duration'
+            },
+            {
+                type: 'url_path',
+                text: 'url_path:',
+                'description': 'Show reports from specific URL paths',
+                example: 'url_path:/foo/bar/baz',
+                tag: 'Url Path'
+            },
+            {
+                type: 'url_domain',
+                text: 'url_domain:',
+                'description': 'Show reports from specific domain',
+                example: 'url_domain:domain.com',
+                tag: 'Domain'
+            },
+            {
+                type: 'request_id',
+                text: 'request_id:',
+                'description': 'Show reports with specific request id',
+                example: "request_id:883143dc572e4c38aceae92af0ea5ae0",
+                tag: 'Request ID'
+            },
+            {
+                type: 'report_status',
+                text: 'report_status:',
+                'description': 'Show reports from groups with specific status',
+                example: 'report_status:never_reviewed',
+                tag: 'Status'
+            },
+            {
+                type: 'server_name',
+                text: 'server_name:',
+                'description': 'Show reports tagged with this key/value pair',
+                example: 'server_name:hostname',
+                tag: 'Tag'
+            },
+            {
+                type: 'start_date',
+                text: 'start_date:',
+                'description': 'Show reports newer than this date (press TAB for dropdown)',
+                example: 'start_date:2014-08-15T13:00',
+                tag: 'Start Date'
+            },
+            {
+                type: 'end_date',
+                text: 'end_date:',
+                'description': 'Show reports older than this date (press TAB for dropdown)',
+                example: 'start_date:2014-08-15T23:59',
+                tag: 'End Date'
+            }
+        ];
 
-    vm.filterTypeAhead = undefined;
-    vm.showDatePicker = false;
-    vm.aheadFilter = typeAheadTagHelper.aheadFilter;
+        vm.filterTypeAhead = undefined;
+        vm.showDatePicker = false;
+        vm.aheadFilter = typeAheadTagHelper.aheadFilter;
+
+        vm.manualOpen = false;
+        vm.notRelativeTime = false;
+        if ($cookies.notRelativeTime) {
+            vm.notRelativeTime = JSON.parse($cookies.notRelativeTime);
+        }
+
+        _.each(_.range(1, 11), function (priority) {
+            vm.filterTypeAheadOptions.push({
+                type: 'priority',
+                text: 'priority:' + priority.toString(),
+                description: 'Show entries with specific priority',
+                example: 'priority:' + priority,
+                tag: 'Priority'
+            });
+        });
+        _.each(['never_reviewed', 'reviewed', 'fixed', 'public'], function (status) {
+            vm.filterTypeAheadOptions.push({
+                type: 'report_status',
+                text: 'report_status:' + status,
+                'description': 'Show only reports with this status',
+                example: 'report_status:' + status,
+                tag: 'Status ' + status.toUpperCase()
+            });
+        });
+        _.each(stateHolder.AeUser.applications, function (item) {
+            vm.filterTypeAheadOptions.push({
+                type: 'resource',
+                text: 'resource:' + item.resource_id + ':' + item.resource_name,
+                example: 'resource:' + item.resource_id,
+                'tag': item.resource_name,
+                'description': 'Restrict resultset to this application'
+            });
+        });
+
+        //initial load
+        vm.refresh();
+    }
+
     vm.removeSearchTag = function (tag) {
         $location.search(tag.type, null);
         vm.refresh();
@@ -138,44 +178,11 @@ function ReportsSlowBrowserViewController($location, $cookies, stateHolder, type
         $location.search(tag.type, tag.value);
         vm.refresh();
     };
-    vm.manualOpen = false;
-    vm.notRelativeTime = false;
-    if ($cookies.notRelativeTime) {
-        vm.notRelativeTime = JSON.parse($cookies.notRelativeTime);
-    }
 
 
     vm.changeRelativeTime = function () {
         $cookies.notRelativeTime = JSON.stringify(vm.notRelativeTime);
     };
-
-    _.each(_.range(1, 11), function (priority) {
-        vm.filterTypeAheadOptions.push({
-            type: 'priority',
-            text: 'priority:' + priority.toString(),
-            description: 'Show entries with specific priority',
-            example: 'priority:' + priority,
-            tag: 'Priority'
-        });
-    });
-    _.each(['never_reviewed', 'reviewed', 'fixed', 'public'], function (status) {
-        vm.filterTypeAheadOptions.push({
-            type: 'report_status',
-            text: 'report_status:' + status,
-            'description': 'Show only reports with this status',
-            example: 'report_status:' + status,
-            tag: 'Status ' + status.toUpperCase()
-        });
-    });
-    _.each(stateHolder.AeUser.applications, function (item) {
-        vm.filterTypeAheadOptions.push({
-            type: 'resource',
-            text: 'resource:' + item.resource_id + ':' + item.resource_name,
-            example: 'resource:' + item.resource_id,
-            'tag': item.resource_name,
-            'description': 'Restrict resultset to this application'
-        });
-    });
 
     vm.typeAheadTag = function (event) {
         var text = vm.filterTypeAhead;
@@ -287,6 +294,4 @@ function ReportsSlowBrowserViewController($location, $cookies, stateHolder, type
         vm.fetchReports(params);
     };
 
-    //initial load
-    vm.refresh();
 }

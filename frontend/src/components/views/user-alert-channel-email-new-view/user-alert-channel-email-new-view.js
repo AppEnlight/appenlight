@@ -18,15 +18,17 @@ angular.module('appenlight.components.userAlertChannelsEmailNewView', [])
         controller: AlertChannelsEmailController
     });
 
-AlertChannelsEmailController.$inject = ['$state','userSelfPropertyResource'];
+AlertChannelsEmailController.$inject = ['$state', 'userSelfPropertyResource'];
 
 function AlertChannelsEmailController($state, userSelfPropertyResource) {
     console.debug('AlertChannelsEmailController');
     var vm = this;
-    vm.$state = $state;
-    vm.loading = {email: false};
-    vm.form = {};
-
+    vm.$onInit = function () {
+        var vm = this;
+        vm.$state = $state;
+        vm.loading = {email: false};
+        vm.form = {};
+    }
     vm.createChannel = function () {
         vm.loading.email = true;
         console.log('createChannel');

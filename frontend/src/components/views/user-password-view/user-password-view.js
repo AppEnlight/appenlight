@@ -23,10 +23,11 @@ UserPasswordViewController.$inject = ['$state', 'userSelfPropertyResource'];
 function UserPasswordViewController($state, userSelfPropertyResource) {
     console.debug('UserPasswordViewController');
     var vm = this;
-    vm.$state = $state;
-    vm.loading = {password: false};
-    vm.form = {};
-
+    vm.$onInit = function () {
+        vm.$state = $state;
+        vm.loading = {password: false};
+        vm.form = {};
+    }
     vm.updatePassword = function () {
         vm.loading.password = true;
         console.log('updatePassword');

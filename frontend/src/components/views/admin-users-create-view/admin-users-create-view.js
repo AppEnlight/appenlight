@@ -23,55 +23,56 @@ AdminUsersCreateViewController.$inject = ['$state', 'usersResource', 'usersPrope
 function AdminUsersCreateViewController($state, usersResource, usersPropertyResource, sectionViewResource, AeConfig) {
     console.debug('AdminUsersCreateViewController');
     var vm = this;
-    vm.$state = $state;
-    vm.loading = {user: false};
+    vm.$onInit = function () {
+        vm.$state = $state;
+        vm.loading = {user: false};
 
 
-    if (typeof $state.params.userId !== 'undefined') {
-        vm.loading.user = true;
-        var userId = $state.params.userId;
-        vm.user = usersResource.get({userId: userId}, function (data) {
-            vm.loading.user = false;
-            // cast to true for angular checkbox
-            if (vm.user.status === 1) {
-                vm.user.status = true;
-            }
-        });
-
-        vm.resource_permissions = usersPropertyResource.query(
-            {userId: userId, key: 'resource_permissions'}, function (data) {
-                vm.loading.resource_permissions = false;
-                var tmpObj = {
-                    'user': {
-                        'application': {},
-                        'dashboard': {}
-                    },
-                    'group': {
-                        'application': {},
-                        'dashboard': {}
-                    }
-                };
-                _.each(data, function (item) {
-                    console.log(item);
-                    var section = tmpObj[item.type][item.resource_type];
-                    if (typeof section[item.resource_id] == 'undefined'){
-                        section[item.resource_id] = {
-                            self:item,
-                            permissions: []
-                        }
-                    }
-                    section[item.resource_id].permissions.push(item.perm_name);
-
-                });
-                console.log(tmpObj)
-                vm.resourcePermissions = tmpObj;
+        if (typeof $state.params.userId !== 'undefined') {
+            vm.loading.user = true;
+            var userId = $state.params.userId;
+            vm.user = usersResource.get({userId: userId}, function (data) {
+                vm.loading.user = false;
+                // cast to true for angular checkbox
+                if (vm.user.status === 1) {
+                    vm.user.status = true;
+                }
             });
 
-    }
-    else {
-        var userId = null;
-        vm.user = {
-            status: true
+            vm.resource_permissions = usersPropertyResource.query(
+                {userId: userId, key: 'resource_permissions'}, function (data) {
+                    vm.loading.resource_permissions = false;
+                    var tmpObj = {
+                        'user': {
+                            'application': {},
+                            'dashboard': {}
+                        },
+                        'group': {
+                            'application': {},
+                            'dashboard': {}
+                        }
+                    };
+                    _.each(data, function (item) {
+                        console.log(item);
+                        var section = tmpObj[item.type][item.resource_type];
+                        if (typeof section[item.resource_id] == 'undefined') {
+                            section[item.resource_id] = {
+                                self: item,
+                                permissions: []
+                            }
+                        }
+                        section[item.resource_id].permissions.push(item.perm_name);
+
+                    });
+                    console.log(tmpObj)
+                    vm.resourcePermissions = tmpObj;
+                });
+
+        } else {
+            var userId = null;
+            vm.user = {
+                status: true
+            }
         }
     }
 

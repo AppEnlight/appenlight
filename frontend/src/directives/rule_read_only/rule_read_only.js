@@ -15,7 +15,7 @@
 angular.module('appenlight.directives.ruleReadOnly', []).directive('ruleReadOnly', ['userSelfPropertyResource', function (userSelfPropertyResource) {
     return {
         scope: {},
-        bindToController:{
+        bindToController: {
             parentObj: '=',
             rule: '=',
             ruleDefinitions: '=',
@@ -24,15 +24,18 @@ angular.module('appenlight.directives.ruleReadOnly', []).directive('ruleReadOnly
         },
         restrict: 'E',
         templateUrl: 'directives/rule_read_only/rule_read_only.html',
-        controller:RuleController,
-        controllerAs:'rule_ctrlr'
+        controller: RuleController,
+        controllerAs: 'rule_ctrlr'
     }
-    function RuleController(){
+
+    function RuleController() {
         var vm = this;
-        vm.readOnlyPossibleFields = {};
-        var labelPairs = _.pairs(vm.parentObj.config);
-        _.each(labelPairs, function (entry) {
-            vm.readOnlyPossibleFields[entry[0]] = entry[1].human_label;
-        });
+        vm.$onInit = function () {
+            vm.readOnlyPossibleFields = {};
+            var labelPairs = _.pairs(vm.parentObj.config);
+            _.each(labelPairs, function (entry) {
+                vm.readOnlyPossibleFields[entry[0]] = entry[1].human_label;
+            });
+        }
     }
 }]);

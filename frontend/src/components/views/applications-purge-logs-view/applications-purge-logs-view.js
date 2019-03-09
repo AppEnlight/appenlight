@@ -18,23 +18,25 @@ angular.module('appenlight.components.applicationsPurgeLogsView', [])
         controller: applicationsPurgeLogsViewController
     });
 
-applicationsPurgeLogsViewController.$inject = ['$state' ,'applicationsResource', 'sectionViewResource', 'logsNoIdResource'];
+applicationsPurgeLogsViewController.$inject = ['$state', 'applicationsResource', 'sectionViewResource', 'logsNoIdResource'];
 
 function applicationsPurgeLogsViewController($state, applicationsResource, sectionViewResource, logsNoIdResource) {
     console.debug('applicationsPurgeLogsViewController');
     var vm = this;
-    vm.$state = $state;
-    vm.loading = {applications: true};
+    vm.$onInit = function () {
+        vm.$state = $state;
+        vm.loading = {applications: true};
 
-    vm.namespace = null;
-    vm.selectedResource = null;
-    vm.commonNamespaces = [];
+        vm.namespace = null;
+        vm.selectedResource = null;
+        vm.commonNamespaces = [];
 
-    vm.applications = applicationsResource.query({'type':'update_reports'}, function () {
-        vm.loading.applications = false;
-        vm.selectedResource = vm.applications[0].resource_id;
-        vm.getCommonKeys();
-    });
+        vm.applications = applicationsResource.query({'type': 'update_reports'}, function () {
+            vm.loading.applications = false;
+            vm.selectedResource = vm.applications[0].resource_id;
+            vm.getCommonKeys();
+        });
+    }
 
     /**
      * Fetches most commonly used tags in logs
@@ -51,8 +53,10 @@ function applicationsPurgeLogsViewController($state, applicationsResource, secti
 
     vm.purgeLogs = function () {
         vm.loading.applications = true;
-        logsNoIdResource.delete({resource:vm.selectedResource,
-            namespace: vm.namespace}, function(){
+        logsNoIdResource.delete({
+            resource: vm.selectedResource,
+            namespace: vm.namespace
+        }, function () {
             vm.loading.applications = false;
         });
     }

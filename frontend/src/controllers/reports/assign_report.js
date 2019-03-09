@@ -17,22 +17,24 @@ AssignReportCtrl.$inject = ['$uibModalInstance', 'reportGroupPropertyResource', 
 
 function AssignReportCtrl($uibModalInstance, reportGroupPropertyResource, report) {
     var vm = this;
-    vm.loading = true;
-    vm.assignedUsers = [];
-    vm.unAssignedUsers = [];
-    vm.report = report;
-    vm.fetchAssignments = function () {
-        reportGroupPropertyResource.get({
-                groupId: vm.report.group_id,
-                key: 'assigned_users'
-            }, null,
-            function (data) {
-                vm.assignedUsers = data.assigned;
-                vm.unAssignedUsers = data.unassigned;
-                vm.loading = false;
-            });
+    vm.$onInit = function () {
+        vm.loading = true;
+        vm.assignedUsers = [];
+        vm.unAssignedUsers = [];
+        vm.report = report;
+        vm.fetchAssignments = function () {
+            reportGroupPropertyResource.get({
+                    groupId: vm.report.group_id,
+                    key: 'assigned_users'
+                }, null,
+                function (data) {
+                    vm.assignedUsers = data.assigned;
+                    vm.unAssignedUsers = data.unassigned;
+                    vm.loading = false;
+                });
+        }
+        vm.fetchAssignments();
     }
-
     vm.reassignUser = function (user) {
         var is_assigned = vm.assignedUsers.indexOf(user);
         if (is_assigned != -1) {
@@ -74,7 +76,4 @@ function AssignReportCtrl($uibModalInstance, reportGroupPropertyResource, report
     vm.cancel = function () {
         $uibModalInstance.dismiss('cancel');
     };
-
-    vm.fetchAssignments();
-
 }

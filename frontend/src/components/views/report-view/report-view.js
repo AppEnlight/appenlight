@@ -24,78 +24,98 @@ ReportViewController.$inject = ['$window', '$location', '$state', '$uibModal',
 
 function ReportViewController($window, $location, $state, $uibModal, $cookies, reportGroupPropertyResource, reportGroupResource, logsNoIdResource, stateHolder) {
     var vm = this;
-    vm.window = $window;
-    vm.stateHolder = stateHolder;
-    vm.$state = $state;
-    vm.reportHistoryConfig = {
-        data: {
-            json: [],
-            xFormat: '%Y-%m-%dT%H:%M:%S'
-        },
-        color: {
-            pattern: ['#6baed6', '#e6550d', '#74c476', '#fdd0a2', '#8c564b']
-        },
-        axis: {
-            x: {
-                type: 'timeseries',
-                tick: {
-                    format: '%Y-%m-%d'
-                }
+    vm.$onInit = function () {
+        vm.window = $window;
+        vm.stateHolder = stateHolder;
+        vm.$state = $state;
+        vm.reportHistoryConfig = {
+            data: {
+                json: [],
+                xFormat: '%Y-%m-%dT%H:%M:%S'
             },
-            y: {
-                tick: {
-                    count: 5,
-                    format: d3.format('.2s')
-                }
-            }
-        },
-        subchart: {
-            show: true,
-            size: {
-                height: 20
-            }
-        },
-        size: {
-            height: 250
-        },
-        zoom: {
-            rescale: true
-        },
-        grid: {
-            x: {
-                show: true
+            color: {
+                pattern: ['#6baed6', '#e6550d', '#74c476', '#fdd0a2', '#8c564b']
             },
-            y: {
-                show: true
-            }
-        },
-        tooltip: {
-            format: {
-                title: function (d) {
-                    return '' + d;
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        format: '%Y-%m-%d'
+                    }
                 },
-                value: function (v) {
-                    return v
+                y: {
+                    tick: {
+                        count: 5,
+                        format: d3.format('.2s')
+                    }
+                }
+            },
+            subchart: {
+                show: true,
+                size: {
+                    height: 20
+                }
+            },
+            size: {
+                height: 250
+            },
+            zoom: {
+                rescale: true
+            },
+            grid: {
+                x: {
+                    show: true
+                },
+                y: {
+                    show: true
+                }
+            },
+            tooltip: {
+                format: {
+                    title: function (d) {
+                        return '' + d;
+                    },
+                    value: function (v) {
+                        return v
+                    }
                 }
             }
+        };
+        vm.mentionedPeople = [];
+        vm.reportHistoryData = {};
+        vm.textTraceback = true;
+        vm.rawTraceback = '';
+        vm.traceback = '';
+        vm.reportType = 'report';
+        vm.report = null;
+        vm.showLong = false;
+        vm.reportLogs = null;
+        vm.requestStats = null;
+        vm.comment = null;
+        vm.is_loading = {
+            report: true,
+            logs: true,
+            history: true
+        };
+
+        vm.tabs = {
+            slow_calls:false,
+            request_details:false,
+            logs:false,
+            comments:false,
+            affected_users:false
+        };
+        if ($cookies.selectedReportTab) {
+            vm.tabs[$cookies.selectedReportTab] = true;
         }
-    };
-    vm.mentionedPeople = [];
-    vm.reportHistoryData = {};
-    vm.textTraceback = true;
-    vm.rawTraceback = '';
-    vm.traceback = '';
-    vm.reportType = 'report';
-    vm.report = null;
-    vm.showLong = false;
-    vm.reportLogs = null;
-    vm.requestStats = null;
-    vm.comment = null;
-    vm.is_loading = {
-        report: true,
-        logs: true,
-        history: true
-    };
+        else{
+            $cookies.selectedReportTab = 'request_details';
+            vm.tabs.request_details = true;
+        }
+
+        // load report
+        vm.fetchReport();
+    }
 
     vm.searchMentionedPeople = function(term){
         //vm.mentionedPeople = [];
@@ -114,7 +134,7 @@ function ReportViewController($window, $location, $state, $uibModal, $cookies, r
                 });
 
                 var result = _.filter(users, function(u){
-                   return u.label.toLowerCase().indexOf(term) !== -1;
+                    return u.label.toLowerCase().indexOf(term) !== -1;
                 });
                 vm.mentionedPeople = result;
             });
@@ -130,21 +150,6 @@ function ReportViewController($window, $location, $state, $uibModal, $cookies, r
         }
         $location.search(tag, value);
     };
-
-    vm.tabs = {
-        slow_calls:false,
-        request_details:false,
-        logs:false,
-        comments:false,
-        affected_users:false
-    };
-    if ($cookies.selectedReportTab) {
-        vm.tabs[$cookies.selectedReportTab] = true;
-    }
-    else{
-        $cookies.selectedReportTab = 'request_details';
-        vm.tabs.request_details = true;
-    }
 
     vm.fetchLogs = function () {
         if (!vm.report.request_id){
@@ -171,6 +176,7 @@ function ReportViewController($window, $location, $state, $uibModal, $cookies, r
     };
 
     vm.fetchReport = function () {
+        console.log(vm);
         vm.is_loading.report = true;
         reportGroupResource.get($state.params, function (data) {
             vm.is_loading.report = false;
@@ -346,9 +352,4 @@ function ReportViewController($window, $location, $state, $uibModal, $cookies, r
         });
 
     };
-
-    // load report
-    vm.fetchReport();
-
-
 }

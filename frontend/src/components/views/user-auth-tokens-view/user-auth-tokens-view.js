@@ -23,16 +23,17 @@ userAuthTokensViewController.$inject = ['$state', 'userSelfPropertyResource', 'A
 function userAuthTokensViewController($state, userSelfPropertyResource, AeConfig) {
     console.debug('userAuthTokensViewController');
     var vm = this;
-    vm.$state = $state;
-    vm.loading = {tokens: true};
+    vm.$onInit = function () {
+        vm.$state = $state;
+        vm.loading = {tokens: true};
 
-    vm.expireOptions = AeConfig.timeOptions;
+        vm.expireOptions = AeConfig.timeOptions;
 
-    vm.tokens = userSelfPropertyResource.query({key: 'auth_tokens'},
-        function (data) {
-            vm.loading.tokens = false;
-        });
-
+        vm.tokens = userSelfPropertyResource.query({key: 'auth_tokens'},
+            function (data) {
+                vm.loading.tokens = false;
+            });
+    }
     vm.addToken = function () {
         vm.loading.tokens = true;
         userSelfPropertyResource.save({key: 'auth_tokens'},

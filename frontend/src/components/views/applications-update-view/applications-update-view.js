@@ -24,40 +24,40 @@ function applicationsUpdateViewController($state, applicationsNoIdResource, appl
     'use strict';
     console.debug('applicationsUpdateView');
     var vm = this;
-    vm.AeConfig = AeConfig;
-    vm.$state = $state;
-    vm.loading = {application: false};
+    vm.$onInit = function () {
+        vm.AeConfig = AeConfig;
+        vm.$state = $state;
+        vm.loading = {application: false};
 
-    vm.groupingOptions = [
-        ['url_type', 'Error Type + location'],
-        ['url_traceback', 'Traceback + location'],
-        ['traceback_server', 'Traceback + Server'],
-    ];
-    var resourceId = $state.params.resourceId;
-    var options = {};
-    vm.momentJs = moment;
-    vm.formTransferModel = {password:''};
+        vm.groupingOptions = [
+            ['url_type', 'Error Type + location'],
+            ['url_traceback', 'Traceback + location'],
+            ['traceback_server', 'Traceback + Server'],
+        ];
+        var resourceId = $state.params.resourceId;
+        var options = {};
+        vm.momentJs = moment;
+        vm.formTransferModel = {password: ''};
 
-    // set initial data
+        // set initial data
 
-    if (resourceId === 'new') {
-        vm.resource = {
-            resource_id: null,
-            slow_report_threshold: 10,
-            error_report_threshold: 10,
-            allow_permanent_storage: true,
-            default_grouping: vm.groupingOptions[1][0]
-        };
+        if (resourceId === 'new') {
+            vm.resource = {
+                resource_id: null,
+                slow_report_threshold: 10,
+                error_report_threshold: 10,
+                allow_permanent_storage: true,
+                default_grouping: vm.groupingOptions[1][0]
+            };
+        } else {
+            vm.loading.application = true;
+            vm.resource = applicationsResource.get({
+                'resourceId': resourceId
+            }, function (data) {
+                vm.loading.application = false;
+            });
+        }
     }
-    else {
-        vm.loading.application = true;
-        vm.resource = applicationsResource.get({
-            'resourceId': resourceId
-        }, function (data) {
-            vm.loading.application = false;
-        });
-    }
-
 
     vm.updateBasicForm = function () {
         vm.loading.application = true;

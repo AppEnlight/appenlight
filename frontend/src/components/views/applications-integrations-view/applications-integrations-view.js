@@ -23,9 +23,11 @@ IntegrationsListViewController.$inject = ['$state', 'applicationsResource'];
 function IntegrationsListViewController($state, applicationsResource) {
     console.debug('IntegrationsListController');
     var vm = this;
-    vm.loading = {application: true};
-    vm.resource = applicationsResource.get({resourceId: $state.params.resourceId}, function (data) {
-        vm.loading.application = false;
-        $state.current.data.resource = vm.resource;
-    });
+    vm.$onInit = function () {
+        vm.loading = {application: true};
+        vm.resource = applicationsResource.get({resourceId: $state.params.resourceId}, function (data) {
+            vm.loading.application = false;
+            $state.current.data.resource = vm.resource;
+        });
+    }
 }

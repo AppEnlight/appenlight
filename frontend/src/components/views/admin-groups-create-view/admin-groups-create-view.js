@@ -23,60 +23,62 @@ AdminGroupsCreateViewController.$inject = ['$state', 'groupsResource', 'groupsPr
 function AdminGroupsCreateViewController($state, groupsResource, groupsPropertyResource, sectionViewResource) {
     console.debug('AdminGroupsCreateController');
     var vm = this;
-    vm.$state = $state;
-    vm.loading = {
-        group: false,
-        resource_permissions: false,
-        users: false
-    };
+    vm.$onInit = function () {
+        vm.$state = $state;
+        vm.loading = {
+            group: false,
+            resource_permissions: false,
+            users: false
+        };
 
-    vm.form = {
-        autocompleteUser: '',
-    }
+        vm.form = {
+            autocompleteUser: '',
+        }
 
 
-    if (typeof $state.params.groupId !== 'undefined') {
-        vm.loading.group = true;
-        var groupId = $state.params.groupId;
-        vm.group = groupsResource.get({groupId: groupId}, function (data) {
-            vm.loading.group = false;
-        });
+        if (typeof $state.params.groupId !== 'undefined') {
+            vm.loading.group = true;
+            var groupId = $state.params.groupId;
+            vm.group = groupsResource.get({groupId: groupId}, function (data) {
+                vm.loading.group = false;
+            });
 
-        vm.resource_permissions = groupsPropertyResource.query(
-            {groupId: groupId, key: 'resource_permissions'}, function (data) {
-                vm.loading.resource_permissions = false;
-                var tmpObj = {
-                    'group': {
-                        'application': {},
-                        'dashboard': {}
-                    }
-                };
-                _.each(data, function (item) {
-                    console.log(item);
-                    var section = tmpObj[item.type][item.resource_type];
-                    if (typeof section[item.resource_id] == 'undefined') {
-                        section[item.resource_id] = {
-                            self: item,
-                            permissions: []
+            vm.resource_permissions = groupsPropertyResource.query(
+                {groupId: groupId, key: 'resource_permissions'}, function (data) {
+                    vm.loading.resource_permissions = false;
+                    var tmpObj = {
+                        'group': {
+                            'application': {},
+                            'dashboard': {}
                         }
-                    }
-                    section[item.resource_id].permissions.push(item.perm_name);
+                    };
+                    _.each(data, function (item) {
+                        console.log(item);
+                        var section = tmpObj[item.type][item.resource_type];
+                        if (typeof section[item.resource_id] == 'undefined') {
+                            section[item.resource_id] = {
+                                self: item,
+                                permissions: []
+                            }
+                        }
+                        section[item.resource_id].permissions.push(item.perm_name);
 
+                    });
+                    console.log(tmpObj)
+                    vm.resourcePermissions = tmpObj;
                 });
-                console.log(tmpObj)
-                vm.resourcePermissions = tmpObj;
-            });
 
-        vm.users = groupsPropertyResource.query(
-            {groupId: groupId, key: 'users'}, function (data) {
-                vm.loading.users = false;
-            }, function () {
-                vm.loading.users = false;
-            });
+            vm.users = groupsPropertyResource.query(
+                {groupId: groupId, key: 'users'}, function (data) {
+                    vm.loading.users = false;
+                }, function () {
+                    vm.loading.users = false;
+                });
 
-    }
-    else {
-        var groupId = null;
+        } else {
+            var groupId = null;
+        }
+
     }
 
     var formResponse = function (response) {
@@ -93,8 +95,7 @@ function AdminGroupsCreateViewController($state, groupsResource, groupsPropertyR
                 setServerValidation(vm.groupForm);
                 vm.loading.group = false;
             }, formResponse);
-        }
-        else {
+        } else {
             groupsResource.save(vm.group, function (data) {
                 $state.go('admin.group.update', {groupId: data.id});
             }, formResponse);
@@ -134,9 +135,9 @@ function AdminGroupsCreateViewController($state, groupsResource, groupsPropertyR
             view: 'search_users',
             'user_name': searchPhrase
         }).$promise.then(function (data) {
-                return _.map(data, function (item) {
-                    return item.user;
-                });
+            return _.map(data, function (item) {
+                return item.user;
             });
+        });
     }
 };

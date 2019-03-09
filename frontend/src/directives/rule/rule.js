@@ -29,10 +29,10 @@ angular.module('appenlight.directives.rule', []).directive('rule', function () {
     };
     function RuleController(){
         var vm = this;
-
-        vm.rule.dirty = false;
-        vm.oldField = vm.rule.field;
-
+        vm.$onInit = function () {
+            vm.rule.dirty = false;
+            vm.oldField = vm.rule.field;
+        }
         vm.add = function () {
             vm.rule.rules.push(
                 {op: "eq", field: 'http_status', value: ""}

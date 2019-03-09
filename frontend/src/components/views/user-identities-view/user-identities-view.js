@@ -23,17 +23,18 @@ UserIdentitiesController.$inject = ['$state', 'userSelfPropertyResource', 'AeCon
 function UserIdentitiesController($state, userSelfPropertyResource, AeConfig) {
     console.debug('UserIdentitiesController');
     var vm = this;
-    vm.$state = $state;
-    vm.AeConfig = AeConfig;
-    vm.loading = {identities: true};
+    vm.$onInit = function () {
+        vm.$state = $state;
+        vm.AeConfig = AeConfig;
+        vm.loading = {identities: true};
 
-    vm.identities = userSelfPropertyResource.query(
-        {key: 'external_identities'},
-        function (data) {
-            vm.loading.identities = false;
-            console.log(vm.identities);
-        });
-
+        vm.identities = userSelfPropertyResource.query(
+            {key: 'external_identities'},
+            function (data) {
+                vm.loading.identities = false;
+                console.log(vm.identities);
+            });
+    }
     vm.removeProvider = function (provider) {
         console.log('provider', provider);
         userSelfPropertyResource.delete(
@@ -43,7 +44,7 @@ function UserIdentitiesController($state, userSelfPropertyResource, AeConfig) {
                 id: provider.id
             },
             function (status) {
-                if (status){
+                if (status) {
                     vm.identities = _.filter(vm.identities, function (item) {
                         return item != provider
                     });

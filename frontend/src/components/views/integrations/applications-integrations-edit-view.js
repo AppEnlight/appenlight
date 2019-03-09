@@ -18,17 +18,18 @@ ApplicationsIntegrationsEditViewController.$inject = ['$state', 'integrationReso
 function ApplicationsIntegrationsEditViewController($state, integrationResource) {
     console.debug('IntegrationController');
     var vm = this;
-    vm.$state = $state;
-    vm.loading = {integration: true};
-    vm.config = integrationResource.get(
-        {
-            integration: $state.params.integration,
-            action: 'setup',
-            resourceId: $state.params.resourceId
-        }, function (data) {
-            vm.loading.integration = false;
-        });
-
+    vm.$onInit = function () {
+        vm.$state = $state;
+        vm.loading = {integration: true};
+        vm.config = integrationResource.get(
+            {
+                integration: $state.params.integration,
+                action: 'setup',
+                resourceId: $state.params.resourceId
+            }, function (data) {
+                vm.loading.integration = false;
+            });
+    }
     vm.configureIntegration = function () {
         console.info('configureIntegration');
         vm.loading.integration = true;

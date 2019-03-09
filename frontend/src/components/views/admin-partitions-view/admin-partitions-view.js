@@ -22,14 +22,18 @@ AdminPartitionsViewController.$inject = ['sectionViewResource'];
 
 function AdminPartitionsViewController(sectionViewResource) {
     var vm = this;
-    vm.permanentPartitions = [];
-    vm.dailyPartitions = [];
-    vm.loading = {partitions: true};
-    vm.dailyChecked = false;
-    vm.permChecked = false;
-    vm.dailyConfirm = '';
-    vm.permConfirm = '';
+    this.$onInit = function () {
+        vm.permanentPartitions = [];
+        vm.dailyPartitions = [];
+        vm.loading = {partitions: true};
+        vm.dailyChecked = false;
+        vm.permChecked = false;
+        vm.dailyConfirm = '';
+        vm.permConfirm = '';
 
+        sectionViewResource.get({section: 'admin_section', view: 'partitions'},
+            vm.loadPartitions);
+    }
 
     vm.loadPartitions = function (data) {
         var permanentPartitions = vm.transformPartitionList(
@@ -43,17 +47,15 @@ function AdminPartitionsViewController(sectionViewResource) {
 
     vm.setCheckedList = function (scope) {
         var toTest = null;
-        if (scope === 'dailyPartitions'){
+        if (scope === 'dailyPartitions') {
             toTest = 'dailyChecked';
-        }
-        else{
+        } else {
             toTest = 'permChecked';
         }
 
         if (vm[toTest]) {
             var val = true;
-        }
-        else {
+        } else {
             var val = false;
         }
         console.log('scope', scope);
@@ -90,9 +92,6 @@ function AdminPartitionsViewController(sectionViewResource) {
         return outputList;
     };
 
-    sectionViewResource.get({section:'admin_section', view: 'partitions'},
-        vm.loadPartitions);
-
     vm.partitionsDelete = function (partitionType) {
         var es_indices = [];
         var pg_indices = [];
@@ -111,8 +110,10 @@ function AdminPartitionsViewController(sectionViewResource) {
         console.log(es_indices, pg_indices);
 
         vm.loading = {partitions: true};
-        sectionViewResource.save({section:'admin_section',
-            view: 'partitions_remove'}, {
+        sectionViewResource.save({
+            section: 'admin_section',
+            view: 'partitions_remove'
+        }, {
             es_indices: es_indices,
             pg_indices: pg_indices,
             confirm: 'CONFIRM'

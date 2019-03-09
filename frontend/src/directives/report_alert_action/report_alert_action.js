@@ -15,20 +15,36 @@
 angular.module('appenlight.directives.reportAlertAction', []).directive('reportAlertAction', ['userSelfPropertyResource', function (userSelfPropertyResource) {
     return {
         scope: {},
-        bindToController:{
+        bindToController: {
             action: '=',
             applications: '=',
             possibleChannels: '=',
             actions: '=',
             ruleDefinitions: '='
         },
-        controller:reportAlertActionController,
-        controllerAs:'ctrl',
+        controller: reportAlertActionController,
+        controllerAs: 'ctrl',
         restrict: 'E',
         templateUrl: 'directives/report_alert_action/report_alert_action.html'
     };
-    function reportAlertActionController(){
+
+    function reportAlertActionController() {
         var vm = this;
+        vm.$onInit = function () {
+            vm.possibleNotifications = [
+                ['always', 'Always'],
+                ['only_first', 'Only New'],
+            ];
+
+            vm.possibleChannels = _.filter(vm.possibleChannels, function (c) {
+                    return c.supports_report_alerting
+                }
+            );
+
+            if (vm.possibleChannels.length > 0) {
+                vm.channelToBind = vm.possibleChannels[0];
+            }
+        }
         vm.deleteAction = function (actions, action) {
             var get = {
                 key: 'alert_channels_rules',
@@ -40,7 +56,7 @@ angular.module('appenlight.directives.reportAlertAction', []).directive('reportA
 
         };
 
-        vm.bindChannel = function(){
+        vm.bindChannel = function () {
             var post = {
                 channel_pkey: vm.channelToBind.pkey,
                 action_pkey: vm.action.pkey
@@ -57,7 +73,7 @@ angular.module('appenlight.directives.reportAlertAction', []).directive('reportA
                 });
         };
 
-        vm.unBindChannel = function(channel){
+        vm.unBindChannel = function (channel) {
             userSelfPropertyResource.delete({
                     key: 'alert_channels_actions_binds',
                     channel_pkey: channel.pkey,
@@ -90,20 +106,7 @@ angular.module('appenlight.directives.reportAlertAction', []).directive('reportA
                 });
         };
 
-        vm.possibleNotifications = [
-            ['always', 'Always'],
-            ['only_first', 'Only New'],
-        ];
-
-        vm.possibleChannels = _.filter(vm.possibleChannels, function(c){
-                return c.supports_report_alerting }
-        );
-
-        if (vm.possibleChannels.length > 0){
-            vm.channelToBind = vm.possibleChannels[0];
-        }
-
-        vm.setDirty = function() {
+        vm.setDirty = function () {
             vm.action.dirty = true;
             console.log('set dirty');
         };

@@ -22,22 +22,24 @@ AdminSystemViewController.$inject = ['sectionViewResource'];
 
 function AdminSystemViewController(sectionViewResource) {
     var vm = this;
-    vm.tables = [];
-    vm.loading = {system: true};
-    sectionViewResource.get({
-        section: 'admin_section',
-        view: 'system'
-    }, null, function (data) {
-        vm.DBtables = data.db_tables;
-        vm.ESIndices = data.es_indices;
-        vm.queueStats = data.queue_stats;
-        vm.systemLoad = data.system_load;
-        vm.packages = data.packages;
-        vm.processInfo = data.process_info;
-        vm.disks = data.disks;
-        vm.memory = data.memory;
-        vm.selfInfo = data.self_info;
+    this.$onInit = function () {
+        vm.tables = [];
+        vm.loading = {system: true};
 
-        vm.loading.system = false;
-    });
+        sectionViewResource.get({
+            section: 'admin_section',
+            view: 'system'
+        }, null, function (data) {
+            vm.DBtables = data.db_tables;
+            vm.ESIndices = data.es_indices;
+            vm.queueStats = data.queue_stats;
+            vm.systemLoad = data.system_load;
+            vm.packages = data.packages;
+            vm.processInfo = data.process_info;
+            vm.disks = data.disks;
+            vm.memory = data.memory;
+            vm.selfInfo = data.self_info;
+            vm.loading.system = false;
+        });
+    }
 };

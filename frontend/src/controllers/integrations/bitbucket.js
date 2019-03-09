@@ -19,19 +19,21 @@ BitbucketIntegrationCtrl.$inject = ['$uibModalInstance', '$state', 'report', 'in
 
 function BitbucketIntegrationCtrl($uibModalInstance, $state, report, integrationName, integrationResource) {
     var vm = this;
-    vm.loading = true;
-    vm.assignees = [];
-    vm.report = report;
-    vm.integrationName = integrationName;
-    vm.statuses = [];
-    vm.priorities = [];
-    vm.error_messages = [];
-    vm.form = {
-        content: '\n' +
-        'Issue created for report: ' +
-        $state.href('report.view_detail', {groupId:report.group_id, reportId:report.id}, {absolute:true})
-    };
-
+    vm.$onInit = function () {
+        vm.loading = true;
+        vm.assignees = [];
+        vm.report = report;
+        vm.integrationName = integrationName;
+        vm.statuses = [];
+        vm.priorities = [];
+        vm.error_messages = [];
+        vm.form = {
+            content: '\n' +
+                'Issue created for report: ' +
+                $state.href('report.view_detail', {groupId: report.group_id, reportId: report.id}, {absolute: true})
+        };
+        vm.fetchInfo();
+    }
     vm.fetchInfo = function () {
         integrationResource.get({
                 resourceId: vm.report.resource_id,
@@ -50,8 +52,7 @@ function BitbucketIntegrationCtrl($uibModalInstance, $state, report, integration
             }, function (error_data) {
                 if (error_data.data.error_messages) {
                     vm.error_messages = error_data.data.error_messages;
-                }
-                else {
+                } else {
                     vm.error_messages = ['There was a problem processing your request'];
                 }
             });
@@ -75,8 +76,7 @@ function BitbucketIntegrationCtrl($uibModalInstance, $state, report, integration
             }, function (error_data) {
                 if (error_data.data.error_messages) {
                     vm.error_messages = error_data.data.error_messages;
-                }
-                else {
+                } else {
                     vm.error_messages = ['There was a problem processing your request'];
                 }
             });
@@ -84,5 +84,4 @@ function BitbucketIntegrationCtrl($uibModalInstance, $state, report, integration
     vm.cancel = function () {
         $uibModalInstance.dismiss('cancel');
     };
-    vm.fetchInfo();
 }

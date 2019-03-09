@@ -19,19 +19,21 @@ GithubIntegrationCtrl.$inject = ['$uibModalInstance', '$state', 'report', 'integ
 
 function GithubIntegrationCtrl($uibModalInstance, $state, report, integrationName, integrationResource) {
     var vm = this;
-    vm.loading = true;
-    vm.assignees = [];
-    vm.report = report;
-    vm.integrationName = integrationName;
-    vm.statuses = [];
-    vm.assignees = [];
-    vm.error_messages = [];
-    vm.form = {
-        content: '\n' +
-        'Issue created for report: ' +
-        $state.href('report.view_detail', {groupId:report.group_id, reportId:report.id}, {absolute:true})
-    };
-
+    vm.$onInit = function () {
+        vm.loading = true;
+        vm.assignees = [];
+        vm.report = report;
+        vm.integrationName = integrationName;
+        vm.statuses = [];
+        vm.assignees = [];
+        vm.error_messages = [];
+        vm.form = {
+            content: '\n' +
+                'Issue created for report: ' +
+                $state.href('report.view_detail', {groupId: report.group_id, reportId: report.id}, {absolute: true})
+        };
+        vm.fetchInfo();
+    }
     vm.fetchInfo = function () {
         integrationResource.get({
                 resourceId: vm.report.resource_id,
@@ -42,8 +44,7 @@ function GithubIntegrationCtrl($uibModalInstance, $state, report, integrationNam
                 vm.loading = false;
                 if (data.error_messages) {
                     vm.error_messages = data.error_messages;
-                }
-                else {
+                } else {
                     vm.assignees = data.assignees;
                     vm.statuses = data.statuses;
                     vm.form.responsible = vm.assignees[0];
@@ -52,8 +53,7 @@ function GithubIntegrationCtrl($uibModalInstance, $state, report, integrationNam
             }, function (error_data) {
                 if (error_data.data.error_messages) {
                     vm.error_messages = error_data.data.error_messages;
-                }
-                else {
+                } else {
                     vm.error_messages = ['There was a problem processing your request'];
                 }
             });
@@ -70,15 +70,13 @@ function GithubIntegrationCtrl($uibModalInstance, $state, report, integrationNam
                 vm.loading = false;
                 if (data.error_messages) {
                     vm.error_messages = data.error_messages;
-                }
-                else {
+                } else {
                     $uibModalInstance.dismiss('success');
                 }
             }, function (error_data) {
                 if (error_data.data.error_messages) {
                     vm.error_messages = error_data.data.error_messages;
-                }
-                else {
+                } else {
                     vm.error_messages = ['There was a problem processing your request'];
                 }
             });
@@ -86,5 +84,4 @@ function GithubIntegrationCtrl($uibModalInstance, $state, report, integrationNam
     vm.cancel = function () {
         $uibModalInstance.dismiss('cancel');
     };
-    vm.fetchInfo();
 }

@@ -23,24 +23,25 @@ AdminGroupsListViewController.$inject = ['$state', 'groupsResource'];
 function AdminGroupsListViewController($state, groupsResource) {
     console.debug('AdminGroupsListViewController');
     var vm = this;
-    vm.$state = $state;
-    vm.loading = {groups: true};
+    this.$onInit = function () {
+        vm.$state = $state;
+        vm.loading = {groups: true};
 
-    vm.groups = groupsResource.query({}, function (data) {
-        vm.loading = {groups: false};
-        vm.activeUsers = _.reduce(vm.groups, function(memo, val){
-            if (val.status == 1){
-                return memo + 1;
-            }
-            return memo;
-        }, 0);
-        console.log(vm.groups);
-    });
-
+        vm.groups = groupsResource.query({}, function (data) {
+            vm.loading = {groups: false};
+            vm.activeUsers = _.reduce(vm.groups, function (memo, val) {
+                if (val.status == 1) {
+                    return memo + 1;
+                }
+                return memo;
+            }, 0);
+            console.log(vm.groups);
+        });
+    }
 
     vm.removeGroup = function (group) {
         groupsResource.remove({groupId: group.id}, function (data, responseHeaders) {
-            console.log('x',data, responseHeaders());
+            console.log('x', data, responseHeaders());
             if (data) {
                 var index = vm.groups.indexOf(group);
                 if (index !== -1) {

@@ -21,64 +21,65 @@ ApplicationPermissionsController.$inject = ['sectionViewResource',
 
 function ApplicationPermissionsController(sectionViewResource, applicationsPropertyResource , groupsResource) {
     var vm = this;
-    vm.form = {
-        autocompleteUser: '',
-        selectedGroup: null,
-        selectedUserPermissions: {},
-        selectedGroupPermissions: {}
+    vm.$onInit = function () {
+        vm.form = {
+            autocompleteUser: '',
+            selectedGroup: null,
+            selectedUserPermissions: {},
+            selectedGroupPermissions: {}
+        }
+        vm.possibleGroups = groupsResource.query(null, function () {
+            if (vm.possibleGroups.length > 0) {
+                vm.form.selectedGroup = vm.possibleGroups[0].id;
+            }
+        });
+        console.log('g', vm.possibleGroups);
+        vm.possibleUsers = [];
+        _.each(vm.resource.possible_permissions, function (perm) {
+            vm.form.selectedUserPermissions[perm] = false;
+            vm.form.selectedGroupPermissions[perm] = false;
+        });
+
+        /**
+         * Converts the permission list into {user, permission_list objects}
+         * for rendering in templates
+         * **/
+        var tmpObj = {
+            user: {},
+            group: {}
+        };
+        _.each(vm.currentPermissions, function (perm) {
+            console.log(perm);
+            if (perm.type == 'user') {
+                if (typeof tmpObj[perm.type][perm.user_name] === 'undefined') {
+                    tmpObj[perm.type][perm.user_name] = {
+                        self: perm,
+                        permissions: []
+                    }
+                }
+                if (tmpObj[perm.type][perm.user_name].permissions.indexOf(perm.perm_name) === -1) {
+                    tmpObj[perm.type][perm.user_name].permissions.push(perm.perm_name);
+                }
+            } else {
+                if (typeof tmpObj[perm.type][perm.group_name] === 'undefined') {
+                    tmpObj[perm.type][perm.group_name] = {
+                        self: perm,
+                        permissions: []
+                    }
+                }
+                if (tmpObj[perm.type][perm.group_name].permissions.indexOf(perm.perm_name) === -1) {
+                    tmpObj[perm.type][perm.group_name].permissions.push(perm.perm_name);
+                }
+
+            }
+        });
+        vm.currentPermissions = {
+            user: _.values(tmpObj.user),
+            group: _.values(tmpObj.group),
+        };
+        console.log('test', tmpObj, vm.currentPermissions);
     }
-    vm.possibleGroups = groupsResource.query(null, function(){
-        if (vm.possibleGroups.length > 0){
-            vm.form.selectedGroup = vm.possibleGroups[0].id;
-        }
-    });
-    console.log('g', vm.possibleGroups);
-    vm.possibleUsers = [];
-    _.each(vm.resource.possible_permissions, function (perm) {
-        vm.form.selectedUserPermissions[perm] = false;
-        vm.form.selectedGroupPermissions[perm] = false;
-    });
 
-    /**
-     * Converts the permission list into {user, permission_list objects}
-     * for rendering in templates
-     * **/
-    var tmpObj = {
-        user: {},
-        group: {}
-    };
-    _.each(vm.currentPermissions, function (perm) {
-        console.log(perm);
-        if (perm.type == 'user') {
-            if (typeof tmpObj[perm.type][perm.user_name] === 'undefined') {
-                tmpObj[perm.type][perm.user_name] = {
-                    self: perm,
-                    permissions: []
-                }
-            }
-            if (tmpObj[perm.type][perm.user_name].permissions.indexOf(perm.perm_name) === -1) {
-                tmpObj[perm.type][perm.user_name].permissions.push(perm.perm_name);
-            }
-        }
-        else {
-            if (typeof tmpObj[perm.type][perm.group_name] === 'undefined') {
-                tmpObj[perm.type][perm.group_name] = {
-                    self: perm,
-                    permissions: []
-                }
-            }
-            if (tmpObj[perm.type][perm.group_name].permissions.indexOf(perm.perm_name) === -1) {
-                tmpObj[perm.type][perm.group_name].permissions.push(perm.perm_name);
-            }
-
-        }
-    });
-    vm.currentPermissions = {
-        user: _.values(tmpObj.user),
-        group: _.values(tmpObj.group),
-    };
-
-    console.log('test', tmpObj, vm.currentPermissions);
 
     vm.searchUsers = function (searchPhrase) {
         console.log('SEARCHING');

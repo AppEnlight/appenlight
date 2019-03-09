@@ -20,8 +20,11 @@ angular.module('appenlight.components.appenlightHeader', [])
 
 ChannelstreamController.$inject = ['stateHolder', 'AeConfig'];
 
-function AppEnlightFooterController(stateHolder, AeConfig){
+function AppEnlightFooterController(stateHolder, AeConfig) {
     var vm = this;
-    vm.AeConfig = AeConfig;
-    vm.stateHolder = stateHolder;
+
+    vm.$onInit = function () {
+        vm.AeConfig = AeConfig;
+        vm.stateHolder = stateHolder;
+    }
 }
