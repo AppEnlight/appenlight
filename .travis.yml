@@ -1,0 +1,42 @@
+language: python
+
+dist: xenial
+
+notifications:
+  on_success: change
+  on_failure: always
+
+matrix:
+  include:
+  - python: 3.5
+    env: TOXENV=py35
+  - python: 3.6
+    env: TOXENV=py36 DB_STRING="postgres://postgres@127.0.0.1:5432/appenlight_test" DB=postgres
+    addons:
+      postgresql: "9.6"
+  - python: 3.6
+    env: TOXENV=py36 BCRYPT="enabled" DB_STRING="postgres://postgres@127.0.0.1:5432/appenlight_test" DB=postgres PGPORT=5432
+    addons:
+      postgresql: "10"
+      apt:
+        packages:
+        - postgresql-10
+        - postgresql-client-10
+
+install:
+- travis_retry pip install -U setuptools pip tox
+
+script:
+- travis_retry tox
+
+services:
+- postgresql
+
+
+
+before_script:
+- sh -c "if [ '$DB' = 'postgres' ]; then psql -c 'create database appenlight_test;' -U postgres; fi"
+
+after_success:
+- pip install coveralls
+- coveralls

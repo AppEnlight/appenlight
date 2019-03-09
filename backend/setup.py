@@ -1,11 +1,10 @@
 import os
-import sys
 import re
 
 from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, '..', 'README.md')).read()
+README = open(os.path.join(here, 'README.rst')).read()
 CHANGES = open(os.path.join(here, 'CHANGELOG.rst')).read()
 
 REQUIREMENTS = open(os.path.join(here, 'requirements.txt')).readlines()
@@ -29,10 +28,11 @@ def _get_meta_var(name, data, callback_handler=None):
 
         return callback_handler(eval(matches.groups()[0]))
 
+
 with open(os.path.join(here, 'src', 'appenlight', '__init__.py'), 'r') as _meta:
     _metadata = _meta.read()
 
-with open(os.path.join('src', 'appenlight', 'VERSION')) as _meta_version:
+with open(os.path.join(here, 'VERSION'), 'r') as _meta_version:
     __version__ = _meta_version.read().strip()
 
 __license__ = _get_meta_var('__license__', _metadata)
