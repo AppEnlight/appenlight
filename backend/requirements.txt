@@ -37,7 +37,7 @@ lxml==4.3.2
 paginate==0.5.4
 paginate-sqlalchemy==0.2.0
 pyelasticsearch==1.4
-six==1.9.0
+six>=1.10.0
 mock==1.0.1
 itsdangerous==1.1.0
 camplight==0.9.6
