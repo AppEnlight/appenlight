@@ -90,6 +90,7 @@ function AdminGroupsCreateViewController($state, groupsResource, groupsPropertyR
 
     vm.createGroup = function () {
         vm.loading.group = true;
+        var groupId = $state.params.groupId;
         if (groupId) {
             groupsResource.update({groupId: vm.group.id}, vm.group, function (data) {
                 setServerValidation(vm.groupForm);
@@ -103,6 +104,7 @@ function AdminGroupsCreateViewController($state, groupsResource, groupsPropertyR
     };
 
     vm.removeUser = function (user) {
+        var groupId = $state.params.groupId;
         groupsPropertyResource.delete(
             {groupId: groupId, key: 'users', user_name: user.user_name},
             function (data) {
@@ -116,6 +118,7 @@ function AdminGroupsCreateViewController($state, groupsResource, groupsPropertyR
     };
 
     vm.addUser = function () {
+        var groupId = $state.params.groupId;
         groupsPropertyResource.save(
             {groupId: groupId, key: 'users'},
             {user_name: vm.form.autocompleteUser},

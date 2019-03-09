@@ -86,6 +86,7 @@ function AdminUsersCreateViewController($state, usersResource, usersPropertyReso
     vm.createUser = function () {
         vm.loading.user = true;
         console.log('updateProfile');
+        var userId = $state.params.userId;
         if (userId) {
             usersResource.update({userId: vm.user.id}, vm.user, function (data) {
                 setServerValidation(vm.profileForm);
