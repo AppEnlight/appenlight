@@ -62,7 +62,7 @@ setup(name='appenlight',
       test_suite='appenlight',
       install_requires=requires,
       extras_require={
-          "dev": ["coverage", "pytest", "pyramid", "tox", "mock", "webtest"],
+          "dev": ["coverage", "pytest", "pyramid", "tox", "mock", "pytest-mock", "webtest"],
           "lint": ["black"],
       },
       entry_points={
