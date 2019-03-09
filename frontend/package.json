@@ -28,6 +28,7 @@
   "scripts": {
     "bower": "bower install",
     "build": "grunt",
-    "watch": "grunt watch"
+    "watch": "grunt watch",
+    "watch:dev": "grunt watch:dev"
   }
 }

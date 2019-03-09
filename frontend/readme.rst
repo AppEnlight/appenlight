@@ -4,20 +4,18 @@ Javascript frontend for AppEnlight
 To fetch all the requirememts you need to have nodejs and npm installed on your dev machine, then from this dir execute::
 
     npm install
-    npm install -g bower
-    npm install -g grunt-cli
-    bower install
+    npm run bower
 
 This will fetch all the required components to build front with grunt.
 
 
 To build production version (builds both js and css) just run::
 
-    grunt
+    npm run build
 
 To work on dev code version (builds js with comments and css) run:
 
-    grunt watch
+    npm rum grunt watch
 
 You generally shouldn't need to run those separately but still:
 
