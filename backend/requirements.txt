@@ -1,5 +1,5 @@
 repoze.sendmail==4.1
-pyramid==1.7.3
+pyramid==1.10.2
 pyramid_tm==0.12
 pyramid_debugtoolbar
 pyramid_authstack==1.0.1

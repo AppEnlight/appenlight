@@ -126,15 +126,15 @@ def main(global_config, **settings):
 
     # json rederer that serializes datetime
     config.add_renderer('json', json_renderer)
-    config.set_request_property('appenlight.lib.request.es_conn', 'es_conn')
-    config.set_request_property('appenlight.lib.request.get_user', 'user',
-                                reify=True)
-    config.set_request_property('appenlight.lib.request.get_csrf_token',
-                                'csrf_token', reify=True)
-    config.set_request_property('appenlight.lib.request.safe_json_body',
-                                'safe_json_body', reify=True)
-    config.set_request_property('appenlight.lib.request.unsafe_json_body',
-                                'unsafe_json_body', reify=True)
+    config.add_request_method('appenlight.lib.request.es_conn', 'es_conn', property=True)
+    config.add_request_method('appenlight.lib.request.get_user', 'user',
+                                reify=True, property=True)
+    config.add_request_method('appenlight.lib.request.get_csrf_token',
+                                'csrf_token', reify=True, property=True)
+    config.add_request_method('appenlight.lib.request.safe_json_body',
+                                'safe_json_body', reify=True, property=True)
+    config.add_request_method('appenlight.lib.request.unsafe_json_body',
+                                'unsafe_json_body', reify=True, property=True)
     config.add_request_method('appenlight.lib.request.add_flash_to_headers',
                               'add_flash_to_headers')
     config.add_request_method('appenlight.lib.request.get_authomatic',
