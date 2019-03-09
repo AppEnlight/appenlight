@@ -90,15 +90,18 @@ def default_data(base_app):
 
 
 @pytest.fixture
-def clean_tables():
-    tables = Base.metadata.tables.keys()
-    transaction.begin()
-    for t in tables:
-        if not t.startswith('alembic_'):
-            DBSession.execute('truncate %s cascade' % t)
-    session = DBSession()
-    mark_changed(session)
-    transaction.commit()
+def clean_tables(request):
+    def fin():
+        tables = Base.metadata.tables.keys()
+        transaction.begin()
+        for t in tables:
+            if not t.startswith('alembic_'):
+                DBSession.execute('truncate %s cascade' % t)
+        session = DBSession()
+        mark_changed(session)
+        transaction.commit()
+
+    request.addfinalizer(fin)
 
 
 @pytest.fixture
@@ -106,14 +109,15 @@ def default_user():
     from appenlight.models.user import User
     from appenlight.models.auth_token import AuthToken
     transaction.begin()
+    session = DBSession()
     user = User(id=1,
                 user_name='testuser',
                 status=1,
                 email='foo@barbaz99.com')
-    DBSession.add(user)
+    session.add(user)
     token = AuthToken(token='1234')
     user.auth_tokens.append(token)
-    DBSession.flush()
+    session.execute("SELECT nextval('users_id_seq')")
     transaction.commit()
     return user
 
@@ -123,11 +127,12 @@ def default_application(default_user):
     from appenlight.models.application import Application
 
     transaction.begin()
+    session = DBSession()
     application = Application(
         resource_id=1, resource_name='testapp', api_key='xxxx')
-    DBSession.add(application)
+    session.add(application)
     default_user.resources.append(application)
-    DBSession.flush()
+    session.execute("SELECT nextval('resources_resource_id_seq')")
     transaction.commit()
     return application
 
