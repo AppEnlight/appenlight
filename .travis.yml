@@ -11,11 +11,11 @@ matrix:
   - python: 3.5
     env: TOXENV=py35
   - python: 3.6
-    env: TOXENV=py36 DB_STRING="postgres://postgres@127.0.0.1:5432/appenlight_test" DB=postgres
+    env: TOXENV=py36
     addons:
       postgresql: "9.6"
   - python: 3.6
-    env: TOXENV=py36 BCRYPT="enabled" DB_STRING="postgres://postgres@127.0.0.1:5432/appenlight_test" DB=postgres PGPORT=5432
+    env: TOXENV=py36 PGPORT=5432
     addons:
       postgresql: "10"
       apt:
@@ -31,11 +31,12 @@ script:
 
 services:
 - postgresql
-
-
+- elasticsearch
+- redis
 
 before_script:
-- sh -c "if [ '$DB' = 'postgres' ]; then psql -c 'create database appenlight_test;' -U postgres; fi"
+  - psql -c "create user test with encrypted password 'test';" -U postgres
+  - psql -c 'create database appenlight_test owner test;' -U postgres
 
 after_success:
 - pip install coveralls
