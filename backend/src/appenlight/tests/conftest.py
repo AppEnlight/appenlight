@@ -27,11 +27,12 @@ from zope.sqlalchemy import mark_changed
 from pyramid.paster import get_appsettings
 from pyramid import testing
 
-from appenlight.models import Base, DBSession
-
 
 @pytest.fixture
-def base_app(request):
+def base_app(request, mocker):
+    # disable email sending
+    mocker.patch('pyramid_mailer.mailer_factory_from_settings', mocker.Mock())
+
     from appenlight import main
     import transaction
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -91,6 +92,8 @@ def default_data(base_app):
 
 @pytest.fixture
 def clean_tables(request):
+    from appenlight.models import Base, DBSession
+
     def fin():
         tables = Base.metadata.tables.keys()
         transaction.begin()
@@ -106,6 +109,7 @@ def clean_tables(request):
 
 @pytest.fixture
 def default_user():
+    from appenlight.models import DBSession
     from appenlight.models.user import User
     from appenlight.models.auth_token import AuthToken
     transaction.begin()
@@ -124,6 +128,7 @@ def default_user():
 
 @pytest.fixture
 def default_application(default_user):
+    from appenlight.models import DBSession
     from appenlight.models.application import Application
 
     transaction.begin()

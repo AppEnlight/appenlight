@@ -28,7 +28,7 @@ import appenlight.lib.encryption as encryption
 from pyramid.config import PHASE3_CONFIG
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
-from pyramid_mailer.mailer import Mailer
+from pyramid_mailer.interfaces import IMailer
 from pyramid.renderers import JSON
 from pyramid_redis_sessions import session_factory_from_settings
 from pyramid.settings import asbool, aslist
@@ -143,6 +143,7 @@ def main(global_config, **settings):
     config.include('pyramid_redis_sessions')
     config.include('pyramid_tm')
     config.include('pyramid_jinja2')
+    config.include('pyramid_mailer')
     config.include('appenlight_client.ext.pyramid_tween')
     config.include('ziggurat_foundations.ext.pyramid.sign_in')
     es_server_list = aslist(settings['elasticsearch.nodes'])
@@ -154,8 +155,8 @@ def main(global_config, **settings):
 
     config.registry.redis_lockmgr = Redlock([settings['redis.redlock.url'], ],
                                             retry_count=0, retry_delay=0)
-    # mailer
-    config.registry.mailer = Mailer.from_settings(settings)
+    # mailer bw compat
+    config.registry.mailer = config.registry.getUtility(IMailer)
 
     # Configure sessions
     session_factory = session_factory_from_settings(settings)
