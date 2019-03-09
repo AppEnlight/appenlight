@@ -84,6 +84,8 @@ def test_retry_exception_task():
         log.warning('test retry celery log', extra={'location': 'celery'})
         raise Exception('Celery exception test')
     except Exception as exc:
+        if celery.conf["CELERY_EAGER_PROPAGATES_EXCEPTIONS"]:
+            raise
         test_retry_exception_task.retry(exc=exc)
 
 
@@ -216,6 +218,8 @@ def add_reports(resource_id, request_params, dataset, **kwargs):
         return True
     except Exception as exc:
         print_traceback(log)
+        if celery.conf["CELERY_EAGER_PROPAGATES_EXCEPTIONS"]:
+            raise
         add_reports.retry(exc=exc)
 
 
@@ -337,6 +341,8 @@ def add_logs(resource_id, request_params, dataset, **kwargs):
         return True
     except Exception as exc:
         print_traceback(log)
+        if celery.conf["CELERY_EAGER_PROPAGATES_EXCEPTIONS"]:
+            raise
         add_logs.retry(exc=exc)
 
 
@@ -399,6 +405,8 @@ def add_metrics(resource_id, request_params, dataset, proto_version):
         return True
     except Exception as exc:
         print_traceback(log)
+        if celery.conf["CELERY_EAGER_PROPAGATES_EXCEPTIONS"]:
+            raise
         add_metrics.retry(exc=exc)
 
 
@@ -538,6 +546,8 @@ def update_tag_counter(tag_name, tag_value, count):
         return True
     except Exception as exc:
         print_traceback(log)
+        if celery.conf["CELERY_EAGER_PROPAGATES_EXCEPTIONS"]:
+            raise
         update_tag_counter.retry(exc=exc)
 
 
