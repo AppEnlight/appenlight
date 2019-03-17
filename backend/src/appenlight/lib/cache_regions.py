@@ -18,7 +18,8 @@ import copy
 import hashlib
 import inspect
 
-from dogpile.cache import make_region, compat
+from dogpile.cache import make_region
+from dogpile.cache.util import compat
 
 regions = None
 

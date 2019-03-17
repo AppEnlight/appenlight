@@ -17,7 +17,7 @@
 import sqlalchemy as sa
 from datetime import datetime
 from ziggurat_foundations.models.base import BaseModel
-from sqlalchemy.dialects.postgres import JSON
+from sqlalchemy.dialects.postgresql import JSON
 
 from . import Base
 

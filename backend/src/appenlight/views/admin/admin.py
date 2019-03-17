@@ -130,14 +130,13 @@ def system(request):
     min_mem = 1024 * 1024 * 40  # 40MB
     process_info = []
     for p in psutil.process_iter():
-        mem_used = p.get_memory_info().rss
+        mem_used = p.memory_info().rss
         if mem_used < min_mem:
             continue
         process_info.append({'owner': p.username(),
                              'pid': p.pid,
-                             'cpu': round(p.get_cpu_percent(interval=0), 1),
-                             'mem_percentage': round(p.get_memory_percent(),
-                                                     1),
+                             'cpu': round(p.cpu_percent(interval=0), 1),
+                             'mem_percentage': round(p.memory_percent(),1),
                              'mem_usage': bytes2human(mem_used),
                              'name': p.name(),
                              'command': ' '.join(p.cmdline())

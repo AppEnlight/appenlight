@@ -84,7 +84,7 @@ class ReportGroup(Base, BaseModel):
                                              'assigned_reports_relation',
                                              lazy='dynamic',
                                              order_by=sa.desc(
-                                                 "reports_groups.id")
+                                                 sa.text("reports_groups.id"))
                                          ),
                                          passive_deletes=True,
                                          passive_updates=True,

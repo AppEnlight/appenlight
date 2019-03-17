@@ -57,7 +57,7 @@ def on_preload_parsed(options, **kwargs):
     if not ini_location:
         raise Exception('You need to pass pyramid ini location using '
                         '--ini=filename.ini argument to the worker')
-    env = bootstrap(ini_location)
+    env = bootstrap(ini_location[0])
     api_key = env['request'].registry.settings['appenlight.api_key']
     tr_config = env['request'].registry.settings.get(
         'appenlight.transport_config')

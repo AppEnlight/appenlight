@@ -20,7 +20,6 @@ import datetime
 import time
 import random
 import redis
-import six
 import pyramid.renderers
 import requests
 
