@@ -33,23 +33,19 @@ class ReportStatService(BaseService):
                     "aggs": {
                         "sub_agg": {"value_count": {"field": "tags.group_id.values"}}
                     },
-                    "filter": {
-                        "and": [
-                            {"terms": {"resource_id": [resource_id]}},
-                            {"exists": {"field": "tags.group_id.values"}},
-                        ]
-                    },
+                    "filter": [
+                        {"terms": {"resource_id": [resource_id]}},
+                        {"exists": {"field": "tags.group_id.values"}},
+                    ],
                 }
             },
             "query": {
                 "bool": {
-                    "filter": {
-                        "and": [
-                            {"terms": {"resource_id": [resource_id]}},
-                            {"terms": {"tags.type.values": [report_type]}},
-                            {"range": {"timestamp": {"gte": since_when}}},
-                        ]
-                    }
+                    "filter": [
+                        {"terms": {"resource_id": [resource_id]}},
+                        {"terms": {"tags.type.values": [report_type]}},
+                        {"range": {"timestamp": {"gte": since_when}}},
+                    ]
                 }
             },
         }

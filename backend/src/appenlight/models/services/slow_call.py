@@ -68,23 +68,21 @@ class SlowCallService(BaseService):
                 },
                 "query": {
                     "bool": {
-                        "filter": {
-                            "and": [
-                                {
-                                    "terms": {
-                                        "resource_id": [filter_settings["resource"][0]]
+                        "filter": [
+                            {
+                                "terms": {
+                                    "resource_id": [filter_settings["resource"][0]]
+                                }
+                            },
+                            {
+                                "range": {
+                                    "timestamp": {
+                                        "gte": filter_settings["start_date"],
+                                        "lte": filter_settings["end_date"],
                                     }
-                                },
-                                {
-                                    "range": {
-                                        "timestamp": {
-                                            "gte": filter_settings["start_date"],
-                                            "lte": filter_settings["end_date"],
-                                        }
-                                    }
-                                },
-                            ]
-                        }
+                                }
+                            },
+                        ]
                     }
                 },
             }
@@ -110,24 +108,22 @@ class SlowCallService(BaseService):
             },
             "query": {
                 "bool": {
-                    "filter": {
-                        "and": [
-                            {
-                                "terms": {
-                                    "resource_id": [filter_settings["resource"][0]]
+                    "filter": [
+                        {
+                            "terms": {
+                                "resource_id": [filter_settings["resource"][0]]
+                            }
+                        },
+                        {"terms": {"tags.statement_hash.values": hashes}},
+                        {
+                            "range": {
+                                "timestamp": {
+                                    "gte": filter_settings["start_date"],
+                                    "lte": filter_settings["end_date"],
                                 }
-                            },
-                            {"terms": {"tags.statement_hash.values": hashes}},
-                            {
-                                "range": {
-                                    "timestamp": {
-                                        "gte": filter_settings["start_date"],
-                                        "lte": filter_settings["end_date"],
-                                    }
-                                }
-                            },
-                        ]
-                    }
+                            }
+                        },
+                    ]
                 }
             },
         }

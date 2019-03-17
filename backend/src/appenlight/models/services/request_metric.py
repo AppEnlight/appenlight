@@ -141,24 +141,22 @@ class RequestMetricService(BaseService):
             },
             "query": {
                 "bool": {
-                    "filter": {
-                        "and": [
-                            {
-                                "terms": {
-                                    "resource_id": [filter_settings["resource"][0]]
+                    "filter": [
+                        {
+                            "terms": {
+                                "resource_id": [filter_settings["resource"][0]]
+                            }
+                        },
+                        {
+                            "range": {
+                                "timestamp": {
+                                    "gte": filter_settings["start_date"],
+                                    "lte": filter_settings["end_date"],
                                 }
-                            },
-                            {
-                                "range": {
-                                    "timestamp": {
-                                        "gte": filter_settings["start_date"],
-                                        "lte": filter_settings["end_date"],
-                                    }
-                                }
-                            },
-                            {"terms": {"namespace": ["appenlight.request_metric"]}},
-                        ]
-                    }
+                            }
+                        },
+                        {"terms": {"namespace": ["appenlight.request_metric"]}},
+                    ]
                 }
             },
         }
@@ -209,24 +207,22 @@ class RequestMetricService(BaseService):
                 },
                 "query": {
                     "bool": {
-                        "filter": {
-                            "and": [
-                                {
-                                    "terms": {
-                                        "resource_id": [filter_settings["resource"][0]]
+                        "filter": [
+                            {
+                                "terms": {
+                                    "resource_id": [filter_settings["resource"][0]]
+                                }
+                            },
+                            {
+                                "range": {
+                                    "timestamp": {
+                                        "gte": filter_settings["start_date"],
+                                        "lte": filter_settings["end_date"],
                                     }
-                                },
-                                {
-                                    "range": {
-                                        "timestamp": {
-                                            "gte": filter_settings["start_date"],
-                                            "lte": filter_settings["end_date"],
-                                        }
-                                    }
-                                },
-                                {"terms": {"namespace": ["appenlight.request_metric"]}},
-                            ]
-                        }
+                                }
+                            },
+                            {"terms": {"namespace": ["appenlight.request_metric"]}},
+                        ]
                     }
                 },
             }
@@ -288,23 +284,21 @@ class RequestMetricService(BaseService):
                 },
                 "query": {
                     "bool": {
-                        "filter": {
-                            "and": [
-                                {
-                                    "terms": {
-                                        "resource_id": [filter_settings["resource"][0]]
+                        "filter": [
+                            {
+                                "terms": {
+                                    "resource_id": [filter_settings["resource"][0]]
+                                }
+                            },
+                            {
+                                "range": {
+                                    "timestamp": {
+                                        "gte": filter_settings["start_date"],
+                                        "lte": filter_settings["end_date"],
                                     }
-                                },
-                                {
-                                    "range": {
-                                        "timestamp": {
-                                            "gte": filter_settings["start_date"],
-                                            "lte": filter_settings["end_date"],
-                                        }
-                                    }
-                                },
-                            ]
-                        }
+                                }
+                            },
+                        ]
                     }
                 },
             }
@@ -331,7 +325,7 @@ class RequestMetricService(BaseService):
                     },
                 }
             },
-            "query": {"bool": {"filter": {"and": and_part}}},
+            "query": {"bool": {"filter": and_part}},
         }
         details = {}
         index_names = es_index_name_limiter(ixtypes=["reports"])
@@ -462,24 +456,22 @@ class RequestMetricService(BaseService):
                 },
                 "query": {
                     "bool": {
-                        "filter": {
-                            "and": [
-                                {
-                                    "terms": {
-                                        "resource_id": [filter_settings["resource"][0]]
+                        "filter": [
+                            {
+                                "terms": {
+                                    "resource_id": [filter_settings["resource"][0]]
+                                }
+                            },
+                            {
+                                "range": {
+                                    "timestamp": {
+                                        "gte": filter_settings["start_date"],
+                                        "lte": filter_settings["end_date"],
                                     }
-                                },
-                                {
-                                    "range": {
-                                        "timestamp": {
-                                            "gte": filter_settings["start_date"],
-                                            "lte": filter_settings["end_date"],
-                                        }
-                                    }
-                                },
-                                {"terms": {"namespace": ["appenlight.request_metric"]}},
-                            ]
-                        }
+                                }
+                            },
+                            {"terms": {"namespace": ["appenlight.request_metric"]}},
+                        ]
                     }
                 },
             }
@@ -541,24 +533,22 @@ class RequestMetricService(BaseService):
                 },
                 "query": {
                     "bool": {
-                        "filter": {
-                            "and": [
-                                {
-                                    "terms": {
-                                        "resource_id": [filter_settings["resource"][0]]
+                        "filter": [
+                            {
+                                "terms": {
+                                    "resource_id": [filter_settings["resource"][0]]
+                                }
+                            },
+                            {
+                                "range": {
+                                    "timestamp": {
+                                        "gte": filter_settings["start_date"],
+                                        "lte": filter_settings["end_date"],
                                     }
-                                },
-                                {
-                                    "range": {
-                                        "timestamp": {
-                                            "gte": filter_settings["start_date"],
-                                            "lte": filter_settings["end_date"],
-                                        }
-                                    }
-                                },
-                                {"terms": {"namespace": ["appenlight.error"]}},
-                            ]
-                        }
+                                }
+                            },
+                            {"terms": {"namespace": ["appenlight.error"]}},
+                        ]
                     }
                 },
             }

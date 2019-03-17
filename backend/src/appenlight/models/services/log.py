@@ -58,14 +58,14 @@ class LogService(BaseService):
         query = {
             "query": {
                 "bool": {
-                    "filter": {"and": [{"terms": {"resource_id": list(app_ids)}}]}
+                    "filter": [{"terms": {"resource_id": list(app_ids)}}]
                 }
             }
         }
 
         start_date = filter_settings.get("start_date")
         end_date = filter_settings.get("end_date")
-        filter_part = query["query"]["bool"]["filter"]["and"]
+        filter_part = query["query"]["bool"]["filter"]
 
         for tag in filter_settings.get("tags", []):
             tag_values = [v.lower() for v in tag["value"]]

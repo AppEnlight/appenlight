@@ -148,13 +148,13 @@ def common_tags(request):
     query = {
         "query": {
             "bool": {
-                "filter": {"and": [{"terms": {"resource_id": list(resources)}}]}
+                "filter": [{"terms": {"resource_id": list(resources)}}]
             }
         }
     }
     start_date = filter_settings.get("start_date")
     end_date = filter_settings.get("end_date")
-    filter_part = query["query"]["bool"]["filter"]["and"]
+    filter_part = query["query"]["bool"]["filter"]
 
     date_range = {"range": {"timestamp": {}}}
     if start_date:
@@ -207,9 +207,7 @@ def common_values(request):
     query = {
         "query": {
             "bool": {
-                "filter": {
-                    "and": and_part
-                }
+                "filter": and_part
             }
         }
     }

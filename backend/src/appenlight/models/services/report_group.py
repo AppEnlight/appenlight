@@ -75,28 +75,26 @@ class ReportGroupService(BaseService):
             },
             "query": {
                 "bool": {
-                    "filter": {
-                        "and": [
-                            {
-                                "terms": {
-                                    "resource_id": [filter_settings["resource"][0]]
+                    "filter": [
+                        {
+                            "terms": {
+                                "resource_id": [filter_settings["resource"][0]]
+                            }
+                        },
+                        {
+                            "range": {
+                                "timestamp": {
+                                    "gte": filter_settings["start_date"],
+                                    "lte": filter_settings["end_date"],
                                 }
-                            },
-                            {
-                                "range": {
-                                    "timestamp": {
-                                        "gte": filter_settings["start_date"],
-                                        "lte": filter_settings["end_date"],
-                                    }
-                                }
-                            },
-                        ]
-                    }
+                            }
+                        },
+                    ]
                 }
             },
         }
         if tags:
-            es_query["query"]["bool"]["filter"]["and"].extend(tags)
+            es_query["query"]["bool"]["filter"].extend(tags)
 
         result = Datastores.es.search(
             body=es_query, index=index_names, doc_type="log", size=0
@@ -138,7 +136,7 @@ class ReportGroupService(BaseService):
                 "bool": {
                     "must": [],
                     "should": [],
-                    "filter": {"and": [{"terms": {"resource_id": list(app_ids)}}]}
+                    "filter": [{"terms": {"resource_id": list(app_ids)}}]
                 }
             },
             "aggs": {
@@ -160,7 +158,7 @@ class ReportGroupService(BaseService):
 
         start_date = filter_settings.get("start_date")
         end_date = filter_settings.get("end_date")
-        filter_part = query["query"]["bool"]["filter"]["and"]
+        filter_part = query["query"]["bool"]["filter"]
         date_range = {"range": {"start_time": {}}}
         if start_date:
             date_range["range"]["start_time"]["gte"] = start_date
@@ -467,23 +465,21 @@ class ReportGroupService(BaseService):
             },
             "query": {
                 "bool": {
-                    "filter": {
-                        "and": [
-                            {
-                                "terms": {
-                                    "resource_id": [filter_settings["resource"][0]]
+                    "filter": [
+                        {
+                            "terms": {
+                                "resource_id": [filter_settings["resource"][0]]
+                            }
+                        },
+                        {
+                            "range": {
+                                "timestamp": {
+                                    "gte": filter_settings["start_date"],
+                                    "lte": filter_settings["end_date"],
                                 }
-                            },
-                            {
-                                "range": {
-                                    "timestamp": {
-                                        "gte": filter_settings["start_date"],
-                                        "lte": filter_settings["end_date"],
-                                    }
-                                }
-                            },
-                        ]
-                    }
+                            }
+                        },
+                    ]
                 }
             },
         }

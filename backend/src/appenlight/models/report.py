@@ -312,12 +312,10 @@ class Report(Base, BaseModel):
             "size": 1,
             "query": {
                 "bool": {
-                    "filter": {
-                        "and": [
-                            {"term": {"group_id": self.group_id}},
-                            {"range": {"pg_id": {"lt": self.id}}},
-                        ]
-                    }
+                    "filter": [
+                        {"term": {"group_id": self.group_id}},
+                        {"range": {"pg_id": {"lt": self.id}}},
+                    ]
                 }
             },
             "sort": [{"_doc": {"order": "desc"}}],
@@ -333,12 +331,10 @@ class Report(Base, BaseModel):
             "size": 1,
             "query": {
                 "bool": {
-                    "filter": {
-                        "and": [
-                            {"term": {"group_id": self.group_id}},
-                            {"range": {"pg_id": {"gt": self.id}}},
-                        ]
-                    }
+                    "filter": [
+                        {"term": {"group_id": self.group_id}},
+                        {"range": {"pg_id": {"gt": self.id}}},
+                    ]
                 }
             },
             "sort": [{"_doc": {"order": "asc"}}],
