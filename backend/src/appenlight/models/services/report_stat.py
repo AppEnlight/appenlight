@@ -41,7 +41,7 @@ class ReportStatService(BaseService):
                             'gte': since_when}}}]}}}}
 
         if index_names:
-            result = Datastores.es.search(es_query,
+            result = Datastores.es.search(body=es_query,
                                       index=index_names,
                                       doc_type='log',
                                       size=0)

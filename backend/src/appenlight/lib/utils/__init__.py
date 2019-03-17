@@ -189,7 +189,7 @@ def es_index_name_limiter(start_date=None, end_date=None, months_in_past=6,
 
     # should be cached later
     def get_possible_names():
-        return list(Datastores.es.aliases().keys())
+        return list(Datastores.es.indices.get_alias('*'))
 
     possible_names = get_possible_names()
     es_index_types = []

@@ -159,8 +159,7 @@ def system(request):
 
     # es indices
     es_indices = []
-    result = Datastores.es.send_request(
-        'GET', ['_stats', 'store, docs'], query_params={})
+    result = Datastores.es.indices.stats(metric=['store, docs'])
     for ix, stats in result['indices'].items():
         size = stats['primaries']['store']['size_in_bytes']
         es_indices.append({'name': ix,

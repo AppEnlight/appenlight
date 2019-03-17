@@ -78,7 +78,7 @@ class ReportGroupService(BaseService):
             es_query['query']['filtered']['filter']['and'].extend(tags)
 
         result = Datastores.es.search(
-            es_query, index=index_names, doc_type='log', size=0)
+            body=es_query, index=index_names, doc_type='log', size=0)
         series = []
         for bucket in result['aggregations']['parent_agg']['buckets']:
             series.append({
@@ -249,7 +249,7 @@ class ReportGroupService(BaseService):
                                             ixtypes=['reports'])
         if index_names:
             results = Datastores.es.search(
-                query, index=index_names, doc_type=["report", "report_group"],
+                body=query, index=index_names, doc_type=["report", "report_group"],
                 size=0)
         else:
             return []
@@ -428,7 +428,7 @@ class ReportGroupService(BaseService):
         if not index_names:
             return []
 
-        result = Datastores.es.search(es_query,
+        result = Datastores.es.search(body=es_query,
                                       index=index_names,
                                       doc_type='log',
                                       size=0)

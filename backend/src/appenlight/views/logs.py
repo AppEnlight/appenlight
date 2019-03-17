@@ -163,7 +163,7 @@ def common_tags(request):
     # tags
     index_names = es_index_name_limiter(
         ixtypes=[config.get('datasource', 'logs')])
-    result = Datastores.es.search(query, index=index_names, doc_type='log',
+    result = Datastores.es.search(body=query, index=index_names, doc_type='log',
                                   size=0)
     tag_buckets = result['aggregations']['sub_agg'].get('buckets', [])
     # namespaces
@@ -175,7 +175,7 @@ def common_tags(request):
             }
         }
     }
-    result = Datastores.es.search(query, index=index_names, doc_type='log',
+    result = Datastores.es.search(body=query, index=index_names, doc_type='log',
                                   size=0)
     namespaces_buckets = result['aggregations']['sub_agg'].get('buckets', [])
     return {
@@ -216,7 +216,7 @@ def common_values(request):
         }
     }
     index_names = es_index_name_limiter(ixtypes=[datasource])
-    result = Datastores.es.search(query, index=index_names, doc_type='log',
+    result = Datastores.es.search(body=query, index=index_names, doc_type='log',
                                   size=0)
     values_buckets = result['aggregations']['sub_agg'].get('buckets', [])
     return {

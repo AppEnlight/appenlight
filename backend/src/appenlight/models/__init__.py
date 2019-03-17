@@ -66,11 +66,11 @@ class SliceableESQuery(object):
 
     def __getitem__(self, index):
         config = self.kwconfig.copy()
-        config['es_from'] = index.start
+        config['from_'] = index.start
         query = self.query.copy()
         if self.sort_query:
             query.update(self.sort_query)
-        self.result = Datastores.es.search(query, size=self.items_per_page,
+        self.result = Datastores.es.search(body=query, size=self.items_per_page,
                                            **config)
         if self.aggregations:
             self.items = self.result.get('aggregations')
@@ -85,7 +85,7 @@ class SliceableESQuery(object):
     def __len__(self):
         config = self.kwconfig.copy()
         query = self.query.copy()
-        self.result = Datastores.es.search(query, size=self.items_per_page,
+        self.result = Datastores.es.search(body=query, size=self.items_per_page,
                                            **config)
         if self.aggregations:
             self.items = self.result.get('aggregations')

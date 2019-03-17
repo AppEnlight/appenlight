@@ -65,7 +65,7 @@ class SlowCallService(BaseService):
                 }
             }
             result = Datastores.es.search(
-                es_query, index=index_names, doc_type='log', size=0)
+                body=es_query, index=index_names, doc_type='log', size=0)
             results = result['aggregations']['parent_agg']['buckets']
         else:
             return []
@@ -118,7 +118,7 @@ class SlowCallService(BaseService):
                 }
             }
         }
-        calls = Datastores.es.search(calls_query,
+        calls = Datastores.es.search(body=calls_query,
                                      index=index_names,
                                      doc_type='log',
                                      size=0)

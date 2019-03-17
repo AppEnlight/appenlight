@@ -16,7 +16,7 @@
 
 import datetime
 import logging
-import pyelasticsearch
+from elasticsearch import Elasticsearch
 import redis
 import os
 import pkg_resources
@@ -150,7 +150,7 @@ def main(global_config, **settings):
     redis_url = settings['redis.url']
     log.warning('Elasticsearch server list: {}'.format(es_server_list))
     log.warning('Redis server: {}'.format(redis_url))
-    config.registry.es_conn = pyelasticsearch.ElasticSearch(es_server_list)
+    config.registry.es_conn = Elasticsearch(es_server_list)
     config.registry.redis_conn = redis.StrictRedis.from_url(redis_url)
 
     config.registry.redis_lockmgr = Redlock([settings['redis.redlock.url'], ],

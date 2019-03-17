@@ -50,7 +50,7 @@ def get_partition_stats():
         if not ix_time in holder:
             holder[ix_time] = {'pg': [], 'elasticsearch': []}
 
-    for partition in list(Datastores.es.aliases().keys()):
+    for partition in list(Datastores.es.indices.get_alias('rcae*')):
         if not partition.startswith('rcae'):
             continue
         split_data = partition.split('_')
@@ -128,7 +128,7 @@ def partitions_remove(request):
     if form.validate():
         for ix in form.data['es_index']:
             log.warning('deleting ES partition: {}'.format(ix))
-            Datastores.es.delete_index(ix)
+            Datastores.es.indices.delete(ix)
         for ix in form.data['pg_index']:
             log.warning('deleting PG partition: {}'.format(ix))
             stmt = sa.text('DROP TABLE %s CASCADE' % sa.text(ix))

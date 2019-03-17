@@ -310,7 +310,7 @@ class Report(Base, BaseModel):
                 {"_doc": {"order": "desc"}},
             ],
         }
-        result = request.es_conn.search(query, index=self.partition_id,
+        result = request.es_conn.search(body=query, index=self.partition_id,
                                         doc_type='report')
         if result['hits']['total']:
             return result['hits']['hits'][0]['_source']['pg_id']
@@ -330,7 +330,7 @@ class Report(Base, BaseModel):
                 {"_doc": {"order": "asc"}},
             ],
         }
-        result = request.es_conn.search(query, index=self.partition_id,
+        result = request.es_conn.search(body=query, index=self.partition_id,
                                         doc_type='report')
         if result['hits']['total']:
             return result['hits']['hits'][0]['_source']['pg_id']
@@ -505,8 +505,8 @@ def after_update(mapper, connection, target):
 
 def after_delete(mapper, connection, target):
     if not hasattr(target, '_skip_ft_index'):
-        query = {'term': {'pg_id': target.id}}
-        Datastores.es.delete_by_query(target.partition_id, 'report', query)
+        query = {"query":{'term': {'pg_id': target.id}}}
+        Datastores.es.transport.perform_request("DELETE", '/{}/{}/_query'.format(target.partition_id, 'report'), body=query)
 
 
 sa.event.listen(Report, 'after_insert', after_insert)

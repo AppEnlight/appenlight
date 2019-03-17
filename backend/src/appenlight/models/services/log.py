@@ -130,7 +130,7 @@ class LogService(BaseService):
                                             ixtypes=['logs'])
         if index_names:
             results = Datastores.es.search(
-                es_query, index=index_names, doc_type='log', size=0)
+                body=es_query, index=index_names, doc_type='log', size=0)
         else:
             results = []
         return results
@@ -156,9 +156,9 @@ class LogService(BaseService):
         if not index_names:
             return {}, 0
 
-        results = Datastores.es.search(es_query, index=index_names,
+        results = Datastores.es.search(body=es_query, index=index_names,
                                        doc_type='log', size=items_per_page,
-                                       es_from=es_from)
+                                       from_=es_from)
         if results['hits']['total'] > 5000:
             count = 5000
         else:

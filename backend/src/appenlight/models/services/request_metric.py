@@ -113,7 +113,7 @@ class RequestMetricService(BaseService):
         if not index_names:
             return []
 
-        result = Datastores.es.search(es_query,
+        result = Datastores.es.search(body=es_query,
                                       index=index_names,
                                       doc_type='log',
                                       size=0)
@@ -156,7 +156,7 @@ class RequestMetricService(BaseService):
                             'lte': filter_settings['end_date']}}},
                         {'terms': {'namespace': [
                             'appenlight.request_metric']}}]}}}}
-            result = Datastores.es.search(es_query,
+            result = Datastores.es.search(body=es_query,
                                           index=index_names,
                                           doc_type='log',
                                           size=0)
@@ -205,7 +205,7 @@ class RequestMetricService(BaseService):
                 ]}
                 }}
             }
-            result = Datastores.es.search(es_query,
+            result = Datastores.es.search(body=es_query,
                                           index=index_names,
                                           doc_type='log',
                                           size=0)
@@ -249,7 +249,7 @@ class RequestMetricService(BaseService):
         index_names = es_index_name_limiter(ixtypes=['reports'])
         if index_names and series:
             result = Datastores.es.search(
-                query, doc_type='report', size=0, index=index_names)
+                body=query, doc_type='report', size=0, index=index_names)
             for bucket in result['aggregations']['top_reports']['buckets']:
                 details[bucket['key']] = []
 
@@ -340,7 +340,7 @@ class RequestMetricService(BaseService):
                             {'terms': {'namespace': [
                                 'appenlight.request_metric']}}]}}}}
 
-            result = Datastores.es.search(es_query,
+            result = Datastores.es.search(body=es_query,
                                           index=index_names,
                                           doc_type='log',
                                           size=0)
@@ -391,7 +391,7 @@ class RequestMetricService(BaseService):
                     }
                 }}
             }
-            result = Datastores.es.search(es_query,
+            result = Datastores.es.search(body=es_query,
                                           index=index_names,
                                           doc_type='log',
                                           size=0)

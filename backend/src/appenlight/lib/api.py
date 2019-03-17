@@ -19,7 +19,6 @@ import logging
 
 from pyramid.httpexceptions import HTTPForbidden, HTTPTooManyRequests
 
-from appenlight.models import Datastores
 from appenlight.models.services.config import ConfigService
 from appenlight.lib.redis_keys import REDIS_KEYS
 

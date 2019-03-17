@@ -20,7 +20,8 @@ import math
 from datetime import datetime, timedelta
 
 import sqlalchemy as sa
-import pyelasticsearch
+import elasticsearch.exceptions
+import elasticsearch.helpers
 
 from celery.utils.log import get_task_logger
 from zope.sqlalchemy import mark_changed
@@ -226,22 +227,29 @@ def add_reports(resource_id, request_params, dataset, **kwargs):
 @celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_reports_es(report_group_docs, report_docs):
     for k, v in report_group_docs.items():
-        Datastores.es.bulk_index(k, 'report_group', v, id_field="_id")
+        to_update = {'_index': k, '_type': 'report_group'}
+        [i.update(to_update) for i in v]
+        elasticsearch.helpers.bulk(Datastores.es, v)
     for k, v in report_docs.items():
-        Datastores.es.bulk_index(k, 'report', v, id_field="_id",
-                                 parent_field='_parent')
+        to_update = {'_index': k, '_type': 'report'}
+        [i.update(to_update) for i in v]
+        elasticsearch.helpers.bulk(Datastores.es, v)
 
 
 @celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_reports_slow_calls_es(es_docs):
     for k, v in es_docs.items():
-        Datastores.es.bulk_index(k, 'log', v)
+        to_update = {'_index': k, '_type': 'log'}
+        [i.update(to_update) for i in v]
+        elasticsearch.helpers.bulk(Datastores.es, v)
 
 
 @celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_reports_stats_rows_es(es_docs):
     for k, v in es_docs.items():
-        Datastores.es.bulk_index(k, 'log', v)
+        to_update = {'_index': k, '_type': 'log'}
+        [i.update(to_update) for i in v]
+        elasticsearch.helpers.bulk(Datastores.es, v)
 
 
 @celery.task(queue="logs", default_retry_delay=600, max_retries=144)
@@ -304,12 +312,12 @@ def add_logs(resource_id, request_params, dataset, **kwargs):
                 # batch this to avoid problems with default ES bulk limits
                 for es_index in es_docs_to_delete.keys():
                     for batch in in_batches(es_docs_to_delete[es_index], 20):
-                        query = {'terms': {'delete_hash': batch}}
+                        query = {"query": {'terms': {'delete_hash': batch}}}
 
                         try:
-                            Datastores.es.delete_by_query(
-                                es_index, 'log', query)
-                        except pyelasticsearch.ElasticHttpNotFoundError as exc:
+                            Datastores.es.transport.perform_request(
+                                "DELETE", '/{}/{}/_query'.format(es_index, 'log'), body=query)
+                        except elasticsearch.exceptions.NotFoundError as exc:
                             msg = 'skipping index {}'.format(es_index)
                             log.info(msg)
 
@@ -349,7 +357,9 @@ def add_logs(resource_id, request_params, dataset, **kwargs):
 @celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_logs_es(es_docs):
     for k, v in es_docs.items():
-        Datastores.es.bulk_index(k, 'log', v)
+        to_update = {'_index': k, '_type': 'log'}
+        [i.update(to_update) for i in v]
+        elasticsearch.helpers.bulk(Datastores.es, v)
 
 
 @celery.task(queue="metrics", default_retry_delay=600, max_retries=144)
@@ -627,8 +637,6 @@ def logs_cleanup(resource_id, filter_settings):
     request = get_current_request()
     request.tm.begin()
     es_query = {
-        "_source": False,
-        "size": 5000,
         "query": {
             "filtered": {
                 "filter": {
@@ -646,27 +654,4 @@ def logs_cleanup(resource_id, filter_settings):
         )
     query.delete(synchronize_session=False)
     request.tm.commit()
-    result = request.es_conn.search(es_query, index='rcae_l_*',
-                                    doc_type='log', es_scroll='1m',
-                                    es_search_type='scan')
-    scroll_id = result['_scroll_id']
-    while True:
-        log.warning('log_cleanup, app:{} ns:{} batch'.format(
-            resource_id,
-            filter_settings['namespace']
-        ))
-        es_docs_to_delete = []
-        result = request.es_conn.send_request(
-            'POST', ['_search', 'scroll'],
-            body=scroll_id, query_params={"scroll": '1m'})
-        scroll_id = result['_scroll_id']
-        if not result['hits']['hits']:
-            break
-        for doc in result['hits']['hits']:
-            es_docs_to_delete.append({"id": doc['_id'],
-                                      "index": doc['_index']})
-
-        for batch in in_batches(es_docs_to_delete, 10):
-            Datastores.es.bulk([Datastores.es.delete_op(doc_type='log',
-                                                        **to_del)
-                                for to_del in batch])
+    Datastores.es.transport.perform_request("DELETE", '/{}/{}/_query'.format('rcae_l_*', 'log'), body=es_query)

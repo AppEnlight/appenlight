@@ -19,6 +19,9 @@ import datetime
 import logging
 
 import sqlalchemy as sa
+import elasticsearch.exceptions
+import elasticsearch.helpers
+
 from collections import defaultdict
 from pyramid.paster import setup_logging
 from pyramid.paster import bootstrap
@@ -97,7 +100,7 @@ def main():
         if v.get('fulltext_indexer'):
             choices[k] = v['fulltext_indexer']
     parser.add_argument('-t', '--types', nargs='*',
-                        choices=['all'] + list(choices.keys()), default=['all'],
+                        choices=['all'] + list(choices.keys()), default=[],
                         help='Which parts of database should get reindexed')
     parser.add_argument('-c', '--config', required=True,
                         help='Configuration ini file of application')
@@ -106,6 +109,8 @@ def main():
 
     if 'all' in args.types:
         args.types = list(choices.keys())
+
+    print("Selected types to reindex: {}".format(args.types))
 
     log.info('settings {}'.format(args.types))
 
@@ -118,10 +123,9 @@ def main():
 
 def update_template():
     try:
-        Datastores.es.send_request("delete", ['_template', 'rcae'],
-                                   query_params={})
-    except Exception as e:
-        print(e)
+        Datastores.es.indices.delete_template('rcae')
+    except elasticsearch.exceptions.NotFoundError as e:
+        log.error(e)
     log.info('updating elasticsearch template')
     tag_templates = [
         {"values": {
@@ -230,15 +234,14 @@ def update_template():
         }
     }
 
-    Datastores.es.send_request('PUT', ['_template', 'rcae'],
-                               body=template_schema, query_params={})
+    Datastores.es.indices.put_template('rcae', body=template_schema)
 
 
 def reindex_reports():
     reports_groups_tables = detect_tables('reports_groups_p_')
     try:
-        Datastores.es.delete_index('rcae_r*')
-    except Exception as e:
+        Datastores.es.indices.delete('rcae_r*')
+    except elasticsearch.exceptions.NotFoundError as e:
         log.error(e)
 
     log.info('reindexing report groups')
@@ -261,8 +264,9 @@ def reindex_reports():
                 name = partition_table.name
                 log.info('round {}, {}'.format(i, name))
                 for k, v in es_docs.items():
-                    Datastores.es.bulk_index(k, 'report_group', v,
-                                             id_field="_id")
+                    to_update = {'_index': k, '_type': 'report_group'}
+                    [i.update(to_update) for i in v]
+                    elasticsearch.helpers.bulk(Datastores.es, v)
 
     log.info(
         'total docs {} {}'.format(i, datetime.datetime.now() - task_start))
@@ -288,8 +292,9 @@ def reindex_reports():
                 name = partition_table.name
                 log.info('round {}, {}'.format(i, name))
                 for k, v in es_docs.items():
-                    Datastores.es.bulk_index(k, 'report', v, id_field="_id",
-                                             parent_field='_parent')
+                    to_update = {'_index': k, '_type': 'report'}
+                    [i.update(to_update) for i in v]
+                    elasticsearch.helpers.bulk(Datastores.es, v)
 
     log.info(
         'total docs {} {}'.format(i, datetime.datetime.now() - task_start))
@@ -319,7 +324,9 @@ def reindex_reports():
                 name = partition_table.name
                 log.info('round  {}, {}'.format(i, name))
                 for k, v in es_docs.items():
-                    Datastores.es.bulk_index(k, 'log', v)
+                    to_update = {'_index': k, '_type': 'log'}
+                    [i.update(to_update) for i in v]
+                    elasticsearch.helpers.bulk(Datastores.es, v)
 
     log.info(
         'total docs {} {}'.format(i, datetime.datetime.now() - task_start))
@@ -327,8 +334,8 @@ def reindex_reports():
 
 def reindex_logs():
     try:
-        Datastores.es.delete_index('rcae_l*')
-    except Exception as e:
+        Datastores.es.indices.delete('rcae_l*')
+    except elasticsearch.exceptions.NotFoundError as e:
         log.error(e)
 
     # logs
@@ -354,7 +361,9 @@ def reindex_logs():
                 name = partition_table.name
                 log.info('round  {}, {}'.format(i, name))
                 for k, v in es_docs.items():
-                    Datastores.es.bulk_index(k, 'log', v)
+                    to_update = {'_index': k, '_type': 'log'}
+                    [i.update(to_update) for i in v]
+                    elasticsearch.helpers.bulk(Datastores.es, v)
 
     log.info(
         'total docs {} {}'.format(i, datetime.datetime.now() - task_start))
@@ -362,9 +371,9 @@ def reindex_logs():
 
 def reindex_metrics():
     try:
-        Datastores.es.delete_index('rcae_m*')
-    except Exception as e:
-        print(e)
+        Datastores.es.indices.delete('rcae_m*')
+    except elasticsearch.exceptions.NotFoundError as e:
+        log.error(e)
 
     log.info('reindexing applications metrics')
     i = 0
@@ -387,7 +396,9 @@ def reindex_metrics():
                 name = partition_table.name
                 log.info('round  {}, {}'.format(i, name))
                 for k, v in es_docs.items():
-                    Datastores.es.bulk_index(k, 'log', v)
+                    to_update = {'_index': k, '_type': 'log'}
+                    [i.update(to_update) for i in v]
+                    elasticsearch.helpers.bulk(Datastores.es, v)
 
     log.info(
         'total docs {} {}'.format(i, datetime.datetime.now() - task_start))
@@ -395,9 +406,9 @@ def reindex_metrics():
 
 def reindex_slow_calls():
     try:
-        Datastores.es.delete_index('rcae_sc*')
-    except Exception as e:
-        print(e)
+        Datastores.es.indices.delete('rcae_sc*')
+    except elasticsearch.exceptions.NotFoundError as e:
+        log.error(e)
 
     log.info('reindexing slow calls')
     i = 0
@@ -420,7 +431,9 @@ def reindex_slow_calls():
                 name = partition_table.name
                 log.info('round  {}, {}'.format(i, name))
                 for k, v in es_docs.items():
-                    Datastores.es.bulk_index(k, 'log', v)
+                    to_update = {'_index': k, '_type': 'log'}
+                    [i.update(to_update) for i in v]
+                    elasticsearch.helpers.bulk(Datastores.es, v)
 
     log.info(
         'total docs {} {}'.format(i, datetime.datetime.now() - task_start))
