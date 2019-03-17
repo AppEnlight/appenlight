@@ -29,17 +29,22 @@ class AuthToken(Base, BaseModel):
     """
     Stores information about possible alerting options
     """
-    __tablename__ = 'auth_tokens'
+
+    __tablename__ = "auth_tokens"
 
     id = sa.Column(sa.Integer, primary_key=True, nullable=False)
-    token = sa.Column(sa.Unicode(40), nullable=False,
-                      default=lambda x: UserService.generate_random_string(40))
-    owner_id = sa.Column(sa.Unicode(30),
-                         sa.ForeignKey('users.id', onupdate='CASCADE',
-                                       ondelete='CASCADE'))
+    token = sa.Column(
+        sa.Unicode(40),
+        nullable=False,
+        default=lambda x: UserService.generate_random_string(40),
+    )
+    owner_id = sa.Column(
+        sa.Unicode(30),
+        sa.ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
+    )
     creation_date = sa.Column(sa.DateTime, default=lambda x: datetime.utcnow())
     expires = sa.Column(sa.DateTime)
-    description = sa.Column(sa.Unicode, default='')
+    description = sa.Column(sa.Unicode, default="")
 
     @property
     def is_expired(self):
@@ -49,4 +54,4 @@ class AuthToken(Base, BaseModel):
             return False
 
     def __str__(self):
-        return '<AuthToken u:%s t:%s...>' % (self.owner_id, self.token[0:10])
+        return "<AuthToken u:%s t:%s...>" % (self.owner_id, self.token[0:10])

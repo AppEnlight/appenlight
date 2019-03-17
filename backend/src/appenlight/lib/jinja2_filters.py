@@ -18,17 +18,21 @@ import re
 from appenlight.lib.ext_json import json
 from jinja2 import Markup, escape, evalcontextfilter
 
-_paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
+_paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")
 
 
 @evalcontextfilter
 def nl2br(eval_ctx, value):
     if eval_ctx.autoescape:
-        result = '\n\n'.join('<p>%s</p>' % p.replace('\n', Markup('<br>\n'))
-                              for p in _paragraph_re.split(escape(value)))
+        result = "\n\n".join(
+            "<p>%s</p>" % p.replace("\n", Markup("<br>\n"))
+            for p in _paragraph_re.split(escape(value))
+        )
     else:
-        result = '\n\n'.join('<p>%s</p>' % p.replace('\n', '<br>\n')
-                              for p in _paragraph_re.split(escape(value)))
+        result = "\n\n".join(
+            "<p>%s</p>" % p.replace("\n", "<br>\n")
+            for p in _paragraph_re.split(escape(value))
+        )
     if eval_ctx.autoescape:
         result = Markup(result)
     return result
@@ -36,11 +40,14 @@ def nl2br(eval_ctx, value):
 
 @evalcontextfilter
 def toJSONUnsafe(eval_ctx, value):
-    encoded = json.dumps(value).replace('&', '\\u0026') \
-        .replace('<', '\\u003c') \
-        .replace('>', '\\u003e') \
-        .replace('>', '\\u003e') \
-        .replace('"', '\\u0022') \
-        .replace("'", '\\u0027') \
-        .replace(r'\n', '/\\\n')
+    encoded = (
+        json.dumps(value)
+        .replace("&", "\\u0026")
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+        .replace(">", "\\u003e")
+        .replace('"', "\\u0022")
+        .replace("'", "\\u0027")
+        .replace(r"\n", "/\\\n")
+    )
     return Markup("'%s'" % encoded)

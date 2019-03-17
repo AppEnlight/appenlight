@@ -54,11 +54,11 @@ def unsafe_json_body(request):
     try:
         return request.json_body
     except ValueError:
-        raise JSONException('Incorrect JSON')
+        raise JSONException("Incorrect JSON")
 
 
 def get_user(request):
-    if not request.path_info.startswith('/static'):
+    if not request.path_info.startswith("/static"):
         user_id = unauthenticated_userid(request)
         try:
             user_id = int(user_id)
@@ -68,8 +68,10 @@ def get_user(request):
         if user_id:
             user = UserService.by_id(user_id)
             if user:
-                request.environ['appenlight.username'] = '%d:%s' % (
-                    user_id, user.user_name)
+                request.environ["appenlight.username"] = "%d:%s" % (
+                    user_id,
+                    user.user_name,
+                )
             return user
         else:
             return None
@@ -85,7 +87,7 @@ def add_flash_to_headers(request, clear=True):
     flash queue
     """
     flash_msgs = helpers.get_type_formatted_flash(request)
-    request.response.headers['x-flash-messages'] = json.dumps(flash_msgs)
+    request.response.headers["x-flash-messages"] = json.dumps(flash_msgs)
     helpers.clear_flash(request)
 
 
@@ -94,42 +96,36 @@ def get_authomatic(request):
     # authomatic social auth
     authomatic_conf = {
         # callback http://yourapp.com/social_auth/twitter
-        'twitter': {
-            'class_': oauth1.Twitter,
-            'consumer_key': settings.get('authomatic.pr.twitter.key', ''),
-            'consumer_secret': settings.get('authomatic.pr.twitter.secret',
-                                            ''),
+        "twitter": {
+            "class_": oauth1.Twitter,
+            "consumer_key": settings.get("authomatic.pr.twitter.key", ""),
+            "consumer_secret": settings.get("authomatic.pr.twitter.secret", ""),
         },
         # callback http://yourapp.com/social_auth/facebook
-        'facebook': {
-            'class_': oauth2.Facebook,
-            'consumer_key': settings.get('authomatic.pr.facebook.app_id', ''),
-            'consumer_secret': settings.get('authomatic.pr.facebook.secret',
-                                            ''),
-            'scope': ['email'],
+        "facebook": {
+            "class_": oauth2.Facebook,
+            "consumer_key": settings.get("authomatic.pr.facebook.app_id", ""),
+            "consumer_secret": settings.get("authomatic.pr.facebook.secret", ""),
+            "scope": ["email"],
         },
         # callback http://yourapp.com/social_auth/google
-        'google': {
-            'class_': oauth2.Google,
-            'consumer_key': settings.get('authomatic.pr.google.key', ''),
-            'consumer_secret': settings.get(
-                'authomatic.pr.google.secret', ''),
-            'scope': ['profile', 'email'],
+        "google": {
+            "class_": oauth2.Google,
+            "consumer_key": settings.get("authomatic.pr.google.key", ""),
+            "consumer_secret": settings.get("authomatic.pr.google.secret", ""),
+            "scope": ["profile", "email"],
         },
-        'github': {
-            'class_': oauth2.GitHub,
-            'consumer_key': settings.get('authomatic.pr.github.key', ''),
-            'consumer_secret': settings.get(
-                'authomatic.pr.github.secret', ''),
-            'scope': ['repo', 'public_repo', 'user:email'],
-            'access_headers': {'User-Agent': 'AppEnlight'},
+        "github": {
+            "class_": oauth2.GitHub,
+            "consumer_key": settings.get("authomatic.pr.github.key", ""),
+            "consumer_secret": settings.get("authomatic.pr.github.secret", ""),
+            "scope": ["repo", "public_repo", "user:email"],
+            "access_headers": {"User-Agent": "AppEnlight"},
         },
-        'bitbucket': {
-            'class_': oauth1.Bitbucket,
-            'consumer_key': settings.get('authomatic.pr.bitbucket.key', ''),
-            'consumer_secret': settings.get(
-                'authomatic.pr.bitbucket.secret', '')
-        }
+        "bitbucket": {
+            "class_": oauth1.Bitbucket,
+            "consumer_key": settings.get("authomatic.pr.bitbucket.key", ""),
+            "consumer_secret": settings.get("authomatic.pr.bitbucket.secret", ""),
+        },
     }
-    return Authomatic(
-        config=authomatic_conf, secret=settings['authomatic.secret'])
+    return Authomatic(config=authomatic_conf, secret=settings["authomatic.secret"])

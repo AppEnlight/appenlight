@@ -24,8 +24,8 @@ log = logging.getLogger(__name__)
 def includeme(config):
     """Add the application's view handlers.
     """
-    config.add_route('admin_users_no_id', '/admin/users/')
-    config.add_route('admin_users', '/admin/users/{user_id}')
-    config.add_route('admin', '/admin/{action}')
-    config.add_route('admin_configs', '/configs')
-    config.add_route('admin_config', '/configs/{key}/{section}')
+    config.add_route("admin_users_no_id", "/admin/users/")
+    config.add_route("admin_users", "/admin/users/{user_id}")
+    config.add_route("admin", "/admin/{action}")
+    config.add_route("admin_configs", "/configs")
+    config.add_route("admin_config", "/configs/{key}/{section}")

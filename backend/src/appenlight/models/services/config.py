@@ -40,9 +40,10 @@ class ConfigService(BaseService):
         if pairs:
             conditions = []
             for pair in pairs:
-                conditions.append(sa.and_(
-                    Config.key == pair['key'],
-                    Config.section == pair['section'])
+                conditions.append(
+                    sa.and_(
+                        Config.key == pair["key"], Config.section == pair["section"]
+                    )
                 )
 
             query = query.filter(sa.or_(*conditions))
@@ -57,13 +58,15 @@ class ConfigService(BaseService):
         return config
 
     @classmethod
-    def by_key_and_section(cls, key, section, auto_create=False,
-                           default_value=None, db_session=None):
+    def by_key_and_section(
+        cls, key, section, auto_create=False, default_value=None, db_session=None
+    ):
         db_session = get_db_session(db_session)
         registry = get_current_registry()
 
         @registry.cache_regions.memory_min_1.cache_on_arguments(
-            namespace='ConfigService.by_key_and_section')
+            namespace="ConfigService.by_key_and_section"
+        )
         def cached(key, section):
             query = db_session.query(Config).filter(Config.key == key)
             query = query.filter(Config.section == section)
@@ -76,8 +79,7 @@ class ConfigService(BaseService):
         if config:
             config = db_session.merge(config, load=False)
         if config is None and auto_create:
-            config = ConfigService.create_config(key, section,
-                                                 value=default_value)
+            config = ConfigService.create_config(key, section, value=default_value)
             cached.invalidate(key, section)
         return config
 
@@ -87,14 +89,28 @@ class ConfigService(BaseService):
         Will add fresh default config values to database if no keys are found
         :return:
         """
-        log.info('Checking/setting default values')
-        self.by_key_and_section('template_footer_html', 'global',
-                                default_value='', auto_create=True)
-        self.by_key_and_section('list_groups_to_non_admins', 'global',
-                                default_value=True, auto_create=True)
-        self.by_key_and_section('per_application_reports_rate_limit', 'global',
-                                default_value=2000, auto_create=True)
-        self.by_key_and_section('per_application_logs_rate_limit', 'global',
-                                default_value=100000, auto_create=True)
-        self.by_key_and_section('per_application_metrics_rate_limit', 'global',
-                                default_value=100000, auto_create=True)
+        log.info("Checking/setting default values")
+        self.by_key_and_section(
+            "template_footer_html", "global", default_value="", auto_create=True
+        )
+        self.by_key_and_section(
+            "list_groups_to_non_admins", "global", default_value=True, auto_create=True
+        )
+        self.by_key_and_section(
+            "per_application_reports_rate_limit",
+            "global",
+            default_value=2000,
+            auto_create=True,
+        )
+        self.by_key_and_section(
+            "per_application_logs_rate_limit",
+            "global",
+            default_value=100000,
+            auto_create=True,
+        )
+        self.by_key_and_section(
+            "per_application_metrics_rate_limit",
+            "global",
+            default_value=100000,
+            auto_create=True,
+        )

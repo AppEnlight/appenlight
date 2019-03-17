@@ -41,7 +41,7 @@ target_metadata = MetaData(naming_convention=NAMING_CONVENTION)
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-VERSION_TABLE_NAME = 'alembic_appenlight_version'
+VERSION_TABLE_NAME = "alembic_appenlight_version"
 
 
 def run_migrations_offline():
@@ -57,9 +57,12 @@ def run_migrations_offline():
 
     """
     url = config.get_main_option("sqlalchemy.url")
-    context.configure(url=url, target_metadata=target_metadata,
-                      transaction_per_migration=True,
-                      version_table=VERSION_TABLE_NAME)
+    context.configure(
+        url=url,
+        target_metadata=target_metadata,
+        transaction_per_migration=True,
+        version_table=VERSION_TABLE_NAME,
+    )
 
     with context.begin_transaction():
         context.run_migrations()
@@ -74,15 +77,16 @@ def run_migrations_online():
     """
     engine = engine_from_config(
         config.get_section(config.config_ini_section),
-        prefix='sqlalchemy.',
-        poolclass=pool.NullPool)
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
 
     connection = engine.connect()
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
         transaction_per_migration=True,
-        version_table=VERSION_TABLE_NAME
+        version_table=VERSION_TABLE_NAME,
     )
 
     try:

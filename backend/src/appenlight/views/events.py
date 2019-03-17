@@ -21,16 +21,13 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 from ziggurat_foundations.models.services.user import UserService
 
 
-@view_config(route_name='events_no_id',
-             renderer='json', permission='authenticated')
+@view_config(route_name="events_no_id", renderer="json", permission="authenticated")
 def fetch_events(request):
     """
     Returns list of log entries from Elasticsearch
     """
     event_paginator = EventService.get_paginator(
-        user=request.user,
-        page=1,
-        items_per_page=100
+        user=request.user, page=1, items_per_page=100
     )
     headers = gen_pagination_headers(request, event_paginator)
     request.response.headers.update(headers)
@@ -38,20 +35,25 @@ def fetch_events(request):
     return [ev.get_dict() for ev in event_paginator.items]
 
 
-@view_config(route_name='events', renderer='json', request_method='PATCH',
-             permission='authenticated')
+@view_config(
+    route_name="events",
+    renderer="json",
+    request_method="PATCH",
+    permission="authenticated",
+)
 def event_PATCH(request):
     resources = UserService.resources_with_perms(
-        request.user, ['view'], resource_types=request.registry.resource_types)
+        request.user, ["view"], resource_types=request.registry.resource_types
+    )
     event = EventService.for_resource(
-        [r.resource_id for r in resources],
-        event_id=request.matchdict['event_id']).first()
+        [r.resource_id for r in resources], event_id=request.matchdict["event_id"]
+    ).first()
     if not event:
         return HTTPNotFound()
-    allowed_keys = ['status']
+    allowed_keys = ["status"]
     for k, v in request.unsafe_json_body.items():
         if k in allowed_keys:
-            if k == 'status':
+            if k == "status":
                 event.close()
             else:
                 setattr(event, k, v)

@@ -23,9 +23,7 @@ log = logging.getLogger(__name__)
 
 
 class SlackAlertChannel(AlertChannel):
-    __mapper_args__ = {
-        'polymorphic_identity': 'slack'
-    }
+    __mapper_args__ = {"polymorphic_identity": "slack"}
 
     def notify_reports(self, **kwargs):
         """
@@ -40,45 +38,40 @@ class SlackAlertChannel(AlertChannel):
 
         """
         template_vars = self.report_alert_notification_vars(kwargs)
-        template_vars["title"] = template_vars['resource_name']
+        template_vars["title"] = template_vars["resource_name"]
 
-        if template_vars['confirmed_total'] > 1:
-            template_vars['subtext'] = '%s reports' % template_vars[
-                'confirmed_total']
+        if template_vars["confirmed_total"] > 1:
+            template_vars["subtext"] = "%s reports" % template_vars["confirmed_total"]
         else:
-            error_title = truncate(template_vars['reports'][0][1].error or
-                                   'slow report', 90)
-            template_vars['subtext'] = error_title
+            error_title = truncate(
+                template_vars["reports"][0][1].error or "slow report", 90
+            )
+            template_vars["subtext"] = error_title
 
-        log_msg = 'NOTIFY  : %s via %s :: %s reports' % (
-            kwargs['user'].user_name,
+        log_msg = "NOTIFY  : %s via %s :: %s reports" % (
+            kwargs["user"].user_name,
             self.channel_visible_value,
-            template_vars['confirmed_total'])
+            template_vars["confirmed_total"],
+        )
         log.warning(log_msg)
 
-        client = SlackIntegration.create_client(
-            self.integration.config['webhook_url'])
+        client = SlackIntegration.create_client(self.integration.config["webhook_url"])
         report_data = {
             "username": "AppEnlight",
             "icon_emoji": ":fire:",
             "attachments": [
                 {
                     "mrkdwn_in": ["text", "pretext", "title", "fallback"],
-                    "fallback": "*%s* - <%s| Browse>" % (
-                        template_vars["title"],
-                        template_vars['destination_url']),
-                    "pretext": "*%s* - <%s| Browse>" % (
-                        template_vars["title"],
-                        template_vars['destination_url']),
+                    "fallback": "*%s* - <%s| Browse>"
+                    % (template_vars["title"], template_vars["destination_url"]),
+                    "pretext": "*%s* - <%s| Browse>"
+                    % (template_vars["title"], template_vars["destination_url"]),
                     "color": "warning",
                     "fields": [
-                        {
-                            "value": 'Info: %s' % template_vars['subtext'],
-                            "short": False
-                        }
-                    ]
+                        {"value": "Info: %s" % template_vars["subtext"], "short": False}
+                    ],
                 }
-            ]
+            ],
         }
         client.make_request(data=report_data)
 
@@ -95,53 +88,51 @@ class SlackAlertChannel(AlertChannel):
         """
         template_vars = self.report_alert_notification_vars(kwargs)
 
-        if kwargs['event'].unified_alert_action() == 'OPEN':
-            title = '*ALERT %s*: %s' % (
-                template_vars['alert_action'],
-                template_vars['resource_name']
+        if kwargs["event"].unified_alert_action() == "OPEN":
+            title = "*ALERT %s*: %s" % (
+                template_vars["alert_action"],
+                template_vars["resource_name"],
             )
 
-            template_vars['subtext'] = 'Got at least %s %s' % (
-                kwargs['event'].values['reports'],
-                template_vars['report_type']
+            template_vars["subtext"] = "Got at least %s %s" % (
+                kwargs["event"].values["reports"],
+                template_vars["report_type"],
             )
 
         else:
-            title = '*ALERT %s*: %s' % (
-                template_vars['alert_action'],
-                template_vars['resource_name'],
+            title = "*ALERT %s*: %s" % (
+                template_vars["alert_action"],
+                template_vars["resource_name"],
             )
 
-            template_vars['subtext'] = ''
+            template_vars["subtext"] = ""
 
-        alert_type = template_vars['alert_type'].replace('_', ' ')
-        alert_type = alert_type.replace('alert', '').capitalize()
+        alert_type = template_vars["alert_type"].replace("_", " ")
+        alert_type = alert_type.replace("alert", "").capitalize()
 
-        template_vars['type'] = "Type: %s" % alert_type
+        template_vars["type"] = "Type: %s" % alert_type
 
-        client = SlackIntegration.create_client(
-            self.integration.config['webhook_url']
-        )
+        client = SlackIntegration.create_client(self.integration.config["webhook_url"])
         report_data = {
             "username": "AppEnlight",
             "icon_emoji": ":rage:",
             "attachments": [
                 {
                     "mrkdwn_in": ["text", "pretext", "title", "fallback"],
-                    "fallback": "%s - <%s| Browse>" % (
-                        title, template_vars['destination_url']),
-                    "pretext": "%s - <%s| Browse>" % (
-                        title, template_vars['destination_url']),
+                    "fallback": "%s - <%s| Browse>"
+                    % (title, template_vars["destination_url"]),
+                    "pretext": "%s - <%s| Browse>"
+                    % (title, template_vars["destination_url"]),
                     "color": "danger",
                     "fields": [
                         {
-                            "title": template_vars['type'],
-                            "value": template_vars['subtext'],
-                            "short": False
+                            "title": template_vars["type"],
+                            "value": template_vars["subtext"],
+                            "short": False,
                         }
-                    ]
+                    ],
                 }
-            ]
+            ],
         }
         client.make_request(data=report_data)
 
@@ -158,13 +149,11 @@ class SlackAlertChannel(AlertChannel):
         """
         template_vars = self.uptime_alert_notification_vars(kwargs)
 
-        title = '*ALERT %s*: %s' % (
-            template_vars['alert_action'],
-            template_vars['resource_name'],
+        title = "*ALERT %s*: %s" % (
+            template_vars["alert_action"],
+            template_vars["resource_name"],
         )
-        client = SlackIntegration.create_client(
-            self.integration.config['webhook_url']
-        )
+        client = SlackIntegration.create_client(self.integration.config["webhook_url"])
         report_data = {
             "username": "AppEnlight",
             "icon_emoji": ":rage:",
@@ -172,19 +161,21 @@ class SlackAlertChannel(AlertChannel):
                 {
                     "mrkdwn_in": ["text", "pretext", "title", "fallback"],
                     "fallback": "{} - <{}| Browse>".format(
-                        title, template_vars['destination_url']),
+                        title, template_vars["destination_url"]
+                    ),
                     "pretext": "{} - <{}| Browse>".format(
-                        title, template_vars['destination_url']),
+                        title, template_vars["destination_url"]
+                    ),
                     "color": "danger",
                     "fields": [
                         {
                             "title": "Application has uptime issues",
-                            "value": template_vars['reason'],
-                            "short": False
+                            "value": template_vars["reason"],
+                            "short": False,
                         }
-                    ]
+                    ],
                 }
-            ]
+            ],
         }
         client.make_request(data=report_data)
 
@@ -201,39 +192,39 @@ class SlackAlertChannel(AlertChannel):
         """
         template_vars = self.chart_alert_notification_vars(kwargs)
 
-        title = '*ALERT {}*: value in *"{}"* chart ' \
-                'met alert *"{}"* criteria'.format(
-            template_vars['alert_action'],
-            template_vars['chart_name'],
-            template_vars['action_name'],
+        title = '*ALERT {}*: value in *"{}"* chart ' 'met alert *"{}"* criteria'.format(
+            template_vars["alert_action"],
+            template_vars["chart_name"],
+            template_vars["action_name"],
         )
 
-        subtext = ''
-        for item in template_vars['readable_values']:
-            subtext += '{} - {}\n'.format(item['label'], item['value'])
+        subtext = ""
+        for item in template_vars["readable_values"]:
+            subtext += "{} - {}\n".format(item["label"], item["value"])
 
-        client = SlackIntegration.create_client(
-            self.integration.config['webhook_url']
-        )
+        client = SlackIntegration.create_client(self.integration.config["webhook_url"])
         report_data = {
             "username": "AppEnlight",
             "icon_emoji": ":rage:",
             "attachments": [
-                {"mrkdwn_in": ["text", "pretext", "title", "fallback"],
-                 "fallback": "{} - <{}| Browse>".format(
-                     title, template_vars['destination_url']),
-                 "pretext": "{} - <{}| Browse>".format(
-                     title, template_vars['destination_url']),
-                 "color": "danger",
-                 "fields": [
-                     {
-                         "title": "Following criteria were met:",
-                         "value": subtext,
-                         "short": False
-                     }
-                 ]
-                 }
-            ]
+                {
+                    "mrkdwn_in": ["text", "pretext", "title", "fallback"],
+                    "fallback": "{} - <{}| Browse>".format(
+                        title, template_vars["destination_url"]
+                    ),
+                    "pretext": "{} - <{}| Browse>".format(
+                        title, template_vars["destination_url"]
+                    ),
+                    "color": "danger",
+                    "fields": [
+                        {
+                            "title": "Following criteria were met:",
+                            "value": subtext,
+                            "short": False,
+                        }
+                    ],
+                }
+            ],
         }
         client.make_request(data=report_data)
 
@@ -250,36 +241,30 @@ class SlackAlertChannel(AlertChannel):
 
         """
         template_vars = self.report_alert_notification_vars(kwargs)
-        title = "*Daily report digest*: %s" % template_vars['resource_name']
+        title = "*Daily report digest*: %s" % template_vars["resource_name"]
 
-        subtext = '%s reports' % template_vars['confirmed_total']
+        subtext = "%s reports" % template_vars["confirmed_total"]
 
-        client = SlackIntegration.create_client(
-            self.integration.config['webhook_url']
-        )
+        client = SlackIntegration.create_client(self.integration.config["webhook_url"])
         report_data = {
             "username": "AppEnlight",
             "attachments": [
                 {
                     "mrkdwn_in": ["text", "pretext", "title", "fallback"],
-                    "fallback": "%s : <%s| Browse>" % (
-                        title, template_vars['destination_url']),
-                    "pretext": "%s: <%s| Browse>" % (
-                        title, template_vars['destination_url']),
+                    "fallback": "%s : <%s| Browse>"
+                    % (title, template_vars["destination_url"]),
+                    "pretext": "%s: <%s| Browse>"
+                    % (title, template_vars["destination_url"]),
                     "color": "good",
-                    "fields": [
-                        {
-                            "title": "Got at least: %s" % subtext,
-                            "short": False
-                        }
-                    ]
+                    "fields": [{"title": "Got at least: %s" % subtext, "short": False}],
                 }
-            ]
+            ],
         }
         client.make_request(data=report_data)
 
-        log_msg = 'DIGEST  : %s via %s :: %s reports' % (
-            kwargs['user'].user_name,
+        log_msg = "DIGEST  : %s via %s :: %s reports" % (
+            kwargs["user"].user_name,
             self.channel_visible_value,
-            template_vars['confirmed_total'])
+            template_vars["confirmed_total"],
+        )
         log.warning(log_msg)

@@ -25,40 +25,44 @@ from appenlight.models import Base
 
 
 class Metric(Base, BaseModel):
-    __tablename__ = 'metrics'
-    __table_args__ = {'implicit_returning': False}
+    __tablename__ = "metrics"
+    __table_args__ = {"implicit_returning": False}
 
     pkey = sa.Column(sa.BigInteger(), primary_key=True)
-    resource_id = sa.Column(sa.Integer(),
-                            sa.ForeignKey('applications.resource_id'),
-                            nullable=False, primary_key=True)
-    timestamp = sa.Column(sa.DateTime(), default=datetime.utcnow,
-                          server_default=sa.func.now())
+    resource_id = sa.Column(
+        sa.Integer(),
+        sa.ForeignKey("applications.resource_id"),
+        nullable=False,
+        primary_key=True,
+    )
+    timestamp = sa.Column(
+        sa.DateTime(), default=datetime.utcnow, server_default=sa.func.now()
+    )
     tags = sa.Column(JSON(), default={})
     namespace = sa.Column(sa.Unicode(255))
 
     @property
     def partition_id(self):
-        return 'rcae_m_%s' % self.timestamp.strftime('%Y_%m_%d')
+        return "rcae_m_%s" % self.timestamp.strftime("%Y_%m_%d")
 
     def es_doc(self):
         tags = {}
         tag_list = []
         for name, value in self.tags.items():
             # replace dot in indexed tag name
-            name = name.replace('.', '_')
+            name = name.replace(".", "_")
             tag_list.append(name)
             tags[name] = {
                 "values": convert_es_type(value),
-                "numeric_values": value if (
-                    isinstance(value, (int, float)) and
-                    not isinstance(value, bool)) else None
+                "numeric_values": value
+                if (isinstance(value, (int, float)) and not isinstance(value, bool))
+                else None,
             }
 
         return {
-            'resource_id': self.resource_id,
-            'timestamp': self.timestamp,
-            'namespace': self.namespace,
-            'tags': tags,
-            'tag_list': tag_list
+            "resource_id": self.resource_id,
+            "timestamp": self.timestamp,
+            "namespace": self.namespace,
+            "tags": tags,
+            "tag_list": tag_list,
         }

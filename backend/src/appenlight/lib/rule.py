@@ -52,13 +52,13 @@ class RuleBase(object):
         :param field_name:
         :return:
         """
-        parts = field_name.split(':') if field_name else []
+        parts = field_name.split(":") if field_name else []
         found = struct
         while parts:
             current_key = parts.pop(0)
             found = found.get(current_key)
             if not found and parts:
-                raise KeyNotFoundException('Key not found in structure')
+                raise KeyNotFoundException("Key not found in structure")
         return found
 
     @classmethod
@@ -72,13 +72,13 @@ class RuleBase(object):
         :param field_name:
         :return:
         """
-        parts = field_name.split(':')
+        parts = field_name.split(":")
         found = struct
         while parts:
             current_key = parts.pop(0)
             found = getattr(found, current_key, None)
             if not found and parts:
-                raise KeyNotFoundException('Key not found in structure')
+                raise KeyNotFoundException("Key not found in structure")
         return found
 
     def normalized_type(self, field, value):
@@ -89,28 +89,32 @@ class RuleBase(object):
         """
         f_type = self.type_matrix.get(field)
         if f_type:
-            cast_to = f_type['type']
+            cast_to = f_type["type"]
         else:
-            raise UnknownTypeException('Unknown type')
+            raise UnknownTypeException("Unknown type")
 
         if value is None:
             return None
 
         try:
-            if cast_to == 'int':
+            if cast_to == "int":
                 return int(value)
-            elif cast_to == 'float':
+            elif cast_to == "float":
                 return float(value)
-            elif cast_to == 'unicode':
+            elif cast_to == "unicode":
                 return str(value)
         except ValueError as exc:
             raise InvalidValueException(exc)
 
 
 class Rule(RuleBase):
-    def __init__(self, config, type_matrix,
-                 struct_getter=RuleBase.default_dict_struct_getter,
-                 config_manipulator=None):
+    def __init__(
+        self,
+        config,
+        type_matrix,
+        struct_getter=RuleBase.default_dict_struct_getter,
+        config_manipulator=None,
+    ):
         """
 
         :param config: dict - contains rule configuration
@@ -159,8 +163,9 @@ class Rule(RuleBase):
             config_manipulator(self)
 
     def subrule_check(self, rule_config, struct):
-        rule = Rule(rule_config, self.type_matrix,
-                    config_manipulator=self.config_manipulator)
+        rule = Rule(
+            rule_config, self.type_matrix, config_manipulator=self.config_manipulator
+        )
         return rule.match(struct)
 
     def match(self, struct):
@@ -169,32 +174,41 @@ class Rule(RuleBase):
         First tries report value, then tests tags in not found, then finally
         report group
         """
-        field_name = self.config.get('field')
-        test_value = self.config.get('value')
+        field_name = self.config.get("field")
+        test_value = self.config.get("value")
 
         if not field_name:
             return False
 
-        if field_name == '__AND__':
-            rule = AND(self.config['rules'], self.type_matrix,
-                       config_manipulator=self.config_manipulator)
+        if field_name == "__AND__":
+            rule = AND(
+                self.config["rules"],
+                self.type_matrix,
+                config_manipulator=self.config_manipulator,
+            )
             return rule.match(struct)
-        elif field_name == '__OR__':
-            rule = OR(self.config['rules'], self.type_matrix,
-                      config_manipulator=self.config_manipulator)
+        elif field_name == "__OR__":
+            rule = OR(
+                self.config["rules"],
+                self.type_matrix,
+                config_manipulator=self.config_manipulator,
+            )
             return rule.match(struct)
-        elif field_name == '__NOT__':
-            rule = NOT(self.config['rules'], self.type_matrix,
-                      config_manipulator=self.config_manipulator)
+        elif field_name == "__NOT__":
+            rule = NOT(
+                self.config["rules"],
+                self.type_matrix,
+                config_manipulator=self.config_manipulator,
+            )
             return rule.match(struct)
 
         if test_value is None:
             return False
 
         try:
-            struct_value = self.normalized_type(field_name,
-                                                self.struct_getter(struct,
-                                                                   field_name))
+            struct_value = self.normalized_type(
+                field_name, self.struct_getter(struct, field_name)
+            )
         except (UnknownTypeException, InvalidValueException) as exc:
             log.error(str(exc))
             return False
@@ -205,24 +219,23 @@ class Rule(RuleBase):
             log.error(str(exc))
             return False
 
-        if self.config['op'] not in ('startswith', 'endswith', 'contains'):
+        if self.config["op"] not in ("startswith", "endswith", "contains"):
             try:
-                return getattr(operator,
-                               self.config['op'])(struct_value, test_value)
+                return getattr(operator, self.config["op"])(struct_value, test_value)
             except TypeError:
                 return False
-        elif self.config['op'] == 'startswith':
+        elif self.config["op"] == "startswith":
             return struct_value.startswith(test_value)
-        elif self.config['op'] == 'endswith':
+        elif self.config["op"] == "endswith":
             return struct_value.endswith(test_value)
-        elif self.config['op'] == 'contains':
+        elif self.config["op"] == "contains":
             return test_value in struct_value
-        raise BadConfigException('Invalid configuration, '
-                                 'unknown operator: {}'.format(self.config))
+        raise BadConfigException(
+            "Invalid configuration, " "unknown operator: {}".format(self.config)
+        )
 
     def __repr__(self):
-        return '<Rule {} {}>'.format(self.config.get('field'),
-                                     self.config.get('value'))
+        return "<Rule {} {}>".format(self.config.get("field"), self.config.get("value"))
 
 
 class AND(Rule):
@@ -231,8 +244,7 @@ class AND(Rule):
         self.rules = rules
 
     def match(self, struct):
-        return all([self.subrule_check(r_conf, struct) for r_conf
-                    in self.rules])
+        return all([self.subrule_check(r_conf, struct) for r_conf in self.rules])
 
 
 class NOT(Rule):
@@ -241,8 +253,7 @@ class NOT(Rule):
         self.rules = rules
 
     def match(self, struct):
-        return all([not self.subrule_check(r_conf, struct) for r_conf
-                    in self.rules])
+        return all([not self.subrule_check(r_conf, struct) for r_conf in self.rules])
 
 
 class OR(Rule):
@@ -251,14 +262,12 @@ class OR(Rule):
         self.rules = rules
 
     def match(self, struct):
-        return any([self.subrule_check(r_conf, struct) for r_conf
-                    in self.rules])
+        return any([self.subrule_check(r_conf, struct) for r_conf in self.rules])
 
 
 class RuleService(object):
     @staticmethod
-    def rule_from_config(config, field_mappings, labels_dict,
-                         manipulator_func=None):
+    def rule_from_config(config, field_mappings, labels_dict, manipulator_func=None):
         """
         Returns modified rule with manipulator function
         By default manipulator function replaces field id from labels_dict
@@ -270,28 +279,33 @@ class RuleService(object):
         """
         rev_map = {}
         for k, v in labels_dict.items():
-            rev_map[(v['agg'], v['key'],)] = k
+            rev_map[(v["agg"], v["key"])] = k
 
         if manipulator_func is None:
+
             def label_rewriter_func(rule):
-                field = rule.config.get('field')
-                if not field or rule.config['field'] in ['__OR__',
-                                                         '__AND__', '__NOT__']:
+                field = rule.config.get("field")
+                if not field or rule.config["field"] in [
+                    "__OR__",
+                    "__AND__",
+                    "__NOT__",
+                ]:
                     return
 
-                to_map = field_mappings.get(rule.config['field'])
+                to_map = field_mappings.get(rule.config["field"])
 
                 # we need to replace series field with _AE_NOT_FOUND_ to not match
                 # accidently some other field which happens to have the series that
                 # was used when the alert was created
                 if to_map:
-                    to_replace = rev_map.get((to_map['agg'], to_map['key'],),
-                                             '_AE_NOT_FOUND_')
+                    to_replace = rev_map.get(
+                        (to_map["agg"], to_map["key"]), "_AE_NOT_FOUND_"
+                    )
                 else:
-                    to_replace = '_AE_NOT_FOUND_'
+                    to_replace = "_AE_NOT_FOUND_"
 
-                rule.config['field'] = to_replace
-                rule.type_matrix[to_replace] = {"type": 'float'}
+                rule.config["field"] = to_replace
+                rule.type_matrix[to_replace] = {"type": "float"}
 
             manipulator_func = label_rewriter_func
 

@@ -28,9 +28,7 @@ from collections import namedtuple
 from datetime import timedelta, datetime, date
 from dogpile.cache.api import NO_VALUE
 from appenlight.models import Datastores
-from appenlight.validators import (LogSearchSchema,
-                                   TagListSchema,
-                                   accepted_search_params)
+from appenlight.validators import LogSearchSchema, TagListSchema, accepted_search_params
 from itsdangerous import TimestampSigner
 from ziggurat_foundations.permissions import ALL_PERMISSIONS
 from ziggurat_foundations.models.services.user import UserService
@@ -40,21 +38,20 @@ from dateutil.rrule import rrule, MONTHLY, DAILY
 log = logging.getLogger(__name__)
 
 
-Stat = namedtuple('Stat', 'start_interval value')
+Stat = namedtuple("Stat", "start_interval value")
 
 
 def default_extractor(item):
     """
     :param item - item to extract date from
     """
-    if hasattr(item, 'start_interval'):
+    if hasattr(item, "start_interval"):
         return item.start_interval
-    return item['start_interval']
+    return item["start_interval"]
 
 
 # fast gap generator
-def gap_gen_default(start, step, itemiterator, end_time=None,
-                    iv_extractor=None):
+def gap_gen_default(start, step, itemiterator, end_time=None, iv_extractor=None):
     """ generates a list of time/value items based on step and itemiterator
         if there are entries missing from iterator time/None will be returned
         instead
@@ -100,27 +97,31 @@ class DateTimeEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def channelstream_request(secret, endpoint, payload, throw_exceptions=False,
-                   servers=None):
+def channelstream_request(
+    secret, endpoint, payload, throw_exceptions=False, servers=None
+):
     responses = []
     if not servers:
         servers = []
 
     signer = TimestampSigner(secret)
     sig_for_server = signer.sign(endpoint)
-    for secret, server in [(s['secret'], s['server']) for s in servers]:
+    for secret, server in [(s["secret"], s["server"]) for s in servers]:
         response = {}
-        secret_headers = {'x-channelstream-secret': sig_for_server,
-                          'x-channelstream-endpoint': endpoint,
-                          'Content-Type': 'application/json'}
-        url = '%s%s' % (server, endpoint)
+        secret_headers = {
+            "x-channelstream-secret": sig_for_server,
+            "x-channelstream-endpoint": endpoint,
+            "Content-Type": "application/json",
+        }
+        url = "%s%s" % (server, endpoint)
         try:
-            response = requests.post(url,
-                                     data=json.dumps(payload,
-                                                     cls=DateTimeEncoder),
-                                     headers=secret_headers,
-                                     verify=False,
-                                     timeout=2).json()
+            response = requests.post(
+                url,
+                data=json.dumps(payload, cls=DateTimeEncoder),
+                headers=secret_headers,
+                verify=False,
+                timeout=2,
+            ).json()
         except requests.exceptions.RequestException as e:
             if throw_exceptions:
                 raise
@@ -130,13 +131,15 @@ def channelstream_request(secret, endpoint, payload, throw_exceptions=False,
 
 def add_cors_headers(response):
     # allow CORS
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('XDomainRequestAllowed', '1')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("XDomainRequestAllowed", "1")
+    response.headers.add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
     # response.headers.add('Access-Control-Allow-Credentials', 'true')
-    response.headers.add('Access-Control-Allow-Headers',
-                         'Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control, Pragma, Origin, Connection, Referer, Cookie')
-    response.headers.add('Access-Control-Max-Age', '86400')
+    response.headers.add(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control, Pragma, Origin, Connection, Referer, Cookie",
+    )
+    response.headers.add("Access-Control-Max-Age", "86400")
 
 
 from sqlalchemy.sql import compiler
@@ -144,6 +147,7 @@ from psycopg2.extensions import adapt as sqlescape
 
 
 # or use the appropiate escape function from your db driver
+
 
 def compile_query(query):
     dialect = query.session.bind.dialect
@@ -166,22 +170,23 @@ def convert_es_type(input_data):
     return str(input_data)
 
 
-ProtoVersion = namedtuple('ProtoVersion', ['major', 'minor', 'patch'])
+ProtoVersion = namedtuple("ProtoVersion", ["major", "minor", "patch"])
 
 
 def parse_proto(input_data):
     try:
-        parts = [int(x) for x in input_data.split('.')]
+        parts = [int(x) for x in input_data.split(".")]
         while len(parts) < 3:
             parts.append(0)
         return ProtoVersion(*parts)
     except Exception as e:
-        log.info('Unknown protocol version: %s' % e)
+        log.info("Unknown protocol version: %s" % e)
     return ProtoVersion(99, 99, 99)
 
 
-def es_index_name_limiter(start_date=None, end_date=None, months_in_past=6,
-                          ixtypes=None):
+def es_index_name_limiter(
+    start_date=None, end_date=None, months_in_past=6, ixtypes=None
+):
     """
     This function limits the search to 6 months by default so we don't have to
     query 300 elasticsearch indices for 20 years of historical data for example
@@ -189,23 +194,23 @@ def es_index_name_limiter(start_date=None, end_date=None, months_in_past=6,
 
     # should be cached later
     def get_possible_names():
-        return list(Datastores.es.indices.get_alias('*'))
+        return list(Datastores.es.indices.get_alias("*"))
 
     possible_names = get_possible_names()
     es_index_types = []
     if not ixtypes:
-        ixtypes = ['reports', 'metrics', 'logs']
+        ixtypes = ["reports", "metrics", "logs"]
     for t in ixtypes:
-        if t == 'reports':
-            es_index_types.append('rcae_r_%s')
-        elif t == 'logs':
-            es_index_types.append('rcae_l_%s')
-        elif t == 'metrics':
-            es_index_types.append('rcae_m_%s')
-        elif t == 'uptime':
-            es_index_types.append('rcae_u_%s')
-        elif t == 'slow_calls':
-            es_index_types.append('rcae_sc_%s')
+        if t == "reports":
+            es_index_types.append("rcae_r_%s")
+        elif t == "logs":
+            es_index_types.append("rcae_l_%s")
+        elif t == "metrics":
+            es_index_types.append("rcae_m_%s")
+        elif t == "uptime":
+            es_index_types.append("rcae_u_%s")
+        elif t == "slow_calls":
+            es_index_types.append("rcae_sc_%s")
 
     if start_date:
         start_date = copy.copy(start_date)
@@ -217,26 +222,34 @@ def es_index_name_limiter(start_date=None, end_date=None, months_in_past=6,
     if not end_date:
         end_date = start_date + relativedelta(months=months_in_past)
 
-    index_dates = list(rrule(MONTHLY,
-                             dtstart=start_date.date().replace(day=1),
-                             until=end_date.date(),
-                             count=36))
+    index_dates = list(
+        rrule(
+            MONTHLY,
+            dtstart=start_date.date().replace(day=1),
+            until=end_date.date(),
+            count=36,
+        )
+    )
     index_names = []
     for ix_type in es_index_types:
-        to_extend = [ix_type % d.strftime('%Y_%m') for d in index_dates
-                     if ix_type % d.strftime('%Y_%m') in possible_names]
+        to_extend = [
+            ix_type % d.strftime("%Y_%m")
+            for d in index_dates
+            if ix_type % d.strftime("%Y_%m") in possible_names
+        ]
         index_names.extend(to_extend)
-        for day in list(rrule(DAILY, dtstart=start_date.date(),
-                              until=end_date.date(), count=366)):
-            ix_name = ix_type % day.strftime('%Y_%m_%d')
+        for day in list(
+            rrule(DAILY, dtstart=start_date.date(), until=end_date.date(), count=366)
+        ):
+            ix_name = ix_type % day.strftime("%Y_%m_%d")
             if ix_name in possible_names:
                 index_names.append(ix_name)
     return index_names
 
 
 def build_filter_settings_from_query_dict(
-        request, params=None, override_app_ids=None,
-        resource_permissions=None):
+    request, params=None, override_app_ids=None, resource_permissions=None
+):
     """
     Builds list of normalized search terms for ES from query params
     ensuring application list is restricted to only applications user
@@ -249,11 +262,12 @@ def build_filter_settings_from_query_dict(
     params = copy.deepcopy(params)
     applications = []
     if not resource_permissions:
-        resource_permissions = ['view']
+        resource_permissions = ["view"]
 
     if request.user:
         applications = UserService.resources_with_perms(
-            request.user, resource_permissions, resource_types=['application'])
+            request.user, resource_permissions, resource_types=["application"]
+        )
 
     # CRITICAL - this ensures our resultset is limited to only the ones
     # user has view permissions
@@ -273,11 +287,11 @@ def build_filter_settings_from_query_dict(
     for k, v in list(filter_settings.items()):
         if k in accepted_search_params:
             continue
-        tag_list.append({"name": k, "value": v, "op": 'eq'})
+        tag_list.append({"name": k, "value": v, "op": "eq"})
         # remove the key from filter_settings
         filter_settings.pop(k, None)
     tags = tag_schema.deserialize(tag_list)
-    filter_settings['tags'] = tags
+    filter_settings["tags"] = tags
     return filter_settings
 
 
@@ -299,26 +313,36 @@ def permission_tuple_to_dict(data):
         "resource_type": None,
         "resource_id": None,
         "group_name": None,
-        "group_id": None
+        "group_id": None,
     }
     if data.user:
         out["user_name"] = data.user.user_name
     if data.perm_name == ALL_PERMISSIONS:
-        out['perm_name'] = '__all_permissions__'
+        out["perm_name"] = "__all_permissions__"
     if data.resource:
-        out['resource_name'] = data.resource.resource_name
-        out['resource_type'] = data.resource.resource_type
-        out['resource_id'] = data.resource.resource_id
+        out["resource_name"] = data.resource.resource_name
+        out["resource_type"] = data.resource.resource_type
+        out["resource_id"] = data.resource.resource_id
     if data.group:
-        out['group_name'] = data.group.group_name
-        out['group_id'] = data.group.id
+        out["group_name"] = data.group.group_name
+        out["group_id"] = data.group.id
     return out
 
 
-def get_cached_buckets(request, stats_since, end_time, fn, cache_key,
-                       gap_gen=None, db_session=None, step_interval=None,
-                       iv_extractor=None,
-                       rerange=False, *args, **kwargs):
+def get_cached_buckets(
+    request,
+    stats_since,
+    end_time,
+    fn,
+    cache_key,
+    gap_gen=None,
+    db_session=None,
+    step_interval=None,
+    iv_extractor=None,
+    rerange=False,
+    *args,
+    **kwargs
+):
     """ Takes "fn" that should return some data and tries to load the data
     dividing it into daily buckets - if the stats_since and end time give a
     delta bigger than 24hours, then only "todays" data is computed on the fly
@@ -360,25 +384,28 @@ def get_cached_buckets(request, stats_since, end_time, fn, cache_key,
     # do not use custom interval if total time range with new iv would exceed
     # end time
     if not step_interval or stats_since + step_interval >= end_time:
-        if delta < h.time_deltas.get('12h')['delta']:
+        if delta < h.time_deltas.get("12h")["delta"]:
             step_interval = timedelta(seconds=60)
-        elif delta < h.time_deltas.get('3d')['delta']:
+        elif delta < h.time_deltas.get("3d")["delta"]:
             step_interval = timedelta(seconds=60 * 5)
-        elif delta > h.time_deltas.get('2w')['delta']:
+        elif delta > h.time_deltas.get("2w")["delta"]:
             step_interval = timedelta(days=1)
         else:
             step_interval = timedelta(minutes=60)
 
     if step_interval >= timedelta(minutes=60):
-        log.info('cached_buckets:{}: adjusting start time '
-                 'for hourly or daily intervals'.format(cache_key))
+        log.info(
+            "cached_buckets:{}: adjusting start time "
+            "for hourly or daily intervals".format(cache_key)
+        )
         stats_since = stats_since.replace(hour=0, minute=0)
 
-    ranges = [i.start_interval for i in list(gap_gen(stats_since,
-                                                     step_interval, [],
-                                                     end_time=end_time))]
+    ranges = [
+        i.start_interval
+        for i in list(gap_gen(stats_since, step_interval, [], end_time=end_time))
+    ]
     buckets = {}
-    storage_key = 'buckets:' + cache_key + '{}|{}'
+    storage_key = "buckets:" + cache_key + "{}|{}"
     # this means we basicly cache per hour in 3-14 day intervals but i think
     # its fine at this point - will be faster than db access anyways
 
@@ -391,45 +418,67 @@ def get_cached_buckets(request, stats_since, end_time, fn, cache_key,
             k = storage_key.format(step_interval.total_seconds(), r)
             value = request.registry.cache_regions.redis_day_30.get(k)
             # last buckets are never loaded from cache
-            is_last_result = (
-                r >= end_time - timedelta(hours=6) or r in last_ranges)
+            is_last_result = r >= end_time - timedelta(hours=6) or r in last_ranges
             if value is not NO_VALUE and not is_last_result:
-                log.info("cached_buckets:{}: "
-                         "loading range {} from cache".format(cache_key, r))
+                log.info(
+                    "cached_buckets:{}: "
+                    "loading range {} from cache".format(cache_key, r)
+                )
                 buckets[r] = value
             else:
-                log.info("cached_buckets:{}: "
-                         "loading range {} from storage".format(cache_key, r))
+                log.info(
+                    "cached_buckets:{}: "
+                    "loading range {} from storage".format(cache_key, r)
+                )
                 range_size = step_interval
-                if (step_interval == timedelta(minutes=60) and
-                        not is_last_result and rerange):
+                if (
+                    step_interval == timedelta(minutes=60)
+                    and not is_last_result
+                    and rerange
+                ):
                     range_size = timedelta(days=1)
                     r = r.replace(hour=0, minute=0)
-                    log.info("cached_buckets:{}: "
-                             "loading collapsed "
-                             "range {} {}".format(cache_key, r,
-                                                  r + range_size))
+                    log.info(
+                        "cached_buckets:{}: "
+                        "loading collapsed "
+                        "range {} {}".format(cache_key, r, r + range_size)
+                    )
                 bucket_data = fn(
-                    request, r, r + range_size, step_interval,
-                    gap_gen, bucket_count=len(ranges), *args, **kwargs)
+                    request,
+                    r,
+                    r + range_size,
+                    step_interval,
+                    gap_gen,
+                    bucket_count=len(ranges),
+                    *args,
+                    **kwargs
+                )
                 for b in bucket_data:
                     b_iv = iv_extractor(b)
                     buckets[b_iv] = b
-                    k2 = storage_key.format(
-                        step_interval.total_seconds(), b_iv)
+                    k2 = storage_key.format(step_interval.total_seconds(), b_iv)
                     request.registry.cache_regions.redis_day_30.set(k2, b)
         log.info("cached_buckets:{}: saving cache".format(cache_key))
     else:
         # bucket count is 1 for short time ranges <= 24h from now
-        bucket_data = fn(request, stats_since, end_time, step_interval,
-                         gap_gen, bucket_count=1, *args, **kwargs)
+        bucket_data = fn(
+            request,
+            stats_since,
+            end_time,
+            step_interval,
+            gap_gen,
+            bucket_count=1,
+            *args,
+            **kwargs
+        )
         for b in bucket_data:
             buckets[iv_extractor(b)] = b
     return buckets
 
 
-def get_cached_split_data(request, stats_since, end_time, fn, cache_key,
-                          db_session=None, *args, **kwargs):
+def get_cached_split_data(
+    request, stats_since, end_time, fn, cache_key, db_session=None, *args, **kwargs
+):
     """ Takes "fn" that should return some data and tries to load the data
     dividing it into 2 buckets - cached "since_from" bucket and "today"
     bucket - then the data can be reduced into single value
@@ -442,43 +491,51 @@ def get_cached_split_data(request, stats_since, end_time, fn, cache_key,
     delta = end_time - stats_since
 
     if delta >= timedelta(minutes=60):
-        log.info('cached_split_data:{}: adjusting start time '
-                 'for hourly or daily intervals'.format(cache_key))
+        log.info(
+            "cached_split_data:{}: adjusting start time "
+            "for hourly or daily intervals".format(cache_key)
+        )
         stats_since = stats_since.replace(hour=0, minute=0)
 
-    storage_key = 'buckets_split_data:' + cache_key + ':{}|{}'
+    storage_key = "buckets_split_data:" + cache_key + ":{}|{}"
     old_end_time = end_time.replace(hour=0, minute=0)
 
-    final_storage_key = storage_key.format(delta.total_seconds(),
-                                           old_end_time)
+    final_storage_key = storage_key.format(delta.total_seconds(), old_end_time)
     older_data = None
 
-    cdata = request.registry.cache_regions.redis_day_7.get(
-        final_storage_key)
+    cdata = request.registry.cache_regions.redis_day_7.get(final_storage_key)
 
     if cdata:
-        log.info("cached_split_data:{}: found old "
-                 "bucket data".format(cache_key))
+        log.info("cached_split_data:{}: found old " "bucket data".format(cache_key))
         older_data = cdata
 
-    if (stats_since < end_time - h.time_deltas.get('24h')['delta'] and
-            not cdata):
-        log.info("cached_split_data:{}: didn't find the "
-                 "start bucket in cache so load older data".format(cache_key))
+    if stats_since < end_time - h.time_deltas.get("24h")["delta"] and not cdata:
+        log.info(
+            "cached_split_data:{}: didn't find the "
+            "start bucket in cache so load older data".format(cache_key)
+        )
         recent_stats_since = old_end_time
-        older_data = fn(request, stats_since, recent_stats_since,
-                        db_session=db_session, *args, **kwargs)
-        request.registry.cache_regions.redis_day_7.set(final_storage_key,
-                                                       older_data)
-    elif stats_since < end_time - h.time_deltas.get('24h')['delta']:
+        older_data = fn(
+            request,
+            stats_since,
+            recent_stats_since,
+            db_session=db_session,
+            *args,
+            **kwargs
+        )
+        request.registry.cache_regions.redis_day_7.set(final_storage_key, older_data)
+    elif stats_since < end_time - h.time_deltas.get("24h")["delta"]:
         recent_stats_since = old_end_time
     else:
         recent_stats_since = stats_since
 
-    log.info("cached_split_data:{}: loading fresh "
-             "data bucksts from last 24h ".format(cache_key))
-    todays_data = fn(request, recent_stats_since, end_time,
-                     db_session=db_session, *args, **kwargs)
+    log.info(
+        "cached_split_data:{}: loading fresh "
+        "data bucksts from last 24h ".format(cache_key)
+    )
+    todays_data = fn(
+        request, recent_stats_since, end_time, db_session=db_session, *args, **kwargs
+    )
     return older_data, todays_data
 
 
@@ -488,4 +545,4 @@ def in_batches(seq, size):
     :param seq (iterable)
     :param size integer
     """
-    return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+    return (seq[pos : pos + size] for pos in range(0, len(seq), size))

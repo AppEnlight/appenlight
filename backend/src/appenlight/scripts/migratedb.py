@@ -31,10 +31,11 @@ log = logging.getLogger(__name__)
 
 def main(argv=sys.argv):
     parser = argparse.ArgumentParser(
-        description='Migrate AppEnlight database to latest version',
-        add_help=False)
-    parser.add_argument('-c', '--config', required=True,
-                        help='Configuration ini file of application')
+        description="Migrate AppEnlight database to latest version", add_help=False
+    )
+    parser.add_argument(
+        "-c", "--config", required=True, help="Configuration ini file of application"
+    )
     args = parser.parse_args()
     config_uri = args.config
 
@@ -42,32 +43,31 @@ def main(argv=sys.argv):
     bootstrap(config_uri)
     registry = get_current_registry()
     alembic_cfg = Config()
-    alembic_cfg.set_main_option("sqlalchemy.echo", 'true')
-    alembic_cfg.set_main_option("script_location",
-                                "ziggurat_foundations:migrations")
-    alembic_cfg.set_main_option("sqlalchemy.url",
-                                registry.settings["sqlalchemy.url"])
+    alembic_cfg.set_main_option("sqlalchemy.echo", "true")
+    alembic_cfg.set_main_option("script_location", "ziggurat_foundations:migrations")
+    alembic_cfg.set_main_option("sqlalchemy.url", registry.settings["sqlalchemy.url"])
     command.upgrade(alembic_cfg, "head")
     alembic_cfg = Config()
-    alembic_cfg.set_main_option("sqlalchemy.echo", 'true')
+    alembic_cfg.set_main_option("sqlalchemy.echo", "true")
     alembic_cfg.set_main_option("script_location", "appenlight:migrations")
-    alembic_cfg.set_main_option("sqlalchemy.url",
-                                registry.settings["sqlalchemy.url"])
+    alembic_cfg.set_main_option("sqlalchemy.url", registry.settings["sqlalchemy.url"])
     command.upgrade(alembic_cfg, "head")
 
     for plugin_name, config in registry.appenlight_plugins.items():
-        if config['sqlalchemy_migrations']:
+        if config["sqlalchemy_migrations"]:
             alembic_cfg = Config()
-            alembic_cfg.set_main_option("script_location",
-                                        config['sqlalchemy_migrations'])
-            alembic_cfg.set_main_option("sqlalchemy.url",
-                                        registry.settings["sqlalchemy.url"])
-            alembic_cfg.set_main_option("sqlalchemy.echo", 'true')
+            alembic_cfg.set_main_option(
+                "script_location", config["sqlalchemy_migrations"]
+            )
+            alembic_cfg.set_main_option(
+                "sqlalchemy.url", registry.settings["sqlalchemy.url"]
+            )
+            alembic_cfg.set_main_option("sqlalchemy.echo", "true")
             command.upgrade(alembic_cfg, "head")
 
     with get_current_request().tm:
         ConfigService.setup_default_values()
 
         for plugin_name, config in registry.appenlight_plugins.items():
-            if config['default_values_setter']:
-                get_callable(config['default_values_setter'])()
+            if config["default_values_setter"]:
+                get_callable(config["default_values_setter"])()

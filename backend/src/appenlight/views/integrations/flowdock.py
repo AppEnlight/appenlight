@@ -29,43 +29,45 @@ from . import IntegrationView
 
 
 class FlowdockView(IntegrationView):
-    @view_config(route_name='integrations_id',
-                 match_param=['action=info', 'integration=flowdock'],
-                 renderer='json')
+    @view_config(
+        route_name="integrations_id",
+        match_param=["action=info", "integration=flowdock"],
+        renderer="json",
+    )
     def get_info(self):
         pass
 
-    @view_config(route_name='integrations_id',
-                 match_param=['action=setup', 'integration=flowdock'],
-                 renderer='json',
-                 permission='edit')
+    @view_config(
+        route_name="integrations_id",
+        match_param=["action=setup", "integration=flowdock"],
+        renderer="json",
+        permission="edit",
+    )
     def setup(self):
         """
         Validates and creates integration between application and flowdock
         """
         resource = self.request.context.resource
-        self.create_missing_channel(resource, 'flowdock')
+        self.create_missing_channel(resource, "flowdock")
 
         form = forms.IntegrationFlowdockForm(
             MultiDict(self.request.safe_json_body or {}),
-            csrf_context=self.request, **self.integration_config)
-        if self.request.method == 'POST' and form.validate():
-            integration_config = {
-                'api_token': form.api_token.data,
-            }
+            csrf_context=self.request,
+            **self.integration_config
+        )
+        if self.request.method == "POST" and form.validate():
+            integration_config = {"api_token": form.api_token.data}
             if not self.integration:
                 # add new integration
-                self.integration = FlowdockIntegration(
-                    modified_date=datetime.utcnow(),
-                )
-                self.request.session.flash('Integration added')
+                self.integration = FlowdockIntegration(modified_date=datetime.utcnow())
+                self.request.session.flash("Integration added")
                 resource.integrations.append(self.integration)
             else:
-                self.request.session.flash('Integration updated')
+                self.request.session.flash("Integration updated")
             self.integration.config = integration_config
             DBSession.flush()
-            self.create_missing_channel(resource, 'flowdock')
+            self.create_missing_channel(resource, "flowdock")
             return integration_config
-        elif self.request.method == 'POST':
+        elif self.request.method == "POST":
             return HTTPUnprocessableEntity(body=form.errors_json)
         return self.integration_config

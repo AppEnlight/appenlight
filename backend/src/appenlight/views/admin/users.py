@@ -24,13 +24,16 @@ import logging
 log = logging.getLogger(__name__)
 
 
-@view_config(route_name='section_view', permission='root_administration',
-             match_param=['section=admin_section', 'view=relogin_user'],
-             renderer='json', request_method='GET')
+@view_config(
+    route_name="section_view",
+    permission="root_administration",
+    match_param=["section=admin_section", "view=relogin_user"],
+    renderer="json",
+    request_method="GET",
+)
 def relogin_to_user(request):
-    user = UserService.by_id(request.GET.get('user_id'))
+    user = UserService.by_id(request.GET.get("user_id"))
     if not user:
         return HTTPNotFound()
     headers = security.remember(request, user.id)
-    return HTTPFound(location=request.route_url('/'),
-                     headers=headers)
+    return HTTPFound(location=request.route_url("/"), headers=headers)

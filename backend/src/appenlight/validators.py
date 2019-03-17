@@ -21,33 +21,35 @@ from colander import null
 
 # those keywords are here so we can distingush between searching for tags and
 # normal properties of reports/logs
-accepted_search_params = ['resource',
-                          'request_id',
-                          'start_date',
-                          'end_date',
-                          'page',
-                          'min_occurences',
-                          'http_status',
-                          'priority',
-                          'error',
-                          'url_path',
-                          'url_domain',
-                          'report_status',
-                          'min_duration',
-                          'max_duration',
-                          'message',
-                          'level',
-                          'namespace']
+accepted_search_params = [
+    "resource",
+    "request_id",
+    "start_date",
+    "end_date",
+    "page",
+    "min_occurences",
+    "http_status",
+    "priority",
+    "error",
+    "url_path",
+    "url_domain",
+    "report_status",
+    "min_duration",
+    "max_duration",
+    "message",
+    "level",
+    "namespace",
+]
 
 
 @colander.deferred
 def deferred_utcnow(node, kw):
-    return kw['utcnow']
+    return kw["utcnow"]
 
 
 @colander.deferred
 def optional_limited_date(node, kw):
-    if not kw.get('allow_permanent_storage'):
+    if not kw.get("allow_permanent_storage"):
         return limited_date
 
 
@@ -123,21 +125,21 @@ class UnknownType(object):
 
 # SLOW REPORT SCHEMA
 
+
 def rewrite_type(input_data):
     """
     Fix for legacy appenlight clients
     """
-    if input_data == 'remote_call':
-        return 'remote'
+    if input_data == "remote_call":
+        return "remote"
     return input_data
 
 
 class ExtraTupleSchema(colander.TupleSchema):
-    name = colander.SchemaNode(colander.String(),
-                               validator=colander.Length(1, 64))
-    value = colander.SchemaNode(UnknownType(),
-                                preparer=shortener_factory(512),
-                                missing=None)
+    name = colander.SchemaNode(colander.String(), validator=colander.Length(1, 64))
+    value = colander.SchemaNode(
+        UnknownType(), preparer=shortener_factory(512), missing=None
+    )
 
 
 class ExtraSchemaList(colander.SequenceSchema):
@@ -146,11 +148,10 @@ class ExtraSchemaList(colander.SequenceSchema):
 
 
 class TagsTupleSchema(colander.TupleSchema):
-    name = colander.SchemaNode(colander.String(),
-                               validator=colander.Length(1, 128))
-    value = colander.SchemaNode(UnknownType(),
-                                preparer=shortener_factory(128),
-                                missing=None)
+    name = colander.SchemaNode(colander.String(), validator=colander.Length(1, 128))
+    value = colander.SchemaNode(
+        UnknownType(), preparer=shortener_factory(128), missing=None
+    )
 
 
 class TagSchemaList(colander.SequenceSchema):
@@ -159,8 +160,7 @@ class TagSchemaList(colander.SequenceSchema):
 
 
 class NumericTagsTupleSchema(colander.TupleSchema):
-    name = colander.SchemaNode(colander.String(),
-                               validator=colander.Length(1, 128))
+    name = colander.SchemaNode(colander.String(), validator=colander.Length(1, 128))
     value = colander.SchemaNode(colander.Float(), missing=0)
 
 
@@ -173,41 +173,46 @@ class SlowCallSchema(colander.MappingSchema):
     """
     Validates slow call format in slow call list
     """
+
     start = colander.SchemaNode(NonTZDate())
     end = colander.SchemaNode(NonTZDate())
-    statement = colander.SchemaNode(colander.String(), missing='')
+    statement = colander.SchemaNode(colander.String(), missing="")
     parameters = colander.SchemaNode(UnknownType(), missing=None)
     type = colander.SchemaNode(
         colander.String(),
         preparer=rewrite_type,
         validator=colander.OneOf(
-            ['tmpl', 'sql', 'nosql', 'remote', 'unknown', 'custom']),
-        missing='unknown')
-    subtype = colander.SchemaNode(colander.String(),
-                                  validator=colander.Length(1, 16),
-                                  missing='unknown')
-    location = colander.SchemaNode(colander.String(),
-                                   validator=colander.Length(1, 255),
-                                   missing='')
+            ["tmpl", "sql", "nosql", "remote", "unknown", "custom"]
+        ),
+        missing="unknown",
+    )
+    subtype = colander.SchemaNode(
+        colander.String(), validator=colander.Length(1, 16), missing="unknown"
+    )
+    location = colander.SchemaNode(
+        colander.String(), validator=colander.Length(1, 255), missing=""
+    )
 
 
 def limited_date(node, value):
     """ checks to make sure that the value is not older/newer than 2h """
     past_hours = 72
     future_hours = 2
-    min_time = datetime.datetime.utcnow() - datetime.timedelta(
-        hours=past_hours)
-    max_time = datetime.datetime.utcnow() + datetime.timedelta(
-        hours=future_hours)
+    min_time = datetime.datetime.utcnow() - datetime.timedelta(hours=past_hours)
+    max_time = datetime.datetime.utcnow() + datetime.timedelta(hours=future_hours)
     if min_time > value:
-        msg = '%r is older from current UTC time by ' + str(past_hours)
-        msg += ' hours. Ask administrator to enable permanent logging for ' \
-               'your application to store logs with dates in past.'
+        msg = "%r is older from current UTC time by " + str(past_hours)
+        msg += (
+            " hours. Ask administrator to enable permanent logging for "
+            "your application to store logs with dates in past."
+        )
         raise colander.Invalid(node, msg % value)
     if max_time < value:
-        msg = '%r is newer from current UTC time by ' + str(future_hours)
-        msg += ' hours. Ask administrator to enable permanent logging for ' \
-               'your application to store logs with dates in future.'
+        msg = "%r is newer from current UTC time by " + str(future_hours)
+        msg += (
+            " hours. Ask administrator to enable permanent logging for "
+            "your application to store logs with dates in future."
+        )
         raise colander.Invalid(node, msg % value)
 
 
@@ -215,6 +220,7 @@ class SlowCallListSchema(colander.SequenceSchema):
     """
     Validates list of individual slow calls
     """
+
     slow_call = SlowCallSchema()
 
 
@@ -222,52 +228,54 @@ class RequestStatsSchema(colander.MappingSchema):
     """
     Validates format of requests statistics dictionary
     """
-    main = colander.SchemaNode(colander.Float(), validator=colander.Range(0),
-                               missing=0)
-    sql = colander.SchemaNode(colander.Float(), validator=colander.Range(0),
-                              missing=0)
-    nosql = colander.SchemaNode(colander.Float(), validator=colander.Range(0),
-                                missing=0)
-    remote = colander.SchemaNode(colander.Float(), validator=colander.Range(0),
-                                 missing=0)
-    tmpl = colander.SchemaNode(colander.Float(), validator=colander.Range(0),
-                               missing=0)
-    custom = colander.SchemaNode(colander.Float(), validator=colander.Range(0),
-                                 missing=0)
-    sql_calls = colander.SchemaNode(colander.Float(),
-                                    validator=colander.Range(0),
-                                    missing=0)
-    nosql_calls = colander.SchemaNode(colander.Float(),
-                                      validator=colander.Range(0),
-                                      missing=0)
-    remote_calls = colander.SchemaNode(colander.Float(),
-                                       validator=colander.Range(0),
-                                       missing=0)
-    tmpl_calls = colander.SchemaNode(colander.Float(),
-                                     validator=colander.Range(0),
-                                     missing=0)
-    custom_calls = colander.SchemaNode(colander.Float(),
-                                       validator=colander.Range(0),
-                                       missing=0)
+
+    main = colander.SchemaNode(colander.Float(), validator=colander.Range(0), missing=0)
+    sql = colander.SchemaNode(colander.Float(), validator=colander.Range(0), missing=0)
+    nosql = colander.SchemaNode(
+        colander.Float(), validator=colander.Range(0), missing=0
+    )
+    remote = colander.SchemaNode(
+        colander.Float(), validator=colander.Range(0), missing=0
+    )
+    tmpl = colander.SchemaNode(colander.Float(), validator=colander.Range(0), missing=0)
+    custom = colander.SchemaNode(
+        colander.Float(), validator=colander.Range(0), missing=0
+    )
+    sql_calls = colander.SchemaNode(
+        colander.Float(), validator=colander.Range(0), missing=0
+    )
+    nosql_calls = colander.SchemaNode(
+        colander.Float(), validator=colander.Range(0), missing=0
+    )
+    remote_calls = colander.SchemaNode(
+        colander.Float(), validator=colander.Range(0), missing=0
+    )
+    tmpl_calls = colander.SchemaNode(
+        colander.Float(), validator=colander.Range(0), missing=0
+    )
+    custom_calls = colander.SchemaNode(
+        colander.Float(), validator=colander.Range(0), missing=0
+    )
 
 
 class FrameInfoVarSchema(colander.SequenceSchema):
     """
     Validates format of frame variables of a traceback
     """
-    vars = colander.SchemaNode(UnknownType(),
-                               validator=colander.Length(2, 2))
+
+    vars = colander.SchemaNode(UnknownType(), validator=colander.Length(2, 2))
 
 
 class FrameInfoSchema(colander.MappingSchema):
     """
     Validates format of a traceback line
     """
-    cline = colander.SchemaNode(colander.String(), missing='')
-    module = colander.SchemaNode(colander.String(), missing='')
-    line = colander.SchemaNode(colander.String(), missing='')
-    file = colander.SchemaNode(colander.String(), missing='')
-    fn = colander.SchemaNode(colander.String(), missing='')
+
+    cline = colander.SchemaNode(colander.String(), missing="")
+    module = colander.SchemaNode(colander.String(), missing="")
+    line = colander.SchemaNode(colander.String(), missing="")
+    file = colander.SchemaNode(colander.String(), missing="")
+    fn = colander.SchemaNode(colander.String(), missing="")
     vars = FrameInfoVarSchema()
 
 
@@ -275,6 +283,7 @@ class FrameInfoListSchema(colander.SequenceSchema):
     """
     Validates format of list of traceback lines
     """
+
     frame = colander.SchemaNode(UnknownType())
 
 
@@ -282,36 +291,40 @@ class ReportDetailBaseSchema(colander.MappingSchema):
     """
     Validates format of report - ie. request parameters and stats for a request in report group
     """
-    username = colander.SchemaNode(colander.String(),
-                                   preparer=[shortener_factory(255),
-                                             lambda x: x or ''],
-                                   missing='')
-    request_id = colander.SchemaNode(colander.String(),
-                                     preparer=shortener_factory(40),
-                                     missing='')
-    url = colander.SchemaNode(colander.String(),
-                              preparer=shortener_factory(1024), missing='')
-    ip = colander.SchemaNode(colander.String(), preparer=shortener_factory(39),
-                             missing=None)
-    start_time = colander.SchemaNode(NonTZDate(),
-                                     validator=optional_limited_date,
-                                     missing=deferred_utcnow)
-    end_time = colander.SchemaNode(NonTZDate(),
-                                   validator=optional_limited_date,
-                                   missing=None)
-    user_agent = colander.SchemaNode(colander.String(),
-                                     preparer=[shortener_factory(512),
-                                               lambda x: x or ''],
-                                     missing='')
-    message = colander.SchemaNode(colander.String(),
-                                  preparer=shortener_factory(2048),
-                                  missing='')
-    group_string = colander.SchemaNode(colander.String(),
-                                       preparer=shortener_factory(512),
-                                       missing=None)
+
+    username = colander.SchemaNode(
+        colander.String(),
+        preparer=[shortener_factory(255), lambda x: x or ""],
+        missing="",
+    )
+    request_id = colander.SchemaNode(
+        colander.String(), preparer=shortener_factory(40), missing=""
+    )
+    url = colander.SchemaNode(
+        colander.String(), preparer=shortener_factory(1024), missing=""
+    )
+    ip = colander.SchemaNode(
+        colander.String(), preparer=shortener_factory(39), missing=None
+    )
+    start_time = colander.SchemaNode(
+        NonTZDate(), validator=optional_limited_date, missing=deferred_utcnow
+    )
+    end_time = colander.SchemaNode(
+        NonTZDate(), validator=optional_limited_date, missing=None
+    )
+    user_agent = colander.SchemaNode(
+        colander.String(),
+        preparer=[shortener_factory(512), lambda x: x or ""],
+        missing="",
+    )
+    message = colander.SchemaNode(
+        colander.String(), preparer=shortener_factory(2048), missing=""
+    )
+    group_string = colander.SchemaNode(
+        colander.String(), preparer=shortener_factory(512), missing=None
+    )
     request_stats = RequestStatsSchema(missing=None)
-    request = colander.SchemaNode(colander.Mapping(unknown='preserve'),
-                                  missing={})
+    request = colander.SchemaNode(colander.Mapping(unknown="preserve"), missing={})
     traceback = FrameInfoListSchema(missing=None)
     slow_calls = SlowCallListSchema(missing=[])
     extra = ExtraSchemaList()
@@ -330,32 +343,35 @@ class ReportSchemaBase(colander.MappingSchema):
     """
     Validates format of report group
     """
-    client = colander.SchemaNode(colander.String(),
-                                 preparer=lambda x: x or 'unknown')
+
+    client = colander.SchemaNode(colander.String(), preparer=lambda x: x or "unknown")
     server = colander.SchemaNode(
         colander.String(),
-        preparer=[
-            lambda x: x.lower() if x else 'unknown', shortener_factory(128)],
-        missing='unknown')
-    priority = colander.SchemaNode(colander.Int(),
-                                   preparer=[lambda x: x or 5],
-                                   validator=colander.Range(1, 10),
-                                   missing=5)
-    language = colander.SchemaNode(colander.String(), missing='unknown')
-    error = colander.SchemaNode(colander.String(),
-                                preparer=shortener_factory(512),
-                                missing='')
-    view_name = colander.SchemaNode(colander.String(),
-                                    preparer=[shortener_factory(128),
-                                              lambda x: x or ''],
-                                    missing='')
-    http_status = colander.SchemaNode(colander.Int(),
-                                      preparer=[lambda x: x or 200],
-                                      validator=colander.Range(1))
+        preparer=[lambda x: x.lower() if x else "unknown", shortener_factory(128)],
+        missing="unknown",
+    )
+    priority = colander.SchemaNode(
+        colander.Int(),
+        preparer=[lambda x: x or 5],
+        validator=colander.Range(1, 10),
+        missing=5,
+    )
+    language = colander.SchemaNode(colander.String(), missing="unknown")
+    error = colander.SchemaNode(
+        colander.String(), preparer=shortener_factory(512), missing=""
+    )
+    view_name = colander.SchemaNode(
+        colander.String(),
+        preparer=[shortener_factory(128), lambda x: x or ""],
+        missing="",
+    )
+    http_status = colander.SchemaNode(
+        colander.Int(), preparer=[lambda x: x or 200], validator=colander.Range(1)
+    )
 
-    occurences = colander.SchemaNode(colander.Int(),
-                                     validator=colander.Range(1, 99999999999),
-                                     missing=1)
+    occurences = colander.SchemaNode(
+        colander.Int(), validator=colander.Range(1, 99999999999), missing=1
+    )
     tags = TagSchemaList()
 
 
@@ -363,8 +379,9 @@ class ReportSchema_0_5(ReportSchemaBase, ReportDetailSchema_0_5):
     pass
 
 
-class ReportSchemaPermissiveDate_0_5(ReportSchemaBase,
-                                 ReportDetailSchemaPermissiveDate_0_5):
+class ReportSchemaPermissiveDate_0_5(
+    ReportSchemaBase, ReportDetailSchemaPermissiveDate_0_5
+):
     pass
 
 
@@ -372,6 +389,7 @@ class ReportListSchema_0_5(colander.SequenceSchema):
     """
     Validates format of list of report groups
     """
+
     report = ReportSchema_0_5()
     validator = colander.Length(1)
 
@@ -380,6 +398,7 @@ class ReportListPermissiveDateSchema_0_5(colander.SequenceSchema):
     """
     Validates format of list of report groups
     """
+
     report = ReportSchemaPermissiveDate_0_5()
     validator = colander.Length(1)
 
@@ -388,34 +407,35 @@ class LogSchema(colander.MappingSchema):
     """
     Validates format if individual log entry
     """
-    primary_key = colander.SchemaNode(UnknownType(),
-                                      preparer=[cast_to_unicode_or_null,
-                                                shortener_factory(128)],
-                                      missing=None)
-    log_level = colander.SchemaNode(colander.String(),
-                                    preparer=shortener_factory(10),
-                                    missing='UNKNOWN')
-    message = colander.SchemaNode(colander.String(),
-                                  preparer=shortener_factory(4096),
-                                  missing='')
-    namespace = colander.SchemaNode(colander.String(),
-                                    preparer=shortener_factory(128),
-                                    missing='')
-    request_id = colander.SchemaNode(colander.String(),
-                                     preparer=shortener_factory(40),
-                                     missing='')
-    server = colander.SchemaNode(colander.String(),
-                                 preparer=shortener_factory(128),
-                                 missing='unknown')
-    date = colander.SchemaNode(NonTZDate(),
-                               validator=limited_date,
-                               missing=deferred_utcnow)
+
+    primary_key = colander.SchemaNode(
+        UnknownType(),
+        preparer=[cast_to_unicode_or_null, shortener_factory(128)],
+        missing=None,
+    )
+    log_level = colander.SchemaNode(
+        colander.String(), preparer=shortener_factory(10), missing="UNKNOWN"
+    )
+    message = colander.SchemaNode(
+        colander.String(), preparer=shortener_factory(4096), missing=""
+    )
+    namespace = colander.SchemaNode(
+        colander.String(), preparer=shortener_factory(128), missing=""
+    )
+    request_id = colander.SchemaNode(
+        colander.String(), preparer=shortener_factory(40), missing=""
+    )
+    server = colander.SchemaNode(
+        colander.String(), preparer=shortener_factory(128), missing="unknown"
+    )
+    date = colander.SchemaNode(
+        NonTZDate(), validator=limited_date, missing=deferred_utcnow
+    )
     tags = TagSchemaList()
 
 
 class LogSchemaPermanent(LogSchema):
-    date = colander.SchemaNode(NonTZDate(),
-                               missing=deferred_utcnow)
+    date = colander.SchemaNode(NonTZDate(), missing=deferred_utcnow)
     permanent = colander.SchemaNode(colander.Boolean(), missing=False)
 
 
@@ -423,6 +443,7 @@ class LogListSchema(colander.SequenceSchema):
     """
     Validates format of list of log entries
     """
+
     log = LogSchema()
     validator = colander.Length(1)
 
@@ -431,14 +452,15 @@ class LogListPermanentSchema(colander.SequenceSchema):
     """
     Validates format of list of log entries
     """
+
     log = LogSchemaPermanent()
     validator = colander.Length(1)
 
 
 class ViewRequestStatsSchema(RequestStatsSchema):
-    requests = colander.SchemaNode(colander.Integer(),
-                                   validator=colander.Range(0),
-                                   missing=0)
+    requests = colander.SchemaNode(
+        colander.Integer(), validator=colander.Range(0), missing=0
+    )
 
 
 class ViewMetricTupleSchema(colander.TupleSchema):
@@ -446,10 +468,12 @@ class ViewMetricTupleSchema(colander.TupleSchema):
     Validates list of views and their corresponding request stats object ie:
     ["dir/module:func",{"custom": 0.0..}]
     """
-    view_name = colander.SchemaNode(colander.String(),
-                                    preparer=[shortener_factory(128),
-                                              lambda x: x or 'unknown'],
-                                    missing='unknown')
+
+    view_name = colander.SchemaNode(
+        colander.String(),
+        preparer=[shortener_factory(128), lambda x: x or "unknown"],
+        missing="unknown",
+    )
     metrics = ViewRequestStatsSchema()
 
 
@@ -458,6 +482,7 @@ class ViewMetricListSchema(colander.SequenceSchema):
     Validates view breakdown stats objects list
     {metrics key of server/time object}
     """
+
     view_tuple = ViewMetricTupleSchema()
     validator = colander.Length(1)
 
@@ -468,13 +493,13 @@ class ViewMetricSchema(colander.MappingSchema):
     {server/time object}
 
     """
-    timestamp = colander.SchemaNode(NonTZDate(),
-                                    validator=limited_date,
-                                    missing=None)
-    server = colander.SchemaNode(colander.String(),
-                                 preparer=[shortener_factory(128),
-                                           lambda x: x or 'unknown'],
-                                 missing='unknown')
+
+    timestamp = colander.SchemaNode(NonTZDate(), validator=limited_date, missing=None)
+    server = colander.SchemaNode(
+        colander.String(),
+        preparer=[shortener_factory(128), lambda x: x or "unknown"],
+        missing="unknown",
+    )
     metrics = ViewMetricListSchema()
 
 
@@ -483,15 +508,19 @@ class GeneralMetricSchema(colander.MappingSchema):
     Validates universal metric schema
 
     """
-    namespace = colander.SchemaNode(colander.String(), missing='',
-                                    preparer=shortener_factory(128))
 
-    server_name = colander.SchemaNode(colander.String(),
-                                      preparer=[shortener_factory(128),
-                                                lambda x: x or 'unknown'],
-                                      missing='unknown')
-    timestamp = colander.SchemaNode(NonTZDate(), validator=limited_date,
-                                    missing=deferred_utcnow)
+    namespace = colander.SchemaNode(
+        colander.String(), missing="", preparer=shortener_factory(128)
+    )
+
+    server_name = colander.SchemaNode(
+        colander.String(),
+        preparer=[shortener_factory(128), lambda x: x or "unknown"],
+        missing="unknown",
+    )
+    timestamp = colander.SchemaNode(
+        NonTZDate(), validator=limited_date, missing=deferred_utcnow
+    )
     tags = TagSchemaList(missing=colander.required)
 
 
@@ -500,6 +529,7 @@ class GeneralMetricPermanentSchema(GeneralMetricSchema):
     Validates universal metric schema
 
     """
+
     timestamp = colander.SchemaNode(NonTZDate(), missing=deferred_utcnow)
 
 
@@ -520,6 +550,7 @@ class MetricsListSchema(colander.SequenceSchema):
 
 
     """
+
     metric = ViewMetricSchema()
     validator = colander.Length(1)
 
@@ -540,7 +571,7 @@ class StringToAppList(object):
         if cstruct is null:
             return null
 
-        apps = set([int(a) for a in node.bindings['resources']])
+        apps = set([int(a) for a in node.bindings["resources"]])
 
         if isinstance(cstruct, str):
             cstruct = [cstruct]
@@ -558,41 +589,41 @@ class StringToAppList(object):
 
 @colander.deferred
 def possible_applications_validator(node, kw):
-    possible_apps = [int(a) for a in kw['resources']]
-    return colander.All(colander.ContainsOnly(possible_apps),
-                        colander.Length(1))
+    possible_apps = [int(a) for a in kw["resources"]]
+    return colander.All(colander.ContainsOnly(possible_apps), colander.Length(1))
 
 
 @colander.deferred
 def possible_applications(node, kw):
-    return [int(a) for a in kw['resources']]
+    return [int(a) for a in kw["resources"]]
 
 
 @colander.deferred
 def today_start(node, kw):
-    return datetime.datetime.utcnow().replace(second=0, microsecond=0,
-                                              minute=0,
-                                              hour=0)
+    return datetime.datetime.utcnow().replace(second=0, microsecond=0, minute=0, hour=0)
 
 
 @colander.deferred
 def today_end(node, kw):
-    return datetime.datetime.utcnow().replace(second=0, microsecond=0,
-                                              minute=59, hour=23)
+    return datetime.datetime.utcnow().replace(
+        second=0, microsecond=0, minute=59, hour=23
+    )
 
 
 @colander.deferred
 def old_start(node, kw):
     t_delta = datetime.timedelta(days=90)
-    return datetime.datetime.utcnow().replace(second=0, microsecond=0,
-                                              minute=0,
-                                              hour=0) - t_delta
+    return (
+        datetime.datetime.utcnow().replace(second=0, microsecond=0, minute=0, hour=0)
+        - t_delta
+    )
 
 
 @colander.deferred
 def today_end(node, kw):
-    return datetime.datetime.utcnow().replace(second=0, microsecond=0,
-                                              minute=59, hour=23)
+    return datetime.datetime.utcnow().replace(
+        second=0, microsecond=0, minute=59, hour=23
+    )
 
 
 class PermissiveDate(colander.DateTime):
@@ -604,7 +635,8 @@ class PermissiveDate(colander.DateTime):
 
         try:
             result = colander.iso8601.parse_date(
-                cstruct, default_timezone=self.default_tzinfo)
+                cstruct, default_timezone=self.default_tzinfo
+            )
         except colander.iso8601.ParseError:
             return null
         return result.replace(tzinfo=None)
@@ -612,99 +644,126 @@ class PermissiveDate(colander.DateTime):
 
 class LogSearchSchema(colander.MappingSchema):
     def schema_type(self, **kw):
-        return colander.Mapping(unknown='preserve')
+        return colander.Mapping(unknown="preserve")
 
-    resource = colander.SchemaNode(StringToAppList(),
-                                   validator=possible_applications_validator,
-                                   missing=possible_applications)
+    resource = colander.SchemaNode(
+        StringToAppList(),
+        validator=possible_applications_validator,
+        missing=possible_applications,
+    )
 
-    message = colander.SchemaNode(colander.Sequence(accept_scalar=True),
-                                  colander.SchemaNode(colander.String()),
-                                  missing=None)
-    level = colander.SchemaNode(colander.Sequence(accept_scalar=True),
-                                colander.SchemaNode(colander.String()),
-                                preparer=lowercase_preparer,
-                                missing=None)
-    namespace = colander.SchemaNode(colander.Sequence(accept_scalar=True),
-                                    colander.SchemaNode(colander.String()),
-                                    preparer=lowercase_preparer,
-                                    missing=None)
-    request_id = colander.SchemaNode(colander.Sequence(accept_scalar=True),
-                                     colander.SchemaNode(colander.String()),
-                                     preparer=lowercase_preparer,
-                                     missing=None)
-    start_date = colander.SchemaNode(PermissiveDate(),
-                                     missing=None)
-    end_date = colander.SchemaNode(PermissiveDate(),
-                                   missing=None)
-    page = colander.SchemaNode(colander.Integer(),
-                               validator=colander.Range(min=1),
-                               missing=1)
+    message = colander.SchemaNode(
+        colander.Sequence(accept_scalar=True),
+        colander.SchemaNode(colander.String()),
+        missing=None,
+    )
+    level = colander.SchemaNode(
+        colander.Sequence(accept_scalar=True),
+        colander.SchemaNode(colander.String()),
+        preparer=lowercase_preparer,
+        missing=None,
+    )
+    namespace = colander.SchemaNode(
+        colander.Sequence(accept_scalar=True),
+        colander.SchemaNode(colander.String()),
+        preparer=lowercase_preparer,
+        missing=None,
+    )
+    request_id = colander.SchemaNode(
+        colander.Sequence(accept_scalar=True),
+        colander.SchemaNode(colander.String()),
+        preparer=lowercase_preparer,
+        missing=None,
+    )
+    start_date = colander.SchemaNode(PermissiveDate(), missing=None)
+    end_date = colander.SchemaNode(PermissiveDate(), missing=None)
+    page = colander.SchemaNode(
+        colander.Integer(), validator=colander.Range(min=1), missing=1
+    )
 
 
 class ReportSearchSchema(colander.MappingSchema):
     def schema_type(self, **kw):
-        return colander.Mapping(unknown='preserve')
+        return colander.Mapping(unknown="preserve")
 
-    resource = colander.SchemaNode(StringToAppList(),
-                                   validator=possible_applications_validator,
-                                   missing=possible_applications)
-    request_id = colander.SchemaNode(colander.Sequence(accept_scalar=True),
-                                     colander.SchemaNode(colander.String()),
-                                     missing=None)
-    start_date = colander.SchemaNode(PermissiveDate(),
-                                     missing=None)
-    end_date = colander.SchemaNode(PermissiveDate(),
-                                   missing=None)
-    page = colander.SchemaNode(colander.Integer(),
-                               validator=colander.Range(min=1),
-                               missing=1)
+    resource = colander.SchemaNode(
+        StringToAppList(),
+        validator=possible_applications_validator,
+        missing=possible_applications,
+    )
+    request_id = colander.SchemaNode(
+        colander.Sequence(accept_scalar=True),
+        colander.SchemaNode(colander.String()),
+        missing=None,
+    )
+    start_date = colander.SchemaNode(PermissiveDate(), missing=None)
+    end_date = colander.SchemaNode(PermissiveDate(), missing=None)
+    page = colander.SchemaNode(
+        colander.Integer(), validator=colander.Range(min=1), missing=1
+    )
 
     min_occurences = colander.SchemaNode(
         colander.Sequence(accept_scalar=True),
         colander.SchemaNode(colander.Integer()),
-        missing=None)
+        missing=None,
+    )
 
-    http_status = colander.SchemaNode(colander.Sequence(accept_scalar=True),
-                                      colander.SchemaNode(colander.Integer()),
-                                      missing=None)
-    priority = colander.SchemaNode(colander.Sequence(accept_scalar=True),
-                                   colander.SchemaNode(colander.Integer()),
-                                   missing=None)
-    error = colander.SchemaNode(colander.Sequence(accept_scalar=True),
-                                colander.SchemaNode(colander.String()),
-                                missing=None)
-    url_path = colander.SchemaNode(colander.Sequence(accept_scalar=True),
-                                   colander.SchemaNode(colander.String()),
-                                   missing=None)
-    url_domain = colander.SchemaNode(colander.Sequence(accept_scalar=True),
-                                     colander.SchemaNode(colander.String()),
-                                     missing=None)
-    report_status = colander.SchemaNode(colander.Sequence(accept_scalar=True),
-                                        colander.SchemaNode(colander.String()),
-                                        missing=None)
-    min_duration = colander.SchemaNode(colander.Sequence(accept_scalar=True),
-                                       colander.SchemaNode(colander.Float()),
-                                       missing=None)
-    max_duration = colander.SchemaNode(colander.Sequence(accept_scalar=True),
-                                       colander.SchemaNode(colander.Float()),
-                                       missing=None)
+    http_status = colander.SchemaNode(
+        colander.Sequence(accept_scalar=True),
+        colander.SchemaNode(colander.Integer()),
+        missing=None,
+    )
+    priority = colander.SchemaNode(
+        colander.Sequence(accept_scalar=True),
+        colander.SchemaNode(colander.Integer()),
+        missing=None,
+    )
+    error = colander.SchemaNode(
+        colander.Sequence(accept_scalar=True),
+        colander.SchemaNode(colander.String()),
+        missing=None,
+    )
+    url_path = colander.SchemaNode(
+        colander.Sequence(accept_scalar=True),
+        colander.SchemaNode(colander.String()),
+        missing=None,
+    )
+    url_domain = colander.SchemaNode(
+        colander.Sequence(accept_scalar=True),
+        colander.SchemaNode(colander.String()),
+        missing=None,
+    )
+    report_status = colander.SchemaNode(
+        colander.Sequence(accept_scalar=True),
+        colander.SchemaNode(colander.String()),
+        missing=None,
+    )
+    min_duration = colander.SchemaNode(
+        colander.Sequence(accept_scalar=True),
+        colander.SchemaNode(colander.Float()),
+        missing=None,
+    )
+    max_duration = colander.SchemaNode(
+        colander.Sequence(accept_scalar=True),
+        colander.SchemaNode(colander.Float()),
+        missing=None,
+    )
 
 
 class TagSchema(colander.MappingSchema):
     """
     Used in log search
     """
-    name = colander.SchemaNode(colander.String(),
-                               validator=colander.Length(1, 32))
-    value = colander.SchemaNode(colander.Sequence(accept_scalar=True),
-                                colander.SchemaNode(colander.String(),
-                                                    validator=colander.Length(
-                                                        1, 128)),
-                                missing=None)
-    op = colander.SchemaNode(colander.String(),
-                             validator=colander.Length(1, 128),
-                             missing=None)
+
+    name = colander.SchemaNode(colander.String(), validator=colander.Length(1, 32))
+    value = colander.SchemaNode(
+        colander.Sequence(accept_scalar=True),
+        colander.SchemaNode(colander.String(), validator=colander.Length(1, 128)),
+        missing=None,
+    )
+    op = colander.SchemaNode(
+        colander.String(), validator=colander.Length(1, 128), missing=None
+    )
 
 
 class TagListSchema(colander.SequenceSchema):
@@ -720,16 +779,16 @@ class RuleFieldType(object):
 
     def __call__(self, node, value):
         try:
-            if self.cast_to == 'int':
+            if self.cast_to == "int":
                 int(value)
-            elif self.cast_to == 'float':
+            elif self.cast_to == "float":
                 float(value)
-            elif self.cast_to == 'unicode':
+            elif self.cast_to == "unicode":
                 str(value)
         except:
-            raise colander.Invalid(node,
-                                   "Can't cast {} to {}".format(
-                                       value, self.cast_to))
+            raise colander.Invalid(
+                node, "Can't cast {} to {}".format(value, self.cast_to)
+            )
 
 
 def build_rule_schema(ruleset, check_matrix):
@@ -739,23 +798,27 @@ def build_rule_schema(ruleset, check_matrix):
     """
 
     schema = colander.SchemaNode(colander.Mapping())
-    schema.add(colander.SchemaNode(colander.String(), name='field'))
+    schema.add(colander.SchemaNode(colander.String(), name="field"))
 
-    if ruleset['field'] in ['__AND__', '__OR__', '__NOT__']:
-        subrules = colander.SchemaNode(colander.Tuple(), name='rules')
-        for rule in ruleset['rules']:
+    if ruleset["field"] in ["__AND__", "__OR__", "__NOT__"]:
+        subrules = colander.SchemaNode(colander.Tuple(), name="rules")
+        for rule in ruleset["rules"]:
             subrules.add(build_rule_schema(rule, check_matrix))
         schema.add(subrules)
     else:
-        op_choices = check_matrix[ruleset['field']]['ops']
-        cast_to = check_matrix[ruleset['field']]['type']
-        schema.add(colander.SchemaNode(colander.String(),
-                                       validator=colander.OneOf(op_choices),
-                                       name='op'))
+        op_choices = check_matrix[ruleset["field"]]["ops"]
+        cast_to = check_matrix[ruleset["field"]]["type"]
+        schema.add(
+            colander.SchemaNode(
+                colander.String(), validator=colander.OneOf(op_choices), name="op"
+            )
+        )
 
-        schema.add(colander.SchemaNode(colander.String(),
-                                       name='value',
-                                       validator=RuleFieldType(cast_to)))
+        schema.add(
+            colander.SchemaNode(
+                colander.String(), name="value", validator=RuleFieldType(cast_to)
+            )
+        )
     return schema
 
 

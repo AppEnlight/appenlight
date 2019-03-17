@@ -32,34 +32,37 @@ class IntegrationBase(Base, BaseModel):
     """
     Model from which all integrations inherit using polymorphic approach
     """
-    __tablename__ = 'integrations'
+
+    __tablename__ = "integrations"
 
     front_visible = False
     as_alert_channel = False
     supports_report_alerting = False
 
     id = sa.Column(sa.Integer, primary_key=True)
-    resource_id = sa.Column(sa.Integer,
-                            sa.ForeignKey('applications.resource_id'))
+    resource_id = sa.Column(sa.Integer, sa.ForeignKey("applications.resource_id"))
     integration_name = sa.Column(sa.Unicode(64))
-    _config = sa.Column('config', JSON(), nullable=False, default='')
+    _config = sa.Column("config", JSON(), nullable=False, default="")
     modified_date = sa.Column(sa.DateTime)
 
-    channel = sa.orm.relationship('AlertChannel',
-                                  cascade="all,delete-orphan",
-                                  passive_deletes=True,
-                                  passive_updates=True,
-                                  uselist=False,
-                                  backref='integration')
+    channel = sa.orm.relationship(
+        "AlertChannel",
+        cascade="all,delete-orphan",
+        passive_deletes=True,
+        passive_updates=True,
+        uselist=False,
+        backref="integration",
+    )
 
     __mapper_args__ = {
-        'polymorphic_on': 'integration_name',
-        'polymorphic_identity': 'integration'
+        "polymorphic_on": "integration_name",
+        "polymorphic_identity": "integration",
     }
 
     @classmethod
-    def by_app_id_and_integration_name(cls, resource_id, integration_name,
-                                       db_session=None):
+    def by_app_id_and_integration_name(
+        cls, resource_id, integration_name, db_session=None
+    ):
         db_session = get_db_session(db_session)
         query = db_session.query(cls)
         query = query.filter(cls.integration_name == integration_name)
@@ -72,7 +75,6 @@ class IntegrationBase(Base, BaseModel):
 
     @config.setter
     def config(self, value):
-        if not hasattr(value, 'items'):
-            raise Exception('IntegrationBase.config only accepts '
-                            'flat dictionaries')
+        if not hasattr(value, "items"):
+            raise Exception("IntegrationBase.config only accepts " "flat dictionaries")
         self._config = encrypt_dictionary_keys(value)

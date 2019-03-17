@@ -25,26 +25,39 @@ class ReportStatService(BaseService):
     def count_by_type(cls, report_type, resource_id, since_when):
         report_type = ReportType.key_from_value(report_type)
 
-        index_names = es_index_name_limiter(start_date=since_when,
-                              ixtypes=['reports'])
+        index_names = es_index_name_limiter(start_date=since_when, ixtypes=["reports"])
 
         es_query = {
-            'aggs': {'reports': {'aggs': {
-                'sub_agg': {'value_count': {'field': 'tags.group_id.values'}}},
-                'filter': {'and': [{'terms': {'resource_id': [resource_id]}},
-                                   {'exists': {
-                                       'field': 'tags.group_id.values'}}]}}},
-            'query': {'filtered': {'filter': {
-                'and': [{'terms': {'resource_id': [resource_id]}},
-                        {'terms': {'tags.type.values': [report_type]}},
-                        {'range': {'timestamp': {
-                            'gte': since_when}}}]}}}}
+            "aggs": {
+                "reports": {
+                    "aggs": {
+                        "sub_agg": {"value_count": {"field": "tags.group_id.values"}}
+                    },
+                    "filter": {
+                        "and": [
+                            {"terms": {"resource_id": [resource_id]}},
+                            {"exists": {"field": "tags.group_id.values"}},
+                        ]
+                    },
+                }
+            },
+            "query": {
+                "filtered": {
+                    "filter": {
+                        "and": [
+                            {"terms": {"resource_id": [resource_id]}},
+                            {"terms": {"tags.type.values": [report_type]}},
+                            {"range": {"timestamp": {"gte": since_when}}},
+                        ]
+                    }
+                }
+            },
+        }
 
         if index_names:
-            result = Datastores.es.search(body=es_query,
-                                      index=index_names,
-                                      doc_type='log',
-                                      size=0)
-            return result['aggregations']['reports']['sub_agg']['value']
+            result = Datastores.es.search(
+                body=es_query, index=index_names, doc_type="log", size=0
+            )
+            return result["aggregations"]["reports"]["sub_agg"]["value"]
         else:
             return 0

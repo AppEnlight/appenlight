@@ -24,16 +24,21 @@ log = logging.getLogger(__name__)
 
 
 def main():
-    choices = ['logs']
+    choices = ["logs"]
 
-    parser = argparse.ArgumentParser(description='Cleanup AppEnlight logs')
-    parser.add_argument('-c', '--config', required=True,
-                        help='Configuration ini file of application')
-    parser.add_argument('-t', '--types', choices=choices,
-                        default='logs',
-                        help='Which parts of database should get cleared')
-    parser.add_argument('-r', '--resource', required=True, help='Resource id')
-    parser.add_argument('-n', '--namespace', help='Limit to Namespace')
+    parser = argparse.ArgumentParser(description="Cleanup AppEnlight logs")
+    parser.add_argument(
+        "-c", "--config", required=True, help="Configuration ini file of application"
+    )
+    parser.add_argument(
+        "-t",
+        "--types",
+        choices=choices,
+        default="logs",
+        help="Which parts of database should get cleared",
+    )
+    parser.add_argument("-r", "--resource", required=True, help="Resource id")
+    parser.add_argument("-n", "--namespace", help="Limit to Namespace")
     args = parser.parse_args()
 
     config_uri = args.config
@@ -42,22 +47,20 @@ def main():
     env = bootstrap(config_uri)
 
     config = {
-        'types': args.types,
-        'namespace': args.namespace,
-        'resource': int(args.resource),
+        "types": args.types,
+        "namespace": args.namespace,
+        "resource": int(args.resource),
     }
 
     action_cleanup_logs(config)
 
 
 def action_cleanup_logs(config):
-    filter_settings = {
-        'namespace': []
-    }
-    if config['namespace']:
-        filter_settings['namespace'].append(config['namespace'])
-    logs_cleanup(config['resource'], filter_settings)
+    filter_settings = {"namespace": []}
+    if config["namespace"]:
+        filter_settings["namespace"].append(config["namespace"])
+    logs_cleanup(config["resource"], filter_settings)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

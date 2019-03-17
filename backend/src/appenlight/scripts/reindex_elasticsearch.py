@@ -25,11 +25,7 @@ import elasticsearch.helpers
 from collections import defaultdict
 from pyramid.paster import setup_logging
 from pyramid.paster import bootstrap
-from appenlight.models import (
-    DBSession,
-    Datastores,
-    metadata
-)
+from appenlight.models import DBSession, Datastores, metadata
 from appenlight.lib import get_callable
 from appenlight.models.report_group import ReportGroup
 from appenlight.models.report import Report
@@ -42,25 +38,27 @@ from appenlight.models.metric import Metric
 log = logging.getLogger(__name__)
 
 tables = {
-    'slow_calls_p_': [],
-    'reports_stats_p_': [],
-    'reports_p_': [],
-    'reports_groups_p_': [],
-    'logs_p_': [],
-    'metrics_p_': [],
+    "slow_calls_p_": [],
+    "reports_stats_p_": [],
+    "reports_p_": [],
+    "reports_groups_p_": [],
+    "logs_p_": [],
+    "metrics_p_": [],
 }
+
 
 def detect_tables(table_prefix):
     found_tables = []
-    db_tables_query = '''
+    db_tables_query = """
     SELECT tablename FROM pg_tables WHERE tablename NOT LIKE 'pg_%' AND
-    tablename NOT LIKE 'sql_%' ORDER BY tablename ASC;'''
+    tablename NOT LIKE 'sql_%' ORDER BY tablename ASC;"""
 
     for table in DBSession.execute(db_tables_query).fetchall():
         tablename = table.tablename
         if tablename.startswith(table_prefix):
-            t = sa.Table(tablename, metadata, autoload=True,
-                         autoload_with=DBSession.bind.engine)
+            t = sa.Table(
+                tablename, metadata, autoload=True, autoload_with=DBSession.bind.engine
+            )
             found_tables.append(t)
     return found_tables
 
@@ -75,69 +73,78 @@ def main():
     # need parser twice because we first need to load ini file
     # bootstrap pyramid and then load plugins
     pre_parser = argparse.ArgumentParser(
-        description='Reindex AppEnlight data',
-        add_help=False)
-    pre_parser.add_argument('-c', '--config', required=True,
-                            help='Configuration ini file of application')
-    pre_parser.add_argument('-h', '--help', help='Show help', nargs='?')
-    pre_parser.add_argument('-t', '--types', nargs='+',
-                            help='Which parts of database should get reindexed')
+        description="Reindex AppEnlight data", add_help=False
+    )
+    pre_parser.add_argument(
+        "-c", "--config", required=True, help="Configuration ini file of application"
+    )
+    pre_parser.add_argument("-h", "--help", help="Show help", nargs="?")
+    pre_parser.add_argument(
+        "-t", "--types", nargs="+", help="Which parts of database should get reindexed"
+    )
     args = pre_parser.parse_args()
 
     config_uri = args.config
     setup_logging(config_uri)
     log.setLevel(logging.INFO)
     env = bootstrap(config_uri)
-    parser = argparse.ArgumentParser(description='Reindex AppEnlight data')
+    parser = argparse.ArgumentParser(description="Reindex AppEnlight data")
     choices = {
-        'reports': 'appenlight.scripts.reindex_elasticsearch:reindex_reports',
-        'logs': 'appenlight.scripts.reindex_elasticsearch:reindex_logs',
-        'metrics': 'appenlight.scripts.reindex_elasticsearch:reindex_metrics',
-        'slow_calls': 'appenlight.scripts.reindex_elasticsearch:reindex_slow_calls',
-        'template': 'appenlight.scripts.reindex_elasticsearch:update_template'
+        "reports": "appenlight.scripts.reindex_elasticsearch:reindex_reports",
+        "logs": "appenlight.scripts.reindex_elasticsearch:reindex_logs",
+        "metrics": "appenlight.scripts.reindex_elasticsearch:reindex_metrics",
+        "slow_calls": "appenlight.scripts.reindex_elasticsearch:reindex_slow_calls",
+        "template": "appenlight.scripts.reindex_elasticsearch:update_template",
     }
-    for k, v in env['registry'].appenlight_plugins.items():
-        if v.get('fulltext_indexer'):
-            choices[k] = v['fulltext_indexer']
-    parser.add_argument('-t', '--types', nargs='*',
-                        choices=['all'] + list(choices.keys()), default=[],
-                        help='Which parts of database should get reindexed')
-    parser.add_argument('-c', '--config', required=True,
-                        help='Configuration ini file of application')
+    for k, v in env["registry"].appenlight_plugins.items():
+        if v.get("fulltext_indexer"):
+            choices[k] = v["fulltext_indexer"]
+    parser.add_argument(
+        "-t",
+        "--types",
+        nargs="*",
+        choices=["all"] + list(choices.keys()),
+        default=[],
+        help="Which parts of database should get reindexed",
+    )
+    parser.add_argument(
+        "-c", "--config", required=True, help="Configuration ini file of application"
+    )
     args = parser.parse_args()
 
-
-    if 'all' in args.types:
+    if "all" in args.types:
         args.types = list(choices.keys())
 
     print("Selected types to reindex: {}".format(args.types))
 
-    log.info('settings {}'.format(args.types))
+    log.info("settings {}".format(args.types))
 
-    if 'template' in args.types:
-        get_callable(choices['template'])()
-        args.types.remove('template')
+    if "template" in args.types:
+        get_callable(choices["template"])()
+        args.types.remove("template")
     for selected in args.types:
         get_callable(choices[selected])()
 
 
 def update_template():
     try:
-        Datastores.es.indices.delete_template('rcae')
+        Datastores.es.indices.delete_template("rcae")
     except elasticsearch.exceptions.NotFoundError as e:
         log.error(e)
-    log.info('updating elasticsearch template')
+    log.info("updating elasticsearch template")
     tag_templates = [
-        {"values": {
-            "path_match": "tags.*",
-            "mapping": {
-                "type": "object",
-                "properties": {
-                    "values": {"type": "string", "analyzer": "tag_value"},
-                    "numeric_values": {"type": "float"}
-                }
+        {
+            "values": {
+                "path_match": "tags.*",
+                "mapping": {
+                    "type": "object",
+                    "properties": {
+                        "values": {"type": "string", "analyzer": "tag_value"},
+                        "numeric_values": {"type": "float"},
+                    },
+                },
             }
-        }}
+        }
     ]
 
     template_schema = {
@@ -145,8 +152,7 @@ def update_template():
         "settings": {
             "index": {
                 "refresh_interval": "5s",
-                "translog": {"sync_interval": "5s",
-                             "durability": "async"}
+                "translog": {"sync_interval": "5s", "durability": "async"},
             },
             "number_of_shards": 5,
             "analysis": {
@@ -155,13 +161,13 @@ def update_template():
                         "type": "custom",
                         "char_filter": [],
                         "tokenizer": "path_hierarchy",
-                        "filter": []
+                        "filter": [],
                     },
                     "tag_value": {
                         "type": "custom",
                         "char_filter": [],
                         "tokenizer": "keyword",
-                        "filter": ["lowercase"]
+                        "filter": ["lowercase"],
                     },
                 }
             },
@@ -182,8 +188,8 @@ def update_template():
                     "last_timestamp": {"type": "date"},
                     "average_duration": {"type": "float"},
                     "summed_duration": {"type": "float"},
-                    "public": {"type": "boolean"}
-                }
+                    "public": {"type": "boolean"},
+                },
             },
             "report": {
                 "_all": {"enabled": False},
@@ -202,15 +208,11 @@ def update_template():
                     "request_id": {"type": "string", "index": "not_analyzed"},
                     "end_time": {"type": "date"},
                     "duration": {"type": "float"},
-                    "tags": {
-                        "type": "object"
-                    },
+                    "tags": {"type": "object"},
                     "tag_list": {"type": "string", "analyzer": "tag_value"},
-                    "extra": {
-                        "type": "object"
-                    },
+                    "extra": {"type": "object"},
                 },
-                "_parent": {"type": "report_group"}
+                "_parent": {"type": "report_group"},
             },
             "log": {
                 "_all": {"enabled": False},
@@ -225,26 +227,24 @@ def update_template():
                     "log_level": {"type": "string", "analyzer": "simple"},
                     "message": {"type": "string", "analyzer": "simple"},
                     "namespace": {"type": "string", "index": "not_analyzed"},
-                    "tags": {
-                        "type": "object"
-                    },
-                    "tag_list": {"type": "string", "analyzer": "tag_value"}
-                }
-            }
-        }
+                    "tags": {"type": "object"},
+                    "tag_list": {"type": "string", "analyzer": "tag_value"},
+                },
+            },
+        },
     }
 
-    Datastores.es.indices.put_template('rcae', body=template_schema)
+    Datastores.es.indices.put_template("rcae", body=template_schema)
 
 
 def reindex_reports():
-    reports_groups_tables = detect_tables('reports_groups_p_')
+    reports_groups_tables = detect_tables("reports_groups_p_")
     try:
-        Datastores.es.indices.delete('rcae_r*')
+        Datastores.es.indices.delete("rcae_r*")
     except elasticsearch.exceptions.NotFoundError as e:
         log.error(e)
 
-    log.info('reindexing report groups')
+    log.info("reindexing report groups")
     i = 0
     task_start = datetime.datetime.now()
     for partition_table in reports_groups_tables:
@@ -262,19 +262,18 @@ def reindex_reports():
                 es_docs[d_range].append(item.es_doc())
             if es_docs:
                 name = partition_table.name
-                log.info('round {}, {}'.format(i, name))
+                log.info("round {}, {}".format(i, name))
                 for k, v in es_docs.items():
-                    to_update = {'_index': k, '_type': 'report_group'}
+                    to_update = {"_index": k, "_type": "report_group"}
                     [i.update(to_update) for i in v]
                     elasticsearch.helpers.bulk(Datastores.es, v)
 
-    log.info(
-        'total docs {} {}'.format(i, datetime.datetime.now() - task_start))
+    log.info("total docs {} {}".format(i, datetime.datetime.now() - task_start))
 
     i = 0
-    log.info('reindexing reports')
+    log.info("reindexing reports")
     task_start = datetime.datetime.now()
-    reports_tables = detect_tables('reports_p_')
+    reports_tables = detect_tables("reports_p_")
     for partition_table in reports_tables:
         conn = DBSession.connection().execution_options(stream_results=True)
         result = conn.execute(partition_table.select())
@@ -290,19 +289,18 @@ def reindex_reports():
                 es_docs[d_range].append(item.es_doc())
             if es_docs:
                 name = partition_table.name
-                log.info('round {}, {}'.format(i, name))
+                log.info("round {}, {}".format(i, name))
                 for k, v in es_docs.items():
-                    to_update = {'_index': k, '_type': 'report'}
+                    to_update = {"_index": k, "_type": "report"}
                     [i.update(to_update) for i in v]
                     elasticsearch.helpers.bulk(Datastores.es, v)
 
-    log.info(
-        'total docs {} {}'.format(i, datetime.datetime.now() - task_start))
+    log.info("total docs {} {}".format(i, datetime.datetime.now() - task_start))
 
-    log.info('reindexing reports stats')
+    log.info("reindexing reports stats")
     i = 0
     task_start = datetime.datetime.now()
-    reports_stats_tables = detect_tables('reports_stats_p_')
+    reports_stats_tables = detect_tables("reports_stats_p_")
     for partition_table in reports_stats_tables:
         conn = DBSession.connection().execution_options(stream_results=True)
         result = conn.execute(partition_table.select())
@@ -315,34 +313,33 @@ def reindex_reports():
                 rd = dict(list(row.items()))
                 # remove legacy columns
                 # TODO: remove the column later
-                rd.pop('size', None)
+                rd.pop("size", None)
                 item = ReportStat(**rd)
                 i += 1
                 d_range = item.partition_id
                 es_docs[d_range].append(item.es_doc())
             if es_docs:
                 name = partition_table.name
-                log.info('round  {}, {}'.format(i, name))
+                log.info("round  {}, {}".format(i, name))
                 for k, v in es_docs.items():
-                    to_update = {'_index': k, '_type': 'log'}
+                    to_update = {"_index": k, "_type": "log"}
                     [i.update(to_update) for i in v]
                     elasticsearch.helpers.bulk(Datastores.es, v)
 
-    log.info(
-        'total docs {} {}'.format(i, datetime.datetime.now() - task_start))
+    log.info("total docs {} {}".format(i, datetime.datetime.now() - task_start))
 
 
 def reindex_logs():
     try:
-        Datastores.es.indices.delete('rcae_l*')
+        Datastores.es.indices.delete("rcae_l*")
     except elasticsearch.exceptions.NotFoundError as e:
         log.error(e)
 
     # logs
-    log.info('reindexing logs')
+    log.info("reindexing logs")
     i = 0
     task_start = datetime.datetime.now()
-    log_tables = detect_tables('logs_p_')
+    log_tables = detect_tables("logs_p_")
     for partition_table in log_tables:
         conn = DBSession.connection().execution_options(stream_results=True)
         result = conn.execute(partition_table.select())
@@ -359,26 +356,25 @@ def reindex_logs():
                 es_docs[d_range].append(item.es_doc())
             if es_docs:
                 name = partition_table.name
-                log.info('round  {}, {}'.format(i, name))
+                log.info("round  {}, {}".format(i, name))
                 for k, v in es_docs.items():
-                    to_update = {'_index': k, '_type': 'log'}
+                    to_update = {"_index": k, "_type": "log"}
                     [i.update(to_update) for i in v]
                     elasticsearch.helpers.bulk(Datastores.es, v)
 
-    log.info(
-        'total docs {} {}'.format(i, datetime.datetime.now() - task_start))
+    log.info("total docs {} {}".format(i, datetime.datetime.now() - task_start))
 
 
 def reindex_metrics():
     try:
-        Datastores.es.indices.delete('rcae_m*')
+        Datastores.es.indices.delete("rcae_m*")
     except elasticsearch.exceptions.NotFoundError as e:
         log.error(e)
 
-    log.info('reindexing applications metrics')
+    log.info("reindexing applications metrics")
     i = 0
     task_start = datetime.datetime.now()
-    metric_tables = detect_tables('metrics_p_')
+    metric_tables = detect_tables("metrics_p_")
     for partition_table in metric_tables:
         conn = DBSession.connection().execution_options(stream_results=True)
         result = conn.execute(partition_table.select())
@@ -394,26 +390,25 @@ def reindex_metrics():
                 es_docs[d_range].append(item.es_doc())
             if es_docs:
                 name = partition_table.name
-                log.info('round  {}, {}'.format(i, name))
+                log.info("round  {}, {}".format(i, name))
                 for k, v in es_docs.items():
-                    to_update = {'_index': k, '_type': 'log'}
+                    to_update = {"_index": k, "_type": "log"}
                     [i.update(to_update) for i in v]
                     elasticsearch.helpers.bulk(Datastores.es, v)
 
-    log.info(
-        'total docs {} {}'.format(i, datetime.datetime.now() - task_start))
+    log.info("total docs {} {}".format(i, datetime.datetime.now() - task_start))
 
 
 def reindex_slow_calls():
     try:
-        Datastores.es.indices.delete('rcae_sc*')
+        Datastores.es.indices.delete("rcae_sc*")
     except elasticsearch.exceptions.NotFoundError as e:
         log.error(e)
 
-    log.info('reindexing slow calls')
+    log.info("reindexing slow calls")
     i = 0
     task_start = datetime.datetime.now()
-    slow_calls_tables = detect_tables('slow_calls_p_')
+    slow_calls_tables = detect_tables("slow_calls_p_")
     for partition_table in slow_calls_tables:
         conn = DBSession.connection().execution_options(stream_results=True)
         result = conn.execute(partition_table.select())
@@ -429,15 +424,14 @@ def reindex_slow_calls():
                 es_docs[d_range].append(item.es_doc())
             if es_docs:
                 name = partition_table.name
-                log.info('round  {}, {}'.format(i, name))
+                log.info("round  {}, {}".format(i, name))
                 for k, v in es_docs.items():
-                    to_update = {'_index': k, '_type': 'log'}
+                    to_update = {"_index": k, "_type": "log"}
                     [i.update(to_update) for i in v]
                     elasticsearch.helpers.bulk(Datastores.es, v)
 
-    log.info(
-        'total docs {} {}'.format(i, datetime.datetime.now() - task_start))
+    log.info("total docs {} {}".format(i, datetime.datetime.now() - task_start))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

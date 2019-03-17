@@ -23,20 +23,20 @@ ENCRYPTION_SECRET = None
 def encrypt_fernet(value):
     # avoid double encryption
     # not sure if this is needed but it won't hurt too much to have this
-    if value.startswith('enc$fernet$'):
+    if value.startswith("enc$fernet$"):
         return value
     f = Fernet(ENCRYPTION_SECRET)
-    return 'enc$fernet${}'.format(f.encrypt(value.encode('utf8')).decode('utf8'))
+    return "enc$fernet${}".format(f.encrypt(value.encode("utf8")).decode("utf8"))
 
 
 def decrypt_fernet(value):
-    parts = value.split('$', 3)
+    parts = value.split("$", 3)
     if not len(parts) == 3:
         # not encrypted values
         return value
     else:
         f = Fernet(ENCRYPTION_SECRET)
-        decrypted_data = f.decrypt(parts[2].encode('utf8')).decode('utf8')
+        decrypted_data = f.decrypt(parts[2].encode("utf8")).decode("utf8")
         return decrypted_data
 
 

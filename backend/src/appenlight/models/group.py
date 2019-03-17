@@ -19,27 +19,28 @@ from appenlight.models import Base
 
 
 class Group(GroupMixin, Base):
-    __possible_permissions__ = ('root_administration',
-                                'test_features',
-                                'admin_panel',
-                                'admin_users',
-                                'manage_partitions',)
+    __possible_permissions__ = (
+        "root_administration",
+        "test_features",
+        "admin_panel",
+        "admin_users",
+        "manage_partitions",
+    )
 
-    def get_dict(self, exclude_keys=None, include_keys=None,
-                 include_perms=False):
+    def get_dict(self, exclude_keys=None, include_keys=None, include_perms=False):
         result = super(Group, self).get_dict(exclude_keys, include_keys)
         if include_perms:
-            result['possible_permissions'] = self.__possible_permissions__
-            result['current_permissions'] = [p.perm_name for p in
-                                             self.permissions]
+            result["possible_permissions"] = self.__possible_permissions__
+            result["current_permissions"] = [p.perm_name for p in self.permissions]
         else:
-            result['possible_permissions'] = []
-            result['current_permissions'] = []
+            result["possible_permissions"] = []
+            result["current_permissions"] = []
         exclude_keys_list = exclude_keys or []
         include_keys_list = include_keys or []
         d = {}
         for k in result.keys():
-            if (k not in exclude_keys_list and
-                    (k in include_keys_list or not include_keys)):
+            if k not in exclude_keys_list and (
+                k in include_keys_list or not include_keys
+            ):
                 d[k] = result[k]
         return d

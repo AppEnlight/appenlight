@@ -18,8 +18,7 @@ import logging
 
 import requests
 
-from appenlight.models.integrations import (IntegrationBase,
-                                            IntegrationException)
+from appenlight.models.integrations import IntegrationBase, IntegrationException
 from appenlight.models.alert_channel import AlertChannel
 from appenlight.lib.ext_json import json
 
@@ -33,14 +32,12 @@ class NotFoundException(Exception):
 
 
 class WebhooksIntegration(IntegrationBase):
-    __mapper_args__ = {
-        'polymorphic_identity': 'webhooks'
-    }
+    __mapper_args__ = {"polymorphic_identity": "webhooks"}
     front_visible = False
     as_alert_channel = True
     supports_report_alerting = True
     action_notification = True
-    integration_action = 'Message via Webhooks'
+    integration_action = "Message via Webhooks"
 
     @classmethod
     def create_client(cls, url):
@@ -52,34 +49,33 @@ class WebhooksClient(object):
     def __init__(self, url):
         self.api_url = url
 
-    def make_request(self, url, method='get', data=None):
+    def make_request(self, url, method="get", data=None):
         headers = {
-            'Content-Type': 'application/json',
-            'User-Agent': 'appenlight-webhooks',
+            "Content-Type": "application/json",
+            "User-Agent": "appenlight-webhooks",
         }
         try:
             if data:
                 data = json.dumps(data)
-            resp = getattr(requests, method)(url, data=data, headers=headers,
-                                             timeout=3)
+            resp = getattr(requests, method)(url, data=data, headers=headers, timeout=3)
         except Exception as e:
             raise IntegrationException(
-                _('Error communicating with Webhooks: {}').format(e))
+                _("Error communicating with Webhooks: {}").format(e)
+            )
         if resp.status_code > 299:
             raise IntegrationException(
-                'Error communicating with Webhooks - status code: {}'.format(
-                    resp.status_code))
+                "Error communicating with Webhooks - status code: {}".format(
+                    resp.status_code
+                )
+            )
         return resp
 
     def send_to_hook(self, payload):
-        return self.make_request(self.api_url, method='post',
-                                 data=payload).json()
+        return self.make_request(self.api_url, method="post", data=payload).json()
 
 
 class WebhooksAlertChannel(AlertChannel):
-    __mapper_args__ = {
-        'polymorphic_identity': 'webhooks'
-    }
+    __mapper_args__ = {"polymorphic_identity": "webhooks"}
 
     def notify_reports(self, **kwargs):
         """
@@ -95,17 +91,28 @@ class WebhooksAlertChannel(AlertChannel):
         """
         template_vars = self.get_notification_basic_vars(kwargs)
         payload = []
-        include_keys = ('id', 'http_status', 'report_type', 'resource_name',
-                        'front_url', 'resource_id', 'error', 'url_path',
-                        'tags', 'duration')
+        include_keys = (
+            "id",
+            "http_status",
+            "report_type",
+            "resource_name",
+            "front_url",
+            "resource_id",
+            "error",
+            "url_path",
+            "tags",
+            "duration",
+        )
 
-        for occurences, report in kwargs['reports']:
-            r_dict = report.last_report_ref.get_dict(kwargs['request'],
-                                                     include_keys=include_keys)
-            r_dict['group']['occurences'] = occurences
+        for occurences, report in kwargs["reports"]:
+            r_dict = report.last_report_ref.get_dict(
+                kwargs["request"], include_keys=include_keys
+            )
+            r_dict["group"]["occurences"] = occurences
             payload.append(r_dict)
         client = WebhooksIntegration.create_client(
-            self.integration.config['reports_webhook'])
+            self.integration.config["reports_webhook"]
+        )
         client.send_to_hook(payload)
 
     def notify_alert(self, **kwargs):
@@ -120,19 +127,19 @@ class WebhooksAlertChannel(AlertChannel):
 
         """
         payload = {
-            'alert_action': kwargs['event'].unified_alert_action(),
-            'alert_name': kwargs['event'].unified_alert_name(),
-            'event_time': kwargs['event'].end_date or kwargs[
-                'event'].start_date,
-            'resource_name': None,
-            'resource_id': None
+            "alert_action": kwargs["event"].unified_alert_action(),
+            "alert_name": kwargs["event"].unified_alert_name(),
+            "event_time": kwargs["event"].end_date or kwargs["event"].start_date,
+            "resource_name": None,
+            "resource_id": None,
         }
-        if kwargs['event'].values and kwargs['event'].values.get('reports'):
-            payload['reports'] = kwargs['event'].values.get('reports', [])
-        if 'application' in kwargs:
-            payload['resource_name'] = kwargs['application'].resource_name
-            payload['resource_id'] = kwargs['application'].resource_id
+        if kwargs["event"].values and kwargs["event"].values.get("reports"):
+            payload["reports"] = kwargs["event"].values.get("reports", [])
+        if "application" in kwargs:
+            payload["resource_name"] = kwargs["application"].resource_name
+            payload["resource_id"] = kwargs["application"].resource_id
 
         client = WebhooksIntegration.create_client(
-            self.integration.config['alerts_webhook'])
+            self.integration.config["alerts_webhook"]
+        )
         client.send_to_hook(payload)

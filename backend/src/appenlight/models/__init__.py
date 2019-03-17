@@ -29,11 +29,11 @@ log = logging.getLogger(__name__)
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
 NAMING_CONVENTION = {
-    "ix": 'ix_%(column_0_label)s',
+    "ix": "ix_%(column_0_label)s",
     "uq": "uq_%(table_name)s_%(column_0_name)s",
     "ck": "ck_%(table_name)s_%(constraint_name)s",
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-    "pk": "pk_%(table_name)s"
+    "pk": "pk_%(table_name)s",
 }
 
 metadata = MetaData(naming_convention=NAMING_CONVENTION)
@@ -59,23 +59,24 @@ class SliceableESQuery(object):
         self.query = query
         self.sort_query = sort_query
         self.aggregations = aggregations
-        self.items_per_page = kwconfig.pop('items_per_page', 10)
-        self.page = kwconfig.pop('page', 1)
+        self.items_per_page = kwconfig.pop("items_per_page", 10)
+        self.page = kwconfig.pop("page", 1)
         self.kwconfig = kwconfig
         self.result = None
 
     def __getitem__(self, index):
         config = self.kwconfig.copy()
-        config['from_'] = index.start
+        config["from_"] = index.start
         query = self.query.copy()
         if self.sort_query:
             query.update(self.sort_query)
-        self.result = Datastores.es.search(body=query, size=self.items_per_page,
-                                           **config)
+        self.result = Datastores.es.search(
+            body=query, size=self.items_per_page, **config
+        )
         if self.aggregations:
-            self.items = self.result.get('aggregations')
+            self.items = self.result.get("aggregations")
         else:
-            self.items = self.result['hits']['hits']
+            self.items = self.result["hits"]["hits"]
 
         return self.items
 
@@ -85,14 +86,15 @@ class SliceableESQuery(object):
     def __len__(self):
         config = self.kwconfig.copy()
         query = self.query.copy()
-        self.result = Datastores.es.search(body=query, size=self.items_per_page,
-                                           **config)
+        self.result = Datastores.es.search(
+            body=query, size=self.items_per_page, **config
+        )
         if self.aggregations:
-            self.items = self.result.get('aggregations')
+            self.items = self.result.get("aggregations")
         else:
-            self.items = self.result['hits']['hits']
+            self.items = self.result["hits"]["hits"]
 
-        count = int(self.result['hits']['total'])
+        count = int(self.result["hits"]["total"])
         return count if count < 5000 else 5000
 
 
@@ -102,8 +104,7 @@ from appenlight.models.user import User
 from appenlight.models.alert_channel import AlertChannel
 from appenlight.models.alert_channel_action import AlertChannelAction
 from appenlight.models.metric import Metric
-from appenlight.models.application_postprocess_conf import \
-    ApplicationPostprocessConf
+from appenlight.models.application_postprocess_conf import ApplicationPostprocessConf
 from appenlight.models.auth_token import AuthToken
 from appenlight.models.event import Event
 from appenlight.models.external_identity import ExternalIdentity
@@ -124,7 +125,15 @@ from appenlight.models.user_permission import UserPermission
 from appenlight.models.user_resource_permission import UserResourcePermission
 from ziggurat_foundations import ziggurat_model_init
 
-ziggurat_model_init(User, Group, UserGroup, GroupPermission, UserPermission,
-                    UserResourcePermission, GroupResourcePermission,
-                    Resource,
-                    ExternalIdentity, passwordmanager=None)
+ziggurat_model_init(
+    User,
+    Group,
+    UserGroup,
+    GroupPermission,
+    UserPermission,
+    UserResourcePermission,
+    GroupResourcePermission,
+    Resource,
+    ExternalIdentity,
+    passwordmanager=None,
+)

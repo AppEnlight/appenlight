@@ -20,8 +20,7 @@ from requests.exceptions import HTTPError, ConnectionError
 from camplight import Request, Campfire
 from camplight.exceptions import CamplightException
 
-from appenlight.models.integrations import (IntegrationBase,
-                                            IntegrationException)
+from appenlight.models.integrations import IntegrationBase, IntegrationException
 
 _ = str
 
@@ -33,14 +32,12 @@ class NotFoundException(Exception):
 
 
 class CampfireIntegration(IntegrationBase):
-    __mapper_args__ = {
-        'polymorphic_identity': 'campfire'
-    }
+    __mapper_args__ = {"polymorphic_identity": "campfire"}
     front_visible = False
     as_alert_channel = True
     supports_report_alerting = True
     action_notification = True
-    integration_action = 'Message via Campfire'
+    integration_action = "Message via Campfire"
 
     @classmethod
     def create_client(cls, api_token, account):
@@ -50,7 +47,7 @@ class CampfireIntegration(IntegrationBase):
 
 class CampfireClient(object):
     def __init__(self, api_token, account):
-        request = Request('https://%s.campfirenow.com' % account, api_token)
+        request = Request("https://%s.campfirenow.com" % account, api_token)
         self.campfire = Campfire(request)
 
     def get_account(self):
@@ -65,10 +62,10 @@ class CampfireClient(object):
         except (HTTPError, CamplightException) as e:
             raise IntegrationException(str(e))
 
-    def speak_to_room(self, room, message, sound='RIMSHOT'):
+    def speak_to_room(self, room, message, sound="RIMSHOT"):
         try:
             room = self.campfire.room(room)
             room.join()
-            room.speak(message, type_='TextMessage')
+            room.speak(message, type_="TextMessage")
         except (HTTPError, CamplightException, ConnectionError) as e:
             raise IntegrationException(str(e))

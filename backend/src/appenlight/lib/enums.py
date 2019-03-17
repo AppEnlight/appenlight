@@ -1,4 +1,5 @@
 import collections
+
 # -*- coding: utf-8 -*-
 
 # Copyright 2010 - 2017 RhodeCode GmbH and the AppEnlight project authors
@@ -20,13 +21,14 @@ class StupidEnum(object):
     @classmethod
     def set_inverse(cls):
         cls._inverse_values = dict(
-            (y, x) for x, y in vars(cls).items() if
-            not x.startswith('_') and not callable(y)
+            (y, x)
+            for x, y in vars(cls).items()
+            if not x.startswith("_") and not callable(y)
         )
 
     @classmethod
     def key_from_value(cls, value):
-        if not hasattr(cls, '_inverse_values'):
+        if not hasattr(cls, "_inverse_values"):
             cls.set_inverse()
         return cls._inverse_values.get(value)
 

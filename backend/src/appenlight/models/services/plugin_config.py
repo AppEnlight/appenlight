@@ -38,8 +38,9 @@ class PluginConfigService(BaseService):
         return query.first()
 
     @classmethod
-    def by_query(cls, resource_id=None, plugin_name=None,
-                 section=None, db_session=None):
+    def by_query(
+        cls, resource_id=None, plugin_name=None, section=None, db_session=None
+    ):
         db_session = get_db_session(db_session)
 
         query = db_session.query(PluginConfig)

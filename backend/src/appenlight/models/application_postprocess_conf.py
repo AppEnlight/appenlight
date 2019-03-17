@@ -27,18 +27,20 @@ class ApplicationPostprocessConf(Base, BaseModel):
     This is later used for rule parsing like "if 10 occurences bump priority +1"
     """
 
-    __tablename__ = 'application_postprocess_conf'
+    __tablename__ = "application_postprocess_conf"
 
     pkey = sa.Column(sa.Integer(), nullable=False, primary_key=True)
-    resource_id = sa.Column(sa.Integer(),
-                            sa.ForeignKey('resources.resource_id',
-                                          onupdate='CASCADE',
-                                          ondelete='CASCADE'))
+    resource_id = sa.Column(
+        sa.Integer(),
+        sa.ForeignKey("resources.resource_id", onupdate="CASCADE", ondelete="CASCADE"),
+    )
     do = sa.Column(sa.Unicode(25), nullable=False)
-    new_value = sa.Column(sa.UnicodeText(), nullable=False, default='')
-    rule = sa.Column(sa.dialects.postgresql.JSON,
-                     nullable=False, default={'field': 'http_status',
-                                              "op": "ge", "value": "500"})
+    new_value = sa.Column(sa.UnicodeText(), nullable=False, default="")
+    rule = sa.Column(
+        sa.dialects.postgresql.JSON,
+        nullable=False,
+        default={"field": "http_status", "op": "ge", "value": "500"},
+    )
 
     def postprocess(self, item):
         new_value = int(self.new_value)

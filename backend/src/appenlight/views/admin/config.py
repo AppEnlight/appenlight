@@ -23,25 +23,33 @@ import logging
 log = logging.getLogger(__name__)
 
 
-@view_config(route_name='admin_configs', renderer='json',
-             permission='root_administration', request_method='GET')
+@view_config(
+    route_name="admin_configs",
+    renderer="json",
+    permission="root_administration",
+    request_method="GET",
+)
 def query(request):
     ConfigService.setup_default_values()
     pairs = []
-    for value in request.GET.getall('filter'):
-        split = value.split(':', 1)
-        pairs.append({'key': split[0], 'section': split[1]})
+    for value in request.GET.getall("filter"):
+        split = value.split(":", 1)
+        pairs.append({"key": split[0], "section": split[1]})
     return [c for c in ConfigService.filtered_key_and_section(pairs)]
 
 
-@view_config(route_name='admin_config', renderer='json',
-             permission='root_administration', request_method='POST')
+@view_config(
+    route_name="admin_config",
+    renderer="json",
+    permission="root_administration",
+    request_method="POST",
+)
 def post(request):
     row = ConfigService.by_key_and_section(
-        key=request.matchdict.get('key'),
-        section=request.matchdict.get('section'))
+        key=request.matchdict.get("key"), section=request.matchdict.get("section")
+    )
     if not row:
         raise HTTPNotFound()
     row.value = None
-    row.value = request.unsafe_json_body['value']
+    row.value = request.unsafe_json_body["value"]
     return row

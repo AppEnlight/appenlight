@@ -20,13 +20,16 @@ import sqlalchemy as sa
 
 
 class ReportAssignment(Base, BaseModel):
-    __tablename__ = 'reports_assignments'
+    __tablename__ = "reports_assignments"
 
-    group_id = sa.Column(sa.BigInteger,
-                         sa.ForeignKey('reports_groups.id', ondelete='cascade',
-                                       onupdate='cascade'),
-                         primary_key=True)
-    owner_id = sa.Column(sa.Integer,
-                          sa.ForeignKey('users.id', onupdate='CASCADE',
-                                        ondelete='CASCADE'), primary_key=True)
+    group_id = sa.Column(
+        sa.BigInteger,
+        sa.ForeignKey("reports_groups.id", ondelete="cascade", onupdate="cascade"),
+        primary_key=True,
+    )
+    owner_id = sa.Column(
+        sa.Integer,
+        sa.ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
+        primary_key=True,
+    )
     report_time = sa.Column(sa.DateTime(), nullable=False)

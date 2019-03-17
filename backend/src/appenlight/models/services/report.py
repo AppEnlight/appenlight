@@ -37,21 +37,24 @@ class ReportService(BaseService):
         return q
 
     @classmethod
-    def generate_stat_rows(cls, report, resource, report_group, occurences=1,
-                           db_session=None):
+    def generate_stat_rows(
+        cls, report, resource, report_group, occurences=1, db_session=None
+    ):
         """
         Generates timeseries for this report's group
         """
         db_session = get_db_session(db_session)
-        stats = ReportStat(resource_id=report.resource_id,
-                           group_id=report_group.id,
-                           start_interval=report.start_time,
-                           owner_user_id=resource.owner_user_id,
-                           server_name=report.tags.get('server_name'),
-                           view_name=report.tags.get('view_name'),
-                           type=report.report_type,
-                           occurences=occurences,
-                           duration=report.duration)
+        stats = ReportStat(
+            resource_id=report.resource_id,
+            group_id=report_group.id,
+            start_interval=report.start_time,
+            owner_user_id=resource.owner_user_id,
+            server_name=report.tags.get("server_name"),
+            view_name=report.tags.get("view_name"),
+            type=report.report_type,
+            occurences=occurences,
+            duration=report.duration,
+        )
         db_session.add(stats)
         db_session.flush()
         return stats

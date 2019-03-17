@@ -26,10 +26,19 @@ from appenlight.models.services.base import BaseService
 
 class EventService(BaseService):
     @classmethod
-    def for_resource(cls, resource_ids, event_type=None, status=None,
-                     since_when=None, limit=20, event_id=None,
-                     target_uuid=None, order_by=None, or_target_user_id=None,
-                     db_session=None):
+    def for_resource(
+        cls,
+        resource_ids,
+        event_type=None,
+        status=None,
+        since_when=None,
+        limit=20,
+        event_id=None,
+        target_uuid=None,
+        order_by=None,
+        or_target_user_id=None,
+        db_session=None,
+    ):
         """
         Fetches events including based on passed params OR if target_user_id
         is present include events that just target this user
@@ -57,8 +66,7 @@ class EventService(BaseService):
         if or_target_user_id:
             or_cond.append(sa.or_(Event.target_user_id == or_target_user_id))
 
-        query = query.filter(sa.or_(sa.and_(*and_cond),
-                                    *or_cond))
+        query = query.filter(sa.or_(sa.and_(*and_cond), *or_cond))
         if not order_by:
             query = query.order_by(sa.desc(Event.start_date))
         if limit:
@@ -67,8 +75,15 @@ class EventService(BaseService):
         return query
 
     @classmethod
-    def by_type_and_status(cls, event_types, status_types, since_when=None,
-                           older_than=None, db_session=None, app_ids=None):
+    def by_type_and_status(
+        cls,
+        event_types,
+        status_types,
+        since_when=None,
+        older_than=None,
+        db_session=None,
+        app_ids=None,
+    ):
         db_session = get_db_session(db_session)
         query = db_session.query(Event)
         query = query.filter(Event.event_type.in_(event_types))
@@ -84,26 +99,38 @@ class EventService(BaseService):
     @classmethod
     def latest_for_user(cls, user, db_session=None):
         registry = get_current_registry()
-        resources = UserService.resources_with_perms(user, ['view'], resource_types=registry.resource_types)
+        resources = UserService.resources_with_perms(
+            user, ["view"], resource_types=registry.resource_types
+        )
         resource_ids = [r.resource_id for r in resources]
         db_session = get_db_session(db_session)
         return EventService.for_resource(
-            resource_ids, or_target_user_id=user.id, limit=10,
-            db_session=db_session)
+            resource_ids, or_target_user_id=user.id, limit=10, db_session=db_session
+        )
 
     @classmethod
-    def get_paginator(cls, user, page=1, item_count=None, items_per_page=50,
-                      order_by=None, filter_settings=None, db_session=None):
+    def get_paginator(
+        cls,
+        user,
+        page=1,
+        item_count=None,
+        items_per_page=50,
+        order_by=None,
+        filter_settings=None,
+        db_session=None,
+    ):
         if not filter_settings:
             filter_settings = {}
         registry = get_current_registry()
-        resources = UserService.resources_with_perms(user, ['view'], resource_types=registry.resource_types)
+        resources = UserService.resources_with_perms(
+            user, ["view"], resource_types=registry.resource_types
+        )
         resource_ids = [r.resource_id for r in resources]
         query = EventService.for_resource(
-            resource_ids, or_target_user_id=user.id, limit=100,
-            db_session=db_session)
+            resource_ids, or_target_user_id=user.id, limit=100, db_session=db_session
+        )
 
-        paginator = SqlalchemyOrmPage(query, page=page,
-                                      items_per_page=items_per_page,
-                                      **filter_settings)
+        paginator = SqlalchemyOrmPage(
+            query, page=page, items_per_page=items_per_page, **filter_settings
+        )
         return paginator

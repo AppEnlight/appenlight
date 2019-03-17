@@ -31,17 +31,19 @@ from pyramid import testing
 @pytest.fixture
 def base_app(request, mocker):
     # disable email sending
-    mocker.patch('pyramid_mailer.mailer_factory_from_settings', mocker.Mock())
+    mocker.patch("pyramid_mailer.mailer_factory_from_settings", mocker.Mock())
 
     from appenlight import main
     import transaction
+
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.join(current_dir, '../../../../',
-                        os.environ.get("APPENLIGHT_INI", 'testing.ini'))
+    path = os.path.join(
+        current_dir, "../../../../", os.environ.get("APPENLIGHT_INI", "testing.ini")
+    )
     # appsettings from ini
     app_settings = get_appsettings(path, name="appenlight")
     app = main({}, **app_settings)
-    app_request = testing.DummyRequest(base_url='https://appenlight.com')
+    app_request = testing.DummyRequest(base_url="https://appenlight.com")
     app_request.tm = transaction.manager
     app_request.add_flash_to_headers = mock.Mock()
     testing.setUp(registry=app.registry, request=app_request)
@@ -58,8 +60,7 @@ def base_app(request, mocker):
 def with_migrations(request, base_app):
     settings = base_app.registry.settings
     alembic_cfg = Config()
-    alembic_cfg.set_main_option("script_location",
-                                "ziggurat_foundations:migrations")
+    alembic_cfg.set_main_option("script_location", "ziggurat_foundations:migrations")
     alembic_cfg.set_main_option("sqlalchemy.url", settings["sqlalchemy.url"])
     command.upgrade(alembic_cfg, "head")
     alembic_cfg = Config()
@@ -68,13 +69,14 @@ def with_migrations(request, base_app):
     command.upgrade(alembic_cfg, "head")
 
     for plugin_name, config in base_app.registry.appenlight_plugins.items():
-        if config['sqlalchemy_migrations']:
+        if config["sqlalchemy_migrations"]:
             alembic_cfg = Config()
-            alembic_cfg.set_main_option("script_location",
-                                        config['sqlalchemy_migrations'])
             alembic_cfg.set_main_option(
-                "sqlalchemy.url",
-                base_app.registry.settings["sqlalchemy.url"])
+                "script_location", config["sqlalchemy_migrations"]
+            )
+            alembic_cfg.set_main_option(
+                "sqlalchemy.url", base_app.registry.settings["sqlalchemy.url"]
+            )
             command.upgrade(alembic_cfg, "head")
 
 
@@ -82,11 +84,12 @@ def with_migrations(request, base_app):
 def default_data(base_app):
     from appenlight.models.services.config import ConfigService
     from appenlight.lib import get_callable
+
     transaction.begin()
     ConfigService.setup_default_values()
     for plugin_name, config in base_app.registry.appenlight_plugins.items():
-        if config['default_values_setter']:
-            get_callable(config['default_values_setter'])()
+        if config["default_values_setter"]:
+            get_callable(config["default_values_setter"])()
     transaction.commit()
 
 
@@ -98,8 +101,8 @@ def clean_tables(request):
         tables = Base.metadata.tables.keys()
         transaction.begin()
         for t in tables:
-            if not t.startswith('alembic_'):
-                DBSession.execute('truncate %s cascade' % t)
+            if not t.startswith("alembic_"):
+                DBSession.execute("truncate %s cascade" % t)
         session = DBSession()
         mark_changed(session)
         transaction.commit()
@@ -112,14 +115,12 @@ def default_user():
     from appenlight.models import DBSession
     from appenlight.models.user import User
     from appenlight.models.auth_token import AuthToken
+
     transaction.begin()
     session = DBSession()
-    user = User(id=1,
-                user_name='testuser',
-                status=1,
-                email='foo@barbaz99.com')
+    user = User(id=1, user_name="testuser", status=1, email="foo@barbaz99.com")
     session.add(user)
-    token = AuthToken(token='1234')
+    token = AuthToken(token="1234")
     user.auth_tokens.append(token)
     session.execute("SELECT nextval('users_id_seq')")
     transaction.commit()
@@ -133,8 +134,7 @@ def default_application(default_user):
 
     transaction.begin()
     session = DBSession()
-    application = Application(
-        resource_id=1, resource_name='testapp', api_key='xxxx')
+    application = Application(resource_id=1, resource_name="testapp", api_key="xxxx")
     session.add(application)
     default_user.resources.append(application)
     session.execute("SELECT nextval('resources_resource_id_seq')")
@@ -145,6 +145,7 @@ def default_application(default_user):
 @pytest.fixture
 def report_type_matrix():
     from appenlight.models.report import REPORT_TYPE_MATRIX
+
     return REPORT_TYPE_MATRIX
 
 
@@ -153,38 +154,43 @@ def chart_series():
     series = []
 
     for x in range(1, 7):
-        tmp_list = [('key', 'X'), ('0_1', x)]
+        tmp_list = [("key", "X"), ("0_1", x)]
         if x % 2 == 0:
-            tmp_list.append(('0_2', x))
+            tmp_list.append(("0_2", x))
         if x % 3 == 0:
-            tmp_list.append(('0_3', x))
+            tmp_list.append(("0_3", x))
 
-        series.append(
-            OrderedDict(tmp_list)
-        )
+        series.append(OrderedDict(tmp_list))
     return series
 
 
 @pytest.fixture
 def log_schema():
     from appenlight.validators import LogListSchema
+
     schema = LogListSchema().bind(utcnow=datetime.utcnow())
     return schema
+
 
 @pytest.fixture
 def general_metrics_schema():
     from appenlight.validators import GeneralMetricsListSchema
+
     schema = GeneralMetricsListSchema().bind(utcnow=datetime.utcnow())
     return schema
+
 
 @pytest.fixture
 def request_metrics_schema():
     from appenlight.validators import MetricsListSchema
+
     schema = MetricsListSchema().bind(utcnow=datetime.utcnow())
     return schema
+
 
 @pytest.fixture
 def report_05_schema():
     from appenlight.validators import ReportListSchema_0_5
+
     schema = ReportListSchema_0_5().bind(utcnow=datetime.utcnow())
     return schema

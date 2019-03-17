@@ -20,8 +20,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 import simplejson as json
 
-from appenlight.models.integrations import (IntegrationBase,
-                                            IntegrationException)
+from appenlight.models.integrations import IntegrationBase, IntegrationException
 
 _ = str
 
@@ -33,14 +32,12 @@ class NotFoundException(Exception):
 
 
 class FlowdockIntegration(IntegrationBase):
-    __mapper_args__ = {
-        'polymorphic_identity': 'flowdock'
-    }
+    __mapper_args__ = {"polymorphic_identity": "flowdock"}
     front_visible = False
     as_alert_channel = True
     supports_report_alerting = True
     action_notification = True
-    integration_action = 'Message via Flowdock'
+    integration_action = "Message via Flowdock"
 
     @classmethod
     def create_client(cls, api_token):
@@ -50,33 +47,37 @@ class FlowdockIntegration(IntegrationBase):
 
 class FlowdockClient(object):
     def __init__(self, api_token):
-        self.auth = HTTPBasicAuth(api_token, '')
+        self.auth = HTTPBasicAuth(api_token, "")
         self.api_token = api_token
-        self.api_url = 'https://api.flowdock.com/v1/messages'
+        self.api_url = "https://api.flowdock.com/v1/messages"
 
-    def make_request(self, url, method='get', data=None):
+    def make_request(self, url, method="get", data=None):
         headers = {
-            'Content-Type': 'application/json',
-            'User-Agent': 'appenlight-flowdock',
+            "Content-Type": "application/json",
+            "User-Agent": "appenlight-flowdock",
         }
         try:
             if data:
                 data = json.dumps(data)
-            resp = getattr(requests, method)(url, data=data, headers=headers,
-                                             timeout=10)
+            resp = getattr(requests, method)(
+                url, data=data, headers=headers, timeout=10
+            )
         except Exception as e:
             raise IntegrationException(
-                _('Error communicating with Flowdock: %s') % (e,))
+                _("Error communicating with Flowdock: %s") % (e,)
+            )
         if resp.status_code > 299:
             raise IntegrationException(resp.text)
         return resp
 
     def send_to_chat(self, payload):
-        url = '%(api_url)s/chat/%(api_token)s' % {'api_url': self.api_url,
-                                                  'api_token': self.api_token}
-        return self.make_request(url, method='post', data=payload).json()
+        url = "%(api_url)s/chat/%(api_token)s" % {
+            "api_url": self.api_url,
+            "api_token": self.api_token,
+        }
+        return self.make_request(url, method="post", data=payload).json()
 
     def send_to_inbox(self, payload):
-        f_args = {'api_url': self.api_url, 'api_token': self.api_token}
-        url = '%(api_url)s/team_inbox/%(api_token)s' % f_args
-        return self.make_request(url, method='post', data=payload).json()
+        f_args = {"api_url": self.api_url, "api_token": self.api_token}
+        url = "%(api_url)s/team_inbox/%(api_token)s" % f_args
+        return self.make_request(url, method="post", data=payload).json()

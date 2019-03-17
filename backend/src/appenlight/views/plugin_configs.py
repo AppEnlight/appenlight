@@ -22,11 +22,16 @@ import logging
 log = logging.getLogger(__name__)
 
 
-@view_config(route_name='plugin_configs', renderer='json',
-             permission='edit', request_method='GET')
+@view_config(
+    route_name="plugin_configs",
+    renderer="json",
+    permission="edit",
+    request_method="GET",
+)
 def query(request):
     configs = PluginConfigService.by_query(
-        request.params.get('resource_id'),
-        plugin_name=request.matchdict.get('plugin_name'),
-        section=request.params.get('section'))
+        request.params.get("resource_id"),
+        plugin_name=request.matchdict.get("plugin_name"),
+        section=request.params.get("section"),
+    )
     return [c for c in configs]

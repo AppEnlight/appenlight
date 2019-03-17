@@ -34,7 +34,7 @@ from pyramid.threadlocal import get_current_registry
 
 log = logging.getLogger(__name__)
 
-GroupOccurence = namedtuple('GroupOccurence', ['occurences', 'group'])
+GroupOccurence = namedtuple("GroupOccurence", ["occurences", "group"])
 
 
 class UserService(UserService):
@@ -43,31 +43,40 @@ class UserService(UserService):
         return get_db_session(db_session).query(User).order_by(User.user_name)
 
     @classmethod
-    def send_email(cls, request, recipients, variables, template,
-                   immediately=False, silent=False):
+    def send_email(
+        cls, request, recipients, variables, template, immediately=False, silent=False
+    ):
         html = pyramid.renderers.render(template, variables, request)
-        title = variables.get('email_title',
-                              variables.get('title', "No Title"))
-        title = title.replace('\r', '').replace('\n', '')
+        title = variables.get("email_title", variables.get("title", "No Title"))
+        title = title.replace("\r", "").replace("\n", "")
         sender = "{} <{}>".format(
-            request.registry.settings['mailing.from_name'],
-            request.registry.settings['mailing.from_email'])
+            request.registry.settings["mailing.from_name"],
+            request.registry.settings["mailing.from_email"],
+        )
         message = pyramid_mailer.message.Message(
-            subject=title, sender=sender, recipients=recipients, html=html)
+            subject=title, sender=sender, recipients=recipients, html=html
+        )
         if immediately:
             try:
                 request.registry.mailer.send_immediately(message)
             except Exception as e:
-                log.warning('Exception %s' % e)
+                log.warning("Exception %s" % e)
                 if not silent:
                     raise
         else:
             request.registry.mailer.send(message)
 
     @classmethod
-    def get_paginator(cls, page=1, item_count=None, items_per_page=50,
-                      order_by=None, filter_settings=None,
-                      exclude_columns=None, db_session=None):
+    def get_paginator(
+        cls,
+        page=1,
+        item_count=None,
+        items_per_page=50,
+        order_by=None,
+        filter_settings=None,
+        exclude_columns=None,
+        db_session=None,
+    ):
         registry = get_current_registry()
         if not exclude_columns:
             exclude_columns = []
@@ -75,19 +84,19 @@ class UserService(UserService):
             filter_settings = {}
         db_session = get_db_session(db_session)
         q = db_session.query(User)
-        if filter_settings.get('order_col'):
-            order_col = filter_settings.get('order_col')
-            if filter_settings.get('order_dir') == 'dsc':
-                sort_on = 'desc'
+        if filter_settings.get("order_col"):
+            order_col = filter_settings.get("order_col")
+            if filter_settings.get("order_dir") == "dsc":
+                sort_on = "desc"
             else:
-                sort_on = 'asc'
+                sort_on = "asc"
             q = q.order_by(getattr(sa, sort_on)(getattr(User, order_col)))
         else:
             q = q.order_by(sa.desc(User.registered_date))
             # remove urlgen or it never caches count
         cache_params = dict(filter_settings)
-        cache_params.pop('url', None)
-        cache_params.pop('url_maker', None)
+        cache_params.pop("url", None)
+        cache_params.pop("url_maker", None)
 
         @registry.cache_regions.redis_min_5.cache_on_arguments()
         def estimate_users(cache_key):
@@ -100,20 +109,23 @@ class UserService(UserService):
         # errors just started to flow in
         if item_count < 1000:
             item_count = estimate_users.refresh(cache_params)
-        paginator = SqlalchemyOrmPage(q, page=page,
-                                      item_count=item_count,
-                                      items_per_page=items_per_page,
-                                      **filter_settings)
+        paginator = SqlalchemyOrmPage(
+            q,
+            page=page,
+            item_count=item_count,
+            items_per_page=items_per_page,
+            **filter_settings
+        )
         return paginator
 
     @classmethod
     def get_valid_channels(cls, user):
-        return [channel for channel in user.alert_channels
-                if channel.channel_validated]
+        return [channel for channel in user.alert_channels if channel.channel_validated]
 
     @classmethod
-    def report_notify(cls, user, request, application, report_groups,
-                      occurence_dict, db_session=None):
+    def report_notify(
+        cls, user, request, application, report_groups, occurence_dict, db_session=None
+    ):
         db_session = get_db_session(db_session)
         if not report_groups:
             return True
@@ -125,12 +137,12 @@ class UserService(UserService):
                 occurences = occurence_dict.get(group.id, 1)
                 for action in channel.channel_actions:
                     not_matched = (
-                        action.resource_id and action.resource_id !=
-                        application.resource_id)
-                    if action.type != 'report' or not_matched:
+                        action.resource_id
+                        and action.resource_id != application.resource_id
+                    )
+                    if action.type != "report" or not_matched:
                         continue
-                    should_notify = (action.action == 'always' or
-                                     not group.notified)
+                    should_notify = action.action == "always" or not group.notified
                     rule_obj = Rule(action.rule, REPORT_TYPE_MATRIX)
                     report_dict = group.get_report().get_dict(request)
                     if rule_obj.match(report_dict) and should_notify:
@@ -143,10 +155,12 @@ class UserService(UserService):
             if not total_confirmed:
                 continue
             try:
-                channel.notify_reports(resource=application,
-                                       user=user,
-                                       request=request,
-                                       since_when=since_when,
-                                       reports=confirmed_groups)
+                channel.notify_reports(
+                    resource=application,
+                    user=user,
+                    request=request,
+                    since_when=since_when,
+                    reports=confirmed_groups,
+                )
             except IntegrationException as e:
-                log.warning('%s' % e)
+                log.warning("%s" % e)

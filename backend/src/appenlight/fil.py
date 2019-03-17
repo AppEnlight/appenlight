@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 def filter_callable(structure, section=None):
-    structure['SOMEVAL'] = '***REMOVED***'
+    structure["SOMEVAL"] = "***REMOVED***"
     return structure

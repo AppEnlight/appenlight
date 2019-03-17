@@ -21,7 +21,6 @@ from appenlight.models.services.base import BaseService
 
 
 class ApplicationPostprocessConfService(BaseService):
-
     @classmethod
     def by_pkey(cls, pkey, db_session=None):
         db_session = get_db_session(db_session)

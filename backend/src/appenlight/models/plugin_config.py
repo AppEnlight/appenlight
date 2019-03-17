@@ -22,19 +22,19 @@ from . import Base
 
 
 class PluginConfig(Base, BaseModel):
-    __tablename__ = 'plugin_configs'
+    __tablename__ = "plugin_configs"
 
     id = sa.Column(sa.Integer, primary_key=True)
     plugin_name = sa.Column(sa.Unicode)
     section = sa.Column(sa.Unicode)
     config = sa.Column(JSON, nullable=False)
-    resource_id = sa.Column(sa.Integer(),
-                            sa.ForeignKey('resources.resource_id',
-                                          onupdate='cascade',
-                                          ondelete='cascade'))
-    owner_id = sa.Column(sa.Integer(),
-                         sa.ForeignKey('users.id', onupdate='cascade',
-                                       ondelete='cascade'))
+    resource_id = sa.Column(
+        sa.Integer(),
+        sa.ForeignKey("resources.resource_id", onupdate="cascade", ondelete="cascade"),
+    )
+    owner_id = sa.Column(
+        sa.Integer(), sa.ForeignKey("users.id", onupdate="cascade", ondelete="cascade")
+    )
 
     def __json__(self, request):
         return self.get_dict()

@@ -23,15 +23,16 @@ from . import Base
 
 
 class Tag(Base, BaseModel):
-    __tablename__ = 'tags'
+    __tablename__ = "tags"
 
     id = sa.Column(sa.Integer, primary_key=True)
-    resource_id = sa.Column(sa.Integer,
-                            sa.ForeignKey('resources.resource_id'))
+    resource_id = sa.Column(sa.Integer, sa.ForeignKey("resources.resource_id"))
     name = sa.Column(sa.Unicode(512), nullable=False)
     value = sa.Column(JSON, nullable=False)
-    first_timestamp = sa.Column(sa.DateTime(), default=datetime.utcnow,
-                                server_default=sa.func.now())
-    last_timestamp = sa.Column(sa.DateTime(), default=datetime.utcnow,
-                               server_default=sa.func.now())
+    first_timestamp = sa.Column(
+        sa.DateTime(), default=datetime.utcnow, server_default=sa.func.now()
+    )
+    last_timestamp = sa.Column(
+        sa.DateTime(), default=datetime.utcnow, server_default=sa.func.now()
+    )
     times_seen = sa.Column(sa.Integer, nullable=False, default=0)

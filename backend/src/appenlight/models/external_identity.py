@@ -25,12 +25,12 @@ from appenlight.lib.sqlalchemy_fields import EncryptedUnicode
 class ExternalIdentity(ExternalIdentityMixin, Base):
     @declared_attr
     def access_token(self):
-        return sa.Column(EncryptedUnicode(255), default='')
+        return sa.Column(EncryptedUnicode(255), default="")
 
     @declared_attr
     def alt_token(self):
-        return sa.Column(EncryptedUnicode(255), default='')
+        return sa.Column(EncryptedUnicode(255), default="")
 
     @declared_attr
     def token_secret(self):
-        return sa.Column(EncryptedUnicode(255), default='')
+        return sa.Column(EncryptedUnicode(255), default="")

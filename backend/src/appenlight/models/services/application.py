@@ -33,7 +33,6 @@ log = logging.getLogger(__name__)
 
 
 class ApplicationService(BaseService):
-
     @classmethod
     def all(cls, db_session=None):
         db_session = get_db_session(db_session)
@@ -51,9 +50,9 @@ class ApplicationService(BaseService):
     @classmethod
     def by_api_key_cached(cls, db_session=None):
         db_session = get_db_session(db_session)
-        cache_region = get_region('redis_min_1')
+        cache_region = get_region("redis_min_1")
 
-        @cache_region.cache_on_arguments('ApplicationService.by_api_key')
+        @cache_region.cache_on_arguments("ApplicationService.by_api_key")
         def cached(*args, **kwargs):
             app = cls.by_api_key(*args, db_session=db_session, **kwargs)
             if app:
@@ -63,10 +62,11 @@ class ApplicationService(BaseService):
         return cached
 
     @classmethod
-    def by_public_api_key(cls, api_key, db_session=None, from_cache=False,
-                          request=None):
+    def by_public_api_key(
+        cls, api_key, db_session=None, from_cache=False, request=None
+    ):
         db_session = get_db_session(db_session)
-        cache_region = get_region('redis_min_1')
+        cache_region = get_region("redis_min_1")
 
         def uncached(api_key):
             q = db_session.query(Application)
@@ -75,8 +75,8 @@ class ApplicationService(BaseService):
             return q.first()
 
         if from_cache:
-            @cache_region.cache_on_arguments(
-                'ApplicationService.by_public_api_key')
+
+            @cache_region.cache_on_arguments("ApplicationService.by_public_api_key")
             def cached(api_key):
                 app = uncached(api_key)
                 if app:
@@ -98,9 +98,9 @@ class ApplicationService(BaseService):
     @classmethod
     def by_id_cached(cls, db_session=None):
         db_session = get_db_session(db_session)
-        cache_region = get_region('redis_min_1')
+        cache_region = get_region("redis_min_1")
 
-        @cache_region.cache_on_arguments('ApplicationService.by_id')
+        @cache_region.cache_on_arguments("ApplicationService.by_id")
         def cached(*args, **kwargs):
             app = cls.by_id(*args, db_session=db_session, **kwargs)
             if app:
@@ -119,10 +119,9 @@ class ApplicationService(BaseService):
     @classmethod
     def by_http_referer(cls, referer_string, db_session=None):
         db_session = get_db_session(db_session)
-        domain = urllib.parse.urlsplit(
-            referer_string, allow_fragments=False).netloc
+        domain = urllib.parse.urlsplit(referer_string, allow_fragments=False).netloc
         if domain:
-            if domain.startswith('www.'):
+            if domain.startswith("www."):
                 domain = domain[4:]
         q = db_session.query(Application).filter(Application.domain == domain)
         return q.first()
@@ -132,7 +131,8 @@ class ApplicationService(BaseService):
         db_session = get_db_session(db_session)
         q = db_session.query(Application)
         q2 = ReportGroup.last_updated(
-            since_when, exclude_status=exclude_status, db_session=db_session)
+            since_when, exclude_status=exclude_status, db_session=db_session
+        )
         q2 = q2.from_self(ReportGroup.resource_id)
         q2 = q2.group_by(ReportGroup.resource_id)
         q = q.filter(Application.resource_id.in_(q2))
@@ -142,10 +142,10 @@ class ApplicationService(BaseService):
     def check_for_groups_alert(cls, resource, event_type, *args, **kwargs):
         """ Check for open alerts depending on group type.
         Create new one if nothing is found and send alerts """
-        db_session = get_db_session(kwargs.get('db_session'))
+        db_session = get_db_session(kwargs.get("db_session"))
         request = get_current_request()
-        report_groups = kwargs['report_groups']
-        occurence_dict = kwargs['occurence_dict']
+        report_groups = kwargs["report_groups"]
+        occurence_dict = kwargs["occurence_dict"]
 
         error_reports = 0
         slow_reports = 0
@@ -156,38 +156,45 @@ class ApplicationService(BaseService):
             elif group.get_report().report_type == ReportType.slow:
                 slow_reports += occurences
 
-        log_msg = 'LIMIT INFO: %s : %s error reports. %s slow_reports' % (
+        log_msg = "LIMIT INFO: %s : %s error reports. %s slow_reports" % (
             resource,
             error_reports,
-            slow_reports)
+            slow_reports,
+        )
         logging.warning(log_msg)
         threshold = 10
-        for event_type in ['error_report_alert', 'slow_report_alert']:
-            if (error_reports < resource.error_report_threshold and
-                        event_type == 'error_report_alert'):
+        for event_type in ["error_report_alert", "slow_report_alert"]:
+            if (
+                error_reports < resource.error_report_threshold
+                and event_type == "error_report_alert"
+            ):
                 continue
-            elif (slow_reports <= resource.slow_report_threshold and
-                          event_type == 'slow_report_alert'):
+            elif (
+                slow_reports <= resource.slow_report_threshold
+                and event_type == "slow_report_alert"
+            ):
                 continue
-            if event_type == 'error_report_alert':
+            if event_type == "error_report_alert":
                 amount = error_reports
                 threshold = resource.error_report_threshold
-            elif event_type == 'slow_report_alert':
+            elif event_type == "slow_report_alert":
                 amount = slow_reports
                 threshold = resource.slow_report_threshold
 
-            event = EventService.for_resource([resource.resource_id],
-                                              event_type=Event.types[
-                                                  event_type],
-                                              status=Event.statuses['active'])
+            event = EventService.for_resource(
+                [resource.resource_id],
+                event_type=Event.types[event_type],
+                status=Event.statuses["active"],
+            )
             if event.first():
-                log.info('ALERT: PROGRESS: %s %s' % (event_type, resource))
+                log.info("ALERT: PROGRESS: %s %s" % (event_type, resource))
             else:
-                log.warning('ALERT: OPEN: %s %s' % (event_type, resource))
-                new_event = Event(resource_id=resource.resource_id,
-                                  event_type=Event.types[event_type],
-                                  status=Event.statuses['active'],
-                                  values={'reports': amount,
-                                          'threshold': threshold})
+                log.warning("ALERT: OPEN: %s %s" % (event_type, resource))
+                new_event = Event(
+                    resource_id=resource.resource_id,
+                    event_type=Event.types[event_type],
+                    status=Event.statuses["active"],
+                    values={"reports": amount, "threshold": threshold},
+                )
                 db_session.add(new_event)
                 new_event.send_alerts(request=request, resource=resource)

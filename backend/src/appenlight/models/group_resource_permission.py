@@ -14,8 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ziggurat_foundations.models.group_resource_permission import \
-    GroupResourcePermissionMixin
+from ziggurat_foundations.models.group_resource_permission import (
+    GroupResourcePermissionMixin,
+)
 from appenlight.models import Base
 
 

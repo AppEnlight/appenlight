@@ -17,8 +17,7 @@
 import logging
 
 from appenlight.models import DBSession
-from appenlight.models.integrations.slack import SlackIntegration, \
-    IntegrationException
+from appenlight.models.integrations.slack import SlackIntegration, IntegrationException
 from pyramid.httpexceptions import HTTPUnprocessableEntity
 from pyramid.view import view_config
 from appenlight import forms
@@ -31,43 +30,45 @@ from . import IntegrationView
 
 
 class SlackView(IntegrationView):
-    @view_config(route_name='integrations_id',
-                 match_param=['action=info', 'integration=slack'],
-                 renderer='json')
+    @view_config(
+        route_name="integrations_id",
+        match_param=["action=info", "integration=slack"],
+        renderer="json",
+    )
     def get_info(self):
         pass
 
-    @view_config(route_name='integrations_id',
-                 match_param=['action=setup', 'integration=slack'],
-                 renderer='json',
-                 permission='edit')
+    @view_config(
+        route_name="integrations_id",
+        match_param=["action=setup", "integration=slack"],
+        renderer="json",
+        permission="edit",
+    )
     def setup(self):
         """
         Validates and creates integration between application and slack
         """
         resource = self.request.context.resource
-        self.create_missing_channel(resource, 'slack')
+        self.create_missing_channel(resource, "slack")
         form = forms.IntegrationSlackForm(
             MultiDict(self.request.safe_json_body or {}),
-            csrf_context=self.request, **self.integration_config)
+            csrf_context=self.request,
+            **self.integration_config
+        )
 
-        if self.request.method == 'POST' and form.validate():
-            integration_config = {
-                'webhook_url': form.webhook_url.data
-            }
+        if self.request.method == "POST" and form.validate():
+            integration_config = {"webhook_url": form.webhook_url.data}
             if not self.integration:
                 # add new integration
-                self.integration = SlackIntegration(
-                    modified_date=datetime.utcnow(),
-                )
-                self.request.session.flash('Integration added')
+                self.integration = SlackIntegration(modified_date=datetime.utcnow())
+                self.request.session.flash("Integration added")
                 resource.integrations.append(self.integration)
             else:
-                self.request.session.flash('Integration updated')
+                self.request.session.flash("Integration updated")
             self.integration.config = integration_config
             DBSession.flush()
-            self.create_missing_channel(resource, 'slack')
+            self.create_missing_channel(resource, "slack")
             return integration_config
-        elif self.request.method == 'POST':
+        elif self.request.method == "POST":
             return HTTPUnprocessableEntity(body=form.errors_json)
         return self.integration_config

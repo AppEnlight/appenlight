@@ -22,7 +22,7 @@ from . import Base
 
 
 class Config(Base, BaseModel):
-    __tablename__ = 'config'
+    __tablename__ = "config"
 
     key = sa.Column(sa.Unicode, primary_key=True)
     section = sa.Column(sa.Unicode, primary_key=True)

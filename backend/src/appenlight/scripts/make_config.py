@@ -26,32 +26,35 @@ log = logging.getLogger(__name__)
 
 
 def gen_secret():
-    return Fernet.generate_key().decode('utf8')
+    return Fernet.generate_key().decode("utf8")
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Generate AppEnlight static resources',
-        add_help=False)
-    parser.add_argument('config', help='Name of generated file')
+        description="Generate AppEnlight static resources", add_help=False
+    )
+    parser.add_argument("config", help="Name of generated file")
     parser.add_argument(
-        '--domain',
-        default='appenlight-rhodecode.local',
-        help='Domain which will be used to serve the application')
+        "--domain",
+        default="appenlight-rhodecode.local",
+        help="Domain which will be used to serve the application",
+    )
     parser.add_argument(
-        '--dbstring',
-        default='postgresql://appenlight:test@127.0.0.1:5432/appenlight',
-        help='Domain which will be used to serve the application')
+        "--dbstring",
+        default="postgresql://appenlight:test@127.0.0.1:5432/appenlight",
+        help="Domain which will be used to serve the application",
+    )
     args = parser.parse_args()
-    ini_path = os.path.join('templates', 'ini', 'production.ini.jinja2')
-    template_str = pkg_resources.resource_string('appenlight', ini_path)
-    template = jinja2.Template(template_str.decode('utf8'))
-    template_vars = {'appenlight_encryption_secret': gen_secret(),
-                     'appenlight_authtkt_secret': gen_secret(),
-                     'appenlight_redis_session_secret': gen_secret(),
-                     'appenlight_domain': args.domain,
-                     'appenlight_dbstring': args.dbstring,
-                     }
+    ini_path = os.path.join("templates", "ini", "production.ini.jinja2")
+    template_str = pkg_resources.resource_string("appenlight", ini_path)
+    template = jinja2.Template(template_str.decode("utf8"))
+    template_vars = {
+        "appenlight_encryption_secret": gen_secret(),
+        "appenlight_authtkt_secret": gen_secret(),
+        "appenlight_redis_session_secret": gen_secret(),
+        "appenlight_domain": args.domain,
+        "appenlight_dbstring": args.dbstring,
+    }
     compiled = template.render(**template_vars)
-    with open(args.config, 'w') as f:
+    with open(args.config, "w") as f:
         f.write(compiled)

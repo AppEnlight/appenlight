@@ -22,71 +22,90 @@ from appenlight.lib.utils import es_index_name_limiter
 
 class SlowCallService(BaseService):
     @classmethod
-    def get_time_consuming_calls(cls, request, filter_settings,
-                                 db_session=None):
+    def get_time_consuming_calls(cls, request, filter_settings, db_session=None):
         db_session = get_db_session(db_session)
         # get slow calls from older partitions too
         index_names = es_index_name_limiter(
-            start_date=filter_settings['start_date'],
-            end_date=filter_settings['end_date'],
-            ixtypes=['slow_calls'])
-        if index_names and filter_settings['resource']:
+            start_date=filter_settings["start_date"],
+            end_date=filter_settings["end_date"],
+            ixtypes=["slow_calls"],
+        )
+        if index_names and filter_settings["resource"]:
             # get longest time taking hashes
             es_query = {
-                'aggs': {
-                    'parent_agg': {
-                        'aggs': {
-                            'duration': {
-                                'aggs': {'sub_agg': {
-                                    'sum': {
-                                        'field': 'tags.duration.numeric_values'}
-                                }},
-                                'filter': {'exists': {
-                                    'field': 'tags.duration.numeric_values'}}},
-                            'total': {
-                                'aggs': {'sub_agg': {'value_count': {
-                                    'field': 'tags.statement_hash.values'}}},
-                                'filter': {'exists': {
-                                    'field': 'tags.statement_hash.values'}}}},
-                        'terms': {'field': 'tags.statement_hash.values',
-                                  'order': {'duration>sub_agg': 'desc'},
-                                  'size': 15}}},
-                'query': {'filtered': {
-                    'filter': {'and': [
-                        {'terms': {
-                            'resource_id': [filter_settings['resource'][0]]
-                        }},
-                        {'range': {'timestamp': {
-                            'gte': filter_settings['start_date'],
-                            'lte': filter_settings['end_date']}
-                        }}]
+                "aggs": {
+                    "parent_agg": {
+                        "aggs": {
+                            "duration": {
+                                "aggs": {
+                                    "sub_agg": {
+                                        "sum": {"field": "tags.duration.numeric_values"}
+                                    }
+                                },
+                                "filter": {
+                                    "exists": {"field": "tags.duration.numeric_values"}
+                                },
+                            },
+                            "total": {
+                                "aggs": {
+                                    "sub_agg": {
+                                        "value_count": {
+                                            "field": "tags.statement_hash.values"
+                                        }
+                                    }
+                                },
+                                "filter": {
+                                    "exists": {"field": "tags.statement_hash.values"}
+                                },
+                            },
+                        },
+                        "terms": {
+                            "field": "tags.statement_hash.values",
+                            "order": {"duration>sub_agg": "desc"},
+                            "size": 15,
+                        },
                     }
-                }
-                }
+                },
+                "query": {
+                    "filtered": {
+                        "filter": {
+                            "and": [
+                                {
+                                    "terms": {
+                                        "resource_id": [filter_settings["resource"][0]]
+                                    }
+                                },
+                                {
+                                    "range": {
+                                        "timestamp": {
+                                            "gte": filter_settings["start_date"],
+                                            "lte": filter_settings["end_date"],
+                                        }
+                                    }
+                                },
+                            ]
+                        }
+                    }
+                },
             }
             result = Datastores.es.search(
-                body=es_query, index=index_names, doc_type='log', size=0)
-            results = result['aggregations']['parent_agg']['buckets']
+                body=es_query, index=index_names, doc_type="log", size=0
+            )
+            results = result["aggregations"]["parent_agg"]["buckets"]
         else:
             return []
-        hashes = [i['key'] for i in results]
+        hashes = [i["key"] for i in results]
 
         # get queries associated with hashes
         calls_query = {
             "aggs": {
                 "top_calls": {
-                    "terms": {
-                        "field": "tags.statement_hash.values",
-                        "size": 15
-                    },
+                    "terms": {"field": "tags.statement_hash.values", "size": 15},
                     "aggs": {
                         "top_calls_hits": {
-                            "top_hits": {
-                                "sort": {"timestamp": "desc"},
-                                "size": 5
-                            }
+                            "top_hits": {"sort": {"timestamp": "desc"}, "size": 5}
                         }
-                    }
+                    },
                 }
             },
             "query": {
@@ -95,45 +114,38 @@ class SlowCallService(BaseService):
                         "and": [
                             {
                                 "terms": {
-                                    "resource_id": [
-                                        filter_settings['resource'][0]
-                                    ]
+                                    "resource_id": [filter_settings["resource"][0]]
                                 }
                             },
-                            {
-                                "terms": {
-                                    "tags.statement_hash.values": hashes
-                                }
-                            },
+                            {"terms": {"tags.statement_hash.values": hashes}},
                             {
                                 "range": {
                                     "timestamp": {
-                                        "gte": filter_settings['start_date'],
-                                        "lte": filter_settings['end_date']
+                                        "gte": filter_settings["start_date"],
+                                        "lte": filter_settings["end_date"],
                                     }
                                 }
-                            }
+                            },
                         ]
                     }
                 }
-            }
+            },
         }
-        calls = Datastores.es.search(body=calls_query,
-                                     index=index_names,
-                                     doc_type='log',
-                                     size=0)
+        calls = Datastores.es.search(
+            body=calls_query, index=index_names, doc_type="log", size=0
+        )
         call_results = {}
         report_ids = []
-        for call in calls['aggregations']['top_calls']['buckets']:
-            hits = call['top_calls_hits']['hits']['hits']
-            call_results[call['key']] = [i['_source'] for i in hits]
-            report_ids.extend([i['_source']['tags']['report_id']['values']
-                               for i in hits])
+        for call in calls["aggregations"]["top_calls"]["buckets"]:
+            hits = call["top_calls_hits"]["hits"]["hits"]
+            call_results[call["key"]] = [i["_source"] for i in hits]
+            report_ids.extend(
+                [i["_source"]["tags"]["report_id"]["values"] for i in hits]
+            )
         if report_ids:
             r_query = db_session.query(Report.group_id, Report.id)
             r_query = r_query.filter(Report.id.in_(report_ids))
-            r_query = r_query.filter(
-                Report.start_time >= filter_settings['start_date'])
+            r_query = r_query.filter(Report.start_time >= filter_settings["start_date"])
         else:
             r_query = []
         reports_reversed = {}
@@ -142,27 +154,32 @@ class SlowCallService(BaseService):
 
         final_results = []
         for item in results:
-            if item['key'] not in call_results:
+            if item["key"] not in call_results:
                 continue
-            call = call_results[item['key']][0]
-            row = {'occurences': item['total']['sub_agg']['value'],
-                   'total_duration': round(
-                       item['duration']['sub_agg']['value']),
-                   'statement': call['message'],
-                   'statement_type': call['tags']['type']['values'],
-                   'statement_subtype': call['tags']['subtype']['values'],
-                   'statement_hash': item['key'],
-                   'latest_details': []}
-            if row['statement_type'] in ['tmpl', ' remote']:
-                params = call['tags']['parameters']['values'] \
-                    if 'parameters' in call['tags'] else ''
-                row['statement'] = '{} ({})'.format(call['message'], params)
-            for call in call_results[item['key']]:
-                report_id = call['tags']['report_id']['values']
+            call = call_results[item["key"]][0]
+            row = {
+                "occurences": item["total"]["sub_agg"]["value"],
+                "total_duration": round(item["duration"]["sub_agg"]["value"]),
+                "statement": call["message"],
+                "statement_type": call["tags"]["type"]["values"],
+                "statement_subtype": call["tags"]["subtype"]["values"],
+                "statement_hash": item["key"],
+                "latest_details": [],
+            }
+            if row["statement_type"] in ["tmpl", " remote"]:
+                params = (
+                    call["tags"]["parameters"]["values"]
+                    if "parameters" in call["tags"]
+                    else ""
+                )
+                row["statement"] = "{} ({})".format(call["message"], params)
+            for call in call_results[item["key"]]:
+                report_id = call["tags"]["report_id"]["values"]
                 group_id = reports_reversed.get(report_id)
                 if group_id:
-                    row['latest_details'].append(
-                        {'group_id': group_id, 'report_id': report_id})
+                    row["latest_details"].append(
+                        {"group_id": group_id, "report_id": report_id}
+                    )
 
             final_results.append(row)
 

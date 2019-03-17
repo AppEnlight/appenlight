@@ -17,11 +17,30 @@
 import json
 import logging
 
-ignored_keys = ['args', 'asctime', 'created', 'exc_info', 'exc_text',
-                'filename', 'funcName', 'levelname', 'levelno', 'lineno',
-                'message', 'module', 'msecs', 'msg', 'name', 'pathname',
-                'process', 'processName', 'relativeCreated', 'stack_info',
-                'thread', 'threadName']
+ignored_keys = [
+    "args",
+    "asctime",
+    "created",
+    "exc_info",
+    "exc_text",
+    "filename",
+    "funcName",
+    "levelname",
+    "levelno",
+    "lineno",
+    "message",
+    "module",
+    "msecs",
+    "msg",
+    "name",
+    "pathname",
+    "process",
+    "processName",
+    "relativeCreated",
+    "stack_info",
+    "thread",
+    "threadName",
+]
 
 
 class JSONFormatter(logging.Formatter):
@@ -41,7 +60,7 @@ class JSONFormatter(logging.Formatter):
         record.message = record.getMessage()
         log_dict = vars(record)
         keys = [k for k in log_dict.keys() if k not in ignored_keys]
-        payload = {'message': record.message}
+        payload = {"message": record.message}
         payload.update({k: log_dict[k] for k in keys})
         record.message = json.dumps(payload, default=lambda x: str(x))
 

@@ -51,9 +51,11 @@ from appenlight.lib.enums import ReportType
 
 log = get_task_logger(__name__)
 
-sample_boundries = list(range(100, 1000, 100)) + \
-                   list(range(1000, 10000, 1000)) + \
-                   list(range(10000, 100000, 5000))
+sample_boundries = (
+    list(range(100, 1000, 100))
+    + list(range(1000, 10000, 1000))
+    + list(range(10000, 100000, 5000))
+)
 
 
 def pick_sample(total_occurences, report_type=None):
@@ -70,9 +72,9 @@ def pick_sample(total_occurences, report_type=None):
 
 @celery.task(queue="default", default_retry_delay=1, max_retries=2)
 def test_exception_task():
-    log.error('test celery log', extra={'location': 'celery'})
-    log.warning('test celery log', extra={'location': 'celery'})
-    raise Exception('Celery exception test')
+    log.error("test celery log", extra={"location": "celery"})
+    log.warning("test celery log", extra={"location": "celery"})
+    raise Exception("Celery exception test")
 
 
 @celery.task(queue="default", default_retry_delay=1, max_retries=2)
@@ -81,9 +83,9 @@ def test_retry_exception_task():
         import time
 
         time.sleep(1.3)
-        log.error('test retry celery log', extra={'location': 'celery'})
-        log.warning('test retry celery log', extra={'location': 'celery'})
-        raise Exception('Celery exception test')
+        log.error("test retry celery log", extra={"location": "celery"})
+        log.warning("test retry celery log", extra={"location": "celery"})
+        raise Exception("Celery exception test")
     except Exception as exc:
         if celery.conf["CELERY_EAGER_PROPAGATES_EXCEPTIONS"]:
             raise
@@ -92,7 +94,7 @@ def test_retry_exception_task():
 
 @celery.task(queue="reports", default_retry_delay=600, max_retries=144)
 def add_reports(resource_id, request_params, dataset, **kwargs):
-    proto_version = parse_proto(request_params.get('protocol_version', ''))
+    proto_version = parse_proto(request_params.get("protocol_version", ""))
     current_time = datetime.utcnow().replace(second=0, microsecond=0)
     try:
         # we will store solr docs here for single insert
@@ -114,22 +116,26 @@ def add_reports(resource_id, request_params, dataset, **kwargs):
             report_group = ReportGroupService.by_hash_and_resource(
                 report.resource_id,
                 report.grouping_hash,
-                since_when=datetime.utcnow().date().replace(day=1)
+                since_when=datetime.utcnow().date().replace(day=1),
             )
-            occurences = report_data.get('occurences', 1)
+            occurences = report_data.get("occurences", 1)
             if not report_group:
                 # total reports will be +1 moment later
-                report_group = ReportGroup(grouping_hash=report.grouping_hash,
-                                           occurences=0, total_reports=0,
-                                           last_report=0,
-                                           priority=report.priority,
-                                           error=report.error,
-                                           first_timestamp=report.start_time)
+                report_group = ReportGroup(
+                    grouping_hash=report.grouping_hash,
+                    occurences=0,
+                    total_reports=0,
+                    last_report=0,
+                    priority=report.priority,
+                    error=report.error,
+                    first_timestamp=report.start_time,
+                )
                 report_group._skip_ft_index = True
                 report_group.report_type = report.report_type
             report.report_group_time = report_group.first_timestamp
-            add_sample = pick_sample(report_group.occurences,
-                                     report_type=report_group.report_type)
+            add_sample = pick_sample(
+                report_group.occurences, report_type=report_group.report_type
+            )
             if add_sample:
                 resource.report_groups.append(report_group)
                 report_group.reports.append(report)
@@ -144,28 +150,26 @@ def add_reports(resource_id, request_params, dataset, **kwargs):
                 for s_call in slow_calls:
                     if s_call.partition_id not in es_slow_calls_docs:
                         es_slow_calls_docs[s_call.partition_id] = []
-                    es_slow_calls_docs[s_call.partition_id].append(
-                        s_call.es_doc())
+                    es_slow_calls_docs[s_call.partition_id].append(s_call.es_doc())
                     # try generating new stat rows if needed
             else:
                 # required for postprocessing to not fail later
                 report.report_group = report_group
 
-            stat_row = ReportService.generate_stat_rows(
-                report, resource, report_group)
+            stat_row = ReportService.generate_stat_rows(report, resource, report_group)
             if stat_row.partition_id not in es_reports_stats_rows:
                 es_reports_stats_rows[stat_row.partition_id] = []
-            es_reports_stats_rows[stat_row.partition_id].append(
-                stat_row.es_doc())
+            es_reports_stats_rows[stat_row.partition_id].append(stat_row.es_doc())
 
             # see if we should mark 10th occurence of report
             last_occurences_10 = int(math.floor(report_group.occurences / 10))
-            curr_occurences_10 = int(math.floor(
-                (report_group.occurences + report.occurences) / 10))
-            last_occurences_100 = int(
-                math.floor(report_group.occurences / 100))
-            curr_occurences_100 = int(math.floor(
-                (report_group.occurences + report.occurences) / 100))
+            curr_occurences_10 = int(
+                math.floor((report_group.occurences + report.occurences) / 10)
+            )
+            last_occurences_100 = int(math.floor(report_group.occurences / 100))
+            curr_occurences_100 = int(
+                math.floor((report_group.occurences + report.occurences) / 100)
+            )
             notify_occurences_10 = last_occurences_10 != curr_occurences_10
             notify_occurences_100 = last_occurences_100 != curr_occurences_100
             report_group.occurences = ReportGroup.occurences + occurences
@@ -178,39 +182,47 @@ def add_reports(resource_id, request_params, dataset, **kwargs):
             if added_details:
                 report_group.total_reports = ReportGroup.total_reports + 1
                 report_group.last_report = report.id
-            report_group.set_notification_info(notify_10=notify_occurences_10,
-                                               notify_100=notify_occurences_100)
+            report_group.set_notification_info(
+                notify_10=notify_occurences_10, notify_100=notify_occurences_100
+            )
             DBSession.flush()
             report_group.get_report().notify_channel(report_group)
             if report_group.partition_id not in es_report_group_docs:
                 es_report_group_docs[report_group.partition_id] = []
             es_report_group_docs[report_group.partition_id].append(
-                report_group.es_doc())
+                report_group.es_doc()
+            )
 
-            action = 'REPORT'
-            log_msg = '%s: %s %s, client: %s, proto: %s' % (
+            action = "REPORT"
+            log_msg = "%s: %s %s, client: %s, proto: %s" % (
                 action,
-                report_data.get('http_status', 'unknown'),
+                report_data.get("http_status", "unknown"),
                 str(resource),
-                report_data.get('client'),
-                proto_version)
+                report_data.get("client"),
+                proto_version,
+            )
             log.info(log_msg)
         total_reports = len(dataset)
         redis_pipeline = Datastores.redis.pipeline(transaction=False)
-        key = REDIS_KEYS['counters']['reports_per_minute'].format(current_time)
+        key = REDIS_KEYS["counters"]["reports_per_minute"].format(current_time)
         redis_pipeline.incr(key, total_reports)
         redis_pipeline.expire(key, 3600 * 24)
-        key = REDIS_KEYS['counters']['events_per_minute_per_user'].format(
-            resource.owner_user_id, current_time)
+        key = REDIS_KEYS["counters"]["events_per_minute_per_user"].format(
+            resource.owner_user_id, current_time
+        )
         redis_pipeline.incr(key, total_reports)
         redis_pipeline.expire(key, 3600)
-        key = REDIS_KEYS['counters']['reports_per_hour_per_app'].format(
-            resource_id, current_time.replace(minute=0))
+        key = REDIS_KEYS["counters"]["reports_per_hour_per_app"].format(
+            resource_id, current_time.replace(minute=0)
+        )
         redis_pipeline.incr(key, total_reports)
         redis_pipeline.expire(key, 3600 * 24 * 7)
         redis_pipeline.sadd(
-            REDIS_KEYS['apps_that_got_new_data_per_hour'].format(
-                current_time.replace(minute=0)), resource_id)
+            REDIS_KEYS["apps_that_got_new_data_per_hour"].format(
+                current_time.replace(minute=0)
+            ),
+            resource_id,
+        )
         redis_pipeline.execute()
 
         add_reports_es(es_report_group_docs, es_report_docs)
@@ -227,11 +239,11 @@ def add_reports(resource_id, request_params, dataset, **kwargs):
 @celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_reports_es(report_group_docs, report_docs):
     for k, v in report_group_docs.items():
-        to_update = {'_index': k, '_type': 'report_group'}
+        to_update = {"_index": k, "_type": "report_group"}
         [i.update(to_update) for i in v]
         elasticsearch.helpers.bulk(Datastores.es, v)
     for k, v in report_docs.items():
-        to_update = {'_index': k, '_type': 'report'}
+        to_update = {"_index": k, "_type": "report"}
         [i.update(to_update) for i in v]
         elasticsearch.helpers.bulk(Datastores.es, v)
 
@@ -239,7 +251,7 @@ def add_reports_es(report_group_docs, report_docs):
 @celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_reports_slow_calls_es(es_docs):
     for k, v in es_docs.items():
-        to_update = {'_index': k, '_type': 'log'}
+        to_update = {"_index": k, "_type": "log"}
         [i.update(to_update) for i in v]
         elasticsearch.helpers.bulk(Datastores.es, v)
 
@@ -247,14 +259,14 @@ def add_reports_slow_calls_es(es_docs):
 @celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_reports_stats_rows_es(es_docs):
     for k, v in es_docs.items():
-        to_update = {'_index': k, '_type': 'log'}
+        to_update = {"_index": k, "_type": "log"}
         [i.update(to_update) for i in v]
         elasticsearch.helpers.bulk(Datastores.es, v)
 
 
 @celery.task(queue="logs", default_retry_delay=600, max_retries=144)
 def add_logs(resource_id, request_params, dataset, **kwargs):
-    proto_version = request_params.get('protocol_version')
+    proto_version = request_params.get("protocol_version")
     current_time = datetime.utcnow().replace(second=0, microsecond=0)
 
     try:
@@ -264,16 +276,15 @@ def add_logs(resource_id, request_params, dataset, **kwargs):
         ns_pairs = []
         for entry in dataset:
             # gather pk and ns so we can remove older versions of row later
-            if entry['primary_key'] is not None:
-                ns_pairs.append({"pk": entry['primary_key'],
-                                 "ns": entry['namespace']})
+            if entry["primary_key"] is not None:
+                ns_pairs.append({"pk": entry["primary_key"], "ns": entry["namespace"]})
             log_entry = Log()
             log_entry.set_data(entry, resource=resource)
             log_entry._skip_ft_index = True
             resource.logs.append(log_entry)
             DBSession.flush()
             # insert non pk rows first
-            if entry['primary_key'] is None:
+            if entry["primary_key"] is None:
                 es_docs[log_entry.partition_id].append(log_entry.es_doc())
 
         # 2nd pass to delete all log entries from db foe same pk/ns pair
@@ -282,7 +293,8 @@ def add_logs(resource_id, request_params, dataset, **kwargs):
             es_docs = collections.defaultdict(list)
             es_docs_to_delete = collections.defaultdict(list)
             found_pkey_logs = LogService.query_by_primary_key_and_namespace(
-                list_of_pairs=ns_pairs)
+                list_of_pairs=ns_pairs
+            )
             log_dict = {}
             for log_entry in found_pkey_logs:
                 log_key = (log_entry.primary_key, log_entry.namespace)
@@ -299,51 +311,58 @@ def add_logs(resource_id, request_params, dataset, **kwargs):
                     ids_to_delete.append(e.log_id)
                     es_docs_to_delete[e.partition_id].append(e.delete_hash)
 
-                es_docs_to_delete[log_entry.partition_id].append(
-                    log_entry.delete_hash)
+                es_docs_to_delete[log_entry.partition_id].append(log_entry.delete_hash)
 
                 es_docs[log_entry.partition_id].append(log_entry.es_doc())
 
             if ids_to_delete:
-                query = DBSession.query(Log).filter(
-                    Log.log_id.in_(ids_to_delete))
+                query = DBSession.query(Log).filter(Log.log_id.in_(ids_to_delete))
                 query.delete(synchronize_session=False)
             if es_docs_to_delete:
                 # batch this to avoid problems with default ES bulk limits
                 for es_index in es_docs_to_delete.keys():
                     for batch in in_batches(es_docs_to_delete[es_index], 20):
-                        query = {"query": {'terms': {'delete_hash': batch}}}
+                        query = {"query": {"terms": {"delete_hash": batch}}}
 
                         try:
                             Datastores.es.transport.perform_request(
-                                "DELETE", '/{}/{}/_query'.format(es_index, 'log'), body=query)
+                                "DELETE",
+                                "/{}/{}/_query".format(es_index, "log"),
+                                body=query,
+                            )
                         except elasticsearch.exceptions.NotFoundError as exc:
-                            msg = 'skipping index {}'.format(es_index)
+                            msg = "skipping index {}".format(es_index)
                             log.info(msg)
 
         total_logs = len(dataset)
 
-        log_msg = 'LOG_NEW: %s, entries: %s, proto:%s' % (
+        log_msg = "LOG_NEW: %s, entries: %s, proto:%s" % (
             str(resource),
             total_logs,
-            proto_version)
+            proto_version,
+        )
         log.info(log_msg)
         # mark_changed(session)
         redis_pipeline = Datastores.redis.pipeline(transaction=False)
-        key = REDIS_KEYS['counters']['logs_per_minute'].format(current_time)
+        key = REDIS_KEYS["counters"]["logs_per_minute"].format(current_time)
         redis_pipeline.incr(key, total_logs)
         redis_pipeline.expire(key, 3600 * 24)
-        key = REDIS_KEYS['counters']['events_per_minute_per_user'].format(
-            resource.owner_user_id, current_time)
+        key = REDIS_KEYS["counters"]["events_per_minute_per_user"].format(
+            resource.owner_user_id, current_time
+        )
         redis_pipeline.incr(key, total_logs)
         redis_pipeline.expire(key, 3600)
-        key = REDIS_KEYS['counters']['logs_per_hour_per_app'].format(
-            resource_id, current_time.replace(minute=0))
+        key = REDIS_KEYS["counters"]["logs_per_hour_per_app"].format(
+            resource_id, current_time.replace(minute=0)
+        )
         redis_pipeline.incr(key, total_logs)
         redis_pipeline.expire(key, 3600 * 24 * 7)
         redis_pipeline.sadd(
-            REDIS_KEYS['apps_that_got_new_data_per_hour'].format(
-                current_time.replace(minute=0)), resource_id)
+            REDIS_KEYS["apps_that_got_new_data_per_hour"].format(
+                current_time.replace(minute=0)
+            ),
+            resource_id,
+        )
         redis_pipeline.execute()
         add_logs_es(es_docs)
         return True
@@ -357,7 +376,7 @@ def add_logs(resource_id, request_params, dataset, **kwargs):
 @celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_logs_es(es_docs):
     for k, v in es_docs.items():
-        to_update = {'_index': k, '_type': 'log'}
+        to_update = {"_index": k, "_type": "log"}
         [i.update(to_update) for i in v]
         elasticsearch.helpers.bulk(Datastores.es, v)
 
@@ -371,45 +390,51 @@ def add_metrics(resource_id, request_params, dataset, proto_version):
         es_docs = []
         rows = []
         for metric in dataset:
-            tags = dict(metric['tags'])
-            server_n = tags.get('server_name', metric['server_name']).lower()
-            tags['server_name'] = server_n or 'unknown'
+            tags = dict(metric["tags"])
+            server_n = tags.get("server_name", metric["server_name"]).lower()
+            tags["server_name"] = server_n or "unknown"
             new_metric = Metric(
-                timestamp=metric['timestamp'],
+                timestamp=metric["timestamp"],
                 resource_id=resource.resource_id,
-                namespace=metric['namespace'],
-                tags=tags)
+                namespace=metric["namespace"],
+                tags=tags,
+            )
             rows.append(new_metric)
             es_docs.append(new_metric.es_doc())
         session = DBSession()
         session.bulk_save_objects(rows)
         session.flush()
 
-        action = 'METRICS'
-        metrics_msg = '%s: %s, metrics: %s, proto:%s' % (
+        action = "METRICS"
+        metrics_msg = "%s: %s, metrics: %s, proto:%s" % (
             action,
             str(resource),
             len(dataset),
-            proto_version
+            proto_version,
         )
         log.info(metrics_msg)
 
         mark_changed(session)
         redis_pipeline = Datastores.redis.pipeline(transaction=False)
-        key = REDIS_KEYS['counters']['metrics_per_minute'].format(current_time)
+        key = REDIS_KEYS["counters"]["metrics_per_minute"].format(current_time)
         redis_pipeline.incr(key, len(rows))
         redis_pipeline.expire(key, 3600 * 24)
-        key = REDIS_KEYS['counters']['events_per_minute_per_user'].format(
-            resource.owner_user_id, current_time)
+        key = REDIS_KEYS["counters"]["events_per_minute_per_user"].format(
+            resource.owner_user_id, current_time
+        )
         redis_pipeline.incr(key, len(rows))
         redis_pipeline.expire(key, 3600)
-        key = REDIS_KEYS['counters']['metrics_per_hour_per_app'].format(
-            resource_id, current_time.replace(minute=0))
+        key = REDIS_KEYS["counters"]["metrics_per_hour_per_app"].format(
+            resource_id, current_time.replace(minute=0)
+        )
         redis_pipeline.incr(key, len(rows))
         redis_pipeline.expire(key, 3600 * 24 * 7)
         redis_pipeline.sadd(
-            REDIS_KEYS['apps_that_got_new_data_per_hour'].format(
-                current_time.replace(minute=0)), resource_id)
+            REDIS_KEYS["apps_that_got_new_data_per_hour"].format(
+                current_time.replace(minute=0)
+            ),
+            resource_id,
+        )
         redis_pipeline.execute()
         add_metrics_es(es_docs)
         return True
@@ -423,8 +448,8 @@ def add_metrics(resource_id, request_params, dataset, proto_version):
 @celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_metrics_es(es_docs):
     for doc in es_docs:
-        partition = 'rcae_m_%s' % doc['timestamp'].strftime('%Y_%m_%d')
-        Datastores.es.index(partition, 'log', doc)
+        partition = "rcae_m_%s" % doc["timestamp"].strftime("%Y_%m_%d")
+        Datastores.es.index(partition, "log", doc)
 
 
 @celery.task(queue="default", default_retry_delay=5, max_retries=2)
@@ -435,10 +460,12 @@ def check_user_report_notifications(resource_id):
         application = ApplicationService.by_id(resource_id)
         if not application:
             return
-        error_key = REDIS_KEYS['reports_to_notify_per_type_per_app'].format(
-            ReportType.error, resource_id)
-        slow_key = REDIS_KEYS['reports_to_notify_per_type_per_app'].format(
-            ReportType.slow, resource_id)
+        error_key = REDIS_KEYS["reports_to_notify_per_type_per_app"].format(
+            ReportType.error, resource_id
+        )
+        slow_key = REDIS_KEYS["reports_to_notify_per_type_per_app"].format(
+            ReportType.slow, resource_id
+        )
         error_group_ids = Datastores.redis.smembers(error_key)
         slow_group_ids = Datastores.redis.smembers(slow_key)
         Datastores.redis.delete(error_key)
@@ -448,8 +475,7 @@ def check_user_report_notifications(resource_id):
         group_ids = err_gids + slow_gids
         occurence_dict = {}
         for g_id in group_ids:
-            key = REDIS_KEYS['counters']['report_group_occurences'].format(
-                g_id)
+            key = REDIS_KEYS["counters"]["report_group_occurences"].format(g_id)
             val = Datastores.redis.get(key)
             Datastores.redis.delete(key)
             if val:
@@ -460,14 +486,23 @@ def check_user_report_notifications(resource_id):
         report_groups.options(sa.orm.joinedload(ReportGroup.last_report_ref))
 
         ApplicationService.check_for_groups_alert(
-            application, 'alert', report_groups=report_groups,
-            occurence_dict=occurence_dict)
-        users = set([p.user for p in ResourceService.users_for_perm(application, 'view')])
+            application,
+            "alert",
+            report_groups=report_groups,
+            occurence_dict=occurence_dict,
+        )
+        users = set(
+            [p.user for p in ResourceService.users_for_perm(application, "view")]
+        )
         report_groups = report_groups.all()
         for user in users:
-            UserService.report_notify(user, request, application,
-                                      report_groups=report_groups,
-                                      occurence_dict=occurence_dict)
+            UserService.report_notify(
+                user,
+                request,
+                application,
+                report_groups=report_groups,
+                occurence_dict=occurence_dict,
+            )
         for group in report_groups:
             # marks report_groups as notified
             if not group.notified:
@@ -485,12 +520,12 @@ def check_alerts(resource_id):
         application = ApplicationService.by_id(resource_id)
         if not application:
             return
-        error_key = REDIS_KEYS[
-            'reports_to_notify_per_type_per_app_alerting'].format(
-            ReportType.error, resource_id)
-        slow_key = REDIS_KEYS[
-            'reports_to_notify_per_type_per_app_alerting'].format(
-            ReportType.slow, resource_id)
+        error_key = REDIS_KEYS["reports_to_notify_per_type_per_app_alerting"].format(
+            ReportType.error, resource_id
+        )
+        slow_key = REDIS_KEYS["reports_to_notify_per_type_per_app_alerting"].format(
+            ReportType.slow, resource_id
+        )
         error_group_ids = Datastores.redis.smembers(error_key)
         slow_group_ids = Datastores.redis.smembers(slow_key)
         Datastores.redis.delete(error_key)
@@ -500,9 +535,9 @@ def check_alerts(resource_id):
         group_ids = err_gids + slow_gids
         occurence_dict = {}
         for g_id in group_ids:
-            key = REDIS_KEYS['counters'][
-                'report_group_occurences_alerting'].format(
-                g_id)
+            key = REDIS_KEYS["counters"]["report_group_occurences_alerting"].format(
+                g_id
+            )
             val = Datastores.redis.get(key)
             Datastores.redis.delete(key)
             if val:
@@ -513,8 +548,12 @@ def check_alerts(resource_id):
         report_groups.options(sa.orm.joinedload(ReportGroup.last_report_ref))
 
         ApplicationService.check_for_groups_alert(
-            application, 'alert', report_groups=report_groups,
-            occurence_dict=occurence_dict, since_when=since_when)
+            application,
+            "alert",
+            report_groups=report_groups,
+            occurence_dict=occurence_dict,
+            since_when=since_when,
+        )
     except Exception as exc:
         print_traceback(log)
         raise
@@ -522,21 +561,21 @@ def check_alerts(resource_id):
 
 @celery.task(queue="default", default_retry_delay=1, max_retries=2)
 def close_alerts():
-    log.warning('Checking alerts')
+    log.warning("Checking alerts")
     since_when = datetime.utcnow()
     try:
-        event_types = [Event.types['error_report_alert'],
-                       Event.types['slow_report_alert'], ]
-        statuses = [Event.statuses['active']]
+        event_types = [
+            Event.types["error_report_alert"],
+            Event.types["slow_report_alert"],
+        ]
+        statuses = [Event.statuses["active"]]
         # get events older than 5 min
         events = EventService.by_type_and_status(
-            event_types,
-            statuses,
-            older_than=(since_when - timedelta(minutes=5)))
+            event_types, statuses, older_than=(since_when - timedelta(minutes=5))
+        )
         for event in events:
             # see if we can close them
-            event.validate_or_close(
-                since_when=(since_when - timedelta(minutes=1)))
+            event.validate_or_close(since_when=(since_when - timedelta(minutes=1)))
     except Exception as exc:
         print_traceback(log)
         raise
@@ -545,12 +584,18 @@ def close_alerts():
 @celery.task(queue="default", default_retry_delay=600, max_retries=144)
 def update_tag_counter(tag_name, tag_value, count):
     try:
-        query = DBSession.query(Tag).filter(Tag.name == tag_name).filter(
-            sa.cast(Tag.value, sa.types.TEXT) == sa.cast(json.dumps(tag_value),
-                                                         sa.types.TEXT))
-        query.update({'times_seen': Tag.times_seen + count,
-                      'last_timestamp': datetime.utcnow()},
-                     synchronize_session=False)
+        query = (
+            DBSession.query(Tag)
+            .filter(Tag.name == tag_name)
+            .filter(
+                sa.cast(Tag.value, sa.types.TEXT)
+                == sa.cast(json.dumps(tag_value), sa.types.TEXT)
+            )
+        )
+        query.update(
+            {"times_seen": Tag.times_seen + count, "last_timestamp": datetime.utcnow()},
+            synchronize_session=False,
+        )
         session = DBSession()
         mark_changed(session)
         return True
@@ -566,8 +611,8 @@ def update_tag_counters():
     """
     Sets task to update counters for application tags
     """
-    tags = Datastores.redis.lrange(REDIS_KEYS['seen_tag_list'], 0, -1)
-    Datastores.redis.delete(REDIS_KEYS['seen_tag_list'])
+    tags = Datastores.redis.lrange(REDIS_KEYS["seen_tag_list"], 0, -1)
+    Datastores.redis.delete(REDIS_KEYS["seen_tag_list"])
     c = collections.Counter(tags)
     for t_json, count in c.items():
         tag_info = json.loads(t_json)
@@ -580,28 +625,34 @@ def daily_digest():
     Sends daily digest with top 50 error reports
     """
     request = get_current_request()
-    apps = Datastores.redis.smembers(REDIS_KEYS['apps_that_had_reports'])
-    Datastores.redis.delete(REDIS_KEYS['apps_that_had_reports'])
+    apps = Datastores.redis.smembers(REDIS_KEYS["apps_that_had_reports"])
+    Datastores.redis.delete(REDIS_KEYS["apps_that_had_reports"])
     since_when = datetime.utcnow() - timedelta(hours=8)
-    log.warning('Generating daily digests')
+    log.warning("Generating daily digests")
     for resource_id in apps:
-        resource_id = resource_id.decode('utf8')
+        resource_id = resource_id.decode("utf8")
         end_date = datetime.utcnow().replace(microsecond=0, second=0)
-        filter_settings = {'resource': [resource_id],
-                           'tags': [{'name': 'type',
-                                     'value': ['error'], 'op': None}],
-                           'type': 'error', 'start_date': since_when,
-                           'end_date': end_date}
+        filter_settings = {
+            "resource": [resource_id],
+            "tags": [{"name": "type", "value": ["error"], "op": None}],
+            "type": "error",
+            "start_date": since_when,
+            "end_date": end_date,
+        }
 
         reports = ReportGroupService.get_trending(
-            request, filter_settings=filter_settings, limit=50)
+            request, filter_settings=filter_settings, limit=50
+        )
 
         application = ApplicationService.by_id(resource_id)
         if application:
-            users = set([p.user for p in ResourceService.users_for_perm(application, 'view')])
+            users = set(
+                [p.user for p in ResourceService.users_for_perm(application, "view")]
+            )
             for user in users:
-                user.send_digest(request, application, reports=reports,
-                                 since_when=since_when)
+                user.send_digest(
+                    request, application, reports=reports, since_when=since_when
+                )
 
 
 @celery.task(queue="default")
@@ -610,11 +661,12 @@ def notifications_reports():
     Loop that checks redis for info and then issues new tasks to celery to
     issue notifications
     """
-    apps = Datastores.redis.smembers(REDIS_KEYS['apps_that_had_reports'])
-    Datastores.redis.delete(REDIS_KEYS['apps_that_had_reports'])
+    apps = Datastores.redis.smembers(REDIS_KEYS["apps_that_had_reports"])
+    Datastores.redis.delete(REDIS_KEYS["apps_that_had_reports"])
     for app in apps:
-        log.warning('Notify for app: %s' % app)
-        check_user_report_notifications.delay(app.decode('utf8'))
+        log.warning("Notify for app: %s" % app)
+        check_user_report_notifications.delay(app.decode("utf8"))
+
 
 @celery.task(queue="default")
 def alerting_reports():
@@ -624,34 +676,33 @@ def alerting_reports():
     - which applications should have new alerts opened
     """
 
-    apps = Datastores.redis.smembers(REDIS_KEYS['apps_that_had_reports_alerting'])
-    Datastores.redis.delete(REDIS_KEYS['apps_that_had_reports_alerting'])
+    apps = Datastores.redis.smembers(REDIS_KEYS["apps_that_had_reports_alerting"])
+    Datastores.redis.delete(REDIS_KEYS["apps_that_had_reports_alerting"])
     for app in apps:
-        log.warning('Notify for app: %s' % app)
-        check_alerts.delay(app.decode('utf8'))
+        log.warning("Notify for app: %s" % app)
+        check_alerts.delay(app.decode("utf8"))
 
 
-@celery.task(queue="default", soft_time_limit=3600 * 4,
-             hard_time_limit=3600 * 4, max_retries=144)
+@celery.task(
+    queue="default", soft_time_limit=3600 * 4, hard_time_limit=3600 * 4, max_retries=144
+)
 def logs_cleanup(resource_id, filter_settings):
     request = get_current_request()
     request.tm.begin()
     es_query = {
         "query": {
-            "filtered": {
-                "filter": {
-                    "and": [{"term": {"resource_id": resource_id}}]
-                }
-            }
+            "filtered": {"filter": {"and": [{"term": {"resource_id": resource_id}}]}}
         }
     }
 
     query = DBSession.query(Log).filter(Log.resource_id == resource_id)
-    if filter_settings['namespace']:
-        query = query.filter(Log.namespace == filter_settings['namespace'][0])
-        es_query['query']['filtered']['filter']['and'].append(
-            {"term": {"namespace": filter_settings['namespace'][0]}}
+    if filter_settings["namespace"]:
+        query = query.filter(Log.namespace == filter_settings["namespace"][0])
+        es_query["query"]["filtered"]["filter"]["and"].append(
+            {"term": {"namespace": filter_settings["namespace"][0]}}
         )
     query.delete(synchronize_session=False)
     request.tm.commit()
-    Datastores.es.transport.perform_request("DELETE", '/{}/{}/_query'.format('rcae_l_*', 'log'), body=es_query)
+    Datastores.es.transport.perform_request(
+        "DELETE", "/{}/{}/_query".format("rcae_l_*", "log"), body=es_query
+    )
