@@ -691,14 +691,14 @@ def logs_cleanup(resource_id, filter_settings):
     request.tm.begin()
     es_query = {
         "query": {
-            "filtered": {"filter": {"and": [{"term": {"resource_id": resource_id}}]}}
+            "bool": {"filter": {"and": [{"term": {"resource_id": resource_id}}]}}
         }
     }
 
     query = DBSession.query(Log).filter(Log.resource_id == resource_id)
     if filter_settings["namespace"]:
         query = query.filter(Log.namespace == filter_settings["namespace"][0])
-        es_query["query"]["filtered"]["filter"]["and"].append(
+        es_query["query"]["bool"]["filter"]["and"].append(
             {"term": {"namespace": filter_settings["namespace"][0]}}
         )
     query.delete(synchronize_session=False)

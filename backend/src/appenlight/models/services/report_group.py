@@ -74,7 +74,7 @@ class ReportGroupService(BaseService):
                 }
             },
             "query": {
-                "filtered": {
+                "bool": {
                     "filter": {
                         "and": [
                             {
@@ -96,7 +96,7 @@ class ReportGroupService(BaseService):
             },
         }
         if tags:
-            es_query["query"]["filtered"]["filter"]["and"].extend(tags)
+            es_query["query"]["bool"]["filter"]["and"].extend(tags)
 
         result = Datastores.es.search(
             body=es_query, index=index_names, doc_type="log", size=0
@@ -135,7 +135,9 @@ class ReportGroupService(BaseService):
         query = {
             "size": 0,
             "query": {
-                "filtered": {
+                "bool": {
+                    "must": [],
+                    "should": [],
                     "filter": {"and": [{"terms": {"resource_id": list(app_ids)}}]}
                 }
             },
@@ -158,7 +160,7 @@ class ReportGroupService(BaseService):
 
         start_date = filter_settings.get("start_date")
         end_date = filter_settings.get("end_date")
-        filter_part = query["query"]["filtered"]["filter"]["and"]
+        filter_part = query["query"]["bool"]["filter"]["and"]
         date_range = {"range": {"start_time": {}}}
         if start_date:
             date_range["range"]["start_time"]["gte"] = start_date
@@ -224,19 +226,19 @@ class ReportGroupService(BaseService):
         messages = filter_settings.get("message")
         if messages:
             condition = {"match": {"message": " ".join(messages)}}
-            query["query"]["filtered"]["query"] = condition
+            query["query"]["bool"]["must"].append(condition)
         errors = filter_settings.get("error")
         if errors:
             condition = {"match": {"error": " ".join(errors)}}
-            query["query"]["filtered"]["query"] = condition
+            query["query"]["bool"]["must"].append(condition)
         url_domains = filter_settings.get("url_domain")
         if url_domains:
             condition = {"terms": {"url_domain": url_domains}}
-            query["query"]["filtered"]["query"] = condition
+            query["query"]["bool"]["must"].append(condition)
         url_paths = filter_settings.get("url_path")
         if url_paths:
             condition = {"terms": {"url_path": url_paths}}
-            query["query"]["filtered"]["query"] = condition
+            query["query"]["bool"]["must"].append(condition)
 
         if filter_settings.get("report_status"):
             for status in filter_settings.get("report_status"):
@@ -464,7 +466,7 @@ class ReportGroupService(BaseService):
                 }
             },
             "query": {
-                "filtered": {
+                "bool": {
                     "filter": {
                         "and": [
                             {

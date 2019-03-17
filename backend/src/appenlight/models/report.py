@@ -311,7 +311,7 @@ class Report(Base, BaseModel):
         query = {
             "size": 1,
             "query": {
-                "filtered": {
+                "bool": {
                     "filter": {
                         "and": [
                             {"term": {"group_id": self.group_id}},
@@ -332,7 +332,7 @@ class Report(Base, BaseModel):
         query = {
             "size": 1,
             "query": {
-                "filtered": {
+                "bool": {
                     "filter": {
                         "and": [
                             {"term": {"group_id": self.group_id}},

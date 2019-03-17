@@ -42,7 +42,7 @@ class ReportStatService(BaseService):
                 }
             },
             "query": {
-                "filtered": {
+                "bool": {
                     "filter": {
                         "and": [
                             {"terms": {"resource_id": [resource_id]}},

@@ -140,7 +140,7 @@ class RequestMetricService(BaseService):
                 }
             },
             "query": {
-                "filtered": {
+                "bool": {
                     "filter": {
                         "and": [
                             {
@@ -208,7 +208,7 @@ class RequestMetricService(BaseService):
                     }
                 },
                 "query": {
-                    "filtered": {
+                    "bool": {
                         "filter": {
                             "and": [
                                 {
@@ -287,7 +287,7 @@ class RequestMetricService(BaseService):
                     }
                 },
                 "query": {
-                    "filtered": {
+                    "bool": {
                         "filter": {
                             "and": [
                                 {
@@ -331,7 +331,7 @@ class RequestMetricService(BaseService):
                     },
                 }
             },
-            "query": {"filtered": {"filter": {"and": and_part}}},
+            "query": {"bool": {"filter": {"and": and_part}}},
         }
         details = {}
         index_names = es_index_name_limiter(ixtypes=["reports"])
@@ -461,7 +461,7 @@ class RequestMetricService(BaseService):
                     }
                 },
                 "query": {
-                    "filtered": {
+                    "bool": {
                         "filter": {
                             "and": [
                                 {
@@ -540,7 +540,7 @@ class RequestMetricService(BaseService):
                     }
                 },
                 "query": {
-                    "filtered": {
+                    "bool": {
                         "filter": {
                             "and": [
                                 {

@@ -67,7 +67,7 @@ class SlowCallService(BaseService):
                     }
                 },
                 "query": {
-                    "filtered": {
+                    "bool": {
                         "filter": {
                             "and": [
                                 {
@@ -109,7 +109,7 @@ class SlowCallService(BaseService):
                 }
             },
             "query": {
-                "filtered": {
+                "bool": {
                     "filter": {
                         "and": [
                             {
