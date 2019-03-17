@@ -546,3 +546,13 @@ def in_batches(seq, size):
     :param size integer
     """
     return (seq[pos : pos + size] for pos in range(0, len(seq), size))
+
+
+def get_es_info(cache_regions, es_conn):
+    @cache_regions.memory_min_10.cache_on_arguments()
+    def get_es_info_cached():
+        returned_info = {"raw_info": es_conn.info()}
+        returned_info["version"] = returned_info["raw_info"]["version"]["number"].split('.')
+        return returned_info
+
+    return get_es_info_cached()
