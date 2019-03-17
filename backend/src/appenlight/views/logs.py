@@ -198,14 +198,17 @@ def common_values(request):
     filter_settings = build_filter_settings_from_query_dict(request, config)
     resources = list(filter_settings["resource"])
     tag_name = filter_settings["tags"][0]["value"][0]
+
+    and_part = [
+        {"terms": {"resource_id": list(resources)}},
+    ]
+    if filter_settings["namespace"]:
+        and_part.append({"terms": {"namespace": filter_settings["namespace"]}})
     query = {
         "query": {
             "filtered": {
                 "filter": {
-                    "and": [
-                        {"terms": {"resource_id": list(resources)}},
-                        {"terms": {"namespace": filter_settings["namespace"]}},
-                    ]
+                    "and": and_part
                 }
             }
         }
