@@ -181,7 +181,7 @@ class Report(Base, BaseModel):
         request_data = data.get("request", {})
 
         self.request = request_data
-        self.request_stats = data.get("request_stats", {})
+        self.request_stats = data.get("request_stats") or {}
         traceback = data.get("traceback")
         if not traceback:
             traceback = data.get("frameinfo")
