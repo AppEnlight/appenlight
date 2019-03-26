@@ -271,14 +271,12 @@ def after_update(mapper, connection, target):
 def after_delete(mapper, connection, target):
     query = {"query": {"term": {"group_id": target.id}}}
     # delete by query
-    Datastores.es.transport.perform_request(
-        "DELETE", "/{}/{}/_query".format(target.partition_id, "report"), body=query
+    Datastores.es.delete_by_query(
+        index=target.partition_id, doc_type="report", body=query, conflicts="proceed"
     )
     query = {"query": {"term": {"pg_id": target.id}}}
-    Datastores.es.transport.perform_request(
-        "DELETE",
-        "/{}/{}/_query".format(target.partition_id, "report_group"),
-        body=query,
+    Datastores.es.delete_by_query(
+        index=target.partition_id, doc_type="report_group", body=query, conflicts="proceed"
     )
 
 

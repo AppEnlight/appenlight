@@ -235,6 +235,8 @@ class RequestMetricService(BaseService):
         script_text = "doc['tags.main.numeric_values'].value / {}".format(
             total_time_spent
         )
+        if total_time_spent == 0:
+            script_text = '0'
 
         if index_names and filter_settings["resource"]:
             es_query = {
@@ -255,7 +257,6 @@ class RequestMetricService(BaseService):
                                 "aggs": {
                                     "sub_agg": {
                                         "sum": {
-                                            "lang": "expression",
                                             "script": script_text,
                                         }
                                     }
@@ -276,7 +277,7 @@ class RequestMetricService(BaseService):
                             },
                         },
                         "terms": {
-                            "field": "tags.view_name.values",
+                            "field": "tags.view_name.values.keyword",
                             "order": {"percentage>sub_agg": "desc"},
                             "size": 15,
                         },
@@ -317,7 +318,7 @@ class RequestMetricService(BaseService):
         query = {
             "aggs": {
                 "top_reports": {
-                    "terms": {"field": "tags.view_name.values", "size": len(series)},
+                    "terms": {"field": "tags.view_name.values.keyword", "size": len(series)},
                     "aggs": {
                         "top_calls_hits": {
                             "top_hits": {"sort": {"start_time": "desc"}, "size": 5}
@@ -390,18 +391,20 @@ class RequestMetricService(BaseService):
                                     }
                                 },
                                 "filter": {
-                                    "and": [
-                                        {
-                                            "range": {
-                                                "tags.main.numeric_values": {"gte": "4"}
-                                            }
-                                        },
-                                        {
-                                            "exists": {
-                                                "field": "tags.requests.numeric_values"
-                                            }
-                                        },
-                                    ]
+                                    "bool": {
+                                        "filter": [
+                                            {
+                                                "range": {
+                                                    "tags.main.numeric_values": {"gte": "4"}
+                                                }
+                                            },
+                                            {
+                                                "exists": {
+                                                    "field": "tags.requests.numeric_values"
+                                                }
+                                            },
+                                        ]
+                                    }
                                 },
                             },
                             "main": {
@@ -431,7 +434,7 @@ class RequestMetricService(BaseService):
                                     }
                                 },
                                 "filter": {
-                                    "and": [
+                                    "bool": {"filter": [
                                         {
                                             "range": {
                                                 "tags.main.numeric_values": {"gte": "1"}
@@ -447,11 +450,11 @@ class RequestMetricService(BaseService):
                                                 "field": "tags.requests.numeric_values"
                                             }
                                         },
-                                    ]
+                                    ]}
                                 },
                             },
                         },
-                        "terms": {"field": "tags.server_name.values", "size": 999999},
+                        "terms": {"field": "tags.server_name.values.keyword", "size": 999999},
                     }
                 },
                 "query": {
@@ -517,18 +520,20 @@ class RequestMetricService(BaseService):
                                     }
                                 },
                                 "filter": {
-                                    "and": [
-                                        {"terms": {"tags.type.values": [report_type]}},
-                                        {
-                                            "exists": {
-                                                "field": "tags.occurences.numeric_values"
-                                            }
-                                        },
-                                    ]
+                                    "bool": {
+                                        "filter": [
+                                            {"terms": {"tags.type.values": [report_type]}},
+                                            {
+                                                "exists": {
+                                                    "field": "tags.occurences.numeric_values"
+                                                }
+                                            },
+                                        ]
+                                    }
                                 },
                             }
                         },
-                        "terms": {"field": "tags.server_name.values", "size": 999999},
+                        "terms": {"field": "tags.server_name.values.keyword", "size": 999999},
                     }
                 },
                 "query": {
@@ -586,10 +591,10 @@ class RequestMetricService(BaseService):
         server_stats = list(stats.values())
         for stat in server_stats:
             stat["satisfying_requests"] = (
-                stat["requests"]
-                - stat["errors"]
-                - stat["frustrating_requests"]
-                - stat["tolerated_requests"]
+                    stat["requests"]
+                    - stat["errors"]
+                    - stat["frustrating_requests"]
+                    - stat["tolerated_requests"]
             )
             if stat["satisfying_requests"] < 0:
                 stat["satisfying_requests"] = 0
@@ -599,7 +604,7 @@ class RequestMetricService(BaseService):
                     stat["response_time"] / stat["requests"], 3
                 )
                 qual_requests = (
-                    stat["satisfying_requests"] + stat["tolerated_requests"] / 2.0
+                        stat["satisfying_requests"] + stat["tolerated_requests"] / 2.0
                 )
                 stat["apdex"] = round((qual_requests / stat["requests"]) * 100, 2)
                 stat["rpm"] = round(stat["requests"] / stat["total_minutes"], 2)

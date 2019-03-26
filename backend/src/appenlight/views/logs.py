@@ -171,13 +171,13 @@ def common_tags(request):
     if namespaces:
         filter_part.append({"terms": {"namespace": namespaces}})
 
-    query["aggs"] = {"sub_agg": {"terms": {"field": "tag_list", "size": 50}}}
+    query["aggs"] = {"sub_agg": {"terms": {"field": "tag_list.keyword", "size": 50}}}
     # tags
     index_names = es_index_name_limiter(ixtypes=[config.get("datasource", "logs")])
     result = Datastores.es.search(body=query, index=index_names, doc_type="log", size=0)
     tag_buckets = result["aggregations"]["sub_agg"].get("buckets", [])
     # namespaces
-    query["aggs"] = {"sub_agg": {"terms": {"field": "namespace", "size": 50}}}
+    query["aggs"] = {"sub_agg": {"terms": {"field": "namespace.keyword", "size": 50}}}
     result = Datastores.es.search(body=query, index=index_names, doc_type="log", size=0)
     namespaces_buckets = result["aggregations"]["sub_agg"].get("buckets", [])
     return {

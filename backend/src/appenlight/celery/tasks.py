@@ -325,10 +325,9 @@ def add_logs(resource_id, request_params, dataset, **kwargs):
                         query = {"query": {"terms": {"delete_hash": batch}}}
 
                         try:
-                            Datastores.es.transport.perform_request(
-                                "DELETE",
-                                "/{}/{}/_query".format(es_index, "log"),
-                                body=query,
+                            Datastores.es.delete_by_query(
+                                index=es_index, doc_type="log",
+                                body=query, conflicts="proceed"
                             )
                         except elasticsearch.exceptions.NotFoundError as exc:
                             msg = "skipping index {}".format(es_index)
@@ -703,6 +702,6 @@ def logs_cleanup(resource_id, filter_settings):
         )
     query.delete(synchronize_session=False)
     request.tm.commit()
-    Datastores.es.transport.perform_request(
-        "DELETE", "/{}/{}/_query".format("rcae_l_*", "log"), body=es_query
+    Datastores.es.delete_by_query(
+        index="rcae_l_*",  doc_type="log", body=es_query, conflicts="proceed"
     )

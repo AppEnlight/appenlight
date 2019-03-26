@@ -64,13 +64,13 @@ class ReportGroupService(BaseService):
                         "groups": {
                             "aggs": {
                                 "sub_agg": {
-                                    "value_count": {"field": "tags.group_id.values"}
+                                    "value_count": {"field": "tags.group_id.values.keyword"}
                                 }
                             },
                             "filter": {"exists": {"field": "tags.group_id.values"}},
                         }
                     },
-                    "terms": {"field": "tags.group_id.values", "size": limit},
+                    "terms": {"field": "tags.group_id.values.keyword", "size": limit},
                 }
             },
             "query": {
@@ -143,7 +143,7 @@ class ReportGroupService(BaseService):
                 "top_groups": {
                     "terms": {
                         "size": 5000,
-                        "field": "_parent",
+                        "field": "_parent#report_group",
                         "order": {"newest": "desc"},
                     },
                     "aggs": {
@@ -445,10 +445,12 @@ class ReportGroupService(BaseService):
                     "aggs": {
                         "types": {
                             "aggs": {
-                                "sub_agg": {"terms": {"field": "tags.type.values"}}
+                                "sub_agg": {"terms": {"field": "tags.type.values.keyword"}}
                             },
                             "filter": {
-                                "and": [{"exists": {"field": "tags.type.values"}}]
+                            "bool": {
+                                "filter": [{"exists": {"field": "tags.type.values"}}]
+                            }
                             },
                         }
                     },
@@ -485,7 +487,7 @@ class ReportGroupService(BaseService):
         }
         if group_id:
             parent_agg = es_query["aggs"]["parent_agg"]
-            filters = parent_agg["aggs"]["types"]["filter"]["and"]
+            filters = parent_agg["aggs"]["types"]["filter"]["bool"]["filter"]
             filters.append({"terms": {"tags.group_id.values": [group_id]}})
 
         index_names = es_index_name_limiter(

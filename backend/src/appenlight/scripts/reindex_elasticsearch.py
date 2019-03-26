@@ -139,7 +139,13 @@ def update_template():
                 "mapping": {
                     "type": "object",
                     "properties": {
-                        "values": {"type": "string", "analyzer": "tag_value"},
+                        "values": {"type": "text", "analyzer": "tag_value",
+                                   "fields": {
+                                       "keyword": {
+                                           "type": "keyword",
+                                           "ignore_above": 256
+                                       }
+                                   }},
                         "numeric_values": {"type": "float"},
                     },
                 },
@@ -177,10 +183,10 @@ def update_template():
                 "_all": {"enabled": False},
                 "dynamic_templates": tag_templates,
                 "properties": {
-                    "pg_id": {"type": "string", "index": "not_analyzed"},
+                    "pg_id": {"type": "keyword", "index": True},
                     "resource_id": {"type": "integer"},
                     "priority": {"type": "integer"},
-                    "error": {"type": "string", "analyzer": "simple"},
+                    "error": {"type": "text", "analyzer": "simple"},
                     "read": {"type": "boolean"},
                     "occurences": {"type": "integer"},
                     "fixed": {"type": "boolean"},
@@ -195,21 +201,27 @@ def update_template():
                 "_all": {"enabled": False},
                 "dynamic_templates": tag_templates,
                 "properties": {
-                    "pg_id": {"type": "string", "index": "not_analyzed"},
+                    "pg_id": {"type": "keyword", "index": True},
                     "resource_id": {"type": "integer"},
-                    "group_id": {"type": "string"},
+                    "group_id": {"type": "keyword"},
                     "http_status": {"type": "integer"},
-                    "ip": {"type": "string", "index": "not_analyzed"},
-                    "url_domain": {"type": "string", "analyzer": "simple"},
-                    "url_path": {"type": "string", "analyzer": "url_path"},
-                    "error": {"type": "string", "analyzer": "simple"},
+                    "ip": {"type": "keyword", "index": True},
+                    "url_domain": {"type": "text", "analyzer": "simple"},
+                    "url_path": {"type": "text", "analyzer": "url_path"},
+                    "error": {"type": "text", "analyzer": "simple"},
                     "report_type": {"type": "integer"},
                     "start_time": {"type": "date"},
-                    "request_id": {"type": "string", "index": "not_analyzed"},
+                    "request_id": {"type": "keyword", "index": True},
                     "end_time": {"type": "date"},
                     "duration": {"type": "float"},
                     "tags": {"type": "object"},
-                    "tag_list": {"type": "string", "analyzer": "tag_value"},
+                    "tag_list": {"type": "text", "analyzer": "tag_value",
+                                 "fields": {
+                                     "keyword": {
+                                         "type": "keyword",
+                                         "ignore_above": 256
+                                     }
+                                 }},
                     "extra": {"type": "object"},
                 },
                 "_parent": {"type": "report_group"},
@@ -218,17 +230,26 @@ def update_template():
                 "_all": {"enabled": False},
                 "dynamic_templates": tag_templates,
                 "properties": {
-                    "pg_id": {"type": "string", "index": "not_analyzed"},
-                    "delete_hash": {"type": "string", "index": "not_analyzed"},
+                    "pg_id": {"type": "keyword", "index": True},
+                    "delete_hash": {"type": "keyword", "index": True},
                     "resource_id": {"type": "integer"},
                     "timestamp": {"type": "date"},
                     "permanent": {"type": "boolean"},
-                    "request_id": {"type": "string", "index": "not_analyzed"},
-                    "log_level": {"type": "string", "analyzer": "simple"},
-                    "message": {"type": "string", "analyzer": "simple"},
-                    "namespace": {"type": "string", "index": "not_analyzed"},
+                    "request_id": {"type": "keyword", "index": True},
+                    "log_level": {"type": "text", "analyzer": "simple"},
+                    "message": {"type": "text", "analyzer": "simple"},
+                    "namespace": {
+                        "type": "text",
+                        "fields": {"keyword": {"type": "keyword", "ignore_above": 256}},
+                    },
                     "tags": {"type": "object"},
-                    "tag_list": {"type": "string", "analyzer": "tag_value"},
+                    "tag_list": {"type": "text", "analyzer": "tag_value",
+                                 "fields": {
+                                     "keyword": {
+                                         "type": "keyword",
+                                         "ignore_above": 256
+                                     }
+                                 }},
                 },
             },
         },

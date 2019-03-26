@@ -34,10 +34,12 @@ class ReportStatService(BaseService):
                         "sub_agg": {"value_count": {"field": "tags.group_id.values"}}
                     },
                     "filter": {
-                        "and": [
-                            {"terms": {"resource_id": [resource_id]}},
-                            {"exists": {"field": "tags.group_id.values"}},
-                        ]
+                        "bool": {
+                            "filter": [
+                                {"terms": {"resource_id": [resource_id]}},
+                                {"exists": {"field": "tags.group_id.values"}},
+                            ]
+                        }
                     },
                 }
             },

@@ -50,7 +50,7 @@ class SlowCallService(BaseService):
                                 "aggs": {
                                     "sub_agg": {
                                         "value_count": {
-                                            "field": "tags.statement_hash.values"
+                                            "field": "tags.statement_hash.values.keyword"
                                         }
                                     }
                                 },
@@ -60,7 +60,7 @@ class SlowCallService(BaseService):
                             },
                         },
                         "terms": {
-                            "field": "tags.statement_hash.values",
+                            "field": "tags.statement_hash.values.keyword",
                             "order": {"duration>sub_agg": "desc"},
                             "size": 15,
                         },
@@ -98,7 +98,7 @@ class SlowCallService(BaseService):
         calls_query = {
             "aggs": {
                 "top_calls": {
-                    "terms": {"field": "tags.statement_hash.values", "size": 15},
+                    "terms": {"field": "tags.statement_hash.values.keyword", "size": 15},
                     "aggs": {
                         "top_calls_hits": {
                             "top_hits": {"sort": {"timestamp": "desc"}, "size": 5}
