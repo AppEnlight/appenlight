@@ -31,7 +31,7 @@ class ReportStatService(BaseService):
             "aggs": {
                 "reports": {
                     "aggs": {
-                        "sub_agg": {"value_count": {"field": "tags.group_id.values"}}
+                        "sub_agg": {"value_count": {"field": "tags.group_id.values.keyword"}}
                     },
                     "filter": {
                         "bool": {
