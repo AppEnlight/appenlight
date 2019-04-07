@@ -9,13 +9,13 @@ notifications:
 matrix:
   include:
   - python: 3.5
-    env: TOXENV=py35
+    env: TOXENV=py35 ES_VERSION=6.6.2 ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-${ES_VERSION}.tar.gz
   - python: 3.6
-    env: TOXENV=py36
+    env: TOXENV=py36 ES_VERSION=6.6.2 ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-${ES_VERSION}.tar.gz
     addons:
       postgresql: "9.6"
   - python: 3.6
-    env: TOXENV=py36 PGPORT=5432
+    env: TOXENV=py36 PGPORT=5432 ES_VERSION=6.6.2 ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-${ES_VERSION}.tar.gz
     addons:
       postgresql: "10"
       apt:
@@ -24,6 +24,9 @@ matrix:
         - postgresql-client-10
 
 install:
+- wget ${ES_DOWNLOAD_URL}
+- tar -xzf elasticsearch-${ES_VERSION}.tar.gz
+- ./elasticsearch-${ES_VERSION}/bin/elasticsearch &
 - travis_retry pip install -U setuptools pip tox
 
 script:

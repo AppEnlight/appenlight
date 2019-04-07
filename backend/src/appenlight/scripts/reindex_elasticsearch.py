@@ -215,8 +215,7 @@ def update_template():
         "settings": {
             "index": {
                 "refresh_interval": "5s",
-                "translog": {"sync_interval": "5s", "durability": "async"},
-                "mapping": {"single_type": True}
+                "translog": {"sync_interval": "5s", "durability": "async"}
             },
             "number_of_shards": 5,
             "analysis": shared_analysis,
@@ -298,7 +297,6 @@ def update_template():
             "index": {
                 "refresh_interval": "5s",
                 "translog": {"sync_interval": "5s", "durability": "async"},
-                "mapping": {"single_type": True}
             },
             "number_of_shards": 5,
             "analysis": shared_analysis,
@@ -320,7 +318,6 @@ def update_template():
             "index": {
                 "refresh_interval": "5s",
                 "translog": {"sync_interval": "5s", "durability": "async"},
-                "mapping": {"single_type": True}
             },
             "number_of_shards": 5,
             "analysis": shared_analysis,
@@ -342,7 +339,6 @@ def update_template():
             "index": {
                 "refresh_interval": "5s",
                 "translog": {"sync_interval": "5s", "durability": "async"},
-                "mapping": {"single_type": True}
             },
             "number_of_shards": 5,
             "analysis": shared_analysis,
@@ -364,7 +360,6 @@ def update_template():
             "index": {
                 "refresh_interval": "5s",
                 "translog": {"sync_interval": "5s", "durability": "async"},
-                "mapping": {"single_type": True}
             },
             "number_of_shards": 5,
             "analysis": shared_analysis,
