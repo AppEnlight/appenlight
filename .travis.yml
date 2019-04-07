@@ -34,7 +34,6 @@ script:
 
 services:
 - postgresql
-- elasticsearch
 - redis
 
 before_script:
