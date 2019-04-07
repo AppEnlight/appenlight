@@ -208,7 +208,7 @@ def es_index_name_limiter(
         elif t == "metrics":
             es_index_types.append("rcae_m_%s")
         elif t == "uptime":
-            es_index_types.append("rcae_u_%s")
+            es_index_types.append("rcae_uptime_ce_%s")
         elif t == "slow_calls":
             es_index_types.append("rcae_sc_%s")
 
