@@ -26,7 +26,7 @@ matrix:
 install:
 - wget ${ES_DOWNLOAD_URL}
 - tar -xzf elasticsearch-oss-${ES_VERSION}.tar.gz
-- ./elasticsearch-oss-${ES_VERSION}/bin/elasticsearch &
+- ./elasticsearch-${ES_VERSION}/bin/elasticsearch &
 - travis_retry pip install -U setuptools pip tox
 
 script:
