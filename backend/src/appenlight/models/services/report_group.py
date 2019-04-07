@@ -64,7 +64,9 @@ class ReportGroupService(BaseService):
                         "groups": {
                             "aggs": {
                                 "sub_agg": {
-                                    "value_count": {"field": "tags.group_id.values.keyword"}
+                                    "value_count": {
+                                        "field": "tags.group_id.values.keyword"
+                                    }
                                 }
                             },
                             "filter": {"exists": {"field": "tags.group_id.values"}},
@@ -76,11 +78,7 @@ class ReportGroupService(BaseService):
             "query": {
                 "bool": {
                     "filter": [
-                        {
-                            "terms": {
-                                "resource_id": [filter_settings["resource"][0]]
-                            }
-                        },
+                        {"terms": {"resource_id": [filter_settings["resource"][0]]}},
                         {
                             "range": {
                                 "timestamp": {
@@ -136,7 +134,7 @@ class ReportGroupService(BaseService):
                 "bool": {
                     "must": [],
                     "should": [],
-                    "filter": [{"terms": {"resource_id": list(app_ids)}}]
+                    "filter": [{"terms": {"resource_id": list(app_ids)}}],
                 }
             },
             "aggs": {
@@ -315,7 +313,9 @@ class ReportGroupService(BaseService):
         ordered_ids = []
         if results:
             for item in results["top_groups"]["buckets"]:
-                pg_id = item["top_reports_hits"]["hits"]["hits"][0]["_source"]["report_id"]
+                pg_id = item["top_reports_hits"]["hits"]["hits"][0]["_source"][
+                    "report_id"
+                ]
                 ordered_ids.append(pg_id)
         log.info(filter_settings)
         paginator = paginate.Page(
@@ -445,12 +445,16 @@ class ReportGroupService(BaseService):
                     "aggs": {
                         "types": {
                             "aggs": {
-                                "sub_agg": {"terms": {"field": "tags.type.values.keyword"}}
+                                "sub_agg": {
+                                    "terms": {"field": "tags.type.values.keyword"}
+                                }
                             },
                             "filter": {
-                            "bool": {
-                                "filter": [{"exists": {"field": "tags.type.values"}}]
-                            }
+                                "bool": {
+                                    "filter": [
+                                        {"exists": {"field": "tags.type.values"}}
+                                    ]
+                                }
                             },
                         }
                     },
@@ -468,11 +472,7 @@ class ReportGroupService(BaseService):
             "query": {
                 "bool": {
                     "filter": [
-                        {
-                            "terms": {
-                                "resource_id": [filter_settings["resource"][0]]
-                            }
-                        },
+                        {"terms": {"resource_id": [filter_settings["resource"][0]]}},
                         {
                             "range": {
                                 "timestamp": {

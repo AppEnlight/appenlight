@@ -56,11 +56,7 @@ class LogService(BaseService):
             filter_settings = {}
 
         query = {
-            "query": {
-                "bool": {
-                    "filter": [{"terms": {"resource_id": list(app_ids)}}]
-                }
-            }
+            "query": {"bool": {"filter": [{"terms": {"resource_id": list(app_ids)}}]}}
         }
 
         start_date = filter_settings.get("start_date")
@@ -132,13 +128,13 @@ class LogService(BaseService):
 
     @classmethod
     def get_search_iterator(
-            cls,
-            app_ids=None,
-            page=1,
-            items_per_page=50,
-            order_by=None,
-            filter_settings=None,
-            limit=None,
+        cls,
+        app_ids=None,
+        page=1,
+        items_per_page=50,
+        order_by=None,
+        filter_settings=None,
+        limit=None,
     ):
         if not app_ids:
             return {}, 0
@@ -171,15 +167,15 @@ class LogService(BaseService):
 
     @classmethod
     def get_paginator_by_app_ids(
-            cls,
-            app_ids=None,
-            page=1,
-            item_count=None,
-            items_per_page=50,
-            order_by=None,
-            filter_settings=None,
-            exclude_columns=None,
-            db_session=None,
+        cls,
+        app_ids=None,
+        page=1,
+        item_count=None,
+        items_per_page=50,
+        order_by=None,
+        filter_settings=None,
+        exclude_columns=None,
+        db_session=None,
     ):
         if not filter_settings:
             filter_settings = {}

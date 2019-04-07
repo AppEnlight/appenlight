@@ -146,11 +146,7 @@ def common_tags(request):
 
     resources = list(filter_settings["resource"])
     query = {
-        "query": {
-            "bool": {
-                "filter": [{"terms": {"resource_id": list(resources)}}]
-            }
-        }
+        "query": {"bool": {"filter": [{"terms": {"resource_id": list(resources)}}]}}
     }
     start_date = filter_settings.get("start_date")
     end_date = filter_settings.get("end_date")
@@ -199,18 +195,10 @@ def common_values(request):
     resources = list(filter_settings["resource"])
     tag_name = filter_settings["tags"][0]["value"][0]
 
-    and_part = [
-        {"terms": {"resource_id": list(resources)}},
-    ]
+    and_part = [{"terms": {"resource_id": list(resources)}}]
     if filter_settings["namespace"]:
         and_part.append({"terms": {"namespace": filter_settings["namespace"]}})
-    query = {
-        "query": {
-            "bool": {
-                "filter": and_part
-            }
-        }
-    }
+    query = {"query": {"bool": {"filter": and_part}}}
     query["aggs"] = {
         "sub_agg": {"terms": {"field": "tags.{}.values".format(tag_name), "size": 50}}
     }

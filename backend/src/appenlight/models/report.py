@@ -483,13 +483,10 @@ class Report(Base, BaseModel):
             "ip": self.ip,
             "group_id": str(self.group_id),
             "type": "report",
-            "join_field": {
-                "name": "report",
-                "parent": str(self.group_id)
-            },
+            "join_field": {"name": "report", "parent": str(self.group_id)},
             "tags": tags,
             "tag_list": tag_list,
-            "_routing": str(self.group_id)
+            "_routing": str(self.group_id),
         }
 
     @property
@@ -525,7 +522,10 @@ def after_delete(mapper, connection, target):
     if not hasattr(target, "_skip_ft_index"):
         query = {"query": {"term": {"report_id": target.id}}}
         Datastores.es.delete_by_query(
-            index=target.partition_id, doc_type="report", body=query, conflicts="proceed"
+            index=target.partition_id,
+            doc_type="report",
+            body=query,
+            conflicts="proceed",
         )
 
 

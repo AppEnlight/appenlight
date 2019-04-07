@@ -152,13 +152,13 @@ def update_template():
                 "mapping": {
                     "type": "object",
                     "properties": {
-                        "values": {"type": "text", "analyzer": "tag_value",
-                                   "fields": {
-                                       "keyword": {
-                                           "type": "keyword",
-                                           "ignore_above": 256
-                                       }
-                                   }},
+                        "values": {
+                            "type": "text",
+                            "analyzer": "tag_value",
+                            "fields": {
+                                "keyword": {"type": "keyword", "ignore_above": 256}
+                            },
+                        },
                         "numeric_values": {"type": "float"},
                     },
                 },
@@ -200,13 +200,11 @@ def update_template():
                 "fields": {"keyword": {"type": "keyword", "ignore_above": 256}},
             },
             "tags": {"type": "object"},
-            "tag_list": {"type": "text", "analyzer": "tag_value",
-                         "fields": {
-                             "keyword": {
-                                 "type": "keyword",
-                                 "ignore_above": 256
-                             }
-                         }},
+            "tag_list": {
+                "type": "text",
+                "analyzer": "tag_value",
+                "fields": {"keyword": {"type": "keyword", "ignore_above": 256}},
+            },
         },
     }
 
@@ -215,7 +213,7 @@ def update_template():
         "settings": {
             "index": {
                 "refresh_interval": "5s",
-                "translog": {"sync_interval": "5s", "durability": "async"}
+                "translog": {"sync_interval": "5s", "durability": "async"},
             },
             "number_of_shards": 5,
             "analysis": shared_analysis,
@@ -240,7 +238,6 @@ def update_template():
                     "summed_duration": {"type": "float"},
                     "public": {"type": "boolean"},
                     # report
-
                     "report_id": {"type": "keyword", "index": True},
                     "http_status": {"type": "integer"},
                     "ip": {"type": "keyword", "index": True},
@@ -252,17 +249,13 @@ def update_template():
                     "end_time": {"type": "date"},
                     "duration": {"type": "float"},
                     "tags": {"type": "object"},
-                    "tag_list": {"type": "text", "analyzer": "tag_value",
-                                 "fields": {
-                                     "keyword": {
-                                         "type": "keyword",
-                                         "ignore_above": 256
-                                     }
-                                 }},
+                    "tag_list": {
+                        "type": "text",
+                        "analyzer": "tag_value",
+                        "fields": {"keyword": {"type": "keyword", "ignore_above": 256}},
+                    },
                     "extra": {"type": "object"},
-
                     # report stats
-
                     "report_stat_id": {"type": "keyword", "index": True},
                     "timestamp": {"type": "date"},
                     "permanent": {"type": "boolean"},
@@ -272,17 +265,13 @@ def update_template():
                         "type": "text",
                         "fields": {"keyword": {"type": "keyword", "ignore_above": 256}},
                     },
-
                     "join_field": {
                         "type": "join",
-                        "relations": {
-                            "report_group": ["report", "report_stat"]
-                        }
-                    }
-
+                        "relations": {"report_group": ["report", "report_stat"]},
+                    },
                 },
             }
-        }
+        },
     }
 
     Datastores.es.indices.put_template("rcae_reports", body=report_schema)
@@ -301,15 +290,15 @@ def update_template():
             "number_of_shards": 5,
             "analysis": shared_analysis,
         },
-        "mappings": {
-            "log": logs_mapping,
-        },
+        "mappings": {"log": logs_mapping},
     }
 
     Datastores.es.indices.put_template("rcae_logs", body=log_template)
 
     slow_call_mapping = copy.deepcopy(shared_log_mapping)
-    slow_call_mapping["properties"]["slow_call_id"] = slow_call_mapping["properties"]["pg_id"]
+    slow_call_mapping["properties"]["slow_call_id"] = slow_call_mapping["properties"][
+        "pg_id"
+    ]
     del slow_call_mapping["properties"]["pg_id"]
 
     slow_call_template = {
@@ -322,9 +311,7 @@ def update_template():
             "number_of_shards": 5,
             "analysis": shared_analysis,
         },
-        "mappings": {
-            "log": slow_call_mapping,
-        },
+        "mappings": {"log": slow_call_mapping},
     }
 
     Datastores.es.indices.put_template("rcae_slow_calls", body=slow_call_template)
@@ -343,15 +330,15 @@ def update_template():
             "number_of_shards": 5,
             "analysis": shared_analysis,
         },
-        "mappings": {
-            "log": metric_mapping,
-        },
+        "mappings": {"log": metric_mapping},
     }
 
     Datastores.es.indices.put_template("rcae_metrics", body=metrics_template)
 
     uptime_metric_mapping = copy.deepcopy(shared_log_mapping)
-    uptime_metric_mapping["properties"]["uptime_id"] = uptime_metric_mapping["properties"]["pg_id"]
+    uptime_metric_mapping["properties"]["uptime_id"] = uptime_metric_mapping[
+        "properties"
+    ]["pg_id"]
     del uptime_metric_mapping["properties"]["pg_id"]
 
     uptime_metrics_template = {
@@ -364,12 +351,12 @@ def update_template():
             "number_of_shards": 5,
             "analysis": shared_analysis,
         },
-        "mappings": {
-            "log": shared_log_mapping,
-        },
+        "mappings": {"log": shared_log_mapping},
     }
 
-    Datastores.es.indices.put_template("rcae_uptime_metrics", body=uptime_metrics_template)
+    Datastores.es.indices.put_template(
+        "rcae_uptime_metrics", body=uptime_metrics_template
+    )
 
 
 def reindex_reports():

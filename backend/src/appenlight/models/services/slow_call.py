@@ -98,7 +98,10 @@ class SlowCallService(BaseService):
         calls_query = {
             "aggs": {
                 "top_calls": {
-                    "terms": {"field": "tags.statement_hash.values.keyword", "size": 15},
+                    "terms": {
+                        "field": "tags.statement_hash.values.keyword",
+                        "size": 15,
+                    },
                     "aggs": {
                         "top_calls_hits": {
                             "top_hits": {"sort": {"timestamp": "desc"}, "size": 5}
@@ -109,11 +112,7 @@ class SlowCallService(BaseService):
             "query": {
                 "bool": {
                     "filter": [
-                        {
-                            "terms": {
-                                "resource_id": [filter_settings["resource"][0]]
-                            }
-                        },
+                        {"terms": {"resource_id": [filter_settings["resource"][0]]}},
                         {"terms": {"tags.statement_hash.values": hashes}},
                         {
                             "range": {

@@ -326,8 +326,10 @@ def add_logs(resource_id, request_params, dataset, **kwargs):
 
                         try:
                             Datastores.es.delete_by_query(
-                                index=es_index, doc_type="log",
-                                body=query, conflicts="proceed"
+                                index=es_index,
+                                doc_type="log",
+                                body=query,
+                                conflicts="proceed",
                             )
                         except elasticsearch.exceptions.NotFoundError as exc:
                             msg = "skipping index {}".format(es_index)
@@ -688,11 +690,7 @@ def alerting_reports():
 def logs_cleanup(resource_id, filter_settings):
     request = get_current_request()
     request.tm.begin()
-    es_query = {
-        "query": {
-            "bool": {"filter": [{"term": {"resource_id": resource_id}}]}
-        }
-    }
+    es_query = {"query": {"bool": {"filter": [{"term": {"resource_id": resource_id}}]}}}
 
     query = DBSession.query(Log).filter(Log.resource_id == resource_id)
     if filter_settings["namespace"]:
@@ -703,5 +701,5 @@ def logs_cleanup(resource_id, filter_settings):
     query.delete(synchronize_session=False)
     request.tm.commit()
     Datastores.es.delete_by_query(
-        index="rcae_l_*",  doc_type="log", body=es_query, conflicts="proceed"
+        index="rcae_l_*", doc_type="log", body=es_query, conflicts="proceed"
     )

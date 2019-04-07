@@ -191,9 +191,7 @@ class ReportGroup(Base, BaseModel):
             "first_timestamp": self.first_timestamp,
             "last_timestamp": self.last_timestamp,
             "type": "report_group",
-            "join_field": {
-                "name": "report_group"
-            },
+            "join_field": {"name": "report_group"},
         }
 
     def set_notification_info(self, notify_10=False, notify_100=False):
