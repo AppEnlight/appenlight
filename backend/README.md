@@ -13,8 +13,8 @@ Manual Installation
 To run the app you need to have meet prerequsites:
 
 - python 3.5+
-- running elasticsearch (2.3+/2.4 tested)
-- running postgresql (9.5+ required)
+- running elasticsearch (6.6.2 tested)
+- running postgresql (9.5+ required, tested 9.6 and 10.6)
 - running redis
 
 Install the app by performing
