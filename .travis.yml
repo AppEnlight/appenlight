@@ -30,7 +30,7 @@ install:
 - travis_retry pip install -U setuptools pip tox
 
 script:
-- travis_retry tox
+- travis_retry tox -- -vv
 
 services:
 - postgresql
