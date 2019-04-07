@@ -88,7 +88,7 @@ class SlowCall(Base, BaseModel):
         doc = {
             "resource_id": self.resource_id,
             "timestamp": self.timestamp,
-            "pg_id": str(self.id),
+            "slow_call_id": str(self.id),
             "permanent": False,
             "request_id": None,
             "log_level": "UNKNOWN",

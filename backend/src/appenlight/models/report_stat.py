@@ -48,12 +48,13 @@ class ReportStat(Base, BaseModel):
         return {
             "resource_id": self.resource_id,
             "timestamp": self.start_interval,
-            "pg_id": str(self.id),
+            "report_stat_id": str(self.id),
             "permanent": True,
             "request_id": None,
             "log_level": "ERROR",
             "message": None,
             "namespace": "appenlight.error",
+            "group_id": str(self.group_id),
             "tags": {
                 "duration": {"values": self.duration, "numeric_values": self.duration},
                 "occurences": {
@@ -76,4 +77,5 @@ class ReportStat(Base, BaseModel):
                 "server_name",
                 "view_name",
             ],
+            "type": "report_stat",
         }

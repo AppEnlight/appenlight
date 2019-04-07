@@ -17,6 +17,7 @@
 import argparse
 import datetime
 import logging
+import copy
 
 import sqlalchemy as sa
 import elasticsearch.exceptions
@@ -33,7 +34,6 @@ from appenlight.models.report_stat import ReportStat
 from appenlight.models.log import Log
 from appenlight.models.slow_call import SlowCall
 from appenlight.models.metric import Metric
-
 
 log = logging.getLogger(__name__)
 
@@ -128,7 +128,20 @@ def main():
 
 def update_template():
     try:
-        Datastores.es.indices.delete_template("rcae")
+        Datastores.es.indices.delete_template("rcae_reports")
+    except elasticsearch.exceptions.NotFoundError as e:
+        log.error(e)
+
+    try:
+        Datastores.es.indices.delete_template("rcae_logs")
+    except elasticsearch.exceptions.NotFoundError as e:
+        log.error(e)
+    try:
+        Datastores.es.indices.delete_template("rcae_slow_calls")
+    except elasticsearch.exceptions.NotFoundError as e:
+        log.error(e)
+    try:
+        Datastores.es.indices.delete_template("rcae_metrics")
     except elasticsearch.exceptions.NotFoundError as e:
         log.error(e)
     log.info("updating elasticsearch template")
@@ -153,37 +166,69 @@ def update_template():
         }
     ]
 
-    template_schema = {
-        "template": "rcae_*",
+    shared_analysis = {
+        "analyzer": {
+            "url_path": {
+                "type": "custom",
+                "char_filter": [],
+                "tokenizer": "path_hierarchy",
+                "filter": [],
+            },
+            "tag_value": {
+                "type": "custom",
+                "char_filter": [],
+                "tokenizer": "keyword",
+                "filter": ["lowercase"],
+            },
+        }
+    }
+
+    shared_log_mapping = {
+        "_all": {"enabled": False},
+        "dynamic_templates": tag_templates,
+        "properties": {
+            "pg_id": {"type": "keyword", "index": True},
+            "delete_hash": {"type": "keyword", "index": True},
+            "resource_id": {"type": "integer"},
+            "timestamp": {"type": "date"},
+            "permanent": {"type": "boolean"},
+            "request_id": {"type": "keyword", "index": True},
+            "log_level": {"type": "text", "analyzer": "simple"},
+            "message": {"type": "text", "analyzer": "simple"},
+            "namespace": {
+                "type": "text",
+                "fields": {"keyword": {"type": "keyword", "ignore_above": 256}},
+            },
+            "tags": {"type": "object"},
+            "tag_list": {"type": "text", "analyzer": "tag_value",
+                         "fields": {
+                             "keyword": {
+                                 "type": "keyword",
+                                 "ignore_above": 256
+                             }
+                         }},
+        },
+    }
+
+    report_schema = {
+        "template": "rcae_r_*",
         "settings": {
             "index": {
                 "refresh_interval": "5s",
                 "translog": {"sync_interval": "5s", "durability": "async"},
+                "mapping": {"single_type": True}
             },
             "number_of_shards": 5,
-            "analysis": {
-                "analyzer": {
-                    "url_path": {
-                        "type": "custom",
-                        "char_filter": [],
-                        "tokenizer": "path_hierarchy",
-                        "filter": [],
-                    },
-                    "tag_value": {
-                        "type": "custom",
-                        "char_filter": [],
-                        "tokenizer": "keyword",
-                        "filter": ["lowercase"],
-                    },
-                }
-            },
+            "analysis": shared_analysis,
         },
         "mappings": {
-            "report_group": {
+            "report": {
                 "_all": {"enabled": False},
                 "dynamic_templates": tag_templates,
                 "properties": {
-                    "pg_id": {"type": "keyword", "index": True},
+                    "type": {"type": "keyword", "index": True},
+                    # report group
+                    "group_id": {"type": "keyword", "index": True},
                     "resource_id": {"type": "integer"},
                     "priority": {"type": "integer"},
                     "error": {"type": "text", "analyzer": "simple"},
@@ -195,20 +240,13 @@ def update_template():
                     "average_duration": {"type": "float"},
                     "summed_duration": {"type": "float"},
                     "public": {"type": "boolean"},
-                },
-            },
-            "report": {
-                "_all": {"enabled": False},
-                "dynamic_templates": tag_templates,
-                "properties": {
-                    "pg_id": {"type": "keyword", "index": True},
-                    "resource_id": {"type": "integer"},
-                    "group_id": {"type": "keyword"},
+                    # report
+
+                    "report_id": {"type": "keyword", "index": True},
                     "http_status": {"type": "integer"},
                     "ip": {"type": "keyword", "index": True},
                     "url_domain": {"type": "text", "analyzer": "simple"},
                     "url_path": {"type": "text", "analyzer": "url_path"},
-                    "error": {"type": "text", "analyzer": "simple"},
                     "report_type": {"type": "integer"},
                     "start_time": {"type": "date"},
                     "request_id": {"type": "keyword", "index": True},
@@ -223,45 +261,126 @@ def update_template():
                                      }
                                  }},
                     "extra": {"type": "object"},
-                },
-                "_parent": {"type": "report_group"},
-            },
-            "log": {
-                "_all": {"enabled": False},
-                "dynamic_templates": tag_templates,
-                "properties": {
-                    "pg_id": {"type": "keyword", "index": True},
-                    "delete_hash": {"type": "keyword", "index": True},
-                    "resource_id": {"type": "integer"},
+
+                    # report stats
+
+                    "report_stat_id": {"type": "keyword", "index": True},
                     "timestamp": {"type": "date"},
                     "permanent": {"type": "boolean"},
-                    "request_id": {"type": "keyword", "index": True},
                     "log_level": {"type": "text", "analyzer": "simple"},
                     "message": {"type": "text", "analyzer": "simple"},
                     "namespace": {
                         "type": "text",
                         "fields": {"keyword": {"type": "keyword", "ignore_above": 256}},
                     },
-                    "tags": {"type": "object"},
-                    "tag_list": {"type": "text", "analyzer": "tag_value",
-                                 "fields": {
-                                     "keyword": {
-                                         "type": "keyword",
-                                         "ignore_above": 256
-                                     }
-                                 }},
+
+                    "join_field": {
+                        "type": "join",
+                        "relations": {
+                            "report_group": ["report", "report_stat"]
+                        }
+                    }
+
                 },
+            }
+        }
+    }
+
+    Datastores.es.indices.put_template("rcae_reports", body=report_schema)
+
+    logs_mapping = copy.deepcopy(shared_log_mapping)
+    logs_mapping["properties"]["log_id"] = logs_mapping["properties"]["pg_id"]
+    del logs_mapping["properties"]["pg_id"]
+
+    log_template = {
+        "template": "rcae_l_*",
+        "settings": {
+            "index": {
+                "refresh_interval": "5s",
+                "translog": {"sync_interval": "5s", "durability": "async"},
+                "mapping": {"single_type": True}
             },
+            "number_of_shards": 5,
+            "analysis": shared_analysis,
+        },
+        "mappings": {
+            "log": logs_mapping,
         },
     }
 
-    Datastores.es.indices.put_template("rcae", body=template_schema)
+    Datastores.es.indices.put_template("rcae_logs", body=log_template)
+
+    slow_call_mapping = copy.deepcopy(shared_log_mapping)
+    slow_call_mapping["properties"]["slow_call_id"] = slow_call_mapping["properties"]["pg_id"]
+    del slow_call_mapping["properties"]["pg_id"]
+
+    slow_call_template = {
+        "template": "rcae_sc_*",
+        "settings": {
+            "index": {
+                "refresh_interval": "5s",
+                "translog": {"sync_interval": "5s", "durability": "async"},
+                "mapping": {"single_type": True}
+            },
+            "number_of_shards": 5,
+            "analysis": shared_analysis,
+        },
+        "mappings": {
+            "log": slow_call_mapping,
+        },
+    }
+
+    Datastores.es.indices.put_template("rcae_slow_calls", body=slow_call_template)
+
+    metric_mapping = copy.deepcopy(shared_log_mapping)
+    metric_mapping["properties"]["metric_id"] = metric_mapping["properties"]["pg_id"]
+    del metric_mapping["properties"]["pg_id"]
+
+    metrics_template = {
+        "template": "rcae_m_*",
+        "settings": {
+            "index": {
+                "refresh_interval": "5s",
+                "translog": {"sync_interval": "5s", "durability": "async"},
+                "mapping": {"single_type": True}
+            },
+            "number_of_shards": 5,
+            "analysis": shared_analysis,
+        },
+        "mappings": {
+            "log": metric_mapping,
+        },
+    }
+
+    Datastores.es.indices.put_template("rcae_metrics", body=metrics_template)
+
+    uptime_metric_mapping = copy.deepcopy(shared_log_mapping)
+    uptime_metric_mapping["properties"]["uptime_id"] = uptime_metric_mapping["properties"]["pg_id"]
+    del uptime_metric_mapping["properties"]["pg_id"]
+
+    uptime_metrics_template = {
+        "template": "rcae_uptime_ce_*",
+        "settings": {
+            "index": {
+                "refresh_interval": "5s",
+                "translog": {"sync_interval": "5s", "durability": "async"},
+                "mapping": {"single_type": True}
+            },
+            "number_of_shards": 5,
+            "analysis": shared_analysis,
+        },
+        "mappings": {
+            "log": shared_log_mapping,
+        },
+    }
+
+    Datastores.es.indices.put_template("rcae_uptime_metrics", body=uptime_metrics_template)
 
 
 def reindex_reports():
     reports_groups_tables = detect_tables("reports_groups_p_")
     try:
-        Datastores.es.indices.delete("rcae_r*")
+        Datastores.es.indices.delete("`rcae_r_*")
     except elasticsearch.exceptions.NotFoundError as e:
         log.error(e)
 
@@ -285,7 +404,7 @@ def reindex_reports():
                 name = partition_table.name
                 log.info("round {}, {}".format(i, name))
                 for k, v in es_docs.items():
-                    to_update = {"_index": k, "_type": "report_group"}
+                    to_update = {"_index": k, "_type": "report"}
                     [i.update(to_update) for i in v]
                     elasticsearch.helpers.bulk(Datastores.es, v)
 
@@ -343,7 +462,7 @@ def reindex_reports():
                 name = partition_table.name
                 log.info("round  {}, {}".format(i, name))
                 for k, v in es_docs.items():
-                    to_update = {"_index": k, "_type": "log"}
+                    to_update = {"_index": k, "_type": "report"}
                     [i.update(to_update) for i in v]
                     elasticsearch.helpers.bulk(Datastores.es, v)
 
@@ -352,7 +471,7 @@ def reindex_reports():
 
 def reindex_logs():
     try:
-        Datastores.es.indices.delete("rcae_l*")
+        Datastores.es.indices.delete("rcae_l_*")
     except elasticsearch.exceptions.NotFoundError as e:
         log.error(e)
 
@@ -388,7 +507,7 @@ def reindex_logs():
 
 def reindex_metrics():
     try:
-        Datastores.es.indices.delete("rcae_m*")
+        Datastores.es.indices.delete("rcae_m_*")
     except elasticsearch.exceptions.NotFoundError as e:
         log.error(e)
 
@@ -422,7 +541,7 @@ def reindex_metrics():
 
 def reindex_slow_calls():
     try:
-        Datastores.es.indices.delete("rcae_sc*")
+        Datastores.es.indices.delete("rcae_sc_*")
     except elasticsearch.exceptions.NotFoundError as e:
         log.error(e)
 

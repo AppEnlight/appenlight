@@ -239,7 +239,7 @@ def add_reports(resource_id, request_params, dataset, **kwargs):
 @celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_reports_es(report_group_docs, report_docs):
     for k, v in report_group_docs.items():
-        to_update = {"_index": k, "_type": "report_group"}
+        to_update = {"_index": k, "_type": "report"}
         [i.update(to_update) for i in v]
         elasticsearch.helpers.bulk(Datastores.es, v)
     for k, v in report_docs.items():
@@ -259,7 +259,7 @@ def add_reports_slow_calls_es(es_docs):
 @celery.task(queue="es", default_retry_delay=600, max_retries=144)
 def add_reports_stats_rows_es(es_docs):
     for k, v in es_docs.items():
-        to_update = {"_index": k, "_type": "log"}
+        to_update = {"_index": k, "_type": "report"}
         [i.update(to_update) for i in v]
         elasticsearch.helpers.bulk(Datastores.es, v)
 
@@ -287,7 +287,7 @@ def add_logs(resource_id, request_params, dataset, **kwargs):
             if entry["primary_key"] is None:
                 es_docs[log_entry.partition_id].append(log_entry.es_doc())
 
-        # 2nd pass to delete all log entries from db foe same pk/ns pair
+        # 2nd pass to delete all log entries from db for same pk/ns pair
         if ns_pairs:
             ids_to_delete = []
             es_docs = collections.defaultdict(list)

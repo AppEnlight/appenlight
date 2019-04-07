@@ -112,7 +112,7 @@ class Log(Base, BaseModel):
                 else None,
             }
         return {
-            "pg_id": str(self.log_id),
+            "log_id": str(self.log_id),
             "delete_hash": self.delete_hash,
             "resource_id": self.resource_id,
             "request_id": self.request_id,

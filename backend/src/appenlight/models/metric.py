@@ -60,6 +60,7 @@ class Metric(Base, BaseModel):
             }
 
         return {
+            "metric_id": self.pkey,
             "resource_id": self.resource_id,
             "timestamp": self.timestamp,
             "namespace": self.namespace,

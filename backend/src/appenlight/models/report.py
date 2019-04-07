@@ -314,7 +314,7 @@ class Report(Base, BaseModel):
                 "bool": {
                     "filter": [
                         {"term": {"group_id": self.group_id}},
-                        {"range": {"pg_id": {"lt": self.id}}},
+                        {"range": {"report_id": {"lt": self.id}}},
                     ]
                 }
             },
@@ -324,7 +324,7 @@ class Report(Base, BaseModel):
             body=query, index=self.partition_id, doc_type="report"
         )
         if result["hits"]["total"]:
-            return result["hits"]["hits"][0]["_source"]["pg_id"]
+            return result["hits"]["hits"][0]["_source"]["report_id"]
 
     def get_next_in_group(self, request):
         query = {
@@ -333,7 +333,7 @@ class Report(Base, BaseModel):
                 "bool": {
                     "filter": [
                         {"term": {"group_id": self.group_id}},
-                        {"range": {"pg_id": {"gt": self.id}}},
+                        {"range": {"report_id": {"gt": self.id}}},
                     ]
                 }
             },
@@ -343,7 +343,7 @@ class Report(Base, BaseModel):
             body=query, index=self.partition_id, doc_type="report"
         )
         if result["hits"]["total"]:
-            return result["hits"]["hits"][0]["_source"]["pg_id"]
+            return result["hits"]["hits"][0]["_source"]["report_id"]
 
     def get_public_url(self, request=None, report_group=None, _app_url=None):
         """
@@ -469,7 +469,7 @@ class Report(Base, BaseModel):
             tags["user_name"] = {"value": [self.username], "numeric_value": None}
         return {
             "_id": str(self.id),
-            "pg_id": str(self.id),
+            "report_id": str(self.id),
             "resource_id": self.resource_id,
             "http_status": self.http_status or "",
             "start_time": self.start_time,
@@ -482,9 +482,14 @@ class Report(Base, BaseModel):
             "request_id": self.request_id,
             "ip": self.ip,
             "group_id": str(self.group_id),
-            "_parent": str(self.group_id),
+            "type": "report",
+            "join_field": {
+                "name": "report",
+                "parent": str(self.group_id)
+            },
             "tags": tags,
             "tag_list": tag_list,
+            "_routing": str(self.group_id)
         }
 
     @property
@@ -518,7 +523,7 @@ def after_update(mapper, connection, target):
 
 def after_delete(mapper, connection, target):
     if not hasattr(target, "_skip_ft_index"):
-        query = {"query": {"term": {"pg_id": target.id}}}
+        query = {"query": {"term": {"report_id": target.id}}}
         Datastores.es.delete_by_query(
             index=target.partition_id, doc_type="report", body=query, conflicts="proceed"
         )

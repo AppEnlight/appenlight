@@ -190,7 +190,7 @@ class LogService(BaseService):
             [], item_count=item_count, items_per_page=items_per_page, **filter_settings
         )
         ordered_ids = tuple(
-            item["_source"]["pg_id"] for item in results.get("hits", [])
+            item["_source"]["log_id"] for item in results.get("hits", [])
         )
 
         sorted_instance_list = []

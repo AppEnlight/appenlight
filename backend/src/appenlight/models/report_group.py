@@ -178,7 +178,7 @@ class ReportGroup(Base, BaseModel):
     def es_doc(self):
         return {
             "_id": str(self.id),
-            "pg_id": str(self.id),
+            "group_id": str(self.id),
             "resource_id": self.resource_id,
             "error": self.error,
             "fixed": self.fixed,
@@ -190,6 +190,10 @@ class ReportGroup(Base, BaseModel):
             "summed_duration": self.summed_duration,
             "first_timestamp": self.first_timestamp,
             "last_timestamp": self.last_timestamp,
+            "type": "report_group",
+            "join_field": {
+                "name": "report_group"
+            },
         }
 
     def set_notification_info(self, notify_10=False, notify_100=False):
@@ -258,14 +262,14 @@ def after_insert(mapper, connection, target):
     if not hasattr(target, "_skip_ft_index"):
         data = target.es_doc()
         data.pop("_id", None)
-        Datastores.es.index(target.partition_id, "report_group", data, id=target.id)
+        Datastores.es.index(target.partition_id, "report", data, id=target.id)
 
 
 def after_update(mapper, connection, target):
     if not hasattr(target, "_skip_ft_index"):
         data = target.es_doc()
         data.pop("_id", None)
-        Datastores.es.index(target.partition_id, "report_group", data, id=target.id)
+        Datastores.es.index(target.partition_id, "report", data, id=target.id)
 
 
 def after_delete(mapper, connection, target):
@@ -273,10 +277,6 @@ def after_delete(mapper, connection, target):
     # delete by query
     Datastores.es.delete_by_query(
         index=target.partition_id, doc_type="report", body=query, conflicts="proceed"
-    )
-    query = {"query": {"term": {"pg_id": target.id}}}
-    Datastores.es.delete_by_query(
-        index=target.partition_id, doc_type="report_group", body=query, conflicts="proceed"
     )
 
 

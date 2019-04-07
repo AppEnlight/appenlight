@@ -97,7 +97,7 @@ class ReportGroupService(BaseService):
             es_query["query"]["bool"]["filter"].extend(tags)
 
         result = Datastores.es.search(
-            body=es_query, index=index_names, doc_type="log", size=0
+            body=es_query, index=index_names, doc_type="report", size=0
         )
         series = []
         for bucket in result["aggregations"]["parent_agg"]["buckets"]:
@@ -143,7 +143,7 @@ class ReportGroupService(BaseService):
                 "top_groups": {
                     "terms": {
                         "size": 5000,
-                        "field": "_parent#report_group",
+                        "field": "join_field#report_group",
                         "order": {"newest": "desc"},
                     },
                     "aggs": {
@@ -315,7 +315,7 @@ class ReportGroupService(BaseService):
         ordered_ids = []
         if results:
             for item in results["top_groups"]["buckets"]:
-                pg_id = item["top_reports_hits"]["hits"]["hits"][0]["_source"]["pg_id"]
+                pg_id = item["top_reports_hits"]["hits"]["hits"][0]["_source"]["report_id"]
                 ordered_ids.append(pg_id)
         log.info(filter_settings)
         paginator = paginate.Page(

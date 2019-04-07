@@ -340,7 +340,7 @@ class RequestMetricService(BaseService):
                 for hit in bucket["top_calls_hits"]["hits"]["hits"]:
                     details[bucket["key"]].append(
                         {
-                            "report_id": hit["_source"]["pg_id"],
+                            "report_id": hit["_source"]["request_metric_id"],
                             "group_id": hit["_source"]["group_id"],
                         }
                     )
