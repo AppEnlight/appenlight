@@ -24,22 +24,22 @@ module.exports = function (grunt) {
             },
             base: {
                 src: [
-                    "bower_components/underscore/underscore.js",
-                    "bower_components/angular/angular.min.js",
-                    "bower_components/angular-cookies/angular-cookies.min.js",
-                    "bower_components/angular-route/angular-route.min.js",
-                    "bower_components/angular-resource/angular-resource.min.js",
-                    "bower_components/angular-animate/angular-animate.min.js",
-                    "bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js",
-                    "bower_components/angular-ui-router/release/angular-ui-router.min.js",
-                    "bower_components/angular-toArrayFilter/toArrayFilter.js",
+                    "node_modules/underscore/underscore.js",
+                    "node_modules/angular/angular.min.js",
+                    "node_modules/angular-cookies/angular-cookies.min.js",
+                    "node_modules/angular-route/angular-route.min.js",
+                    "node_modules/angular-resource/angular-resource.min.js",
+                    "node_modules/angular-animate/angular-animate.min.js",
+                    "node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js",
+                    "node_modules/angular-ui-router/release/angular-ui-router.min.js",
+                    "node_modules/angular-toarrayfilter/toArrayFilter.js",
                     "vendors/crel.js",
-                    "bower_components/json-human/src/json.human.js",
-                    "bower_components/moment/min/moment.min.js",
-                    "bower_components/d3/d3.min.js",
-                    "bower_components/c3/c3.min.js",
-                    "bower_components/angular-smart-table/dist/smart-table.min.js",
-                    "bower_components/ment.io/dist/mentio.min.js",
+                    "vendors/json-human/src/json.human.js",
+                    "node_modules/moment/min/moment.min.js",
+                    "node_modules/d3/d3.min.js",
+                    "node_modules/c3/c3.min.js",
+                    "node_modules/angular-smart-table/dist/smart-table.min.js",
+                    "node_modules/ment.io/dist/mentio.min.js",
                     "vendors/simple_moment_utc.js",
                     "vendors/reconnecting-websocket.js",
                 ],
@@ -134,7 +134,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-bower-concat');
     grunt.loadNpmTasks('grunt-contrib-requirejs');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks("grunt-remove-logging");
