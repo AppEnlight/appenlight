@@ -666,13 +666,11 @@ class LogSearchSchema(colander.MappingSchema):
     namespace = colander.SchemaNode(
         colander.Sequence(accept_scalar=True),
         colander.SchemaNode(colander.String()),
-        preparer=lowercase_preparer,
         missing=None,
     )
     request_id = colander.SchemaNode(
         colander.Sequence(accept_scalar=True),
         colander.SchemaNode(colander.String()),
-        preparer=lowercase_preparer,
         missing=None,
     )
     start_date = colander.SchemaNode(PermissiveDate(), missing=None)
