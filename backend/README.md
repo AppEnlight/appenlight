@@ -8,8 +8,10 @@ Performance, exception, and uptime monitoring for the Web
 Automatic Installation
 ======================
 
-Use the ansible scripts in the `automation` repository to build complete instance of application
+Use the ansible or vagrant scripts in the `automation` repository to build complete instance of application.
 You can also use `packer` files in `automation/packer` to create whole VM's for KVM and VMWare.
+
+https://github.com/AppEnlight/automation
 
 Manual Installation
 ===================
@@ -41,7 +43,7 @@ After installing the application you need to perform following steps:
 
         appenlight-make-config production.ini
 
-2. Setup database structure:
+2. Setup database structure (replace filename with the name you picked for `appenlight-make-config`):
 
        appenlight-migratedb -c FILENAME.ini
 
@@ -64,7 +66,7 @@ Running application
 
 To run the main app:
 
-    pserve development.ini
+    pserve FILENAME.ini
 
 To run celery workers:
 
@@ -74,16 +76,17 @@ To run celery beat:
 
     celery beat -A appenlight.celery --ini FILENAME.ini
 
-To run appenlight's uptime plugin:
+To run appenlight's uptime plugin (example of uptime plugin config can be found here 
+https://github.com/AppEnlight/appenlight-uptime-ce ):
 
-    appenlight-uptime-monitor -c FILENAME.ini
+    appenlight-uptime-monitor -c UPTIME_PLUGIN_CONFIG_FILENAME.ini
 
 Real-time Notifications
 =======================
 
 You should also run the `channelstream websocket server for real-time notifications
 
-    channelstream -i filename.ini
+    channelstream -i CHANELSTRAM_CONFIG_FILENAME.ini
 
 Additional documentation
 ========================
