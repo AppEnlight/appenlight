@@ -63,7 +63,7 @@ setup(
     version="2.0.0rc1",
     license=__license__,
     author=__author__,
-    url=__url__,
+    url="https://github.com/AppEnlight/appenlight",
     keywords="web wsgi bfg pylons pyramid flask django monitoring apm instrumentation appenlight",
     python_requires=">=3.5",
     long_description_content_type="text/markdown",
