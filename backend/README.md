@@ -103,8 +103,3 @@ To develop appenlight frontend:
     npm install
     grunt watch
 
-
-Tagging release
-===============
-
-    bumpversion --current-version 1.1.1 minor --verbose --tag --commit --dry-run
