@@ -84,7 +84,12 @@ Real-time Notifications
 You should also run the `channelstream websocket server for real-time notifications
 
     channelstream -i filename.ini
-    
+
+Additional documentation
+========================
+
+Visit  https://getappenlight.com for additional server and client documentation.
+
 Testing
 =======
 
