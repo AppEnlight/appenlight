@@ -16,7 +16,10 @@ def parse_req(req):
     return compiled.search(req).group(1).strip()
 
 
-requires = [_f for _f in map(parse_req, REQUIREMENTS) if _f]
+if "APPENLIGHT_DEVELOP" in os.environ:
+    requires = [_f for _f in map(parse_req, REQUIREMENTS) if _f]
+else:
+    requires = REQUIREMENTS
 
 
 def _get_meta_var(name, data, callback_handler=None):
