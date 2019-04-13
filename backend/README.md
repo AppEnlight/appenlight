@@ -12,7 +12,7 @@ Manual Installation
 
 To run the app you need to have meet prerequsites:
 
-- python 3.5+
+- python 3.5+ (currently 3.6 tested)
 - running elasticsearch (6.6.2 tested)
 - running postgresql (9.5+ required, tested 9.6 and 10.6)
 - running redis
@@ -24,6 +24,12 @@ Install the app by performing
     python setup.py develop
 
 Install the appenlight uptime plugin (`ae_uptime_ce` package from `appenlight-uptime-ce` repository).
+
+For production usage you can do:
+
+    pip install appenlight
+    pip install ae_uptime_ce
+
 
 After installing the application you need to perform following steps:
 
