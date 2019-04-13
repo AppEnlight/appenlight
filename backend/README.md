@@ -35,16 +35,13 @@ After installing the application you need to perform following steps:
 
 1. (optional) generate production.ini (or use a copy of development.ini)
 
-
     appenlight-make-config production.ini
 
 2. Setup database structure:
 
-
     appenlight-migratedb -c FILENAME.ini
 
 3. To configure elasticsearch:
-
 
     appenlight-reindex-elasticsearch -t all -c FILENAME.ini
 
@@ -52,11 +49,9 @@ After installing the application you need to perform following steps:
 
    (run this command with help flag to see how to create administrator user)
 
-
     appenlight-initializedb -c FILENAME.ini
 
 5. Generate static assets
-
 
     appenlight-static -c FILENAME.ini
 
