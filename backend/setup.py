@@ -41,6 +41,7 @@ __author__ = _get_meta_var("__author__", _metadata)
 __url__ = _get_meta_var("__url__", _metadata)
 
 found_packages = find_packages("src")
+found_packages.append("appenlight.migrations")
 found_packages.append("appenlight.migrations.versions")
 setup(
     name="appenlight",
