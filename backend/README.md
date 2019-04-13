@@ -95,7 +95,6 @@ To develop appenlight frontend:
 
     cd frontend
     npm install
-    bower install
     grunt watch
 
 
